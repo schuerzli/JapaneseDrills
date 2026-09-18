@@ -1,0 +1,4485 @@
+{
+ "なる": {
+  "group": "godan",
+  "dictionary": "なる",
+  "reading": "なる",
+  "meaning": "to become",
+  "sentences": [
+   "私は医者になりたいです。",
+   "I want to become a doctor."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "やる": {
+  "group": "godan",
+  "dictionary": "やる",
+  "reading": "やる",
+  "meaning": "to do",
+  "sentences": [
+   "彼は宿題をやりました。",
+   "He did his homework."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "一致する": {
+  "group": "suru",
+  "dictionary": "一[い]致[っち]する",
+  "reading": "いっちする",
+  "meaning": "to agree",
+  "sentences": [
+   "私たちは意見が一致しました。",
+   "We agreed on the opinion."
+  ],
+  "tags": []
+ },
+ "上げる": {
+  "group": "ichidan",
+  "dictionary": "上[あ]げる",
+  "reading": "あげる",
+  "meaning": "to raise",
+  "sentences": [
+   "彼は手を上げました。",
+   "He raised his hand."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "上る": {
+  "group": "godan",
+  "dictionary": "上[のぼ]る",
+  "reading": "のぼる",
+  "meaning": "to climb",
+  "sentences": [
+   "彼は山に上りました。",
+   "He climbed the mountain."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "与える": {
+  "group": "ichidan",
+  "dictionary": "与[あた]える",
+  "reading": "あたえる",
+  "meaning": "to give",
+  "sentences": [
+   "彼はプレゼントを与えました。",
+   "He gave a present."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "乗る": {
+  "group": "godan",
+  "dictionary": "乗[の]る",
+  "reading": "のる",
+  "meaning": "to ride",
+  "sentences": [
+   "彼は自転車に乗りました。",
+   "He rode a bicycle."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "付ける": {
+  "group": "ichidan",
+  "dictionary": "付[つ]ける",
+  "reading": "つける",
+  "meaning": "to attach",
+  "sentences": [
+   "彼はスタンプを手紙に付けました。",
+   "He attached a stamp to the letter."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "休む": {
+  "group": "godan",
+  "dictionary": "休[やす]む",
+  "reading": "やすむ",
+  "meaning": "to rest",
+  "sentences": [
+   "彼は昨日休みました。",
+   "He rested yesterday."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "会う": {
+  "group": "godan",
+  "dictionary": "会[あ]う",
+  "reading": "あう",
+  "meaning": "to meet",
+  "sentences": [
+   "彼は友達に会いました。",
+   "He met his friend."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "伝える": {
+  "group": "ichidan",
+  "dictionary": "伝[つた]える",
+  "reading": "つたえる",
+  "meaning": "to convey",
+  "sentences": [
+   "彼は彼女にメッセージを伝えました。",
+   "He conveyed a message to her."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "伝達する": {
+  "group": "suru",
+  "dictionary": "伝[でん]達[たつ]する",
+  "reading": "でんたつする",
+  "meaning": "to convey",
+  "sentences": [
+   "彼は情報を伝達しました。",
+   "He conveyed the information."
+  ],
+  "tags": []
+ },
+ "伴う": {
+  "group": "godan",
+  "dictionary": "伴[ともな]う",
+  "reading": "ともなう",
+  "meaning": "to accompany",
+  "sentences": [
+   "成功は努力と伴います。",
+   "Success accompanies effort."
+  ],
+  "tags": []
+ },
+ "住む": {
+  "group": "godan",
+  "dictionary": "住[す]む",
+  "reading": "すむ",
+  "meaning": "to live",
+  "sentences": [
+   "彼は東京に住んでいます。",
+   "He lives in Tokyo."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "作る": {
+  "group": "godan",
+  "dictionary": "作[つく]る",
+  "reading": "つくる",
+  "meaning": "to make",
+  "sentences": [
+   "彼はケーキを作りました。",
+   "He made a cake."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "作成する": {
+  "group": "suru",
+  "dictionary": "作[さく]成[せい]する",
+  "reading": "さくせいする",
+  "meaning": "to create",
+  "sentences": [
+   "彼はプレゼンテーションを作成しました。",
+   "He created a presentation."
+  ],
+  "tags": []
+ },
+ "作用する": {
+  "group": "suru",
+  "dictionary": "作[さ]用[よう]する",
+  "reading": "さようする",
+  "meaning": "to act",
+  "sentences": [
+   "薬は体に作用します。",
+   "The medicine acts on the body."
+  ],
+  "tags": []
+ },
+ "使う": {
+  "group": "godan",
+  "dictionary": "使[つか]う",
+  "reading": "つかう",
+  "meaning": "to use",
+  "sentences": [
+   "彼はスマートフォンを使います。",
+   "He uses a smartphone."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "使える": {
+  "group": "ichidan",
+  "dictionary": "使[つか]える",
+  "reading": "つかえる",
+  "meaning": "to be able to use",
+  "sentences": [
+   "このアプリは使えますか？",
+   "Can this app be used?"
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "使用する": {
+  "group": "suru",
+  "dictionary": "使[し]用[よう]する",
+  "reading": "しようする",
+  "meaning": "to use",
+  "sentences": [
+   "彼はコンピュータを使用します。",
+   "He uses a computer."
+  ],
+  "tags": []
+ },
+ "供給する": {
+  "group": "suru",
+  "dictionary": "供[きょう]給[きゅう]する",
+  "reading": "きょうきゅうする",
+  "meaning": "to supply",
+  "sentences": [
+   "会社は製品を供給します。",
+   "The company supplies products."
+  ],
+  "tags": []
+ },
+ "保つ": {
+  "group": "godan",
+  "dictionary": "保[たも]つ",
+  "reading": "たもつ",
+  "meaning": "to maintain",
+  "sentences": [
+   "彼は健康を保ちます。",
+   "He maintains his health."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "保存する": {
+  "group": "suru",
+  "dictionary": "保[ほ]存[ぞん]する",
+  "reading": "ほぞんする",
+  "meaning": "to save",
+  "sentences": [
+   "彼はファイルを保存しました。",
+   "He saved the file."
+  ],
+  "tags": []
+ },
+ "保持する": {
+  "group": "suru",
+  "dictionary": "保[ほ]持[じ]する",
+  "reading": "ほじする",
+  "meaning": "to hold",
+  "sentences": [
+   "彼はポジションを保持しました。",
+   "He held the position."
+  ],
+  "tags": []
+ },
+ "保護する": {
+  "group": "suru",
+  "dictionary": "保[ほ]護[ご]する",
+  "reading": "ほごする",
+  "meaning": "to protect",
+  "sentences": [
+   "彼は環境を保護します。",
+   "He protects the environment."
+  ],
+  "tags": []
+ },
+ "信じる": {
+  "group": "ichidan",
+  "dictionary": "信[しん]じる",
+  "reading": "しんじる",
+  "meaning": "to believe",
+  "sentences": [
+   "彼は私を信じます。",
+   "He believes me."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "修正する": {
+  "group": "suru",
+  "dictionary": "修[しゅう]正[せい]する",
+  "reading": "しゅうせいする",
+  "meaning": "to correct",
+  "sentences": [
+   "彼はエラーを修正しました。",
+   "He corrected the error."
+  ],
+  "tags": []
+ },
+ "停止する": {
+  "group": "suru",
+  "dictionary": "停[てい]止[し]する",
+  "reading": "ていしする",
+  "meaning": "to stop",
+  "sentences": [
+   "彼は車を停止しました。",
+   "He stopped the car."
+  ],
+  "tags": []
+ },
+ "備える": {
+  "group": "ichidan",
+  "dictionary": "備[そな]える",
+  "reading": "そなえる",
+  "meaning": "to prepare",
+  "sentences": [
+   "彼は旅行のためにお金を備えました。",
+   "He prepared money for the trip."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "働く": {
+  "group": "godan",
+  "dictionary": "働[はたら]く",
+  "reading": "はたらく",
+  "meaning": "to work",
+  "sentences": [
+   "彼は会社で働きます。",
+   "He works at the company."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "入る": {
+  "group": "godan",
+  "dictionary": "入[はい]る",
+  "reading": "はいる",
+  "meaning": "to enter",
+  "sentences": [
+   "彼は部屋に入りました。",
+   "He entered the room."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "入れる": {
+  "group": "ichidan",
+  "dictionary": "入[い]れる",
+  "reading": "いれる",
+  "meaning": "to put in",
+  "sentences": [
+   "彼はコーヒーに砂糖を入れました。",
+   "He put sugar in the coffee."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "入力する": {
+  "group": "suru",
+  "dictionary": "入[にゅう]力[りょく]する",
+  "reading": "にゅうりょくする",
+  "meaning": "to input",
+  "sentences": [
+   "彼はデータを入力しました。",
+   "He input the data."
+  ],
+  "tags": []
+ },
+ "共有する": {
+  "group": "suru",
+  "dictionary": "共[きょう]有[ゆう]する",
+  "reading": "きょうゆうする",
+  "meaning": "to share",
+  "sentences": [
+   "彼はファイルを共有しました。",
+   "He shared the file."
+  ],
+  "tags": []
+ },
+ "再生する": {
+  "group": "suru",
+  "dictionary": "再[さい]生[せい]する",
+  "reading": "さいせいする",
+  "meaning": "to play",
+  "sentences": [
+   "彼は音楽を再生しました。",
+   "He played the music."
+  ],
+  "tags": []
+ },
+ "冷却する": {
+  "group": "suru",
+  "dictionary": "冷[れい]却[きゃく]する",
+  "reading": "れいきゃくする",
+  "meaning": "to cool",
+  "sentences": [
+   "彼は飲み物を冷却しました。",
+   "He cooled the drink."
+  ],
+  "tags": []
+ },
+ "処理する": {
+  "group": "suru",
+  "dictionary": "処[しょ]理[り]する",
+  "reading": "しょりする",
+  "meaning": "to process",
+  "sentences": [
+   "彼はデータを処理しました。",
+   "He processed the data."
+  ],
+  "tags": []
+ },
+ "出す": {
+  "group": "godan",
+  "dictionary": "出[だ]す",
+  "reading": "だす",
+  "meaning": "to take out",
+  "sentences": [
+   "彼はゴミを出しました。",
+   "He took out the trash."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "出る": {
+  "group": "ichidan",
+  "dictionary": "出[で]る",
+  "reading": "でる",
+  "meaning": "to leave",
+  "sentences": [
+   "彼は家を出ました。",
+   "He left the house."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "出力する": {
+  "group": "suru",
+  "dictionary": "出[しゅつ]力[りょく]する",
+  "reading": "しゅつりょくする",
+  "meaning": "to output",
+  "sentences": [
+   "彼はデータを出力しました。",
+   "He output the data."
+  ],
+  "tags": []
+ },
+ "出来る": {
+  "group": "ichidan",
+  "dictionary": "出[で]来[き]る",
+  "reading": "できる",
+  "meaning": "to be able to do",
+  "sentences": [
+   "彼は日本語が話せます。",
+   "He can speak Japanese."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "分かる": {
+  "group": "godan",
+  "dictionary": "分[わ]かる",
+  "reading": "わかる",
+  "meaning": "to understand",
+  "sentences": [
+   "彼の言葉は分かります。",
+   "I understand his words."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "分割する": {
+  "group": "suru",
+  "dictionary": "分[ぶん]割[かつ]する",
+  "reading": "ぶんかつする",
+  "meaning": "to divide",
+  "sentences": [
+   "彼はリストを分割しました。",
+   "He divided the list."
+  ],
+  "tags": []
+ },
+ "分離する": {
+  "group": "suru",
+  "dictionary": "分[ぶん]離[り]する",
+  "reading": "ぶんりする",
+  "meaning": "to separate",
+  "sentences": [
+   "彼は液体を分離しました。",
+   "He separated the liquid."
+  ],
+  "tags": []
+ },
+ "切り替える": {
+  "group": "ichidan",
+  "dictionary": "切[き]り替[か]える",
+  "reading": "きりかえる",
+  "meaning": "to switch",
+  "sentences": [
+   "彼はチャンネルを切り替えました。",
+   "He switched the channel."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "切断する": {
+  "group": "suru",
+  "dictionary": "切[せつ]断[だん]する",
+  "reading": "せつだんする",
+  "meaning": "to cut",
+  "sentences": [
+   "彼は電源を切断しました。",
+   "He cut the power."
+  ],
+  "tags": []
+ },
+ "判定する": {
+  "group": "suru",
+  "dictionary": "判[はん]定[てい]する",
+  "reading": "はんていする",
+  "meaning": "to judge",
+  "sentences": [
+   "彼は試合の結果を判定しました。",
+   "He judged the result of the game."
+  ],
+  "tags": []
+ },
+ "判断する": {
+  "group": "suru",
+  "dictionary": "判[はん]断[だん]する",
+  "reading": "はんだんする",
+  "meaning": "to decide",
+  "sentences": [
+   "彼は問題について判断しました。",
+   "He decided on the issue."
+  ],
+  "tags": []
+ },
+ "利用する": {
+  "group": "suru",
+  "dictionary": "利[り]用[よう]する",
+  "reading": "りようする",
+  "meaning": "to use",
+  "sentences": [
+   "彼は機会を利用しました。",
+   "He used the opportunity."
+  ],
+  "tags": []
+ },
+ "制御する": {
+  "group": "suru",
+  "dictionary": "制[せい]御[ぎょ]する",
+  "reading": "せいぎょする",
+  "meaning": "to control",
+  "sentences": [
+   "彼は機械を制御しました。",
+   "He controlled the machine."
+  ],
+  "tags": []
+ },
+ "制限する": {
+  "group": "suru",
+  "dictionary": "制[せい]限[げん]する",
+  "reading": "せいげんする",
+  "meaning": "to limit",
+  "sentences": [
+   "彼は時間を制限しました。",
+   "He limited the time."
+  ],
+  "tags": []
+ },
+ "削除する": {
+  "group": "suru",
+  "dictionary": "削[さく]除[じょ]する",
+  "reading": "さくじょする",
+  "meaning": "to delete",
+  "sentences": [
+   "彼はファイルを削除しました。",
+   "He deleted the file."
+  ],
+  "tags": []
+ },
+ "割り当てる": {
+  "group": "ichidan",
+  "dictionary": "割[わ]り当[あ]てる",
+  "reading": "わりあてる",
+  "meaning": "to assign",
+  "sentences": [
+   "彼は仕事を割り当てました。",
+   "He assigned the work."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "加熱する": {
+  "group": "suru",
+  "dictionary": "加[か]熱[ねつ]する",
+  "reading": "かねつする",
+  "meaning": "to heat",
+  "sentences": [
+   "彼は食べ物を加熱しました。",
+   "He heated the food."
+  ],
+  "tags": []
+ },
+ "助ける": {
+  "group": "ichidan",
+  "dictionary": "助[たす]ける",
+  "reading": "たすける",
+  "meaning": "to help",
+  "sentences": [
+   "彼は私を助けました。",
+   "He helped me."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "動く": {
+  "group": "godan",
+  "dictionary": "動[うご]く",
+  "reading": "うごく",
+  "meaning": "to move",
+  "sentences": [
+   "彼は車を動かしました。",
+   "He moved the car."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "動作する": {
+  "group": "suru",
+  "dictionary": "動[どう]作[さ]する",
+  "reading": "どうさする",
+  "meaning": "to operate",
+  "sentences": [
+   "彼は機械を動作しました。",
+   "He operated the machine."
+  ],
+  "tags": []
+ },
+ "化する": {
+  "group": "suru",
+  "dictionary": "化[か]する",
+  "reading": "かする",
+  "meaning": "to change",
+  "sentences": [
+   "彼は姿を変化しました。",
+   "He changed his appearance."
+  ],
+  "tags": []
+ },
+ "印刷する": {
+  "group": "suru",
+  "dictionary": "印[いん]刷[さつ]する",
+  "reading": "いんさつする",
+  "meaning": "to print",
+  "sentences": [
+   "彼は文書を印刷しました。",
+   "He printed the document."
+  ],
+  "tags": []
+ },
+ "去る": {
+  "group": "godan",
+  "dictionary": "去[さ]る",
+  "reading": "さる",
+  "meaning": "to leave",
+  "sentences": [
+   "彼は家を去りました。",
+   "He left the house."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "収納する": {
+  "group": "suru",
+  "dictionary": "収[しゅう]納[のう]する",
+  "reading": "しゅうのうする",
+  "meaning": "to store",
+  "sentences": [
+   "彼は書類を収納しました。",
+   "He stored the documents."
+  ],
+  "tags": []
+ },
+ "収集する": {
+  "group": "suru",
+  "dictionary": "収[しゅう]集[しゅう]する",
+  "reading": "しゅうしゅうする",
+  "meaning": "to collect",
+  "sentences": [
+   "彼は情報を収集しました。",
+   "He collected the information."
+  ],
+  "tags": []
+ },
+ "取り付ける": {
+  "group": "ichidan",
+  "dictionary": "取[と]り付[つ]ける",
+  "reading": "とりつける",
+  "meaning": "to install",
+  "sentences": [
+   "彼はカメラを取り付けました。",
+   "He installed the camera."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "取り出す": {
+  "group": "godan",
+  "dictionary": "取[と]り出[だ]す",
+  "reading": "とりだす",
+  "meaning": "to take out",
+  "sentences": [
+   "彼はお金を取り出しました。",
+   "He took out the money."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "取る": {
+  "group": "godan",
+  "dictionary": "取[と]る",
+  "reading": "とる",
+  "meaning": "to take",
+  "sentences": [
+   "彼は本を取りました。",
+   "He took the book."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "取得する": {
+  "group": "suru",
+  "dictionary": "取[しゅ]得[とく]する",
+  "reading": "しゅとくする",
+  "meaning": "to acquire",
+  "sentences": [
+   "彼は資格を取得しました。",
+   "He acquired the qualification."
+  ],
+  "tags": []
+ },
+ "受ける": {
+  "group": "ichidan",
+  "dictionary": "受[う]ける",
+  "reading": "うける",
+  "meaning": "to receive",
+  "sentences": [
+   "彼は賞を受けました。",
+   "He received the award."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "受け入れる": {
+  "group": "ichidan",
+  "dictionary": "受[う]け入[い]れる",
+  "reading": "うけいれる",
+  "meaning": "to accept",
+  "sentences": [
+   "彼は提案を受け入れました。",
+   "He accepted the proposal."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "受け取る": {
+  "group": "godan",
+  "dictionary": "受[う]け取[と]る",
+  "reading": "うけとる",
+  "meaning": "to receive",
+  "sentences": [
+   "彼は手紙を受け取りました。",
+   "He received the letter."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "受信する": {
+  "group": "suru",
+  "dictionary": "受[じゅ]信[しん]する",
+  "reading": "じゅしんする",
+  "meaning": "to receive",
+  "sentences": [
+   "彼はメッセージを受信しました。",
+   "He received the message."
+  ],
+  "tags": []
+ },
+ "合う": {
+  "group": "godan",
+  "dictionary": "合[あ]う",
+  "reading": "あう",
+  "meaning": "to fit",
+  "sentences": [
+   "この服は私に合います。",
+   "This dress fits me."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "合わせる": {
+  "group": "ichidan",
+  "dictionary": "合[あ]わせる",
+  "reading": "あわせる",
+  "meaning": "to match",
+  "sentences": [
+   "彼は色を合わせました。",
+   "He matched the colors."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "向かう": {
+  "group": "godan",
+  "dictionary": "向[む]かう",
+  "reading": "むかう",
+  "meaning": "to head",
+  "sentences": [
+   "彼は家に向かいました。",
+   "He headed home."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "向上する": {
+  "group": "suru",
+  "dictionary": "向[こう]上[じょう]する",
+  "reading": "こうじょうする",
+  "meaning": "to improve",
+  "sentences": [
+   "彼は成績を向上しました。",
+   "He improved his grades."
+  ],
+  "tags": []
+ },
+ "含む": {
+  "group": "godan",
+  "dictionary": "含[ふく]む",
+  "reading": "ふくむ",
+  "meaning": "to include",
+  "sentences": [
+   "このリストは名前を含んでいます。",
+   "This list includes names."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "含める": {
+  "group": "ichidan",
+  "dictionary": "含[ふく]める",
+  "reading": "ふくめる",
+  "meaning": "to include",
+  "sentences": [
+   "このリストに名前を含めました。",
+   "I included names in this list."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "含有する": {
+  "group": "suru",
+  "dictionary": "含[がん]有[ゆう]する",
+  "reading": "がんゆうする",
+  "meaning": "to contain",
+  "sentences": [
+   "この製品は有害物質を含有します。",
+   "This product contains harmful substances."
+  ],
+  "tags": []
+ },
+ "呼ぶ": {
+  "group": "godan",
+  "dictionary": "呼[よ]ぶ",
+  "reading": "よぶ",
+  "meaning": "to call",
+  "sentences": [
+   "彼は私を呼びました。",
+   "He called me."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "喜ぶ": {
+  "group": "godan",
+  "dictionary": "喜[よろこ]ぶ",
+  "reading": "よろこぶ",
+  "meaning": "to be happy",
+  "sentences": [
+   "彼はプレゼントで喜びました。",
+   "He was happy with the present."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "回収する": {
+  "group": "suru",
+  "dictionary": "回[かい]収[しゅう]する",
+  "reading": "かいしゅうする",
+  "meaning": "to collect",
+  "sentences": [
+   "彼はゴミを回収しました。",
+   "He collected the garbage."
+  ],
+  "tags": []
+ },
+ "回転する": {
+  "group": "suru",
+  "dictionary": "回[かい]転[てん]する",
+  "reading": "かいてんする",
+  "meaning": "to rotate",
+  "sentences": [
+   "この扇風機は回転します。",
+   "This fan rotates."
+  ],
+  "tags": []
+ },
+ "囲む": {
+  "group": "godan",
+  "dictionary": "囲[かこ]む",
+  "reading": "かこむ",
+  "meaning": "to surround",
+  "sentences": [
+   "彼は家を囲みました。",
+   "He surrounded the house."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "固定する": {
+  "group": "suru",
+  "dictionary": "固[こ]定[てい]する",
+  "reading": "こていする",
+  "meaning": "to fix",
+  "sentences": [
+   "彼はカメラを固定しました。",
+   "He fixed the camera."
+  ],
+  "tags": []
+ },
+ "変える": {
+  "group": "ichidan",
+  "dictionary": "変[か]える",
+  "reading": "かえる",
+  "meaning": "to change",
+  "sentences": [
+   "彼は計画を変えました。",
+   "He changed the plan."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "変わる": {
+  "group": "godan",
+  "dictionary": "変[か]わる",
+  "reading": "かわる",
+  "meaning": "to change",
+  "sentences": [
+   "彼の考え方は変わりました。",
+   "His way of thinking changed."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "変化する": {
+  "group": "suru",
+  "dictionary": "変[へん]化[か]する",
+  "reading": "へんかする",
+  "meaning": "to change",
+  "sentences": [
+   "彼の態度は変化しました。",
+   "His attitude changed."
+  ],
+  "tags": []
+ },
+ "変換する": {
+  "group": "suru",
+  "dictionary": "変[へん]換[かん]する",
+  "reading": "へんかんする",
+  "meaning": "to convert",
+  "sentences": [
+   "彼はデータを変換しました。",
+   "He converted the data."
+  ],
+  "tags": []
+ },
+ "変更する": {
+  "group": "suru",
+  "dictionary": "変[へん]更[こう]する",
+  "reading": "へんこうする",
+  "meaning": "to change",
+  "sentences": [
+   "彼は予定を変更しました。",
+   "He changed the schedule."
+  ],
+  "tags": []
+ },
+ "失敗する": {
+  "group": "suru",
+  "dictionary": "失[しっ]敗[ぱい]する",
+  "reading": "しっぱいする",
+  "meaning": "to fail",
+  "sentences": [
+   "彼は試験に失敗しました。",
+   "He failed the exam."
+  ],
+  "tags": []
+ },
+ "始まる": {
+  "group": "godan",
+  "dictionary": "始[はじ]まる",
+  "reading": "はじまる",
+  "meaning": "to begin",
+  "sentences": [
+   "授業は9時に始まります。",
+   "The class starts at 9."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "始める": {
+  "group": "ichidan",
+  "dictionary": "始[はじ]める",
+  "reading": "はじめる",
+  "meaning": "to start",
+  "sentences": [
+   "彼は新しいプロジェクトを始めました。",
+   "He started a new project."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "存在する": {
+  "group": "suru",
+  "dictionary": "存[そん]在[ざい]する",
+  "reading": "そんざいする",
+  "meaning": "to exist",
+  "sentences": [
+   "彼は存在しません。",
+   "He does not exist."
+  ],
+  "tags": []
+ },
+ "学ぶ": {
+  "group": "godan",
+  "dictionary": "学[まな]ぶ",
+  "reading": "まなぶ",
+  "meaning": "to learn",
+  "sentences": [
+   "彼は新しい言葉を学びました。",
+   "He learned new words."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "守る": {
+  "group": "godan",
+  "dictionary": "守[まも]る",
+  "reading": "まもる",
+  "meaning": "to protect",
+  "sentences": [
+   "彼は家族を守ります。",
+   "He protects his family."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "完了する": {
+  "group": "suru",
+  "dictionary": "完[かん]了[りょう]する",
+  "reading": "かんりょうする",
+  "meaning": "to complete",
+  "sentences": [
+   "彼は仕事を完了しました。",
+   "He completed the work."
+  ],
+  "tags": []
+ },
+ "定める": {
+  "group": "ichidan",
+  "dictionary": "定[さだ]める",
+  "reading": "さだめる",
+  "meaning": "to decide",
+  "sentences": [
+   "彼は計画を定めました。",
+   "He decided on the plan."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "実施する": {
+  "group": "suru",
+  "dictionary": "実[じっ]施[し]する",
+  "reading": "じっしする",
+  "meaning": "to implement",
+  "sentences": [
+   "彼は計画を実施しました。",
+   "He implemented the plan."
+  ],
+  "tags": []
+ },
+ "実行する": {
+  "group": "suru",
+  "dictionary": "実[じっ]行[こう]する",
+  "reading": "じっこうする",
+  "meaning": "to execute",
+  "sentences": [
+   "彼は計画を実行しました。",
+   "He executed the plan."
+  ],
+  "tags": []
+ },
+ "実装する": {
+  "group": "suru",
+  "dictionary": "実[じっ]装[そう]する",
+  "reading": "じっそうする",
+  "meaning": "to implement",
+  "sentences": [
+   "彼は新しい機能を実装しました。",
+   "He implemented a new feature."
+  ],
+  "tags": []
+ },
+ "対向する": {
+  "group": "suru",
+  "dictionary": "対[たい]向[こう]する",
+  "reading": "たいこうする",
+  "meaning": "to face",
+  "sentences": [
+   "彼は問題に対向しました。",
+   "He faced the problem."
+  ],
+  "tags": []
+ },
+ "対応する": {
+  "group": "suru",
+  "dictionary": "対[たい]応[おう]する",
+  "reading": "たいおうする",
+  "meaning": "to respond",
+  "sentences": [
+   "彼は問題に対応しました。",
+   "He responded to the problem."
+  ],
+  "tags": []
+ },
+ "導く": {
+  "group": "godan",
+  "dictionary": "導[みちび]く",
+  "reading": "みちびく",
+  "meaning": "to lead",
+  "sentences": [
+   "彼は私たちを導きました。",
+   "He led us."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "導入する": {
+  "group": "suru",
+  "dictionary": "導[どう]入[にゅう]する",
+  "reading": "どうにゅうする",
+  "meaning": "to introduce",
+  "sentences": [
+   "彼は新しい技術を導入しました。",
+   "He introduced new technology."
+  ],
+  "tags": []
+ },
+ "居る": {
+  "group": "ichidan",
+  "dictionary": "居[い]る",
+  "reading": "いる",
+  "meaning": "to be",
+  "sentences": [
+   "彼は家に居ます。",
+   "He is at home."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "展開する": {
+  "group": "suru",
+  "dictionary": "展[てん]開[かい]する",
+  "reading": "てんかいする",
+  "meaning": "to develop",
+  "sentences": [
+   "彼は新しいプロジェクトを展開しました。",
+   "He developed a new project."
+  ],
+  "tags": []
+ },
+ "属する": {
+  "group": "suru",
+  "dictionary": "属[ぞく]する",
+  "reading": "ぞくする",
+  "meaning": "to belong",
+  "sentences": [
+   "彼はそのグループに属します。",
+   "He belongs to that group."
+  ],
+  "tags": []
+ },
+ "帰る": {
+  "group": "godan",
+  "dictionary": "帰[かえ]る",
+  "reading": "かえる",
+  "meaning": "to return",
+  "sentences": [
+   "彼は家に帰ります。",
+   "He returns home."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "座る": {
+  "group": "godan",
+  "dictionary": "座[すわ]る",
+  "reading": "すわる",
+  "meaning": "to sit",
+  "sentences": [
+   "彼は椅子に座ります。",
+   "He sits on the chair."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "延びる": {
+  "group": "ichidan",
+  "dictionary": "延[の]びる",
+  "reading": "のびる",
+  "meaning": "to extend",
+  "sentences": [
+   "道路は延びています。",
+   "The road extends."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "形成する": {
+  "group": "suru",
+  "dictionary": "形[けい]成[せい]する",
+  "reading": "けいせいする",
+  "meaning": "to form",
+  "sentences": [
+   "彼は新しいチームを形成しました。",
+   "He formed a new team."
+  ],
+  "tags": []
+ },
+ "役立つ": {
+  "group": "godan",
+  "dictionary": "役[やく]立[だ]つ",
+  "reading": "やくだつ",
+  "meaning": "to be useful",
+  "sentences": [
+   "この本は役立ちます。",
+   "This book is useful."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "待つ": {
+  "group": "godan",
+  "dictionary": "待[ま]つ",
+  "reading": "まつ",
+  "meaning": "to wait",
+  "sentences": [
+   "彼は友達を待っています。",
+   "He is waiting for his friend."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "得る": {
+  "group": "ichidan",
+  "dictionary": "得[え]る",
+  "reading": "える",
+  "meaning": "to gain",
+  "sentences": [
+   "彼は多くの経験を得ました。",
+   "He gained a lot of experience."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "思う": {
+  "group": "godan",
+  "dictionary": "思[おも]う",
+  "reading": "おもう",
+  "meaning": "to think",
+  "sentences": [
+   "彼は私を思っています。",
+   "He is thinking of me."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "急ぐ": {
+  "group": "godan",
+  "dictionary": "急[いそ]ぐ",
+  "reading": "いそぐ",
+  "meaning": "to hurry",
+  "sentences": [
+   "彼は急いでいます。",
+   "He is in a hurry."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "感じる": {
+  "group": "ichidan",
+  "dictionary": "感[かん]じる",
+  "reading": "かんじる",
+  "meaning": "to feel",
+  "sentences": [
+   "彼は幸せを感じます。",
+   "He feels happy."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "成功する": {
+  "group": "suru",
+  "dictionary": "成[せい]功[こう]する",
+  "reading": "せいこうする",
+  "meaning": "to succeed",
+  "sentences": [
+   "彼は成功しました。",
+   "He succeeded."
+  ],
+  "tags": []
+ },
+ "戦う": {
+  "group": "godan",
+  "dictionary": "戦[たたか]う",
+  "reading": "たたかう",
+  "meaning": "to fight",
+  "sentences": [
+   "彼は敵と戦います。",
+   "He fights with the enemy."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "戻す": {
+  "group": "godan",
+  "dictionary": "戻[もど]す",
+  "reading": "もどす",
+  "meaning": "to return",
+  "sentences": [
+   "彼は本を戻しました。",
+   "He returned the book."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "戻る": {
+  "group": "godan",
+  "dictionary": "戻[もど]る",
+  "reading": "もどる",
+  "meaning": "to return",
+  "sentences": [
+   "彼は家に戻ります。",
+   "He returns home."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "打つ": {
+  "group": "godan",
+  "dictionary": "打[う]つ",
+  "reading": "うつ",
+  "meaning": "to hit",
+  "sentences": [
+   "彼はボールを打ちます。",
+   "He hits the ball."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "扱う": {
+  "group": "godan",
+  "dictionary": "扱[あつか]う",
+  "reading": "あつかう",
+  "meaning": "to handle",
+  "sentences": [
+   "彼は問題を扱います。",
+   "He handles the problem."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "抑える": {
+  "group": "ichidan",
+  "dictionary": "抑[おさ]える",
+  "reading": "おさえる",
+  "meaning": "to suppress",
+  "sentences": [
+   "彼は感情を抑えます。",
+   "He suppresses his emotions."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "抽出する": {
+  "group": "suru",
+  "dictionary": "抽[ちゅう]出[しゅつ]する",
+  "reading": "ちゅうしゅつする",
+  "meaning": "to extract",
+  "sentences": [
+   "彼はデータを抽出しました。",
+   "He extracted the data."
+  ],
+  "tags": []
+ },
+ "持つ": {
+  "group": "godan",
+  "dictionary": "持[も]つ",
+  "reading": "もつ",
+  "meaning": "to hold",
+  "sentences": [
+   "彼は鍵を持っています。",
+   "He has the key."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "指定する": {
+  "group": "suru",
+  "dictionary": "指[し]定[てい]する",
+  "reading": "していする",
+  "meaning": "to specify",
+  "sentences": [
+   "彼は日付を指定しました。",
+   "He specified the date."
+  ],
+  "tags": []
+ },
+ "指示する": {
+  "group": "suru",
+  "dictionary": "指[し]示[じ]する",
+  "reading": "しじする",
+  "meaning": "to instruct",
+  "sentences": [
+   "彼は私たちに指示しました。",
+   "He instructed us."
+  ],
+  "tags": []
+ },
+ "挿入する": {
+  "group": "suru",
+  "dictionary": "挿[そう]入[にゅう]する",
+  "reading": "そうにゅうする",
+  "meaning": "to insert",
+  "sentences": [
+   "彼はディスクを挿入しました。",
+   "He inserted the disk."
+  ],
+  "tags": []
+ },
+ "接する": {
+  "group": "suru",
+  "dictionary": "接[せっ]する",
+  "reading": "せっする",
+  "meaning": "to touch",
+  "sentences": [
+   "彼は手を接します。",
+   "He touches the hand."
+  ],
+  "tags": []
+ },
+ "接続する": {
+  "group": "suru",
+  "dictionary": "接[せつ]続[ぞく]する",
+  "reading": "せつぞくする",
+  "meaning": "to connect",
+  "sentences": [
+   "彼はコンピュータを接続しました。",
+   "He connected the computer."
+  ],
+  "tags": []
+ },
+ "接触する": {
+  "group": "suru",
+  "dictionary": "接[せっ]触[しょく]する",
+  "reading": "せっしょくする",
+  "meaning": "to contact",
+  "sentences": [
+   "彼は友達に接触しました。",
+   "He contacted his friend."
+  ],
+  "tags": []
+ },
+ "掲げる": {
+  "group": "ichidan",
+  "dictionary": "掲[かか]げる",
+  "reading": "かかげる",
+  "meaning": "to raise",
+  "sentences": [
+   "彼は旗を掲げます。",
+   "He raises the flag."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "提供する": {
+  "group": "suru",
+  "dictionary": "提[てい]供[きょう]する",
+  "reading": "ていきょうする",
+  "meaning": "to provide",
+  "sentences": [
+   "彼は情報を提供しました。",
+   "He provided the information."
+  ],
+  "tags": []
+ },
+ "操作する": {
+  "group": "suru",
+  "dictionary": "操[そう]作[さ]する",
+  "reading": "そうさする",
+  "meaning": "to operate",
+  "sentences": [
+   "彼は機械を操作しました。",
+   "He operated the machine."
+  ],
+  "tags": []
+ },
+ "支払う": {
+  "group": "godan",
+  "dictionary": "支[し]払[はら]う",
+  "reading": "しはらう",
+  "meaning": "to pay",
+  "sentences": [
+   "彼は料金を支払います。",
+   "He pays the fee."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "支持する": {
+  "group": "suru",
+  "dictionary": "支[し]持[じ]する",
+  "reading": "しじする",
+  "meaning": "to support",
+  "sentences": [
+   "彼は私を支持しました。",
+   "He supported me."
+  ],
+  "tags": []
+ },
+ "教える": {
+  "group": "ichidan",
+  "dictionary": "教[おし]える",
+  "reading": "おしえる",
+  "meaning": "to teach",
+  "sentences": [
+   "彼は私に日本語を教えます。",
+   "He teaches me Japanese."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "更新する": {
+  "group": "suru",
+  "dictionary": "更[こう]新[しん]する",
+  "reading": "こうしんする",
+  "meaning": "to update",
+  "sentences": [
+   "彼は情報を更新しました。",
+   "He updated the information."
+  ],
+  "tags": []
+ },
+ "書き込む": {
+  "group": "godan",
+  "dictionary": "書[か]き込[こ]む",
+  "reading": "かきこむ",
+  "meaning": "to write",
+  "sentences": [
+   "彼はメモに書き込みます。",
+   "He writes in the memo."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "書く": {
+  "group": "godan",
+  "dictionary": "書[か]く",
+  "reading": "かく",
+  "meaning": "to write",
+  "sentences": [
+   "彼は手紙を書きます。",
+   "He writes a letter."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "有する": {
+  "group": "suru",
+  "dictionary": "有[ゆう]する",
+  "reading": "ゆうする",
+  "meaning": "to have",
+  "sentences": [
+   "彼は多くの経験を有します。",
+   "He has a lot of experience."
+  ],
+  "tags": []
+ },
+ "望む": {
+  "group": "godan",
+  "dictionary": "望[のぞ]む",
+  "reading": "のぞむ",
+  "meaning": "to wish",
+  "sentences": [
+   "彼は成功を望みます。",
+   "He wishes for success."
+  ],
+  "tags": []
+ },
+ "来る": {
+  "group": "kuru",
+  "dictionary": "来[く]る",
+  "reading": "くる",
+  "meaning": "to come",
+  "sentences": [
+   "彼は学校に来ます。",
+   "He comes to school."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "格納する": {
+  "group": "suru",
+  "dictionary": "格[かく]納[のう]する",
+  "reading": "かくのうする",
+  "meaning": "to store",
+  "sentences": [
+   "彼はデータを格納しました。",
+   "He stored the data."
+  ],
+  "tags": []
+ },
+ "検出する": {
+  "group": "suru",
+  "dictionary": "検[けん]出[しゅつ]する",
+  "reading": "けんしゅつする",
+  "meaning": "to detect",
+  "sentences": [
+   "彼は異常を検出しました。",
+   "He detected the anomaly."
+  ],
+  "tags": []
+ },
+ "検索する": {
+  "group": "suru",
+  "dictionary": "検[けん]索[さく]する",
+  "reading": "けんさくする",
+  "meaning": "to search",
+  "sentences": [
+   "彼は情報を検索しました。",
+   "He searched for information."
+  ],
+  "tags": []
+ },
+ "構成する": {
+  "group": "suru",
+  "dictionary": "構[こう]成[せい]する",
+  "reading": "こうせいする",
+  "meaning": "to compose",
+  "sentences": [
+   "彼はチームを構成しました。",
+   "He composed the team."
+  ],
+  "tags": []
+ },
+ "構築する": {
+  "group": "suru",
+  "dictionary": "構[こう]築[ちく]する",
+  "reading": "こうちくする",
+  "meaning": "to build",
+  "sentences": [
+   "彼は家を構築しました。",
+   "He built the house."
+  ],
+  "tags": []
+ },
+ "歌う": {
+  "group": "godan",
+  "dictionary": "歌[うた]う",
+  "reading": "うたう",
+  "meaning": "to sing",
+  "sentences": [
+   "彼は歌を歌います。",
+   "He sings a song."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "止める": {
+  "group": "ichidan",
+  "dictionary": "止[や]める",
+  "reading": "やめる",
+  "meaning": "to stop",
+  "sentences": [
+   "彼は車を止めます。",
+   "He stops the car."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "歩く": {
+  "group": "godan",
+  "dictionary": "歩[ある]く",
+  "reading": "あるく",
+  "meaning": "to walk",
+  "sentences": [
+   "彼は公園を歩きます。",
+   "He walks in the park."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "死ぬ": {
+  "group": "godan",
+  "dictionary": "死[し]ぬ",
+  "reading": "しぬ",
+  "meaning": "to die",
+  "sentences": [
+   "彼は病気で死にました。",
+   "He died of illness."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "残る": {
+  "group": "godan",
+  "dictionary": "残[のこ]る",
+  "reading": "のこる",
+  "meaning": "to remain",
+  "sentences": [
+   "彼は家に残ります。",
+   "He remains at home."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "殺す": {
+  "group": "godan",
+  "dictionary": "殺[ころ]す",
+  "reading": "ころす",
+  "meaning": "to kill",
+  "sentences": [
+   "彼は犬を殺しました。",
+   "He killed the dog."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "比較する": {
+  "group": "suru",
+  "dictionary": "比[ひ]較[かく]する",
+  "reading": "ひかくする",
+  "meaning": "to compare",
+  "sentences": [
+   "彼は価格を比較しました。",
+   "He compared the prices."
+  ],
+  "tags": []
+ },
+ "求める": {
+  "group": "ichidan",
+  "dictionary": "求[もと]める",
+  "reading": "もとめる",
+  "meaning": "to seek",
+  "sentences": [
+   "彼は真実を求めます。",
+   "He seeks the truth."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "決める": {
+  "group": "ichidan",
+  "dictionary": "決[き]める",
+  "reading": "きめる",
+  "meaning": "to decide",
+  "sentences": [
+   "彼は計画を決めます。",
+   "He decides on the plan."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "決定する": {
+  "group": "suru",
+  "dictionary": "決[けっ]定[てい]する",
+  "reading": "けっていする",
+  "meaning": "to decide",
+  "sentences": [
+   "彼は結果を決定しました。",
+   "He decided on the outcome."
+  ],
+  "tags": []
+ },
+ "注ぐ": {
+  "group": "godan",
+  "dictionary": "注[そそ]ぐ",
+  "reading": "そそぐ",
+  "meaning": "to pour",
+  "sentences": [
+   "彼はコーヒーを注ぎます。",
+   "He pours the coffee."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "泳ぐ": {
+  "group": "godan",
+  "dictionary": "泳[およ]ぐ",
+  "reading": "およぐ",
+  "meaning": "to swim",
+  "sentences": [
+   "彼はプールで泳ぎます。",
+   "He swims in the pool."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "流れる": {
+  "group": "ichidan",
+  "dictionary": "流[なが]れる",
+  "reading": "ながれる",
+  "meaning": "to flow",
+  "sentences": [
+   "川は水が流れます。",
+   "The river flows with water."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "消す": {
+  "group": "godan",
+  "dictionary": "消[け]す",
+  "reading": "けす",
+  "meaning": "to erase",
+  "sentences": [
+   "彼はボードを消します。",
+   "He erases the board."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "渡す": {
+  "group": "godan",
+  "dictionary": "渡[わた]す",
+  "reading": "わたす",
+  "meaning": "to hand over",
+  "sentences": [
+   "彼は手紙を渡します。",
+   "He hands over the letter."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "照射する": {
+  "group": "suru",
+  "dictionary": "照[しょう]射[しゃ]する",
+  "reading": "しょうしゃする",
+  "meaning": "to irradiate",
+  "sentences": [
+   "彼は光を照射しました。",
+   "He irradiated the light."
+  ],
+  "tags": []
+ },
+ "現れる": {
+  "group": "ichidan",
+  "dictionary": "現[あらわ]れる",
+  "reading": "あらわれる",
+  "meaning": "to appear",
+  "sentences": [
+   "彼は突然に現れました。",
+   "He appeared suddenly."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "理解する": {
+  "group": "suru",
+  "dictionary": "理[り]解[かい]する",
+  "reading": "りかいする",
+  "meaning": "to understand",
+  "sentences": [
+   "彼は問題を理解しました。",
+   "He understood the problem."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "生きる": {
+  "group": "ichidan",
+  "dictionary": "生[い]きる",
+  "reading": "いきる",
+  "meaning": "to live",
+  "sentences": [
+   "彼は健康に生きます。",
+   "He lives healthily."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "生じる": {
+  "group": "ichidan",
+  "dictionary": "生[しょう]じる",
+  "reading": "しょうじる",
+  "meaning": "to arise",
+  "sentences": [
+   "問題が生じました。",
+   "A problem arose."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "生成する": {
+  "group": "suru",
+  "dictionary": "生[せい]成[せい]する",
+  "reading": "せいせいする",
+  "meaning": "to generate",
+  "sentences": [
+   "彼はエネルギーを生成しました。",
+   "He generated energy."
+  ],
+  "tags": []
+ },
+ "用いる": {
+  "group": "ichidan",
+  "dictionary": "用[もち]いる",
+  "reading": "もちいる",
+  "meaning": "to use",
+  "sentences": [
+   "彼は新技術を用います。",
+   "He uses new technology."
+  ],
+  "tags": []
+ },
+ "異なる": {
+  "group": "godan",
+  "dictionary": "異[こと]なる",
+  "reading": "ことなる",
+  "meaning": "to differ",
+  "sentences": [
+   "彼らは意見が異なります。",
+   "They differ in opinion."
+  ],
+  "tags": [
+   "intransitive"
+  ]
+ },
+ "発生する": {
+  "group": "suru",
+  "dictionary": "発[はっ]生[せい]する",
+  "reading": "はっせいする",
+  "meaning": "to occur",
+  "sentences": [
+   "事故が発生しました。",
+   "An accident occurred."
+  ],
+  "tags": []
+ },
+ "発行する": {
+  "group": "suru",
+  "dictionary": "発[はっ]行[こう]する",
+  "reading": "はっこうする",
+  "meaning": "to issue",
+  "sentences": [
+   "彼は新聞を発行しました。",
+   "He issued the newspaper."
+  ],
+  "tags": []
+ },
+ "登録する": {
+  "group": "suru",
+  "dictionary": "登[とう]録[ろく]する",
+  "reading": "とうろくする",
+  "meaning": "to register",
+  "sentences": [
+   "彼は名前を登録しました。",
+   "He registered his name."
+  ],
+  "tags": []
+ },
+ "監視する": {
+  "group": "suru",
+  "dictionary": "監[かん]視[し]する",
+  "reading": "かんしする",
+  "meaning": "to monitor",
+  "sentences": [
+   "彼はセキュリティを監視しました。",
+   "He monitored the security."
+  ],
+  "tags": []
+ },
+ "着る": {
+  "group": "ichidan",
+  "dictionary": "着[き]る",
+  "reading": "きる",
+  "meaning": "to wear",
+  "sentences": [
+   "彼はジャケットを着ます。",
+   "He wears a jacket."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "知らせる": {
+  "group": "ichidan",
+  "dictionary": "知[し]らせる",
+  "reading": "しらせる",
+  "meaning": "to inform",
+  "sentences": [
+   "彼は私に知らせました。",
+   "He informed me."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "知る": {
+  "group": "godan",
+  "dictionary": "知[し]る",
+  "reading": "しる",
+  "meaning": "to know",
+  "sentences": [
+   "彼は事実を知ります。",
+   "He knows the truth."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "示す": {
+  "group": "godan",
+  "dictionary": "示[しめ]す",
+  "reading": "しめす",
+  "meaning": "to show",
+  "sentences": [
+   "彼は証拠を示しました。",
+   "He showed the evidence."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "移動する": {
+  "group": "suru",
+  "dictionary": "移[い]動[どう]する",
+  "reading": "いどうする",
+  "meaning": "to move",
+  "sentences": [
+   "彼は新しい場所に移動しました。",
+   "He moved to a new place."
+  ],
+  "tags": []
+ },
+ "突出する": {
+  "group": "suru",
+  "dictionary": "突[とっ]出[しゅつ]する",
+  "reading": "とっしゅつする",
+  "meaning": "to protrude",
+  "sentences": [
+   "彼は窓から突出しました。",
+   "He protruded from the window."
+  ],
+  "tags": []
+ },
+ "立つ": {
+  "group": "godan",
+  "dictionary": "立[た]つ",
+  "reading": "たつ",
+  "meaning": "to stand",
+  "sentences": [
+   "彼は立ちます。",
+   "He stands."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "立てる": {
+  "group": "ichidan",
+  "dictionary": "立[た]てる",
+  "reading": "たてる",
+  "meaning": "to stand up",
+  "sentences": [
+   "彼は手を立てます。",
+   "He stands up."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "答える": {
+  "group": "ichidan",
+  "dictionary": "答[こた]える",
+  "reading": "こたえる",
+  "meaning": "to answer",
+  "sentences": [
+   "彼は質問に答えました。",
+   "He answered the question."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "管理する": {
+  "group": "suru",
+  "dictionary": "管[かん]理[り]する",
+  "reading": "かんりする",
+  "meaning": "to manage",
+  "sentences": [
+   "彼は会社を管理しました。",
+   "He managed the company."
+  ],
+  "tags": []
+ },
+ "終了する": {
+  "group": "suru",
+  "dictionary": "終[しゅう]了[りょう]する",
+  "reading": "しゅうりょうする",
+  "meaning": "to finish",
+  "sentences": [
+   "彼は仕事を終了しました。",
+   "He finished the work."
+  ],
+  "tags": []
+ },
+ "結合する": {
+  "group": "suru",
+  "dictionary": "結[けつ]合[ごう]する",
+  "reading": "けつごうする",
+  "meaning": "to combine",
+  "sentences": [
+   "彼は要素を結合しました。",
+   "He combined the elements."
+  ],
+  "tags": []
+ },
+ "続く": {
+  "group": "godan",
+  "dictionary": "続[つづ]く",
+  "reading": "つづく",
+  "meaning": "to continue",
+  "sentences": [
+   "彼は仕事を続けます。",
+   "He continues the work."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "続ける": {
+  "group": "ichidan",
+  "dictionary": "続[つづ]ける",
+  "reading": "つづける",
+  "meaning": "to continue",
+  "sentences": [
+   "彼は仕事を続けます。",
+   "He continues the work."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "維持する": {
+  "group": "suru",
+  "dictionary": "維[い]持[じ]する",
+  "reading": "いじする",
+  "meaning": "to maintain",
+  "sentences": [
+   "彼は健康を維持しました。",
+   "He maintained his health."
+  ],
+  "tags": []
+ },
+ "編集する": {
+  "group": "suru",
+  "dictionary": "編[へん]集[しゅう]する",
+  "reading": "へんしゅうする",
+  "meaning": "to edit",
+  "sentences": [
+   "彼は本を編集しました。",
+   "He edited the book."
+  ],
+  "tags": []
+ },
+ "繰り返す": {
+  "group": "godan",
+  "dictionary": "繰[く]り返[かえ]す",
+  "reading": "くりかえす",
+  "meaning": "to repeat",
+  "sentences": [
+   "彼は同じことを繰り返しました。",
+   "He repeated the same thing."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "置く": {
+  "group": "godan",
+  "dictionary": "置[お]く",
+  "reading": "おく",
+  "meaning": "to put",
+  "sentences": [
+   "彼は本を机に置きました。",
+   "He put the book on the desk."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "考える": {
+  "group": "ichidan",
+  "dictionary": "考[かんが]える",
+  "reading": "かんがえる",
+  "meaning": "to think",
+  "sentences": [
+   "彼は問題を考えます。",
+   "He thinks about the problem."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "聞く": {
+  "group": "godan",
+  "dictionary": "聞[き]く",
+  "reading": "きく",
+  "meaning": "to listen",
+  "sentences": [
+   "彼は音楽を聞きます。",
+   "He listens to music."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "聞こえる": {
+  "group": "ichidan",
+  "dictionary": "聞[き]こえる",
+  "reading": "きこえる",
+  "meaning": "to be heard",
+  "sentences": [
+   "音が聞こえます。",
+   "The sound can be heard."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "育てる": {
+  "group": "ichidan",
+  "dictionary": "育[そだ]てる",
+  "reading": "そだてる",
+  "meaning": "to raise",
+  "sentences": [
+   "彼は子供を育てます。",
+   "He raises children."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "至る": {
+  "group": "godan",
+  "dictionary": "至[いた]る",
+  "reading": "いたる",
+  "meaning": "to arrive",
+  "sentences": [
+   "彼は学校に至ります。",
+   "He arrives at school."
+  ],
+  "tags": []
+ },
+ "行う": {
+  "group": "godan",
+  "dictionary": "行[おこな]う",
+  "reading": "おこなう",
+  "meaning": "to conduct",
+  "sentences": [
+   "彼は会議を行います。",
+   "He conducts a meeting."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "表示する": {
+  "group": "suru",
+  "dictionary": "表[ひょう]示[じ]する",
+  "reading": "ひょうじする",
+  "meaning": "to display",
+  "sentences": [
+   "彼はメッセージを表示しました。",
+   "He displayed the message."
+  ],
+  "tags": []
+ },
+ "補正する": {
+  "group": "suru",
+  "dictionary": "補[ほ]正[せい]する",
+  "reading": "ほせいする",
+  "meaning": "to correct",
+  "sentences": [
+   "彼はエラーを補正しました。",
+   "He corrected the error."
+  ],
+  "tags": []
+ },
+ "製造する": {
+  "group": "suru",
+  "dictionary": "製[せい]造[ぞう]する",
+  "reading": "せいぞうする",
+  "meaning": "to manufacture",
+  "sentences": [
+   "彼は製品を製造しました。",
+   "He manufactured the product."
+  ],
+  "tags": []
+ },
+ "褒める": {
+  "group": "ichidan",
+  "dictionary": "褒[ほ]める",
+  "reading": "ほめる",
+  "meaning": "to praise",
+  "sentences": [
+   "彼は私を褒めました。",
+   "He praised me."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "要する": {
+  "group": "suru",
+  "dictionary": "要[よう]する",
+  "reading": "ようする",
+  "meaning": "to require",
+  "sentences": [
+   "彼は努力を要します。",
+   "He requires effort."
+  ],
+  "tags": []
+ },
+ "要求する": {
+  "group": "suru",
+  "dictionary": "要[よう]求[きゅう]する",
+  "reading": "ようきゅうする",
+  "meaning": "to request",
+  "sentences": [
+   "彼は情報を要求しました。",
+   "He requested information."
+  ],
+  "tags": []
+ },
+ "見える": {
+  "group": "ichidan",
+  "dictionary": "見[み]える",
+  "reading": "みえる",
+  "meaning": "to be visible",
+  "sentences": [
+   "彼は見えます。",
+   "He is visible."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "見せる": {
+  "group": "ichidan",
+  "dictionary": "見[み]せる",
+  "reading": "みせる",
+  "meaning": "to show",
+  "sentences": [
+   "彼は証拠を見せました。",
+   "He showed the evidence."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "見つける": {
+  "group": "ichidan",
+  "dictionary": "見[み]つける",
+  "reading": "みつける",
+  "meaning": "to find",
+  "sentences": [
+   "彼は鍵を見つけました。",
+   "He found the key."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "見る": {
+  "group": "ichidan",
+  "dictionary": "見[み]る",
+  "reading": "みる",
+  "meaning": "to see",
+  "sentences": [
+   "彼は映画を見ます。",
+   "He watches a movie."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "解除する": {
+  "group": "suru",
+  "dictionary": "解[かい]除[じょ]する",
+  "reading": "かいじょする",
+  "meaning": "to release",
+  "sentences": [
+   "彼は制限を解除しました。",
+   "He released the restriction."
+  ],
+  "tags": []
+ },
+ "言う": {
+  "group": "godan",
+  "dictionary": "言[い]う",
+  "reading": "いう",
+  "meaning": "to say",
+  "sentences": [
+   "彼は何も言いません。",
+   "He says nothing."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "言える": {
+  "group": "ichidan",
+  "dictionary": "言[い]える",
+  "reading": "いえる",
+  "meaning": "to be able to say",
+  "sentences": [
+   "彼は何も言えません。",
+   "He can't say anything."
+  ],
+  "tags": []
+ },
+ "計算する": {
+  "group": "suru",
+  "dictionary": "計[けい]算[さん]する",
+  "reading": "けいさんする",
+  "meaning": "to calculate",
+  "sentences": [
+   "彼は数字を計算しました。",
+   "He calculated the numbers."
+  ],
+  "tags": []
+ },
+ "記憶する": {
+  "group": "suru",
+  "dictionary": "記[き]憶[おく]する",
+  "reading": "きおくする",
+  "meaning": "to remember",
+  "sentences": [
+   "彼は出来事を記憶しました。",
+   "He remembered the event."
+  ],
+  "tags": []
+ },
+ "記録する": {
+  "group": "suru",
+  "dictionary": "記[き]録[ろく]する",
+  "reading": "きろくする",
+  "meaning": "to record",
+  "sentences": [
+   "彼はデータを記録しました。",
+   "He recorded the data."
+  ],
+  "tags": []
+ },
+ "設定する": {
+  "group": "suru",
+  "dictionary": "設[せっ]定[てい]する",
+  "reading": "せっていする",
+  "meaning": "to set",
+  "sentences": [
+   "彼はパスワードを設定しました。",
+   "He set the password."
+  ],
+  "tags": []
+ },
+ "設置する": {
+  "group": "suru",
+  "dictionary": "設[せっ]置[ち]する",
+  "reading": "せっちする",
+  "meaning": "to install",
+  "sentences": [
+   "彼はカメラを設置しました。",
+   "He installed the camera."
+  ],
+  "tags": []
+ },
+ "評価する": {
+  "group": "suru",
+  "dictionary": "評[ひょう]価[か]する",
+  "reading": "ひょうかする",
+  "meaning": "to evaluate",
+  "sentences": [
+   "彼は成績を評価しました。",
+   "He evaluated the performance."
+  ],
+  "tags": []
+ },
+ "話す": {
+  "group": "godan",
+  "dictionary": "話[はな]す",
+  "reading": "はなす",
+  "meaning": "to speak",
+  "sentences": [
+   "彼は英語を話します。",
+   "He speaks English."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "該当する": {
+  "group": "suru",
+  "dictionary": "該[がい]当[とう]する",
+  "reading": "がいとうする",
+  "meaning": "to correspond",
+  "sentences": [
+   "彼は条件に該当しました。",
+   "He corresponded to the conditions."
+  ],
+  "tags": []
+ },
+ "認める": {
+  "group": "ichidan",
+  "dictionary": "認[みと]める",
+  "reading": "みとめる",
+  "meaning": "to recognize",
+  "sentences": [
+   "彼は努力を認めました。",
+   "He recognized the effort."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "認識する": {
+  "group": "suru",
+  "dictionary": "認[にん]識[しき]する",
+  "reading": "にんしきする",
+  "meaning": "to recognize",
+  "sentences": [
+   "彼は問題を認識しました。",
+   "He recognized the problem."
+  ],
+  "tags": []
+ },
+ "説明する": {
+  "group": "suru",
+  "dictionary": "説[せつ]明[めい]する",
+  "reading": "せつめいする",
+  "meaning": "to explain",
+  "sentences": [
+   "彼は計画を説明しました。",
+   "He explained the plan."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "読む": {
+  "group": "godan",
+  "dictionary": "読[よ]む",
+  "reading": "よむ",
+  "meaning": "to read",
+  "sentences": [
+   "彼は本を読みます。",
+   "He reads a book."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "調べる": {
+  "group": "ichidan",
+  "dictionary": "調[しら]べる",
+  "reading": "しらべる",
+  "meaning": "to investigate",
+  "sentences": [
+   "彼は問題を調べました。",
+   "He investigated the problem."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "調整する": {
+  "group": "suru",
+  "dictionary": "調[ちょう]整[せい]する",
+  "reading": "ちょうせいする",
+  "meaning": "to adjust",
+  "sentences": [
+   "彼は音量を調整しました。",
+   "He adjusted the volume."
+  ],
+  "tags": []
+ },
+ "買い与える": {
+  "group": "ichidan",
+  "dictionary": "買[か]い与[あた]える",
+  "reading": "かいあたえる",
+  "meaning": "to give",
+  "sentences": [
+   "彼はプレゼントを買い与えました。",
+   "He gave a present."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "買い戻す": {
+  "group": "godan",
+  "dictionary": "買[か]い戻[もど]す",
+  "reading": "かいもどす",
+  "meaning": "to buy back",
+  "sentences": [
+   "彼は商品を買い戻しました。",
+   "He bought back the merchandise."
+  ],
+  "tags": []
+ },
+ "買い換える": {
+  "group": "ichidan",
+  "dictionary": "買[か]い換[か]える",
+  "reading": "かいかえる",
+  "meaning": "to replace",
+  "sentences": [
+   "彼は携帯を買い換えました。",
+   "He replaced the mobile phone."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "買う": {
+  "group": "godan",
+  "dictionary": "買[か]う",
+  "reading": "かう",
+  "meaning": "to buy",
+  "sentences": [
+   "彼は本を買います。",
+   "He buys a book."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "走る": {
+  "group": "godan",
+  "dictionary": "走[はし]る",
+  "reading": "はしる",
+  "meaning": "to run",
+  "sentences": [
+   "彼は速く走ります。",
+   "He runs fast."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "起きる": {
+  "group": "ichidan",
+  "dictionary": "起[お]きる",
+  "reading": "おきる",
+  "meaning": "to wake up",
+  "sentences": [
+   "彼は朝早く起きます。",
+   "He wakes up early in the morning."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "起こる": {
+  "group": "godan",
+  "dictionary": "起[お]こる",
+  "reading": "おこる",
+  "meaning": "to occur",
+  "sentences": [
+   "事故が起こりました。",
+   "An accident occurred."
+  ],
+  "tags": [
+   "intransitive",
+   "common"
+  ]
+ },
+ "起動する": {
+  "group": "suru",
+  "dictionary": "起[き]動[どう]する",
+  "reading": "きどうする",
+  "meaning": "to start",
+  "sentences": [
+   "彼はコンピュータを起動しました。",
+   "He started the computer."
+  ],
+  "tags": []
+ },
+ "足す": {
+  "group": "godan",
+  "dictionary": "足[た]す",
+  "reading": "たす",
+  "meaning": "to add",
+  "sentences": [
+   "彼は数字を足しました。",
+   "He added the numbers."
+  ],
+  "tags": []
+ },
+ "転送する": {
+  "group": "suru",
+  "dictionary": "転[てん]送[そう]する",
+  "reading": "てんそうする",
+  "meaning": "to transfer",
+  "sentences": [
+   "彼はファイルを転送しました。",
+   "He transferred the file."
+  ],
+  "tags": []
+ },
+ "返す": {
+  "group": "godan",
+  "dictionary": "返[かえ]す",
+  "reading": "かえす",
+  "meaning": "to return",
+  "sentences": [
+   "彼はお金を返しました。",
+   "He returned the money."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "述べる": {
+  "group": "ichidan",
+  "dictionary": "述[の]べる",
+  "reading": "のべる",
+  "meaning": "to state",
+  "sentences": [
+   "彼は意見を述べました。",
+   "He stated his opinion."
+  ],
+  "tags": [
+   "transitive"
+  ]
+ },
+ "追加する": {
+  "group": "suru",
+  "dictionary": "追[つい]加[か]する",
+  "reading": "ついかする",
+  "meaning": "to add",
+  "sentences": [
+   "彼は情報を追加しました。",
+   "He added the information."
+  ],
+  "tags": []
+ },
+ "送る": {
+  "group": "godan",
+  "dictionary": "送[おく]る",
+  "reading": "おくる",
+  "meaning": "to send",
+  "sentences": [
+   "彼は手紙を送ります。",
+   "He sends a letter."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "送信する": {
+  "group": "suru",
+  "dictionary": "送[そう]信[しん]する",
+  "reading": "そうしんする",
+  "meaning": "to send",
+  "sentences": [
+   "彼はメッセージを送信しました。",
+   "He sent the message."
+  ],
+  "tags": []
+ },
+ "逃げる": {
+  "group": "ichidan",
+  "dictionary": "逃[に]げる",
+  "reading": "にげる",
+  "meaning": "to escape",
+  "sentences": [
+   "彼は危険から逃げました。",
+   "He escaped from danger."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "通る": {
+  "group": "godan",
+  "dictionary": "通[とお]る",
+  "reading": "とおる",
+  "meaning": "to pass",
+  "sentences": [
+   "彼は道を通ります。",
+   "He passes through the road."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "通知する": {
+  "group": "suru",
+  "dictionary": "通[つう]知[ち]する",
+  "reading": "つうちする",
+  "meaning": "to notify",
+  "sentences": [
+   "彼は変更を通知しました。",
+   "He notified the changes."
+  ],
+  "tags": []
+ },
+ "通過する": {
+  "group": "suru",
+  "dictionary": "通[つう]過[か]する",
+  "reading": "つうかする",
+  "meaning": "to pass",
+  "sentences": [
+   "彼は橋を通過しました。",
+   "He passed through the bridge."
+  ],
+  "tags": []
+ },
+ "連結する": {
+  "group": "suru",
+  "dictionary": "連[れん]結[けつ]する",
+  "reading": "れんけつする",
+  "meaning": "to connect",
+  "sentences": [
+   "彼はデータを連結しました。",
+   "He connected the data."
+  ],
+  "tags": []
+ },
+ "連続する": {
+  "group": "suru",
+  "dictionary": "連[れん]続[ぞく]する",
+  "reading": "れんぞくする",
+  "meaning": "to continue",
+  "sentences": [
+   "彼は成功を連続しました。",
+   "He continued the success."
+  ],
+  "tags": []
+ },
+ "進む": {
+  "group": "godan",
+  "dictionary": "進[すす]む",
+  "reading": "すすむ",
+  "meaning": "to advance",
+  "sentences": [
+   "彼は前に進みます。",
+   "He advances forward."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "遊ぶ": {
+  "group": "godan",
+  "dictionary": "遊[あそ]ぶ",
+  "reading": "あそぶ",
+  "meaning": "to play",
+  "sentences": [
+   "彼は友達と遊びます。",
+   "He plays with friends."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "違う": {
+  "group": "godan",
+  "dictionary": "違[ちが]う",
+  "reading": "ちがう",
+  "meaning": "to differ",
+  "sentences": [
+   "彼らの意見は違います。",
+   "Their opinions differ."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "適用する": {
+  "group": "suru",
+  "dictionary": "適[てき]用[よう]する",
+  "reading": "てきようする",
+  "meaning": "to apply",
+  "sentences": [
+   "彼は法律を適用しました。",
+   "He applied the law."
+  ],
+  "tags": []
+ },
+ "選ぶ": {
+  "group": "godan",
+  "dictionary": "選[えら]ぶ",
+  "reading": "えらぶ",
+  "meaning": "to choose",
+  "sentences": [
+   "彼は本を選びます。",
+   "He chooses a book."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "選択する": {
+  "group": "suru",
+  "dictionary": "選[せん]択[たく]する",
+  "reading": "せんたくする",
+  "meaning": "to choose",
+  "sentences": [
+   "彼は答えを選択しました。",
+   "He chose the answer."
+  ],
+  "tags": []
+ },
+ "配置する": {
+  "group": "suru",
+  "dictionary": "配[はい]置[ち]する",
+  "reading": "はいちする",
+  "meaning": "to place",
+  "sentences": [
+   "彼は家具を配置しました。",
+   "He placed the furniture."
+  ],
+  "tags": []
+ },
+ "閉じる": {
+  "group": "ichidan",
+  "dictionary": "閉[と]じる",
+  "reading": "とじる",
+  "meaning": "to close",
+  "sentences": [
+   "彼は窓を閉じます。",
+   "He closes the window."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "開く": {
+  "group": "godan",
+  "dictionary": "開[あ]く",
+  "reading": "あく",
+  "meaning": "to open",
+  "sentences": [
+   "彼はドアを開けます。",
+   "He opens the door."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "関連する": {
+  "group": "suru",
+  "dictionary": "関[かん]連[れん]する",
+  "reading": "かんれんする",
+  "meaning": "to relate",
+  "sentences": [
+   "彼は問題に関連しました。",
+   "He related to the problem."
+  ],
+  "tags": []
+ },
+ "除去する": {
+  "group": "suru",
+  "dictionary": "除[じょ]去[きょ]する",
+  "reading": "じょきょする",
+  "meaning": "to remove",
+  "sentences": [
+   "彼は汚れを除去しました。",
+   "He removed the dirt."
+  ],
+  "tags": []
+ },
+ "隣接する": {
+  "group": "suru",
+  "dictionary": "隣[りん]接[せつ]する",
+  "reading": "りんせつする",
+  "meaning": "to adjoin",
+  "sentences": [
+   "彼らは隣接しました。",
+   "They adjoined."
+  ],
+  "tags": []
+ },
+ "離れる": {
+  "group": "ichidan",
+  "dictionary": "離[はな]れる",
+  "reading": "はなれる",
+  "meaning": "to separate",
+  "sentences": [
+   "彼は家から離れました。",
+   "He separated from home."
+  ],
+  "tags": []
+ },
+ "頼む": {
+  "group": "godan",
+  "dictionary": "頼[たの]む",
+  "reading": "たのむ",
+  "meaning": "to request",
+  "sentences": [
+   "彼は助けを頼みます。",
+   "He requests help."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "食べる": {
+  "group": "ichidan",
+  "dictionary": "食[た]べる",
+  "reading": "たべる",
+  "meaning": "to eat",
+  "sentences": [
+   "彼は食べます。",
+   "He eats."
+  ],
+  "tags": [
+   "transitive",
+   "common"
+  ]
+ },
+ "飲む": {
+  "group": "godan",
+  "dictionary": "飲[の]む",
+  "reading": "のむ",
+  "meaning": "to drink",
+  "sentences": [
+   "彼は水を飲みます。",
+   "He drinks water."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "駆動する": {
+  "group": "suru",
+  "dictionary": "駆[く]動[どう]する",
+  "reading": "くどうする",
+  "meaning": "to drive",
+  "sentences": [
+   "彼は車を駆動しました。",
+   "He drove the car."
+  ],
+  "tags": []
+ },
+ "行く": {
+  "group": "iku",
+  "dictionary": "行[い]く",
+  "reading": "いく",
+  "meaning": "to go",
+  "sentences": [
+   "彼は学校に行きます。",
+   "He goes to school."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "ある": {
+  "group": "aru",
+  "dictionary": "ある",
+  "reading": "ある",
+  "meaning": "to exist",
+  "sentences": [
+   "彼は犬を飼っています。",
+   "He has a dog."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "いる": {
+  "group": "iru",
+  "dictionary": "いる",
+  "reading": "いる",
+  "meaning": "to exist",
+  "sentences": [
+   "彼は猫を飼っています。",
+   "He has a cat."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "する": {
+  "group": "suru",
+  "dictionary": "する",
+  "reading": "する",
+  "meaning": "to do",
+  "sentences": [
+   "彼は宿題をします。",
+   "He does homework."
+  ],
+  "tags": [
+   "common"
+  ]
+ },
+ "高い": {
+  "group": "i-adjective",
+  "dictionary": "高[たか]い",
+  "reading": "たかい",
+  "meaning": "high",
+  "sentences": [
+   "彼は高い山に登ります。",
+   "He climbs a high mountain."
+  ],
+  "tags": []
+ },
+ "面白い": {
+  "group": "i-adjective",
+  "dictionary": "面[おも]白[しろ]い",
+  "reading": "おもしろい",
+  "meaning": "interesting",
+  "sentences": [
+   "彼は面白い本を読みます。",
+   "He reads an interesting book."
+  ],
+  "tags": []
+ },
+ "華々しい": {
+  "group": "i-adjective",
+  "dictionary": "華[はな]々[ばな]しい",
+  "reading": "はなばなしい",
+  "meaning": "brilliant",
+  "sentences": [
+   "彼は華々しい演技をします。",
+   "He performs a brilliant act."
+  ],
+  "tags": []
+ },
+ "怖い": {
+  "group": "i-adjective",
+  "dictionary": "怖[こわ]い",
+  "reading": "こわい",
+  "meaning": "scary",
+  "sentences": [
+   "彼は怖い映画を見ます。",
+   "He watches a scary movie."
+  ],
+  "tags": []
+ },
+ "いい": {
+  "group": "ii",
+  "dictionary": "いい",
+  "reading": "いい",
+  "meaning": "good",
+  "sentences": [
+   "彼はいい人です。",
+   "He is a good person."
+  ],
+  "tags": []
+ },
+ "有名な": {
+  "group": "na-adjective",
+  "dictionary": "有[ゆう]名[めい]だ",
+  "reading": "ゆうめいだ",
+  "meaning": "famous",
+  "sentences": [
+   "彼は有名な歌手です。",
+   "He is a famous singer."
+  ],
+  "tags": []
+ },
+ "意地悪な": {
+  "group": "na-adjective",
+  "dictionary": "意[い]地[じ]悪[わる]だ",
+  "reading": "いじわるだ",
+  "meaning": "mean",
+  "sentences": [
+   "彼は意地悪な人です。",
+   "He is a mean person."
+  ],
+  "tags": []
+ },
+ "便利な": {
+  "group": "na-adjective",
+  "dictionary": "便[べん]利[り]だ",
+  "reading": "べんりだ",
+  "meaning": "convenient",
+  "sentences": [
+   "彼は便利な道具を使います。",
+   "He uses a convenient tool."
+  ],
+  "tags": []
+ },
+ "上手な": {
+  "group": "na-adjective",
+  "dictionary": "上[じょう]手[ず]だ",
+  "reading": "じょうずだ",
+  "meaning": "skilled",
+  "sentences": [
+   "彼は上手なピアノを弾きます。",
+   "He plays the piano skillfully."
+  ],
+  "tags": []
+ },
+ "幸い": {
+  "group": "na-adjective",
+  "dictionary": "幸[さいわ]いだ",
+  "reading": "さいわいだ",
+  "meaning": "fortunate",
+  "sentences": [
+   "彼は幸いな人生を送ります。",
+   "He leads a fortunate life."
+  ],
+  "tags": []
+ },
+ "一流な": {
+  "group": "na-adjective",
+  "dictionary": "一[いち]流[りゅう]だ",
+  "reading": "いちりゅうだ",
+  "meaning": "first-class",
+  "sentences": [
+   "彼は一流な料理人です。",
+   "He is a first-class chef."
+  ],
+  "tags": []
+ },
+ "三角な": {
+  "group": "na-adjective",
+  "dictionary": "三[さん]角[かく]だ",
+  "reading": "さんかくだ",
+  "meaning": "triangular",
+  "sentences": [
+   "彼は三角な形を描きます。",
+   "He draws a triangular shape."
+  ],
+  "tags": []
+ },
+ "不味い": {
+  "group": "i-adjective",
+  "dictionary": "不[ま]味[ず]い",
+  "reading": "まずい",
+  "meaning": "bad-tasting",
+  "sentences": [
+   "彼は不味い料理を食べます。",
+   "He eats bad-tasting food."
+  ],
+  "tags": []
+ },
+ "不安な": {
+  "group": "na-adjective",
+  "dictionary": "不[ふ]安[あん]だ",
+  "reading": "ふあんだ",
+  "meaning": "anxious",
+  "sentences": [
+   "彼は不安な気持ちです。",
+   "He feels anxious."
+  ],
+  "tags": []
+ },
+ "不幸な": {
+  "group": "na-adjective",
+  "dictionary": "不[ふ]幸[こう]だ",
+  "reading": "ふこうだ",
+  "meaning": "unfortunate",
+  "sentences": [
+   "彼は不幸な人生を送ります。",
+   "He leads an unfortunate life."
+  ],
+  "tags": []
+ },
+ "丸い": {
+  "group": "i-adjective",
+  "dictionary": "丸[まる]い",
+  "reading": "まるい",
+  "meaning": "round",
+  "sentences": [
+   "彼は丸い形を描きます。",
+   "He draws a round shape."
+  ],
+  "tags": []
+ },
+ "低い": {
+  "group": "i-adjective",
+  "dictionary": "低[ひく]い",
+  "reading": "ひくい",
+  "meaning": "low",
+  "sentences": [
+   "彼は低い声で話します。",
+   "He speaks in a low voice."
+  ],
+  "tags": []
+ },
+ "個別な": {
+  "group": "na-adjective",
+  "dictionary": "個[こ]別[べつ]だ",
+  "reading": "こべつだ",
+  "meaning": "individual",
+  "sentences": [
+   "彼は個別なアプローチを取ります。",
+   "He takes an individual approach."
+  ],
+  "tags": []
+ },
+ "健康な": {
+  "group": "na-adjective",
+  "dictionary": "健[けん]康[こう]だ",
+  "reading": "けんこうだ",
+  "meaning": "healthy",
+  "sentences": [
+   "彼は健康な食事をします。",
+   "He eats a healthy meal."
+  ],
+  "tags": []
+ },
+ "優しい": {
+  "group": "i-adjective",
+  "dictionary": "優[やさ]しい",
+  "reading": "やさしい",
+  "meaning": "kind",
+  "sentences": [
+   "彼は優しい人です。",
+   "He is a kind person."
+  ],
+  "tags": []
+ },
+ "元気な": {
+  "group": "na-adjective",
+  "dictionary": "元[げん]気[き]だ",
+  "reading": "げんきだ",
+  "meaning": "energetic",
+  "sentences": [
+   "彼は元気な子供です。",
+   "He is an energetic child."
+  ],
+  "tags": []
+ },
+ "円い": {
+  "group": "i-adjective",
+  "dictionary": "円[まる]い",
+  "reading": "まるい",
+  "meaning": "round",
+  "sentences": [
+   "彼は円い形を描きます。",
+   "He draws a round shape."
+  ],
+  "tags": []
+ },
+ "冷静な": {
+  "group": "na-adjective",
+  "dictionary": "冷[れい]静[せい]だ",
+  "reading": "れいせいだ",
+  "meaning": "calm",
+  "sentences": [
+   "彼は冷静な判断をします。",
+   "He makes a calm decision."
+  ],
+  "tags": []
+ },
+ "別な": {
+  "group": "na-adjective",
+  "dictionary": "別[べつ]だ",
+  "reading": "べつだ",
+  "meaning": "different",
+  "sentences": [
+   "彼は別な意見を持っています。",
+   "He has a different opinion."
+  ],
+  "tags": []
+ },
+ "勝手な": {
+  "group": "na-adjective",
+  "dictionary": "勝[かっ]手[て]だ",
+  "reading": "かってだ",
+  "meaning": "selfish",
+  "sentences": [
+   "彼は勝手な行動をします。",
+   "He acts selfishly."
+  ],
+  "tags": []
+ },
+ "危険な": {
+  "group": "na-adjective",
+  "dictionary": "危[き]険[けん]だ",
+  "reading": "きけんだ",
+  "meaning": "dangerous",
+  "sentences": [
+   "彼は危険な場所に行きます。",
+   "He goes to a dangerous place."
+  ],
+  "tags": []
+ },
+ "古い": {
+  "group": "i-adjective",
+  "dictionary": "古[ふる]い",
+  "reading": "ふるい",
+  "meaning": "old",
+  "sentences": [
+   "彼は古い家に住んでいます。",
+   "He lives in an old house."
+  ],
+  "tags": []
+ },
+ "可愛い": {
+  "group": "i-adjective",
+  "dictionary": "可[か]愛[わい]い",
+  "reading": "かわいい",
+  "meaning": "cute",
+  "sentences": [
+   "彼女は可愛い犬を飼っています。",
+   "She has a cute dog."
+  ],
+  "tags": []
+ },
+ "四角い": {
+  "group": "i-adjective",
+  "dictionary": "四[し]角[かく]い",
+  "reading": "しかくい",
+  "meaning": "square",
+  "sentences": [
+   "彼は四角い形を描きます。",
+   "He draws a square shape."
+  ],
+  "tags": []
+ },
+ "困難な": {
+  "group": "na-adjective",
+  "dictionary": "困[こん]難[なん]だ",
+  "reading": "こんなんだ",
+  "meaning": "difficult",
+  "sentences": [
+   "彼は困難な問題を解きます。",
+   "He solves a difficult problem."
+  ],
+  "tags": []
+ },
+ "固い": {
+  "group": "i-adjective",
+  "dictionary": "固[かた]い",
+  "reading": "かたい",
+  "meaning": "hard",
+  "sentences": [
+   "彼は固い木を使います。",
+   "He uses hard wood."
+  ],
+  "tags": []
+ },
+ "固有な": {
+  "group": "na-adjective",
+  "dictionary": "固[こ]有[ゆう]だ",
+  "reading": "こゆうだ",
+  "meaning": "unique",
+  "sentences": [
+   "彼は固有な特技を持っています。",
+   "He has a unique talent."
+  ],
+  "tags": []
+ },
+ "塩辛い": {
+  "group": "i-adjective",
+  "dictionary": "塩[しお]辛[から]い",
+  "reading": "しおからい",
+  "meaning": "salty",
+  "sentences": [
+   "彼は塩辛い食べ物が好きです。",
+   "He likes salty food."
+  ],
+  "tags": []
+ },
+ "変な": {
+  "group": "na-adjective",
+  "dictionary": "変[へん]だ",
+  "reading": "へんだ",
+  "meaning": "strange",
+  "sentences": [
+   "彼は変な服を着ています。",
+   "He is wearing strange clothes."
+  ],
+  "tags": []
+ },
+ "多い": {
+  "group": "i-adjective",
+  "dictionary": "多[おお]い",
+  "reading": "おおい",
+  "meaning": "many",
+  "sentences": [
+   "彼は多い友達がいます。",
+   "He has many friends."
+  ],
+  "tags": []
+ },
+ "大きい": {
+  "group": "i-adjective",
+  "dictionary": "大[おお]きい",
+  "reading": "おおきい",
+  "meaning": "big",
+  "sentences": [
+   "彼は大きい家に住んでいます。",
+   "He lives in a big house."
+  ],
+  "tags": []
+ },
+ "大人しい": {
+  "group": "i-adjective",
+  "dictionary": "大[おと]人[な]しい",
+  "reading": "おとなしい",
+  "meaning": "quiet",
+  "sentences": [
+   "彼は大人しい性格です。",
+   "He has a quiet personality."
+  ],
+  "tags": []
+ },
+ "大切な": {
+  "group": "na-adjective",
+  "dictionary": "大[たい]切[せつ]だ",
+  "reading": "たいせつだ",
+  "meaning": "important",
+  "sentences": [
+   "彼は大切な友達です。",
+   "He is an important friend."
+  ],
+  "tags": []
+ },
+ "大変な": {
+  "group": "na-adjective",
+  "dictionary": "大[たい]変[へん]だ",
+  "reading": "たいへんだ",
+  "meaning": "difficult",
+  "sentences": [
+   "彼は大変な仕事をしています。",
+   "He is doing a difficult job."
+  ],
+  "tags": []
+ },
+ "大量な": {
+  "group": "na-adjective",
+  "dictionary": "大[たい]量[りょう]だ",
+  "reading": "たいりょうだ",
+  "meaning": "large",
+  "sentences": [
+   "彼は大量な食べ物を食べます。",
+   "He eats a large amount of food."
+  ],
+  "tags": []
+ },
+ "好きな": {
+  "group": "na-adjective",
+  "dictionary": "好[す]きだ",
+  "reading": "すきだ",
+  "meaning": "like",
+  "sentences": [
+   "彼は好きな食べ物を食べます。",
+   "He eats food that he likes."
+  ],
+  "tags": []
+ },
+ "妙な": {
+  "group": "na-adjective",
+  "dictionary": "妙[みょう]だ",
+  "reading": "みょうだ",
+  "meaning": "strange",
+  "sentences": [
+   "彼は妙な行動をします。",
+   "He behaves strangely."
+  ],
+  "tags": []
+ },
+ "嫌い": {
+  "group": "i-adjective",
+  "dictionary": "嫌[きら]い",
+  "reading": "きらい",
+  "meaning": "dislike",
+  "sentences": [
+   "彼は嫌いな食べ物があります。",
+   "He dislikes certain foods."
+  ],
+  "tags": []
+ },
+ "嬉しい": {
+  "group": "i-adjective",
+  "dictionary": "嬉[うれ]しい",
+  "reading": "うれしい",
+  "meaning": "happy",
+  "sentences": [
+   "彼女は嬉しいニュースを聞きます。",
+   "She hears happy news."
+  ],
+  "tags": []
+ },
+ "安い": {
+  "group": "i-adjective",
+  "dictionary": "安[やす]い",
+  "reading": "やすい",
+  "meaning": "cheap",
+  "sentences": [
+   "彼は安い服を買います。",
+   "He buys cheap clothes."
+  ],
+  "tags": []
+ },
+ "安全な": {
+  "group": "na-adjective",
+  "dictionary": "安[あん]全[ぜん]だ",
+  "reading": "あんぜんだ",
+  "meaning": "safe",
+  "sentences": [
+   "彼は安全な場所にいます。",
+   "He is in a safe place."
+  ],
+  "tags": []
+ },
+ "寒い": {
+  "group": "i-adjective",
+  "dictionary": "寒[さむ]い",
+  "reading": "さむい",
+  "meaning": "cold",
+  "sentences": [
+   "今日は寒い日です。",
+   "Today is a cold day."
+  ],
+  "tags": []
+ },
+ "小さい": {
+  "group": "i-adjective",
+  "dictionary": "小[ちい]さい",
+  "reading": "ちいさい",
+  "meaning": "small",
+  "sentences": [
+   "彼は小さい部屋に住んでいます。",
+   "He lives in a small room."
+  ],
+  "tags": []
+ },
+ "少ない": {
+  "group": "i-adjective",
+  "dictionary": "少[すく]ない",
+  "reading": "すくない",
+  "meaning": "few",
+  "sentences": [
+   "彼は少ない友達がいます。",
+   "He has few friends."
+  ],
+  "tags": []
+ },
+ "広い": {
+  "group": "i-adjective",
+  "dictionary": "広[ひろ]い",
+  "reading": "ひろい",
+  "meaning": "wide",
+  "sentences": [
+   "彼は広い部屋に住んでいます。",
+   "He lives in a wide room."
+  ],
+  "tags": []
+ },
+ "弱い": {
+  "group": "i-adjective",
+  "dictionary": "弱[よわ]い",
+  "reading": "よわい",
+  "meaning": "weak",
+  "sentences": [
+   "彼は弱い体力を持っています。",
+   "He has weak physical strength."
+  ],
+  "tags": []
+ },
+ "強い": {
+  "group": "i-adjective",
+  "dictionary": "強[つよ]い",
+  "reading": "つよい",
+  "meaning": "strong",
+  "sentences": [
+   "彼は強い意志を持っています。",
+   "He has a strong will."
+  ],
+  "tags": []
+ },
+ "必要な": {
+  "group": "na-adjective",
+  "dictionary": "必[ひつ]要[よう]だ",
+  "reading": "ひつようだ",
+  "meaning": "necessary",
+  "sentences": [
+   "彼は必要な書類を持っています。",
+   "He has necessary documents."
+  ],
+  "tags": []
+ },
+ "悪い": {
+  "group": "i-adjective",
+  "dictionary": "悪[わる]い",
+  "reading": "わるい",
+  "meaning": "bad",
+  "sentences": [
+   "彼は悪い人間です。",
+   "He is a bad person."
+  ],
+  "tags": []
+ },
+ "悲しい": {
+  "group": "i-adjective",
+  "dictionary": "悲[かな]しい",
+  "reading": "かなしい",
+  "meaning": "sad",
+  "sentences": [
+   "彼女は悲しい出来事を経験しました。",
+   "She experienced a sad event."
+  ],
+  "tags": []
+ },
+ "慎重な": {
+  "group": "na-adjective",
+  "dictionary": "慎[しん]重[ちょう]だ",
+  "reading": "しんちょうだ",
+  "meaning": "careful",
+  "sentences": [
+   "彼は慎重な運転をします。",
+   "He drives carefully."
+  ],
+  "tags": []
+ },
+ "新しい": {
+  "group": "i-adjective",
+  "dictionary": "新[あたら]しい",
+  "reading": "あたらしい",
+  "meaning": "new",
+  "sentences": [
+   "彼は新しい車を買いました。",
+   "He bought a new car."
+  ],
+  "tags": []
+ },
+ "明るい": {
+  "group": "i-adjective",
+  "dictionary": "明[あか]るい",
+  "reading": "あかるい",
+  "meaning": "bright",
+  "sentences": [
+   "彼女は明るい未来を夢見ています。",
+   "She dreams of a bright future."
+  ],
+  "tags": []
+ },
+ "普通な": {
+  "group": "na-adjective",
+  "dictionary": "普[ふ]通[つう]だ",
+  "reading": "ふつうだ",
+  "meaning": "ordinary",
+  "sentences": [
+   "彼は普通な生活を送っています。",
+   "He leads an ordinary life."
+  ],
+  "tags": []
+ },
+ "暑い": {
+  "group": "i-adjective",
+  "dictionary": "暑[あつ]い",
+  "reading": "あつい",
+  "meaning": "hot",
+  "sentences": [
+   "今日は暑い日です。",
+   "Today is a hot day."
+  ],
+  "tags": []
+ },
+ "暖かい": {
+  "group": "i-adjective",
+  "dictionary": "暖[あたた]かい",
+  "reading": "あたたかい",
+  "meaning": "warm",
+  "sentences": [
+   "彼女は暖かい飲み物を飲みます。",
+   "She drinks warm beverages."
+  ],
+  "tags": []
+ },
+ "暗い": {
+  "group": "i-adjective",
+  "dictionary": "暗[くら]い",
+  "reading": "くらい",
+  "meaning": "dark",
+  "sentences": [
+   "彼は暗い部屋に住んでいます。",
+   "He lives in a dark room."
+  ],
+  "tags": []
+ },
+ "未知な": {
+  "group": "na-adjective",
+  "dictionary": "未[み]知[ち]だ",
+  "reading": "みちだ",
+  "meaning": "unknown",
+  "sentences": [
+   "彼は未知な場所に行きます。",
+   "He goes to unknown places."
+  ],
+  "tags": []
+ },
+ "楽しい": {
+  "group": "i-adjective",
+  "dictionary": "楽[たの]しい",
+  "reading": "たのしい",
+  "meaning": "fun",
+  "sentences": [
+   "彼女は楽しい時間を過ごします。",
+   "She spends fun time."
+  ],
+  "tags": []
+ },
+ "正しい": {
+  "group": "i-adjective",
+  "dictionary": "正[ただ]しい",
+  "reading": "ただしい",
+  "meaning": "correct",
+  "sentences": [
+   "彼は正しい答えを知っています。",
+   "He knows the correct answer."
+  ],
+  "tags": []
+ },
+ "汚い": {
+  "group": "i-adjective",
+  "dictionary": "汚[きたな]い",
+  "reading": "きたない",
+  "meaning": "dirty",
+  "sentences": [
+   "彼は汚い部屋に住んでいます。",
+   "He lives in a dirty room."
+  ],
+  "tags": []
+ },
+ "深刻な": {
+  "group": "na-adjective",
+  "dictionary": "深[しん]刻[こく]だ",
+  "reading": "しんこくだ",
+  "meaning": "serious",
+  "sentences": [
+   "彼は深刻な問題を抱えています。",
+   "He has serious problems."
+  ],
+  "tags": []
+ },
+ "無名な": {
+  "group": "na-adjective",
+  "dictionary": "無[む]名[めい]だ",
+  "reading": "むめいだ",
+  "meaning": "unknown",
+  "sentences": [
+   "彼は無名な作家です。",
+   "He is an unknown writer."
+  ],
+  "tags": []
+ },
+ "独自な": {
+  "group": "na-adjective",
+  "dictionary": "独[どく]自[じ]だ",
+  "reading": "どくじだ",
+  "meaning": "unique",
+  "sentences": [
+   "彼は独自なアイデアを持っています。",
+   "He has unique ideas."
+  ],
+  "tags": []
+ },
+ "狭い": {
+  "group": "i-adjective",
+  "dictionary": "狭[せま]い",
+  "reading": "せまい",
+  "meaning": "narrow",
+  "sentences": [
+   "彼は狭い部屋に住んでいます。",
+   "He lives in a narrow room."
+  ],
+  "tags": []
+ },
+ "球体な": {
+  "group": "na-adjective",
+  "dictionary": "球[きゅう]体[たい]だ",
+  "reading": "きゅうたいだ",
+  "meaning": "round",
+  "sentences": [
+   "彼は球体な形の物を作ります。",
+   "He makes round-shaped objects."
+  ],
+  "tags": []
+ },
+ "甘い": {
+  "group": "i-adjective",
+  "dictionary": "甘[あま]い",
+  "reading": "あまい",
+  "meaning": "sweet",
+  "sentences": [
+   "彼女は甘い食べ物が好きです。",
+   "She likes sweet food."
+  ],
+  "tags": []
+ },
+ "異常な": {
+  "group": "na-adjective",
+  "dictionary": "異[い]常[じょう]だ",
+  "reading": "いじょうだ",
+  "meaning": "abnormal",
+  "sentences": [
+   "彼は異常な行動をします。",
+   "He behaves abnormally."
+  ],
+  "tags": []
+ },
+ "病気な": {
+  "group": "na-adjective",
+  "dictionary": "病[びょう]気[き]だ",
+  "reading": "びょうきだ",
+  "meaning": "sick",
+  "sentences": [
+   "彼は病気なので学校を休みます。",
+   "He is sick, so he is absent from school."
+  ],
+  "tags": []
+ },
+ "白い": {
+  "group": "i-adjective",
+  "dictionary": "白[しろ]い",
+  "reading": "しろい",
+  "meaning": "white",
+  "sentences": [
+   "彼女は白いドレスを着ています。",
+   "She is wearing a white dress."
+  ],
+  "tags": []
+ },
+ "真剣な": {
+  "group": "na-adjective",
+  "dictionary": "真[しん]剣[けん]だ",
+  "reading": "しんけんだ",
+  "meaning": "serious",
+  "sentences": [
+   "彼は真剣な表情をしています。",
+   "He has a serious expression."
+  ],
+  "tags": []
+ },
+ "硬い": {
+  "group": "i-adjective",
+  "dictionary": "硬[かた]い",
+  "reading": "かたい",
+  "meaning": "hard",
+  "sentences": [
+   "彼は硬い床で寝ます。",
+   "He sleeps on a hard floor."
+  ],
+  "tags": []
+ },
+ "簡単な": {
+  "group": "na-adjective",
+  "dictionary": "簡[かん]単[たん]だ",
+  "reading": "かんたんだ",
+  "meaning": "easy",
+  "sentences": [
+   "彼は簡単な問題を解きます。",
+   "He solves easy problems."
+  ],
+  "tags": []
+ },
+ "素敵な": {
+  "group": "na-adjective",
+  "dictionary": "素[す]敵[てき]だ",
+  "reading": "すてきだ",
+  "meaning": "lovely",
+  "sentences": [
+   "彼女は素敵な笑顔をします。",
+   "She has a lovely smile."
+  ],
+  "tags": []
+ },
+ "綺麗な": {
+  "group": "na-adjective",
+  "dictionary": "綺[き]麗[れい]だ",
+  "reading": "きれいだ",
+  "meaning": "beautiful",
+  "sentences": [
+   "彼女は綺麗な花を持っています。",
+   "She has beautiful flowers."
+  ],
+  "tags": []
+ },
+ "緊急な": {
+  "group": "na-adjective",
+  "dictionary": "緊[きん]急[きゅう]だ",
+  "reading": "きんきゅうだ",
+  "meaning": "urgent",
+  "sentences": [
+   "彼は緊急な用事があります。",
+   "He has urgent matters to attend to."
+  ],
+  "tags": []
+ },
+ "緑な": {
+  "group": "na-adjective",
+  "dictionary": "緑[みどり]だ",
+  "reading": "みどりだ",
+  "meaning": "green",
+  "sentences": [
+   "彼女は緑な服を着ています。",
+   "She is wearing green clothes."
+  ],
+  "tags": []
+ },
+ "美しい": {
+  "group": "i-adjective",
+  "dictionary": "美[うつく]しい",
+  "reading": "うつくしい",
+  "meaning": "beautiful",
+  "sentences": [
+   "彼女は美しい景色を見ます。",
+   "She sees beautiful scenery."
+  ],
+  "tags": []
+ },
+ "美人な": {
+  "group": "na-adjective",
+  "dictionary": "美[び]人[じん]だ",
+  "reading": "びじんだ",
+  "meaning": "beautiful",
+  "sentences": [
+   "彼女は美人な女性です。",
+   "She is a beautiful."
+  ],
+  "tags": []
+ },
+ "美味しい": {
+  "group": "i-adjective",
+  "dictionary": "美[お]味[い]しい",
+  "reading": "おいしい",
+  "meaning": "delicious",
+  "sentences": [
+   "彼女は美味しい料理を作ります。",
+   "She makes delicious food."
+  ],
+  "tags": []
+ },
+ "肌寒い": {
+  "group": "i-adjective",
+  "dictionary": "肌[はだ]寒[さむ]い",
+  "reading": "はださむい",
+  "meaning": "chilly",
+  "sentences": [
+   "今日は肌寒い日です。",
+   "Today is a chilly day."
+  ],
+  "tags": []
+ },
+ "苦い": {
+  "group": "i-adjective",
+  "dictionary": "苦[にが]い",
+  "reading": "にがい",
+  "meaning": "bitter",
+  "sentences": [
+   "彼は苦い飲み物が好きです。",
+   "He likes bitter drinks."
+  ],
+  "tags": []
+ },
+ "苦手な": {
+  "group": "na-adjective",
+  "dictionary": "苦[にが]手[て]だ",
+  "reading": "にがてだ",
+  "meaning": "weak",
+  "sentences": [
+   "彼は数学が苦手です。",
+   "He is weak in math."
+  ],
+  "tags": []
+ },
+ "荒い": {
+  "group": "i-adjective",
+  "dictionary": "荒[あら]い",
+  "reading": "あらい",
+  "meaning": "rough",
+  "sentences": [
+   "彼は荒い言葉を使います。",
+   "He uses rough language."
+  ],
+  "tags": []
+ },
+ "貧しい": {
+  "group": "i-adjective",
+  "dictionary": "貧[まず]しい",
+  "reading": "まずしい",
+  "meaning": "poor",
+  "sentences": [
+   "彼は貧しい生活をしています。",
+   "He leads a poor life."
+  ],
+  "tags": []
+ },
+ "赤い": {
+  "group": "i-adjective",
+  "dictionary": "赤[あか]い",
+  "reading": "あかい",
+  "meaning": "red",
+  "sentences": [
+   "彼女は赤いリボンを持っています。",
+   "She has a red ribbon."
+  ],
+  "tags": []
+ },
+ "軽い": {
+  "group": "i-adjective",
+  "dictionary": "軽[かる]い",
+  "reading": "かるい",
+  "meaning": "light",
+  "sentences": [
+   "彼は軽い荷物を持っています。",
+   "He has light luggage."
+  ],
+  "tags": []
+ },
+ "辛い": {
+  "group": "i-adjective",
+  "dictionary": "辛[から]い",
+  "reading": "からい",
+  "meaning": "spicy",
+  "sentences": [
+   "彼は辛い食べ物が好きです。",
+   "He likes spicy food."
+  ],
+  "tags": []
+ },
+ "近い": {
+  "group": "i-adjective",
+  "dictionary": "近[ちか]い",
+  "reading": "ちかい",
+  "meaning": "near",
+  "sentences": [
+   "彼は近い場所に住んでいます。",
+   "He lives in a nearby place."
+  ],
+  "tags": []
+ },
+ "速い": {
+  "group": "i-adjective",
+  "dictionary": "速[はや]い",
+  "reading": "はやい",
+  "meaning": "fast",
+  "sentences": [
+   "彼は速い車を持っています。",
+   "He has a fast car."
+  ],
+  "tags": []
+ },
+ "遅い": {
+  "group": "i-adjective",
+  "dictionary": "遅[おそ]い",
+  "reading": "おそい",
+  "meaning": "slow",
+  "sentences": [
+   "彼は遅いペースで歩きます。",
+   "He walks at a slow pace."
+  ],
+  "tags": []
+ },
+ "遠い": {
+  "group": "i-adjective",
+  "dictionary": "遠[とお]い",
+  "reading": "とおい",
+  "meaning": "far",
+  "sentences": [
+   "彼は遠い国に住んでいます。",
+   "He lives in a faraway country."
+  ],
+  "tags": []
+ },
+ "醜い": {
+  "group": "i-adjective",
+  "dictionary": "醜[みにく]い",
+  "reading": "みにくい",
+  "meaning": "ugly",
+  "sentences": [
+   "彼女は醜い顔をしています。",
+   "She has an ugly face."
+  ],
+  "tags": []
+ },
+ "重い": {
+  "group": "i-adjective",
+  "dictionary": "重[おも]い",
+  "reading": "おもい",
+  "meaning": "heavy",
+  "sentences": [
+   "彼は重い荷物を持っています。",
+   "He has heavy luggage."
+  ],
+  "tags": []
+ },
+ "重要な": {
+  "group": "na-adjective",
+  "dictionary": "重[じゅう]要[よう]だ",
+  "reading": "じゅうようだ",
+  "meaning": "important",
+  "sentences": [
+   "この書類は重要な情報が書かれています。",
+   "This document contains important information."
+  ],
+  "tags": []
+ },
+ "難しい": {
+  "group": "i-adjective",
+  "dictionary": "難[むずか]しい",
+  "reading": "むずかしい",
+  "meaning": "difficult",
+  "sentences": [
+   "この問題は難しいです。",
+   "This problem is difficult."
+  ],
+  "tags": []
+ },
+ "青い": {
+  "group": "i-adjective",
+  "dictionary": "青[あお]い",
+  "reading": "あおい",
+  "meaning": "blue",
+  "sentences": [
+   "彼は青い目をしています。",
+   "He has blue eyes."
+  ],
+  "tags": []
+ },
+ "静かな": {
+  "group": "na-adjective",
+  "dictionary": "静[しず]かだ",
+  "reading": "しずかだ",
+  "meaning": "quiet",
+  "sentences": [
+   "彼女は静かな場所で勉強します。",
+   "She studies in a quiet place."
+  ],
+  "tags": []
+ },
+ "頑な": {
+  "group": "na-adjective",
+  "dictionary": "頑[かたく]なだ",
+  "reading": "かたくなだ",
+  "meaning": "stubborn",
+  "sentences": [
+   "彼は頑なに自分の意見を曲げません。",
+   "He stubbornly refuses to change his opinion."
+  ],
+  "tags": []
+ },
+ "高価な": {
+  "group": "na-adjective",
+  "dictionary": "高[こう]価[か]だ",
+  "reading": "こうかだ",
+  "meaning": "expensive",
+  "sentences": [
+   "この時計は高価なものです。",
+   "This watch is expensive."
+  ],
+  "tags": []
+ },
+ "高級な": {
+  "group": "na-adjective",
+  "dictionary": "高[こう]級[きゅう]だ",
+  "reading": "こうきゅうだ",
+  "meaning": "luxurious",
+  "sentences": [
+   "彼女は高級な車を持っています。",
+   "She has a luxurious car."
+  ],
+  "tags": []
+ },
+ "黄色い": {
+  "group": "i-adjective",
+  "dictionary": "黄[き]色[いろ]い",
+  "reading": "きいろい",
+  "meaning": "yellow",
+  "sentences": [
+   "彼女は黄色い花を持っています。",
+   "She has yellow flowers."
+  ],
+  "tags": []
+ },
+ "黒い": {
+  "group": "i-adjective",
+  "dictionary": "黒[くろ]い",
+  "reading": "くろい",
+  "meaning": "black",
+  "sentences": [
+   "彼は黒い服を着ています。",
+   "He is wearing black clothes."
+  ],
+  "tags": []
+ }
+}

@@ -1,0 +1,559 @@
+package com.japanesedrills.ui.screens
+
+import android.net.Uri
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.japanesedrills.quiz.Explanations
+import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.Prompts
+import com.japanesedrills.quiz.QuizEngine
+import com.japanesedrills.quiz.QuizOptions
+import com.japanesedrills.quiz.RichPart
+import com.japanesedrills.quiz.RomajiConverter
+import com.japanesedrills.quiz.SolutionStep
+import com.japanesedrills.ui.QuizState
+import com.japanesedrills.ui.components.JapaneseLocale
+import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.tagParts
+import com.japanesedrills.ui.theme.DrillTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun QuizScreen(
+    quiz: QuizState,
+    options: QuizOptions,
+    onSubmit: (String) -> Unit,
+    onProceed: () -> Unit,
+    onExplain: () -> Unit,
+    onQuit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val question = quiz.question
+    val answer = quiz.answer
+    val scroll = rememberScrollState()
+    val number = minOf(quiz.history.size + if (answer == null) 1 else 0, quiz.total)
+    val progress by animateFloatAsState(quiz.history.size / quiz.total.toFloat(), label = "progress")
+
+    LaunchedEffect(question.id, answer) { scroll.animateScrollTo(0) }
+
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            Column {
+                TopAppBar(
+                    title = { Text("Question $number of ${quiz.total}") },
+                    navigationIcon = {
+                        IconButton(onClick = onQuit) {
+                            Icon(Icons.Default.Close, contentDescription = "Back to start")
+                        }
+                    },
+                    actions = {
+                        ScoreBadge(quiz.history.count { it.correct })
+                        Spacer(Modifier.width(12.dp))
+                    },
+                )
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        },
+    ) { padding ->
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .imePadding()
+                .verticalScroll(scroll)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            QuestionCard(quiz, options)
+
+            if (answer == null) {
+                AnswerInput(questionId = question.id, shakes = quiz.shakes, onSubmit = onSubmit)
+            } else {
+                ResultCard(
+                    quiz = quiz,
+                    options = options,
+                    focusNext = !quiz.showExplanation,
+                    onExplain = onExplain,
+                    onProceed = onProceed,
+                )
+                if (quiz.showExplanation) {
+                    Explanation(quiz, options, onProceed)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ScoreBadge(correct: Int) {
+    val colors = DrillTheme.answerColors
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = colors.correctContainer,
+        contentColor = colors.onCorrectContainer,
+    ) {
+        Row(Modifier.padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Check, contentDescription = "Correct answers", modifier = Modifier.size(16.dp))
+            Spacer(Modifier.width(4.dp))
+            Text("$correct", style = MaterialTheme.typography.labelLarge)
+        }
+    }
+}
+
+@Composable
+private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
+    val question = quiz.question
+    val formLabel = Prompts.formLabel(question.transformation.phrase)
+    val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = onContainer,
+        ),
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 28.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                Prompts.INSTRUCTION,
+                style = MaterialTheme.typography.labelLarge,
+                color = onContainer.copy(alpha = 0.75f),
+            )
+            Spacer(Modifier.height(6.dp))
+            Surface(
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ) {
+                Text(
+                    formLabel,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                )
+            }
+            Spacer(Modifier.height(24.dp))
+            RichText(
+                parts = listOf(RichPart.Jp(question.givenDisplay(options.kana))),
+                style = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Medium),
+                color = onContainer,
+                furiganaAlways = options.furiganaAlways,
+                horizontalArrangement = Arrangement.Center,
+            )
+            if (!options.furiganaAlways && !options.kana) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Tap the word to show its reading",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = onContainer.copy(alpha = 0.7f),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnswerInput(questionId: Int, shakes: Int, onSubmit: (String) -> Unit) {
+    var value by remember(questionId) { mutableStateOf(TextFieldValue("")) }
+    val focusRequester = remember { FocusRequester() }
+    val keyboard = LocalSoftwareKeyboardController.current
+    val shake = remember { Animatable(0f) }
+
+    LaunchedEffect(questionId) {
+        focusRequester.requestFocus()
+        keyboard?.show()
+    }
+    LaunchedEffect(shakes) {
+        if (shakes == 0) return@LaunchedEffect
+        for (target in listOf(-12f, 12f, -9f, 9f, -5f, 5f, 0f)) {
+            shake.animateTo(target, tween(durationMillis = 45))
+        }
+    }
+
+    val submit = { onSubmit(value.text) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = { new ->
+                // Convert only what precedes the caret, so editing mid-word keeps the caret
+                // in place instead of jumping to the end.
+                val caret = new.selection.end
+                val head = RomajiConverter.convert(new.text.take(caret))
+                val converted = head + new.text.drop(caret)
+                value = if (converted == new.text) new else TextFieldValue(converted, TextRange(head.length))
+            },
+            label = { Text("Answer (答え)") },
+            supportingText = {
+                Text("Type romaji (e.g. \"tabenai\") or use a Japanese keyboard. Use \"nn\" for ん.")
+            },
+            textStyle = answerStyle().copy(textAlign = TextAlign.Center),
+            singleLine = true,
+            shape = MaterialTheme.shapes.large,
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,
+                autoCorrectEnabled = false,
+                imeAction = ImeAction.Done,
+            ),
+            keyboardActions = KeyboardActions(onDone = { submit() }),
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset { IntOffset(shake.value.dp.roundToPx(), 0) }
+                .focusRequester(focusRequester),
+        )
+        Button(onClick = submit, modifier = Modifier.fillMaxWidth()) {
+            Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+            Text("Check")
+        }
+    }
+}
+
+private fun answerStyle() = TextStyle(fontSize = 26.sp, localeList = JapaneseLocale)
+
+@Composable
+private fun ResultCard(
+    quiz: QuizState,
+    options: QuizOptions,
+    focusNext: Boolean,
+    onExplain: () -> Unit,
+    onProceed: () -> Unit,
+) {
+    val answer = quiz.answer ?: return
+    val correct = answer.correct
+    val answerColors = DrillTheme.answerColors
+    val scheme = MaterialTheme.colorScheme
+    val container = if (correct) answerColors.correctContainer else scheme.errorContainer
+    val onContainer = if (correct) answerColors.onCorrectContainer else scheme.onErrorContainer
+
+    // Like the web drill, move focus to "Next" so a hardware Enter continues instead of hitting "close".
+    val nextFocus = remember { FocusRequester() }
+    LaunchedEffect(focusNext) { if (focusNext) nextFocus.requestFocus() }
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // What the user typed.
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(containerColor = container, contentColor = onContainer),
+        ) {
+            Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = if (correct) answerColors.correct else scheme.error,
+                    contentColor = if (correct) answerColors.onCorrect else scheme.onError,
+                ) {
+                    Icon(
+                        if (correct) Icons.Default.Check else Icons.Default.Close,
+                        contentDescription = if (correct) "Correct" else "Incorrect",
+                        modifier = Modifier
+                            .padding(6.dp)
+                            .size(20.dp),
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    answer.response,
+                    style = MaterialTheme.typography.titleLarge.copy(localeList = JapaneseLocale),
+                )
+            }
+        }
+
+        // The correct answer and what to do next.
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+        ) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (!correct) {
+                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("The correct answer was", style = MaterialTheme.typography.bodyLarge)
+                        RichText(
+                            parts = Prompts.wordList(quiz.question.answersDisplay(options.kana)),
+                            style = MaterialTheme.typography.headlineSmall,
+                            furiganaAlways = options.furiganaAlways,
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+                ) {
+                    if (!correct && !quiz.showExplanation) {
+                        OutlinedButton(onClick = onExplain) {
+                            Icon(
+                                Icons.Default.Info,
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                            )
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Explain")
+                        }
+                    }
+                    Button(onClick = onProceed, modifier = Modifier.focusRequester(nextFocus)) {
+                        Text(if (quiz.history.size >= quiz.total) "Results" else "Next")
+                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> Unit) {
+    val question = quiz.question
+    val t = question.transformation
+    val word = question.word
+    val furigana = options.furiganaAlways
+    val body = MaterialTheme.typography.bodyLarge
+    val uriHandler = LocalUriHandler.current
+    val groupLabel = QuizEngine.groupLabels[word.group] ?: word.group
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+    ) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            SectionTitle("Goal")
+            // The given word is already shown in the question card, so only the tags are compared here.
+            FormRow("from", tagParts(t.fromTags), furigana)
+            FormRow("to", tagParts(t.toTags), furigana)
+            if (t.isTrick) {
+                Text(
+                    "It is already in that form — this was a trick question.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            SectionTitle("Root word")
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RichText(
+                    listOf(RichPart.Jp(question.dictionaryDisplay(options.kana))),
+                    style = MaterialTheme.typography.headlineSmall,
+                    furiganaAlways = furigana,
+                    modifier = Modifier.weight(1f),
+                )
+                TextButton(
+                    onClick = {
+                        uriHandler.openUri("https://jisho.org/search/" + Uri.encode(Furigana.toKanji(word.dictionary)))
+                    },
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(4.dp))
+                    Text("Look up", style = MaterialTheme.typography.labelMedium)
+                }
+            }
+            Text(
+                // The words' notes only restate these two facts in a longer form, so they are not shown.
+                listOfNotNull(
+                    groupLabel,
+                    word.tags.firstOrNull { it == "transitive" || it == "intransitive" },
+                    word.meaning,
+                ).joinToString(" · "),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            // Supporting material: a quiet example of the word in use.
+            if (word.sentenceJp.isNotEmpty()) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                    modifier = Modifier.padding(start = 12.dp),
+                ) {
+                    Text(
+                        word.sentenceJp,
+                        style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
+                    )
+                    Text(
+                        word.sentenceEn,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            SectionTitle("Solution")
+            val solution = remember(question.id) { Explanations.solution(word, t.to) }
+            val display: (String) -> String = { if (options.kana) Furigana.toKana(it) else it }
+            if (solution.steps.isEmpty()) {
+                Text("This is the dictionary form itself, so nothing needs to be added.", style = body)
+            }
+            solution.steps.forEachIndexed { i, step ->
+                SolutionStepView(i + 1, step, display, furigana)
+            }
+
+            val proceedFocus = remember { FocusRequester() }
+            LaunchedEffect(Unit) { proceedFocus.requestFocus() }
+            Button(
+                onClick = onProceed,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .focusRequester(proceedFocus),
+            ) {
+                Text("OK, next question")
+            }
+        }
+    }
+}
+
+@Composable
+private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) -> String, furigana: Boolean) {
+    // The rule is supporting text; the forms it produces are the part worth looking at.
+    val ruleStyle = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale)
+    val rule = step.rule.map { if (it is RichPart.Jp) RichPart.Jp(display(it.word)) else it }
+
+    Row {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.size(24.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Text("$number", style = MaterialTheme.typography.labelMedium)
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                step.label,
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            RichText(
+                rule,
+                style = ruleStyle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                furiganaAlways = furigana,
+            )
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surfaceContainerHighest,
+            ) {
+                RichText(
+                    listOf(RichPart.Jp(display(step.from)), RichPart.Text("  →  ")) +
+                        Prompts.wordList(step.to.map(display)),
+                    style = MaterialTheme.typography.titleMedium,
+                    furiganaAlways = furigana,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) {
+    Text(
+        text.uppercase(),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.primary,
+        letterSpacing = 1.sp,
+    )
+}
+
+/** One line of the goal: a "from"/"to" label followed by the form's tags. */
+@Composable
+private fun FormRow(label: String, parts: List<RichPart>, furigana: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.width(44.dp),
+        )
+        RichText(parts, style = MaterialTheme.typography.bodyLarge, furiganaAlways = furigana)
+    }
+}
