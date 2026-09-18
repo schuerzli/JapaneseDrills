@@ -2,6 +2,8 @@ package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.Curriculum
+import com.japanesedrills.quiz.Explanations
+import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
@@ -13,6 +15,7 @@ import com.japanesedrills.quiz.TransformationBuilder
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -139,6 +142,30 @@ class LearnPathTest {
         }
     }
 
+    /**
+     * The first lesson offers sixteen pairs and asks twelve questions. Drawing each one
+     * independently repeated three or four of them, which is invisible on the big practice
+     * pools and glaring in a lesson.
+     */
+    @Test
+    fun aLessonNeverAsksTheSameQuestionTwice() {
+        for (lesson in curriculum.lessons) {
+            val pool = engine.buildPool(curriculum.optionsFor(lesson, QuizOptions()))
+            val drawn = engine.buildQueue(pool, lesson.questions)
+            assertEquals("${lesson.id} came up short", lesson.questions, drawn.size)
+            assertEquals("${lesson.id} repeats a question", drawn.size, drawn.toSet().size)
+        }
+    }
+
+    @Test
+    fun aSessionLongerThanItsPoolFallsBackToRepeatsRatherThanStoppingShort() {
+        val pool = engine.buildPool(curriculum.optionsFor(curriculum["start"]!!, QuizOptions()))
+        val drawn = engine.buildQueue(pool, pool.size + 5)
+        assertEquals(pool.size + 5, drawn.size)
+        // Every distinct pair is still used before anything is repeated.
+        assertEquals(pool.size, drawn.take(pool.size).toSet().size)
+    }
+
     @Test
     fun aLessonOnlyAsksAboutItsOwnVocabulary() {
         val lesson = curriculum["past"]!!
@@ -190,6 +217,50 @@ class LearnPathTest {
                 "${lesson.id} records skills ${recorded - types} its forms cannot explain",
                 types.containsAll(recorded),
             )
+        }
+    }
+
+    // Grammar. The reference and the lesson intros share this content, so a form with no
+    // note means both a gap in the list and a lesson that teaches a rule it never states.
+
+    @Test
+    fun everyFormOptionHasAGrammarNote() {
+        for (key in QuizOptions.FORM_KEYS) {
+            assertNotNull("form option '$key' has no grammar note", Grammar[key])
+        }
+        for (note in Grammar.NOTES) {
+            assertTrue("grammar note '${note.key}' is not a form the drill offers", note.key in QuizOptions.FORM_KEYS)
+        }
+    }
+
+    @Test
+    fun everyLessonIntroducesSomethingItCanExplain() {
+        for (lesson in curriculum.lessons) {
+            assertTrue(
+                "${lesson.id} introduces nothing, so it would go straight to questions",
+                lesson.newWords.isNotEmpty() || lesson.newForms.isNotEmpty(),
+            )
+            for (form in lesson.newForms) {
+                assertNotNull("${lesson.id} adds '$form' with no grammar note", Grammar[form])
+            }
+        }
+    }
+
+    @Test
+    fun everyFormCanBeShownBeingBuilt() {
+        val examples = Grammar.EXAMPLE_KEYS.map { key ->
+            data.wordsByKey[key] ?: error("grammar example '$key' is not in words.json")
+        }
+        for (note in Grammar.NOTES) {
+            val target = Grammar.conjugationOf(note.key) ?: continue
+            val usable = examples.filter { it.conjugations[target]?.forms?.isNotEmpty() == true }
+            assertTrue("no example word has a ${note.key} form", usable.isNotEmpty())
+            for (word in usable) {
+                assertTrue(
+                    "${note.key} of ${word.key} derives no steps, so the card would be empty",
+                    Explanations.solution(word, target).steps.isNotEmpty(),
+                )
+            }
         }
     }
 

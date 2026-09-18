@@ -31,6 +31,8 @@ import com.japanesedrills.ui.Screen
 import com.japanesedrills.ui.Tab as AppTab
 import com.japanesedrills.ui.screens.AboutScreen
 import com.japanesedrills.ui.screens.AppSettingsScreen
+import com.japanesedrills.ui.screens.GrammarDetailScreen
+import com.japanesedrills.ui.screens.GrammarScreen
 import com.japanesedrills.ui.screens.LearnPathScreen
 import com.japanesedrills.ui.screens.LessonIntroScreen
 import com.japanesedrills.ui.screens.PracticeBar
@@ -70,6 +72,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
     // Bound to locals so the null checks below smart-cast inside the lambdas.
     val quiz = state.quiz
     val lesson = state.lesson
+    val note = state.grammarNote
     when {
         state.screen == Screen.Quiz && quiz != null -> {
             BackHandler(onBack = viewModel::backToRoot)
@@ -89,9 +92,22 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             LessonIntroScreen(
                 lesson = lesson,
                 words = state.introWords,
+                forms = state.introForms,
+                examples = state.grammarExamples,
                 options = state.options,
                 onStart = { viewModel.startLesson(lesson) },
                 onQuit = viewModel::backToRoot,
+                modifier = contentModifier,
+            )
+        }
+
+        state.screen == Screen.GrammarDetail && note != null -> {
+            BackHandler(onBack = viewModel::backToRoot)
+            GrammarDetailScreen(
+                note = note,
+                examples = state.grammarExamples,
+                furiganaAlways = state.options.furiganaAlways,
+                onBack = viewModel::backToRoot,
                 modifier = contentModifier,
             )
         }
@@ -117,7 +133,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
 }
 
 /**
- * The three tabs. Learn is first and the default: it is the one screen that tells a
+ * The four tabs. Learn is first and the default: it is the one screen that tells a
  * newcomer what to do, where the practice grid assumes you already know the grammar.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,6 +173,8 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onReview = viewModel::startReview,
                 modifier = inner,
             )
+
+            AppTab.Grammar -> GrammarScreen(onForm = viewModel::showGrammar, modifier = inner)
 
             AppTab.Practice -> PracticeScreen(
                 state = state,

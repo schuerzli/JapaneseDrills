@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.Grammar
+import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.OptionsStore
@@ -34,9 +36,15 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import kotlin.random.Random
 
-enum class Tab(val label: String) { Learn("Learn Path"), Practice("Free Practice"), Settings("Settings") }
+/** Labels are kept short because four fixed tabs have to share one phone-width row. */
+enum class Tab(val label: String) {
+    Learn("Learn"),
+    Grammar("Grammar"),
+    Practice("Practice"),
+    Settings("Settings"),
+}
 
-enum class Screen { Root, LessonIntro, Quiz, Results, About }
+enum class Screen { Root, LessonIntro, Quiz, Results, About, GrammarDetail }
 
 /** Which of the three things the running quiz is. */
 enum class SessionKind { Practice, Lesson, Review }
@@ -97,6 +105,12 @@ data class DrillUiState(
     val lesson: Lesson? = null,
     /** New vocabulary to present before [lesson] starts. */
     val introWords: List<Word> = emptyList(),
+    /** New grammar to present before [lesson] starts, in the order the lesson adds it. */
+    val introForms: List<GrammarNote> = emptyList(),
+    /** The form being read about on the Grammar tab. */
+    val grammarNote: GrammarNote? = null,
+    /** Representative words for showing how a form is built. */
+    val grammarExamples: List<Word> = emptyList(),
     val outcome: LessonOutcome? = null,
     /** Set when stored progress could not be read and was put aside rather than overwritten. */
     val salvagedProgress: Boolean = false,
@@ -128,11 +142,14 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     private var data: DrillData? = null
     private var engine: QuizEngine? = null
     private var pool: QuestionPool? = null
-    private var activePool: QuestionPool? = null
     private var poolJob: Job? = null
 
-    /** Pre-picked packed pairs for a review session; empty for other session kinds. */
-    private var reviewQueue: MutableList<Int> = mutableListOf()
+    /**
+     * The rest of the running session's questions, as packed pairs. Every session kind
+     * draws its questions up front so none of them can ask the same pair twice while
+     * unasked ones remain.
+     */
+    private var queue: MutableList<Int> = mutableListOf()
 
     private val today: Long get() = LocalDate.now().toEpochDay()
 
@@ -141,7 +158,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             val loaded = withContext(Dispatchers.IO) { DrillData.load(getApplication()) }
             data = loaded
             engine = QuizEngine(loaded)
-            _state.update { it.copy(loading = false) }
+            val examples = Grammar.EXAMPLE_KEYS.mapNotNull(loaded.wordsByKey::get)
+            _state.update { it.copy(loading = false, grammarExamples = examples) }
             refreshPath()
             refreshPool()
         }
@@ -165,10 +183,17 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun showAbout() = _state.update { it.copy(screen = Screen.About) }
 
     fun backToRoot() {
-        activePool = null
-        reviewQueue.clear()
+        queue.clear()
         _state.update {
-            it.copy(screen = Screen.Root, quiz = null, lesson = null, introWords = emptyList(), outcome = null)
+            it.copy(
+                screen = Screen.Root,
+                quiz = null,
+                lesson = null,
+                introWords = emptyList(),
+                introForms = emptyList(),
+                grammarNote = null,
+                outcome = null,
+            )
         }
         // Every route back to the path runs through here, including quitting a session
         // part-way. Reviews and abandoned lessons still moved the schedule, so the due
@@ -266,13 +291,25 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun openLesson(lesson: Lesson) {
         val data = data ?: return
         val words = lesson.newWords.mapNotNull(data.wordsByKey::get)
-        if (words.isEmpty()) {
+        val forms = lesson.newForms.mapNotNull(Grammar::get)
+        if (words.isEmpty() && forms.isEmpty()) {
             startLesson(lesson)
             return
         }
-        // A lesson that introduces vocabulary shows it first: the drill grades production,
-        // and grading a word the learner has never been shown tests nothing useful.
-        _state.update { it.copy(screen = Screen.LessonIntro, lesson = lesson, introWords = words) }
+        // Whatever the lesson adds is shown before it is graded. Vocabulary because the
+        // drill tests production, and grading a word never shown tests nothing useful;
+        // grammar because a form lesson used to go straight to questions about a rule it
+        // had never stated.
+        _state.update {
+            it.copy(screen = Screen.LessonIntro, lesson = lesson, introWords = words, introForms = forms)
+        }
+    }
+
+    // Grammar
+
+    fun showGrammar(formKey: String) {
+        val note = Grammar[formKey] ?: return
+        _state.update { it.copy(screen = Screen.GrammarDetail, grammarNote = note) }
     }
 
     fun startLesson(lesson: Lesson) {
@@ -281,14 +318,14 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val options = curriculum.optionsFor(lesson, _state.value.options)
 
         viewModelScope.launch {
-            val lessonPool = withContext(Dispatchers.Default) { engine.buildPool(options) }
-            val question = engine.nextQuestion(lessonPool)
+            val drawn = withContext(Dispatchers.Default) {
+                engine.buildQueue(engine.buildPool(options), lesson.questions)
+            }
+            val question = startQueue(drawn)
             if (question == null) {
                 backToRoot()
                 return@launch
             }
-            activePool = lessonPool
-            reviewQueue.clear()
             _state.update {
                 it.copy(
                     screen = Screen.Quiz,
@@ -314,22 +351,20 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val options = curriculum.optionsFor(words, forms, _state.value.options)
 
         viewModelScope.launch {
-            val queue = withContext(Dispatchers.Default) {
+            val drawn = withContext(Dispatchers.Default) {
                 buildReviewQueue(engine, options, progress, today)
             }
-            if (queue.isEmpty()) {
+            val question = startQueue(drawn)
+            if (question == null) {
                 backToRoot()
                 return@launch
             }
-            reviewQueue = queue.toMutableList()
-            activePool = null
-            val question = engine.questionFor(reviewQueue.removeAt(0))
             _state.update {
                 it.copy(
                     screen = Screen.Quiz,
                     kind = SessionKind.Review,
                     lesson = null,
-                    quiz = QuizState(queue.size, question),
+                    quiz = QuizState(drawn.size, question),
                     quizOptions = options,
                 )
             }
@@ -412,9 +447,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val pool = pool?.takeIf { it.options.sameQuestions(state.options) } ?: return
         val total = state.options.questionCount ?: return
         if (!state.canStart) return
-        val question = engine.nextQuestion(pool) ?: return
-        activePool = pool
-        reviewQueue.clear()
+        val question = startQueue(engine.buildQueue(pool, total)) ?: return
         _state.update {
             it.copy(
                 screen = Screen.Quiz,
@@ -424,6 +457,13 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 quizOptions = state.options,
             )
         }
+    }
+
+    /** Loads a drawn session and takes its first question, or null if nothing was drawn. */
+    private fun startQueue(drawn: List<Int>): Question? {
+        if (drawn.isEmpty()) return null
+        queue = drawn.toMutableList()
+        return engine?.questionFor(queue.removeAt(0))
     }
 
     fun submit(rawResponse: String) {
@@ -496,14 +536,11 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             finish(quiz)
             return
         }
-        val question = when (state.kind) {
-            // removeAt rather than removeFirst: the latter clashes with the SequencedCollection
-            // default method on newer JDKs and fails at runtime on older Android.
-            SessionKind.Review -> reviewQueue.takeIf { it.isNotEmpty() }
-                ?.removeAt(0)
-                ?.let { engine?.questionFor(it) }
-            else -> activePool?.let { engine?.nextQuestion(it) }
-        }
+        // removeAt rather than removeFirst: the latter clashes with the SequencedCollection
+        // default method on newer JDKs and fails at runtime on older Android.
+        val question = queue.takeIf { it.isNotEmpty() }
+            ?.removeAt(0)
+            ?.let { engine?.questionFor(it) }
         if (question == null) {
             finish(quiz)
             return

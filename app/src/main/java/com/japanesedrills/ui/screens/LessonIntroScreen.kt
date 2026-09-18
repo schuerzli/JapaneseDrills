@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
@@ -53,6 +54,8 @@ import com.japanesedrills.ui.components.RichText
 fun LessonIntroScreen(
     lesson: Lesson,
     words: List<Word>,
+    forms: List<GrammarNote>,
+    examples: List<Word>,
     options: QuizOptions,
     onStart: () -> Unit,
     onQuit: () -> Unit,
@@ -95,12 +98,21 @@ fun LessonIntroScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            item {
-                Text(
-                    "New words in this lesson",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 4.dp),
-                )
+            // Grammar first: the words are practice material for whatever the form is.
+            for (note in forms) {
+                item(key = "usage-${note.key}") { GrammarUsage(note) }
+                item(key = "build-${note.key}") {
+                    GrammarConstruction(note, examples, furiganaAlways = true)
+                }
+            }
+            if (words.isNotEmpty()) {
+                item {
+                    Text(
+                        "New words in this lesson",
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                    )
+                }
             }
             items(words, key = { it.key }) { word -> WordCard(word, options) }
         }

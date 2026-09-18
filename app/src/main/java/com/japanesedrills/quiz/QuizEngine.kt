@@ -46,6 +46,29 @@ private class IntList(initialCapacity: Int = 16) {
 }
 
 /**
+ * A draw pile over a copy of the pool, shuffled one card at a time.
+ *
+ * Shuffling up front would copy and box a six-figure practice pool for the sake of a dozen
+ * questions; this does the same Fisher-Yates walk but only as far as it is actually drawn.
+ */
+private class Deck(source: IntArray, private val random: Random) {
+
+    private val cards = source.copyOf()
+    private var remaining = cards.size
+
+    val isEmpty: Boolean get() = remaining == 0
+
+    /** A card at random, never the same one twice. */
+    fun draw(): Int {
+        val top = --remaining
+        val chosen = random.nextInt(top + 1)
+        val value = cards[chosen]
+        cards[chosen] = cards[top]
+        return value
+    }
+}
+
+/**
  * All (word, transformation) pairs allowed by a set of options, split into regular and
  * trick questions. Pairs are packed as `wordIndex * transformationCount + transformationIndex`.
  */
@@ -66,6 +89,37 @@ class QuestionPool(
         trick.isEmpty() -> regular.random(random)
         random.nextDouble() < TRICK_RATE -> trick.random(random)
         else -> regular.random(random)
+    }
+
+    /**
+     * [count] questions drawn *without* replacement, so a session cannot ask the same
+     * (word, form) pair twice while unasked ones remain.
+     *
+     * Picking independently each time looked fine on the big free-practice pools and was
+     * obviously wrong on a lesson: the first lesson offers sixteen pairs and asks twelve
+     * questions, which with replacement repeats three or four of them.
+     *
+     * Repeats are only allowed once the pool is genuinely exhausted, which is what the
+     * "not enough questions" warning on the practice screen is about.
+     */
+    internal fun sample(count: Int, random: Random): List<Int> {
+        if (isEmpty || count <= 0) return emptyList()
+
+        val regularDeck = Deck(regular, random)
+        val trickDeck = Deck(trick, random)
+        val picked = ArrayList<Int>(count)
+
+        while (picked.size < count) {
+            val deck = when {
+                !trickDeck.isEmpty && random.nextDouble() < TRICK_RATE -> trickDeck
+                !regularDeck.isEmpty -> regularDeck
+                !trickDeck.isEmpty -> trickDeck
+                // Every distinct pair has been drawn; only now start repeating.
+                else -> null
+            }
+            picked += deck?.draw() ?: pick(random) ?: break
+        }
+        return picked
     }
 
     private companion object {
@@ -131,6 +185,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     }
 
     fun nextQuestion(pool: QuestionPool): Question? = pool.pick(random)?.let(::questionFor)
+
+    /** A whole session's questions up front, drawn without replacement. */
+    fun buildQueue(pool: QuestionPool, count: Int): List<Int> = pool.sample(count, random)
 
     /** The word a packed pair refers to, without building the whole question. */
     fun wordOf(packed: Int): Word = data.words[packed / data.transformations.size]
