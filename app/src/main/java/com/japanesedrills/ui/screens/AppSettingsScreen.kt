@@ -82,9 +82,19 @@ fun AppSettingsScreen(
                 },
                 style = MaterialTheme.typography.bodyMedium,
             )
+            if (state.salvagedProgress) {
+                Text(
+                    "Saved progress could not be read and has been set aside rather than " +
+                        "overwritten. Resetting below will discard it for good.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
             OutlinedButton(
                 onClick = { confirming = true },
-                enabled = !state.progress.isEmpty,
+                // Also enabled when a document was set aside: that is the only way to
+                // clear it, and the notice above tells the user resetting will do so.
+                enabled = !state.progress.isEmpty || state.salvagedProgress,
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
             ) {
                 Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))

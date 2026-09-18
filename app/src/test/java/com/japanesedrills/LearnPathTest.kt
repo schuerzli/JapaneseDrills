@@ -163,6 +163,33 @@ class LearnPathTest {
         }
     }
 
+    /**
+     * Form option keys and transformation types are almost the same vocabulary, which is
+     * exactly why the one mismatch (plain/polite both record as "politeness") went unseen:
+     * the mastery ring silently matched nothing for the first lesson.
+     */
+    @Test
+    fun everyFormOptionMapsOntoARealTransformationType() {
+        val types = data.transformations.map { it.type }.toSet()
+        for (key in QuizOptions.FORM_KEYS) {
+            val mapped = TransformationBuilder.typeOfForm(key)
+            assertTrue("form '$key' maps to '$mapped', which no transformation has", mapped in types)
+        }
+    }
+
+    @Test
+    fun aLessonsFormsMapOntoSkillsItCanActuallyRecord() {
+        for (lesson in curriculum.lessons) {
+            val types = curriculum.forms(lesson.id).map(TransformationBuilder::typeOfForm).toSet()
+            val options = curriculum.optionsFor(lesson, QuizOptions())
+            val recorded = engine.buildSkillIndex(options).keys.map(QuizEngine::typeOfSkill).toSet()
+            assertTrue(
+                "${lesson.id} records skills ${recorded - types} its forms cannot explain",
+                types.containsAll(recorded),
+            )
+        }
+    }
+
     // Review
 
     @Test
@@ -210,11 +237,30 @@ class LearnPathTest {
     }
 
     @Test
+    fun anItemNeverAnsweredCorrectlyIsNotTreatedAsLearned() {
+        val wrong = Scheduler.review(SrsState(), correct = false, today = 10)
+        assertEquals("a first miss must not climb onto the ladder", Scheduler.UNLEARNED, wrong.step)
+        assertEquals(0f, Scheduler.strength(wrong), 0.001f)
+        assertEquals(1, wrong.lapses)
+
+        // ...and it must be distinguishable from having got it right first time.
+        val right = Scheduler.review(SrsState(), correct = true, today = 10)
+        assertTrue("right and wrong must not leave the same state", right.step != wrong.step)
+        assertTrue(Scheduler.strength(right) > Scheduler.strength(wrong))
+    }
+
+    @Test
     fun easeStaysWithinBounds() {
         var hard = SrsState()
         repeat(30) { hard = Scheduler.review(hard, correct = false, today = hard.due) }
         assertTrue(hard.ease >= 0.6)
-        assertEquals("a lapse never goes below the first rung", 0, hard.step)
+        assertEquals("never learned, so still below the ladder", Scheduler.UNLEARNED, hard.step)
+
+        // An item that was learned and then repeatedly missed stops at the first rung
+        // rather than dropping off the ladder entirely.
+        var lapsed = Scheduler.review(SrsState(), correct = true, today = 0)
+        repeat(30) { lapsed = Scheduler.review(lapsed, correct = false, today = lapsed.due) }
+        assertEquals("a lapse never goes below the first rung", 0, lapsed.step)
 
         var easy = SrsState()
         repeat(30) { easy = Scheduler.review(easy, correct = true, today = easy.due) }

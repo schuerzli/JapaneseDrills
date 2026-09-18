@@ -28,6 +28,16 @@ object TransformationBuilder {
 
     const val TRICK = "trick"
 
+    /**
+     * The [Transformation.type] a form option belongs to. Every form key is its own type
+     * except "plain" and "polite", which are two ends of one question ("politeness").
+     *
+     * Anything mapping form options onto recorded skills has to go through this, because
+     * the two vocabularies are otherwise identical and the mismatch is invisible.
+     */
+    fun typeOfForm(formKey: String): String =
+        if (formKey == "plain" || formKey == "polite") "politeness" else formKey
+
     private val fromExtra = mapOf(
         "negative" to "affirmative",
         "past" to "present",
@@ -107,10 +117,11 @@ object TransformationBuilder {
 
         val fromTags = formTags(from)
         val toTags = formTags(to)
-        var type = (fromTags - toTags.toSet()).firstOrNull()
-            ?: (toTags - fromTags.toSet()).firstOrNull()
-            ?: return null
-        if (type == "plain" || type == "polite") type = "politeness"
+        val type = typeOfForm(
+            (fromTags - toTags.toSet()).firstOrNull()
+                ?: (toTags - fromTags.toSet()).firstOrNull()
+                ?: return null
+        )
 
         return Transformation(
             from = from,

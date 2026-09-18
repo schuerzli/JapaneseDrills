@@ -58,15 +58,23 @@ class ProgressStore(context: Context) {
     fun load(): Progress {
         val raw = prefs.getString(KEY, null) ?: return Progress()
         return runCatching { parse(raw) }.getOrElse {
-            // Corrupt or from a future version: start clean rather than crash on launch.
+            // Corrupt, truncated, or written by a newer version. Starting clean is the only
+            // way to open at all, but the next answered question would persist the empty
+            // document straight over it, so move the unreadable text aside first: progress
+            // is the one thing here that cannot be rebuilt from the assets.
+            prefs.edit().putString(SALVAGE_KEY, raw).remove(KEY).apply()
             Progress()
         }
     }
+
+    /** True when [load] had to set a document aside; the settings screen says so. */
+    fun hasSalvage(): Boolean = prefs.contains(SALVAGE_KEY)
 
     fun save(progress: Progress) {
         prefs.edit().putString(KEY, render(progress).toString()).apply()
     }
 
+    /** Clears the progress and any set-aside document; the screen confirms before calling. */
     fun clear() {
         prefs.edit().clear().apply()
     }
@@ -136,6 +144,7 @@ class ProgressStore(context: Context) {
 
     private companion object {
         const val KEY = "data"
+        const val SALVAGE_KEY = "unreadable"
         const val VERSION = 1
     }
 }

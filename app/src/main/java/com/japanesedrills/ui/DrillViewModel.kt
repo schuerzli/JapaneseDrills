@@ -18,6 +18,7 @@ import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
 import com.japanesedrills.quiz.ThemeChoice
+import com.japanesedrills.quiz.TransformationBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,6 +93,8 @@ data class DrillUiState(
     /** New vocabulary to present before [lesson] starts. */
     val introWords: List<Word> = emptyList(),
     val outcome: LessonOutcome? = null,
+    /** Set when stored progress could not be read and was put aside rather than overwritten. */
+    val salvagedProgress: Boolean = false,
 ) {
     val canStart: Boolean
         get() = !loading && options.hasPoliteness && options.questionCount != null && (pool?.questions ?: 0) > 0
@@ -108,7 +111,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     private val store = OptionsStore(application)
     private val progressStore = ProgressStore(application)
     private val _state = MutableStateFlow(
-        DrillUiState(options = store.load(), progress = progressStore.load())
+        DrillUiState(
+            options = store.load(),
+            progress = progressStore.load(),
+            // Read after load(), which is what sets it.
+            salvagedProgress = progressStore.hasSalvage(),
+        )
     )
     val state: StateFlow<DrillUiState> = _state.asStateFlow()
 
@@ -146,6 +154,10 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         _state.update {
             it.copy(screen = Screen.Root, quiz = null, lesson = null, introWords = emptyList(), outcome = null)
         }
+        // Every route back to the path runs through here, including quitting a session
+        // part-way. Reviews and abandoned lessons still moved the schedule, so the due
+        // count and the mastery rings have to be recomputed even though nothing was graded.
+        refreshPath()
     }
 
     // Settings
@@ -164,7 +176,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     /** Wipes the learn path. Irreversible, so the screen confirms before calling this. */
     fun resetProgress() {
         progressStore.clear()
-        _state.update { it.copy(progress = Progress()) }
+        _state.update { it.copy(progress = Progress(), salvagedProgress = false) }
         refreshPath()
     }
 
@@ -210,7 +222,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /** A lesson's mastery is the weakest of the skills it drills, so one rusty form shows. */
     private fun strengthOf(lesson: Lesson, progress: Progress): Float {
-        val types = data?.curriculum?.forms(lesson.id).orEmpty()
+        // Form options and transformation types are near-identical vocabularies, but
+        // plain/polite both record as "politeness"; map before comparing or the first
+        // lesson's ring can never fill.
+        val types = data?.curriculum?.forms(lesson.id)
+            .orEmpty()
+            .mapTo(HashSet(), TransformationBuilder::typeOfForm)
         val relevant = progress.skills.filterKeys { QuizEngine.typeOfSkill(it) in types }
         if (relevant.isEmpty()) return 0f
         return relevant.values.minOf { Scheduler.strength(it) }
@@ -459,7 +476,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             null
         }
         _state.update { it.copy(screen = Screen.Results, outcome = outcome) }
-        if (outcome != null) refreshPath()
+        refreshPath()
     }
 
     /**

@@ -31,6 +31,9 @@ object Scheduler {
     /** Days between reviews at each step. */
     val LADDER = intArrayOf(1, 3, 7, 16, 35, 90)
 
+    /** [SrsState.step] for an item that has been met but never answered correctly. */
+    const val UNLEARNED = -1
+
     private const val EASE_MIN = 0.6
     private const val EASE_MAX = 1.4
     private const val EASE_UP = 1.05
@@ -53,8 +56,12 @@ object Scheduler {
         // A lapse steps back one rung rather than resetting to zero: a single slip on a
         // well-known item is not evidence that it was never learned, and a hard reset is
         // the fastest way to make a review queue feel punitive.
+        //
+        // An item that has never been answered correctly stays below the ladder instead,
+        // otherwise getting it wrong first time would leave it in the same state as
+        // getting it right and would show up as mastery it has not earned.
         else -> state.copy(
-            step = max(state.step - 1, 0),
+            step = if (state.step <= UNLEARNED) UNLEARNED else max(state.step - 1, 0),
             ease = max(state.ease * EASE_DOWN, EASE_MIN),
             due = today + 1,
             reps = state.reps + 1,
