@@ -42,43 +42,36 @@ data class Progress(
 }
 
 /**
- * Persists [Progress] as one JSON document in its own preferences file.
+ * Turns [Progress] into text and back.
  *
- * SharedPreferences rather than Room or DataStore: the whole document is tens of KB and
- * is written once per answered question, which is well inside what it handles, and the
- * alternatives would add an annotation processor or a dependency to a build that has
- * neither. `android:allowBackup` is on, so this rides Android's auto-backup.
+ * The same document is both what gets stored and what the user copies out, so there is
+ * one format and one parser rather than a storage format plus an export format that could
+ * disagree. Being free of Android types, it is also the part that unit tests can reach.
  */
-class ProgressStore(context: Context) {
+object ProgressCodec {
 
-    private val prefs = context.getSharedPreferences("progress", Context.MODE_PRIVATE)
+    /** Bumped only when the shape changes; [decode] refuses anything newer. */
+    const val VERSION = 1
 
-    fun load(): Progress {
-        val raw = prefs.getString(KEY, null) ?: return Progress()
-        return runCatching { parse(raw) }.getOrElse {
-            // Corrupt, truncated, or written by a newer version. Starting clean is the only
-            // way to open at all, but the next answered question would persist the empty
-            // document straight over it, so move the unreadable text aside first: progress
-            // is the one thing here that cannot be rebuilt from the assets.
-            prefs.edit().putString(SALVAGE_KEY, raw).remove(KEY).apply()
-            Progress()
-        }
+    /** [indent] > 0 pretty-prints, which is what makes an exported backup readable. */
+    fun encode(progress: Progress, indent: Int = 0): String {
+        val root = render(progress)
+        return if (indent > 0) root.toString(indent) else root.toString()
     }
 
-    /** True when [load] had to set a document aside; the settings screen says so. */
-    fun hasSalvage(): Boolean = prefs.contains(SALVAGE_KEY)
-
-    fun save(progress: Progress) {
-        prefs.edit().putString(KEY, render(progress).toString()).apply()
+    /** Throws if [text] is not a backup this version understands. */
+    fun decode(text: String): Progress {
+        val root = JSONObject(text)
+        // Demanded rather than defaulted: without it any stray JSON would decode to empty
+        // progress and quietly replace the real thing.
+        val version = root.getInt("version")
+        require(version <= VERSION) { "Backup is from a newer version ($version)" }
+        return parse(root)
     }
 
-    /** Clears the progress and any set-aside document; the screen confirms before calling. */
-    fun clear() {
-        prefs.edit().clear().apply()
-    }
+    fun decodeOrNull(text: String): Progress? = runCatching { decode(text.trim()) }.getOrNull()
 
-    private fun parse(raw: String): Progress {
-        val root = JSONObject(raw)
+    private fun parse(root: JSONObject): Progress {
         val lessons = root.optJSONObject("lessons")?.let { obj ->
             obj.keys().asSequence().associateWith { id ->
                 val o = obj.getJSONObject(id)
@@ -140,9 +133,46 @@ class ProgressStore(context: Context) {
         }
     }.orEmpty()
 
+}
+
+/**
+ * Persists [Progress] as one document in its own preferences file.
+ *
+ * SharedPreferences rather than Room or DataStore: the whole document is tens of KB, which
+ * is well inside what it handles, and the alternatives would add an annotation processor or
+ * a dependency to a build that has neither. `android:allowBackup` is on, so this rides
+ * Android's auto-backup as well.
+ */
+class ProgressStore(context: Context) {
+
+    private val prefs = context.getSharedPreferences("progress", Context.MODE_PRIVATE)
+
+    fun load(): Progress {
+        val raw = prefs.getString(KEY, null) ?: return Progress()
+        return runCatching { ProgressCodec.decode(raw) }.getOrElse {
+            // Corrupt, truncated, or written by a newer version. Starting clean is the only
+            // way to open at all, but the next answered question would persist the empty
+            // document straight over it, so move the unreadable text aside first: progress
+            // is the one thing here that cannot be rebuilt from the assets.
+            prefs.edit().putString(SALVAGE_KEY, raw).remove(KEY).apply()
+            Progress()
+        }
+    }
+
+    /** True when [load] had to set a document aside; the settings screen says so. */
+    fun hasSalvage(): Boolean = prefs.contains(SALVAGE_KEY)
+
+    fun save(progress: Progress) {
+        prefs.edit().putString(KEY, ProgressCodec.encode(progress)).apply()
+    }
+
+    /** Clears the progress and any set-aside document; the screen confirms before calling. */
+    fun clear() {
+        prefs.edit().clear().apply()
+    }
+
     private companion object {
         const val KEY = "data"
         const val SALVAGE_KEY = "unreadable"
-        const val VERSION = 1
     }
 }

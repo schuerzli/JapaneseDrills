@@ -102,6 +102,10 @@ questions, is in `tools/lessons/README.md`.
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at
   a time with a short pause.
+- **The working tree is CRLF**, pinned by `.gitattributes` because the generators write
+  CRLF and their `--check` modes compare bytes. `grep -c $'\r'` is not to be trusted for
+  checking this — it reports every line as matching even in an LF-only file. Count the
+  bytes instead: `tr -cd '\r' < file | wc -c`.
 - **The unit tests read the JSON assets straight off disk.** `app/build.gradle.kts`
   declares that directory as a test input so a data edit re-runs them; without it
   Gradle reports the tests "up to date" and silently skips them. Do not remove that

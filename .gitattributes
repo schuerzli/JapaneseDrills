@@ -1,0 +1,19 @@
+# Line endings are pinned rather than left to each machine's core.autocrlf.
+#
+# The generators under tools/ write CRLF so their output matches the checked-in
+# assets byte for byte, and their --check modes compare bytes. A clone that landed
+# LF in the working tree would fail those checks for no real reason, so the
+# checkout form is fixed here. Git still stores LF either way.
+* text=auto eol=crlf
+
+# ...except shell scripts, which break outright when given CRLF.
+*.sh    text eol=lf
+gradlew text eol=lf
+
+# Left alone entirely; never line-ending converted or diffed as text.
+*.jar      binary
+*.png      binary
+*.webp     binary
+*.ttf      binary
+*.otf      binary
+*.keystore binary

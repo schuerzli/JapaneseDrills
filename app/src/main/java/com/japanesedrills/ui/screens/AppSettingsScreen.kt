@@ -2,6 +2,7 @@ package com.japanesedrills.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -31,6 +34,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
@@ -44,10 +49,15 @@ fun AppSettingsScreen(
     state: DrillUiState,
     onTheme: (ThemeChoice) -> Unit,
     onResetProgress: () -> Unit,
+    onExport: () -> String,
+    onImport: (String) -> Boolean,
     onAbout: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var confirming by remember { mutableStateOf(false) }
+    var pendingImport by remember { mutableStateOf<String?>(null) }
+    var notice by remember { mutableStateOf<String?>(null) }
+    val clipboard = LocalClipboardManager.current
     val passed = state.progress.passed.size
 
     Column(
@@ -103,6 +113,48 @@ fun AppSettingsScreen(
             }
         }
 
+        SectionCard("Backup", "Progress is plain text — copy it somewhere safe, paste it back later") {
+            Text(
+                "Copying puts the whole learn path on the clipboard. Paste it into a note, " +
+                    "a message to yourself, anywhere that keeps text.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(
+                    onClick = {
+                        val text = onExport()
+                        clipboard.setText(AnnotatedString(text))
+                        notice = "Copied ${text.length} characters to the clipboard."
+                    },
+                    enabled = state.started,
+                ) {
+                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Text("Copy")
+                }
+                OutlinedButton(
+                    onClick = {
+                        val pasted = clipboard.getText()?.text.orEmpty()
+                        when {
+                            pasted.isBlank() -> notice = "The clipboard is empty."
+                            // Confirm first only when there is something to lose.
+                            state.started -> pendingImport = pasted
+                            else -> notice =
+                                if (onImport(pasted)) "Progress restored."
+                                else "That does not look like a progress backup."
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Text("Paste")
+                }
+            }
+            if (notice != null) {
+                Text(notice.orEmpty(), style = MaterialTheme.typography.bodyMedium)
+            }
+        }
+
         SectionCard("About") {
             Button(onClick = onAbout, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Outlined.Info, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
@@ -137,6 +189,35 @@ fun AppSettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { confirming = false }) { Text("Cancel") }
+            },
+        )
+    }
+
+    // Restoring replaces everything, so it asks in the one case where that costs something.
+    val importing = pendingImport
+    if (importing != null) {
+        AlertDialog(
+            onDismissRequest = { pendingImport = null },
+            title = { Text("Replace your progress?") },
+            text = {
+                Text(
+                    "The pasted backup will replace the learn path you have now. " +
+                        "Copy your current progress first if you might want it back."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        notice = if (onImport(importing)) "Progress restored."
+                        else "That does not look like a progress backup."
+                        pendingImport = null
+                    }
+                ) {
+                    Text("Replace")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingImport = null }) { Text("Cancel") }
             },
         )
     }

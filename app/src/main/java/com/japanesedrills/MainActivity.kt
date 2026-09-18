@@ -170,6 +170,8 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 state = state,
                 onTheme = viewModel::setTheme,
                 onResetProgress = viewModel::resetProgress,
+                onExport = viewModel::exportProgress,
+                onImport = viewModel::importProgress,
                 onAbout = viewModel::showAbout,
                 modifier = inner,
             )

@@ -9,6 +9,7 @@ import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.OptionsStore
 import com.japanesedrills.quiz.Progress
+import com.japanesedrills.quiz.ProgressCodec
 import com.japanesedrills.quiz.ProgressStore
 import com.japanesedrills.quiz.Question
 import com.japanesedrills.quiz.QuestionPool
@@ -187,6 +188,20 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Resets the practice settings only; the chosen theme is not one of them. */
     fun resetDefaults() = updateOptions { QuizOptions(theme = it.theme) }
+
+    /** The whole learn path as text, for copying somewhere safe. */
+    fun exportProgress(): String = ProgressCodec.encode(_state.value.progress, indent = 2)
+
+    /**
+     * Replaces the learn path from pasted text. Returns false, changing nothing, if the
+     * text is not a backup — a paste of the wrong thing must not wipe real progress.
+     */
+    fun importProgress(text: String): Boolean {
+        val imported = ProgressCodec.decodeOrNull(text) ?: return false
+        _state.update { it.copy(progress = imported, salvagedProgress = false) }
+        refreshPath()
+        return true
+    }
 
     /** Wipes the learn path. Irreversible, so the screen confirms before calling this. */
     fun resetProgress() {

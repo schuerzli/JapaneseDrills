@@ -2,7 +2,9 @@ package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.Curriculum
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.Progress
+import com.japanesedrills.quiz.ProgressCodec
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.Scheduler
@@ -11,6 +13,7 @@ import com.japanesedrills.quiz.TransformationBuilder
 import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -310,6 +313,46 @@ class LearnPathTest {
         assertEquals(1, progress.dueCount(10))
         assertEquals(2, progress.dueCount(50))
         assertEquals(0, progress.dueCount(4))
+    }
+
+    // Backup. The stored document and the one the user copies out are the same text, so
+    // these cover both saving and export/import.
+
+    @Test
+    fun aBackupRoundTripsEveryField() {
+        val original = Progress(
+            lessons = mapOf("start" to LessonRecord(passed = true, bestAccuracy = 0.92, attempts = 3)),
+            skills = mapOf("past|godan" to SrsState(step = 2, ease = 1.1, due = 20715, reps = 5, lapses = 1)),
+            words = mapOf("教える" to SrsState(step = 0, ease = 0.85, due = 20700, reps = 2, lapses = 2)),
+            leeches = mapOf("教える|politeness" to 3),
+        )
+        assertEquals(original, ProgressCodec.decode(ProgressCodec.encode(original)))
+        // Pretty-printing is only whitespace; it must decode to exactly the same thing.
+        assertEquals(original, ProgressCodec.decode(ProgressCodec.encode(original, indent = 2)))
+    }
+
+    @Test
+    fun anExportedBackupIsReadableText() {
+        val text = ProgressCodec.encode(Progress(skills = mapOf("past|godan" to SrsState())), indent = 2)
+        assertTrue("should be multi-line so it survives being pasted around", text.contains('\n'))
+        assertTrue(text.contains("past|godan"))
+    }
+
+    @Test
+    fun pastingSomethingElseIsRejectedRatherThanTreatedAsEmpty() {
+        // The danger is a silent wipe: anything unrecognised has to fail, not decode to
+        // an empty path that then replaces real progress.
+        assertNull(ProgressCodec.decodeOrNull("hello"))
+        assertNull(ProgressCodec.decodeOrNull(""))
+        assertNull(ProgressCodec.decodeOrNull("{}"))
+        assertNull(ProgressCodec.decodeOrNull("""{"lessons":{},"skills":{}}"""))
+        assertNull(ProgressCodec.decodeOrNull("""{"version":999,"skills":{}}"""))
+    }
+
+    @Test
+    fun surroundingWhitespaceFromACopyPasteIsTolerated() {
+        val text = ProgressCodec.encode(Progress(leeches = mapOf("a|past" to 2)), indent = 2)
+        assertEquals(mapOf("a|past" to 2), ProgressCodec.decodeOrNull("\n\n  $text  \n")?.leeches)
     }
 
     @Test
