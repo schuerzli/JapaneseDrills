@@ -197,7 +197,7 @@ class LearnPathTest {
         val passed = setOf("start", "negative")
         val words = passed.flatMapTo(HashSet()) { curriculum.words(it) }
         val forms = passed.flatMapTo(HashSet()) { curriculum.forms(it) }
-        val options = curriculum.optionsForReview(words, forms, QuizOptions())
+        val options = curriculum.optionsFor(words, forms, QuizOptions())
 
         val index = engine.buildSkillIndex(options)
         assertTrue("review pool is empty", index.isNotEmpty())

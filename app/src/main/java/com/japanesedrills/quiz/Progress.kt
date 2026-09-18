@@ -30,10 +30,8 @@ data class Progress(
 
     val isEmpty: Boolean get() = lessons.isEmpty() && skills.isEmpty() && words.isEmpty()
 
-    fun dueSkills(today: Long): List<String> =
-        skills.filterValues { Scheduler.isDue(it, today) }.keys.toList()
-
-    fun dueCount(today: Long): Int = dueSkills(today).size
+    /** How many skills are ready to be reviewed. The one definition of "due" for the UI. */
+    fun dueCount(today: Long): Int = skills.count { (_, state) -> Scheduler.isDue(state, today) }
 
     companion object {
         /** A pairing missed this often is a leech: it gets picked first in review. */

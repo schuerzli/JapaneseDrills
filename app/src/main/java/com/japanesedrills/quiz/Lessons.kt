@@ -58,12 +58,15 @@ class Curriculum(val lessons: List<Lesson>) {
         lessons.filter { id in it.requires && isUnlocked(it.id, passed) }
 
     /**
-     * The options a lesson is drilled with. Word groups and levels are wide open because
-     * [QuizOptions.wordKeys] already pins the exact vocabulary; the display preferences
-     * ride along from [base] so the learner's kana/furigana choices still apply.
+     * The options a set of vocabulary and forms is drilled with, used both for a single
+     * lesson and for a review spanning everything passed so far. Word groups and levels
+     * are wide open because [QuizOptions.wordKeys] already pins the exact vocabulary; the
+     * display preferences ride along from [base] so kana/furigana choices still apply.
+     *
+     * One builder for both, so a lesson and the review that follows it can never end up
+     * playing by different rules.
      */
-    fun optionsFor(lesson: Lesson, base: QuizOptions): QuizOptions {
-        val forms = forms(lesson.id)
+    fun optionsFor(words: Set<String>, forms: Set<String>, base: QuizOptions): QuizOptions {
         val flags = QuizOptions.DEFAULT_FLAGS.mapValues { (key, _) ->
             when (key) {
                 in QuizOptions.FORM_KEYS -> key in forms
@@ -78,30 +81,15 @@ class Curriculum(val lessons: List<Lesson>) {
         return QuizOptions(
             flags = flags,
             questionFocus = QuizOptions.FOCUS_NONE,
-            numQuestions = lesson.questions.toString(),
-            theme = base.theme,
-            wordKeys = words(lesson.id),
-        )
-    }
-
-    /** The same options as a lesson, but spanning everything passed so far. */
-    fun optionsForReview(words: Set<String>, forms: Set<String>, base: QuizOptions): QuizOptions {
-        val flags = QuizOptions.DEFAULT_FLAGS.mapValues { (key, _) ->
-            when (key) {
-                in QuizOptions.FORM_KEYS -> key in forms
-                in QuizOptions.GROUP_KEYS -> true
-                in QuizOptions.LEVEL_KEYS -> false
-                TransformationBuilder.TRICK -> false
-                else -> base.isOn(key)
-            }
-        }
-        return QuizOptions(
-            flags = flags,
-            questionFocus = QuizOptions.FOCUS_NONE,
             theme = base.theme,
             wordKeys = words,
         )
     }
+
+    /** A lesson's own reach, plus the question count it is graded over. */
+    fun optionsFor(lesson: Lesson, base: QuizOptions): QuizOptions =
+        optionsFor(words(lesson.id), forms(lesson.id), base)
+            .copy(numQuestions = lesson.questions.toString())
 
     private fun resolve(id: String, seen: Set<String>): Pair<Set<String>, Set<String>> {
         formsOf[id]?.let { return it to wordsOf.getValue(id) }

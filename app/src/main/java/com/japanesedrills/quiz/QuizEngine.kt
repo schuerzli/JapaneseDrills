@@ -27,9 +27,14 @@ data class Question(
     private fun display(text: String, kana: Boolean) = if (kana) Furigana.toKana(text) else text
 }
 
-/** A growable int array, so packing the pool does not box every index. */
-private class IntList {
-    private var items = IntArray(1024)
+/**
+ * A growable int array, so packing the pool does not box every index.
+ *
+ * [initialCapacity] matters because the skill index builds one of these per skill, most of
+ * them small: sizing them all for the whole pool wasted most of half a megabyte per review.
+ */
+private class IntList(initialCapacity: Int = 16) {
+    private var items = IntArray(initialCapacity)
     private var size = 0
 
     fun add(value: Int) {
@@ -106,8 +111,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         val activeLevels = levelFilters.filter(options::isOn)
         val enabled = transformations.mapIndexed { i, t -> i to t }.filter { (_, t) -> t.tags.all(options::allows) }
 
-        val regular = IntList()
-        val trick = IntList()
+        // The whole-pool lists run to six figures, so they start large.
+        val regular = IntList(1024)
+        val trick = IntList(1024)
         var words = 0
         data.words.forEachIndexed { w, word ->
             if (!allowsWord(word, options, activeLevels)) return@forEachIndexed

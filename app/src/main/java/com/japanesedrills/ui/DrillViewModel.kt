@@ -24,10 +24,14 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import kotlin.random.Random
 
 enum class Tab(val label: String) { Learn("Learn Path"), Practice("Free Practice"), Settings("Settings") }
 
@@ -140,6 +144,17 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             refreshPath()
             refreshPool()
         }
+
+        // Progress is written by one collector instead of inline on every answer: building
+        // the JSON walks every skill, word and leech, which has no business happening on
+        // the main thread between a keystroke and the next frame. StateFlow conflates, so a
+        // burst of answers costs one write, and a single collector keeps them ordered.
+        viewModelScope.launch {
+            _state.map { it.progress }
+                .distinctUntilChanged()
+                .drop(1) // what load() just returned is already on disk
+                .collect { progress -> withContext(Dispatchers.IO) { progressStore.save(progress) } }
+        }
     }
 
     // Navigation
@@ -217,7 +232,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 strength = strengthOf(lesson, progress),
             )
         }
-        _state.update { it.copy(path = path, dueCount = dueNow(progress, day)) }
+        _state.update { it.copy(path = path, dueCount = progress.dueCount(day)) }
     }
 
     /** A lesson's mastery is the weakest of the skills it drills, so one rusty form shows. */
@@ -232,9 +247,6 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         if (relevant.isEmpty()) return 0f
         return relevant.values.minOf { Scheduler.strength(it) }
     }
-
-    private fun dueNow(progress: Progress, day: Long): Int =
-        progress.skills.count { (_, state) -> Scheduler.isDue(state, day) }
 
     fun openLesson(lesson: Lesson) {
         val data = data ?: return
@@ -284,7 +296,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
         val words = passed.flatMapTo(HashSet()) { curriculum.words(it) }
         val forms = passed.flatMapTo(HashSet()) { curriculum.forms(it) }
-        val options = curriculum.optionsForReview(words, forms, _state.value.options)
+        val options = curriculum.optionsFor(words, forms, _state.value.options)
 
         viewModelScope.launch {
             val queue = withContext(Dispatchers.Default) {
@@ -347,16 +359,34 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         day: Long,
         type: String,
     ): Int {
-        val leeches = entries.filter { packed ->
+        pickWhere(entries) { packed ->
             val key = Progress.leechKey(engine.wordOf(packed).key, type)
             (progress.leeches[key] ?: 0) >= Progress.LEECH_THRESHOLD
-        }
-        if (leeches.isNotEmpty()) return leeches.random()
+        }?.let { return it }
 
-        val dueWords = entries.filter { packed ->
+        pickWhere(entries) { packed ->
             progress.words[engine.wordOf(packed).key]?.let { Scheduler.isDue(it, day) } ?: true
+        }?.let { return it }
+
+        return entries[Random.nextInt(entries.size)]
+    }
+
+    /**
+     * One matching entry, chosen uniformly, in a single pass and without allocating.
+     *
+     * A broad skill holds thousands of packed pairs once the vocabulary opens up, and
+     * filtering it into a list would box every candidate just to pick one of them.
+     */
+    private inline fun pickWhere(entries: IntArray, matches: (Int) -> Boolean): Int? {
+        var chosen = 0
+        var seen = 0
+        for (packed in entries) {
+            if (!matches(packed)) continue
+            seen++
+            // Reservoir sampling: the nth match replaces the incumbent with probability 1/n.
+            if (Random.nextInt(seen) == 0) chosen = packed
         }
-        return (if (dueWords.isNotEmpty()) dueWords else entries.toList()).random()
+        return if (seen == 0) null else chosen
     }
 
     // Quiz flow
@@ -423,17 +453,18 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             words = progress.words + (word.key to Scheduler.review(
                 progress.words[word.key] ?: SrsState(), entry.correct, day
             )),
-            leeches = when {
-                entry.correct && misses > 0 -> progress.leeches + (leech to misses - 1)
-                entry.correct -> progress.leeches
-                else -> progress.leeches + (leech to misses + 1)
+            // Dropped once it reaches zero rather than left sitting there: otherwise the
+            // map keeps an entry for every pairing ever missed, and the whole document is
+            // re-serialised on every answer.
+            leeches = (if (entry.correct) misses - 1 else misses + 1).let { next ->
+                if (next <= 0) progress.leeches - leech else progress.leeches + (leech to next)
             },
         )
         persist(updated)
     }
 
+    /** Publishes new progress; the collector in [init] is what writes it to disk. */
     private fun persist(progress: Progress) {
-        progressStore.save(progress)
         _state.update { it.copy(progress = progress) }
     }
 
