@@ -86,8 +86,30 @@ class WordPicker:
             raise SystemExit(f"word {key!r} was not reserved before use")
         return [key]
 
+    def pinned(self, keys):
+        for key in keys:
+            if key not in self.taken:
+                raise SystemExit(f"word {key!r} was not reserved before use")
+        return list(keys)
+
 
 VERBS = ("godan", "ichidan")
+
+# する, 来る and 行く are irregular, but they are not *exceptions* in the sense that matters
+# for teaching order: they are among the first verbs anyone learns, and する is the base of
+# every compound suru verb. They go in the very first lesson, where the polite forms します
+# and きます are exactly what that lesson is about. 行く behaves regularly until its past and
+# て forms, which is precisely when those lessons introduce them.
+#
+# Holding them back for a late "irregulars" branch put やる — a casual synonym of a verb the
+# course had not taught — in lesson one, and taught 説明する before する.
+CORE_VERBS = ["する", "来る", "行く"]
+
+# やる is a casual register variant of する rather than a separate thing to learn, and it
+# sorts early enough to land in the opening lesson on its own. Two verbs both glossed
+# "to do" in lesson one teach nothing, so it is held back to a batch where する is long
+# since solid and the contrast is the point.
+DEFERRED = {"vocab-verbs-4": ["やる"]}
 
 # The path. Each entry adds forms, words, or both; `after` names the prerequisites.
 #
@@ -99,7 +121,7 @@ VERBS = ("godan", "ichidan")
 SPINE = [
     # id, title, subtitle, strand, forms, words-spec, questions
     ("start", "First verbs", "Plain and polite present tense",
-     "form", ["plain", "polite"], (VERBS, 8), 12),
+     "form", ["plain", "polite"], (VERBS, 5, CORE_VERBS), 12),
     ("negative", "Negative", "Saying something does not happen",
      "form", ["negative"], None, 14),
     ("vocab-verbs-1", "More verbs", "Eight more everyday verbs",
@@ -125,7 +147,7 @@ SPINE = [
     ("potential", "Potential", "Being able to do something",
      "form", ["potential"], None, 14),
     ("vocab-verbs-4", "Work and study", "Verbs for getting things done",
-     "vocab", [], (VERBS, 8), 12),
+     "vocab", [], (VERBS, 7), 12),
     ("volitional", "Volitional", "Let's do it",
      "form", ["volitional"], None, 14),
     ("desire", "Desire", "Wanting to do something",
@@ -166,13 +188,15 @@ SPINE = [
      "vocab", [], (("suru",), 12), 16),
 ]
 
-# The irregulars are a side branch off て form: each is a single word that breaks the
-# rules its group would predict, so each gets its own short lesson rather than being
-# mixed into a batch where a learner could pass without ever meeting it.
+# The remaining irregulars are a side branch off て form. Unlike the core three, these are
+# genuinely exceptions to notice rather than vocabulary to have: ある and いる are defined as
+# much by the forms they lack as by the ones they have, and いい simply conjugates as よい.
+# Meeting them once the regular shapes are solid is what makes the gaps legible.
+#
+# Each gets its own short lesson rather than being mixed into a batch, where a learner could
+# pass without ever being asked about the one word the lesson exists for.
+BRANCH_AFTER = "te-form"
 IRREGULARS = [
-    ("irr-suru", "する", "The verb that conjugates like nothing else", "する"),
-    ("irr-kuru", "来る", "Come - irregular in almost every form", "来る"),
-    ("irr-iku", "行く", "Godan, except for its て and た forms", "行く"),
     ("irr-aru", "ある", "Exists - with a negative that comes from nowhere", "ある"),
     ("irr-iru", "いる", "Exists (animate), and its casual contractions", "いる"),
     ("irr-ii", "いい", "The adjective that conjugates as よい", "いい"),
@@ -185,10 +209,16 @@ def build():
     words = load_words()
     WORD_TAGS.update({k: v.get("tags", []) for k, v in words.items()})
     picker = WordPicker(words)
-    # する is both an irregular and a perfectly ordinary common suru verb, so without
-    # this it would be introduced twice: once in a batch and once in its own lesson.
+    # Held back from the ordinary batches so the lessons that name them own them. する in
+    # particular is also a perfectly ordinary common suru verb and would otherwise be dealt
+    # into a batch as well as being introduced by name.
+    for key in CORE_VERBS:
+        picker.reserve(key)
     for _, _, _, key in IRREGULARS:
         picker.reserve(key)
+    for keys in DEFERRED.values():
+        for key in keys:
+            picker.reserve(key)
 
     lessons = {}
     previous = None
@@ -196,10 +226,11 @@ def build():
     for lesson_id, title, subtitle, strand, forms, spec, questions in SPINE:
         new_words = []
         if spec is not None:
-            groups, count = spec
-            new_words = picker.take(groups, count)
+            groups, count = spec[0], spec[1]
+            pins = picker.pinned(spec[2]) if len(spec) > 2 else []
+            pins += picker.pinned(DEFERRED.get(lesson_id, []))
+            new_words = pins + picker.take(groups, count)
         lessons[lesson_id] = {
-            "order": len(lessons),
             "title": title,
             "subtitle": subtitle,
             "strand": strand,
@@ -215,18 +246,28 @@ def build():
     # enough forms for the exceptions to be visible as exceptions.
     for lesson_id, title, subtitle, key in IRREGULARS:
         lessons[lesson_id] = {
-            "order": len(lessons),
             "title": title,
             "subtitle": subtitle,
             "strand": "irregular",
-            "requires": ["te-form"],
+            "requires": [BRANCH_AFTER],
             "newForms": [],
             "newWords": picker.one(key),
             "questions": 10,
             "pass": {"accuracy": PASS_ACCURACY, "perForm": PASS_PER_FORM},
         }
 
-    return {"lessons": lessons}
+    # Display order is assigned last so a branch sits next to what it hangs off rather than
+    # after the whole spine. Appending it was what buried the irregulars at the bottom of
+    # the list even though they unlock early.
+    sequence = [lesson_id for lesson_id, *_ in SPINE]
+    base = sequence.index(BRANCH_AFTER) + 1
+    for offset, (lesson_id, *_) in enumerate(IRREGULARS):
+        sequence.insert(base + offset, lesson_id)
+    for position, lesson_id in enumerate(sequence):
+        lessons[lesson_id]["order"] = position
+
+    # Key order follows the path, so the file reads the way the app presents it.
+    return {"lessons": {lesson_id: lessons[lesson_id] for lesson_id in sequence}}
 
 
 def render(data):

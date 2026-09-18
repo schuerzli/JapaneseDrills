@@ -42,14 +42,36 @@ Adjectives arrive after て form rather than at the start. They are conceptually
 mechanically different, and putting them early would mean teaching two conjugation systems
 before either is solid.
 
-## The irregular branch
+## Irregular does not mean advanced
 
-`する`, `来る`, `行く`, `ある`, `いる` and `いい` each get a one-word lesson hanging off て
-form, instead of being mixed into vocabulary batches. Two reasons: at that point the
-learner knows enough forms for the exceptions to register *as* exceptions, and a word in a
-batch can be passed over without ever being seen, which is the one thing that must not
-happen with these six. They are also reserved before the batches are dealt, so `する` — an
-ordinary common suru verb as well as an irregular — is not introduced twice.
+The six irregulars split in two, because "irregular" and "hard" are not the same thing.
+
+`する`, `来る` and `行く` go in the **first lesson**. They are among the first verbs anyone
+learns, `する` is the base of every compound suru verb, and their irregularity surfaces
+exactly where the curriculum already is: します and きます are polite forms, which is what
+lesson one teaches, and 行く only misbehaves in its past and て forms, taught later.
+
+`ある`, `いる` and `いい` stay on a branch off て form. These are exceptions worth noticing
+rather than vocabulary to have — ある and いる are defined as much by the forms they lack as
+by the ones they have, and いい simply conjugates as よい. The gaps only read as gaps once
+the regular shapes are solid.
+
+Each of the latter three gets its own one-word lesson rather than being mixed into a batch,
+where a learner could pass without ever being asked about the word the lesson exists for.
+All six are reserved before the batches are dealt, so `する` — an ordinary common suru verb
+as well as an irregular — is not introduced twice.
+
+Treating all six as advanced exceptions is what the first version did, and it was wrong in
+a way worth recording: it put `やる`, a casual synonym of a verb the course had not yet
+taught, in lesson one, and it taught 説明する twenty lessons before する. `やる` is now
+deferred to a later batch, where the contrast with `する` is the point rather than a
+coincidence.
+
+## Ordering
+
+Display order is assigned after the graph is built, so a branch appears next to the lesson
+it hangs off. Appending branches was what buried the irregulars at the bottom of a
+thirty-odd-item list even though they unlock early — reachable, but not findable.
 
 ## Pass marks
 
