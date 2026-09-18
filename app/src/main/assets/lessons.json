@@ -1,0 +1,884 @@
+{
+  "lessons": {
+    "start": {
+      "order": 0,
+      "title": "First verbs",
+      "subtitle": "Plain and polite present tense",
+      "strand": "form",
+      "requires": [],
+      "newForms": [
+        "plain",
+        "polite"
+      ],
+      "newWords": [
+        "なる",
+        "上げる",
+        "やる",
+        "入れる",
+        "乗る",
+        "出る",
+        "休む",
+        "教える"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "negative": {
+      "order": 1,
+      "title": "Negative",
+      "subtitle": "Saying something does not happen",
+      "strand": "form",
+      "requires": [
+        "start"
+      ],
+      "newForms": [
+        "negative"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-verbs-1": {
+      "order": 2,
+      "title": "More verbs",
+      "subtitle": "Eight more everyday verbs",
+      "strand": "vocab",
+      "requires": [
+        "negative"
+      ],
+      "newForms": [],
+      "newWords": [
+        "会う",
+        "着る",
+        "住む",
+        "答える",
+        "作る",
+        "見せる",
+        "使う",
+        "見る"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "past": {
+      "order": 3,
+      "title": "Past tense",
+      "subtitle": "Saying something already happened",
+      "strand": "form",
+      "requires": [
+        "vocab-verbs-1"
+      ],
+      "newForms": [
+        "past"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-verbs-2": {
+      "order": 4,
+      "title": "Everyday actions",
+      "subtitle": "Verbs you need every day",
+      "strand": "vocab",
+      "requires": [
+        "past"
+      ],
+      "newForms": [],
+      "newWords": [
+        "働く",
+        "起きる",
+        "入る",
+        "食べる",
+        "出す",
+        "伝える",
+        "分かる",
+        "受ける"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "te-form": {
+      "order": 5,
+      "title": "て form",
+      "subtitle": "The connector half the grammar is built on",
+      "strand": "form",
+      "requires": [
+        "vocab-verbs-2"
+      ],
+      "newForms": [
+        "te-form"
+      ],
+      "newWords": [],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-verbs-3": {
+      "order": 6,
+      "title": "Verbs of motion",
+      "subtitle": "Coming, going and carrying",
+      "strand": "vocab",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "取る",
+        "変える",
+        "呼ぶ",
+        "始める",
+        "始まる",
+        "止める",
+        "帰る",
+        "決める"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "progressive": {
+      "order": 7,
+      "title": "Progressive",
+      "subtitle": "Something happening right now",
+      "strand": "form",
+      "requires": [
+        "vocab-verbs-3"
+      ],
+      "newForms": [
+        "progressive"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "i-adjectives": {
+      "order": 8,
+      "title": "い adjectives",
+      "subtitle": "Adjectives that conjugate like verbs",
+      "strand": "form",
+      "requires": [
+        "progressive"
+      ],
+      "newForms": [],
+      "newWords": [
+        "うるさい",
+        "つまらない",
+        "ない",
+        "低い",
+        "冷たい",
+        "危ない",
+        "古い",
+        "可愛い"
+      ],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-adj-1": {
+      "order": 9,
+      "title": "Describing things",
+      "subtitle": "More い adjectives",
+      "strand": "vocab",
+      "requires": [
+        "i-adjectives"
+      ],
+      "newForms": [],
+      "newWords": [
+        "多い",
+        "大きい",
+        "太い",
+        "嫌い",
+        "安い",
+        "寒い",
+        "小さい",
+        "少ない"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "na-adjectives": {
+      "order": 10,
+      "title": "な adjectives",
+      "subtitle": "Adjectives that behave like nouns",
+      "strand": "form",
+      "requires": [
+        "vocab-adj-1"
+      ],
+      "newForms": [],
+      "newWords": [
+        "にぎやか",
+        "りっぱ",
+        "丈夫",
+        "上手な",
+        "便利な",
+        "元気な",
+        "同じ",
+        "大丈夫"
+      ],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "suru-verbs": {
+      "order": 11,
+      "title": "する verbs",
+      "subtitle": "Nouns turned into verbs",
+      "strand": "form",
+      "requires": [
+        "na-adjectives"
+      ],
+      "newForms": [],
+      "newWords": [
+        "説明する",
+        "理解する",
+        "テストする",
+        "仕事する",
+        "作文する",
+        "意味する",
+        "授業する",
+        "料理する"
+      ],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "potential": {
+      "order": 12,
+      "title": "Potential",
+      "subtitle": "Being able to do something",
+      "strand": "form",
+      "requires": [
+        "suru-verbs"
+      ],
+      "newForms": [
+        "potential"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-verbs-4": {
+      "order": 13,
+      "title": "Work and study",
+      "subtitle": "Verbs for getting things done",
+      "strand": "vocab",
+      "requires": [
+        "potential"
+      ],
+      "newForms": [],
+      "newWords": [
+        "座る",
+        "生きる",
+        "待つ",
+        "続ける",
+        "持つ",
+        "考える",
+        "書く",
+        "聞こえる"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "volitional": {
+      "order": 14,
+      "title": "Volitional",
+      "subtitle": "Let's do it",
+      "strand": "form",
+      "requires": [
+        "vocab-verbs-4"
+      ],
+      "newForms": [
+        "volitional"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "desire": {
+      "order": 15,
+      "title": "Desire",
+      "subtitle": "Wanting to do something",
+      "strand": "form",
+      "requires": [
+        "volitional"
+      ],
+      "newForms": [
+        "desire"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-verbs-5": {
+      "order": 16,
+      "title": "Around the house",
+      "subtitle": "Daily-life verbs",
+      "strand": "vocab",
+      "requires": [
+        "desire"
+      ],
+      "newForms": [],
+      "newWords": [
+        "歌う",
+        "育てる",
+        "歩く",
+        "見える",
+        "死ぬ",
+        "見つける",
+        "泳ぐ",
+        "調べる"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "conditional": {
+      "order": 17,
+      "title": "Conditional (たら)",
+      "subtitle": "If and when",
+      "strand": "form",
+      "requires": [
+        "vocab-verbs-5"
+      ],
+      "newForms": [
+        "conditional"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "provisional": {
+      "order": 18,
+      "title": "Provisional (ば)",
+      "subtitle": "The other conditional",
+      "strand": "form",
+      "requires": [
+        "conditional"
+      ],
+      "newForms": [
+        "provisional"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-adj-2": {
+      "order": 19,
+      "title": "Opinions",
+      "subtitle": "Adjectives for describing people and things",
+      "strand": "vocab",
+      "requires": [
+        "provisional"
+      ],
+      "newForms": [],
+      "newWords": [
+        "広い",
+        "大切な",
+        "弱い",
+        "大変な",
+        "強い",
+        "大好き",
+        "忙しい",
+        "好きな"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "imperative": {
+      "order": 20,
+      "title": "Imperative",
+      "subtitle": "Direct commands",
+      "strand": "form",
+      "requires": [
+        "vocab-adj-2"
+      ],
+      "newForms": [
+        "imperative"
+      ],
+      "newWords": [],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-verbs-6": {
+      "order": 21,
+      "title": "Talking and thinking",
+      "subtitle": "Verbs of speech and mind",
+      "strand": "vocab",
+      "requires": [
+        "imperative"
+      ],
+      "newForms": [],
+      "newWords": [
+        "消す",
+        "逃げる",
+        "渡す",
+        "与える",
+        "知る",
+        "付ける",
+        "立つ",
+        "信じる"
+      ],
+      "questions": 12,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "passive": {
+      "order": 22,
+      "title": "Passive",
+      "subtitle": "Having something done to you",
+      "strand": "form",
+      "requires": [
+        "vocab-verbs-6"
+      ],
+      "newForms": [
+        "passive"
+      ],
+      "newWords": [],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "causative": {
+      "order": 23,
+      "title": "Causative",
+      "subtitle": "Making or letting someone act",
+      "strand": "form",
+      "requires": [
+        "passive"
+      ],
+      "newForms": [
+        "causative"
+      ],
+      "newWords": [],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n4-1": {
+      "order": 24,
+      "title": "N4 verbs",
+      "subtitle": "Stepping beyond the basics",
+      "strand": "vocab",
+      "requires": [
+        "causative"
+      ],
+      "newForms": [],
+      "newWords": [
+        "置く",
+        "出来る",
+        "聞く",
+        "助ける",
+        "言う",
+        "感じる",
+        "話す",
+        "閉じる",
+        "読む",
+        "使える"
+      ],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n4-2": {
+      "order": 25,
+      "title": "N4 adjectives",
+      "subtitle": "Describing with more precision",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n4-1"
+      ],
+      "newForms": [],
+      "newWords": [
+        "悪い",
+        "嫌",
+        "新しい",
+        "有名な",
+        "明るい",
+        "本当",
+        "暑い",
+        "病気な",
+        "暖かい",
+        "結構"
+      ],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n4-3": {
+      "order": 26,
+      "title": "N4 する verbs",
+      "subtitle": "Compound verbs in daily use",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n4-2"
+      ],
+      "newForms": [],
+      "newWords": [
+        "旅行する",
+        "買い物する",
+        "質問する",
+        "電話する",
+        "ごちそうする",
+        "すりする",
+        "アルバイトする",
+        "ファックスする",
+        "プレゼントする",
+        "下宿する"
+      ],
+      "questions": 14,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n3-1": {
+      "order": 27,
+      "title": "N3 verbs",
+      "subtitle": "Wider everyday vocabulary",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n4-3"
+      ],
+      "newForms": [],
+      "newWords": [
+        "買う",
+        "かける",
+        "走る",
+        "並べる",
+        "返す",
+        "借りる",
+        "遊ぶ",
+        "出かける",
+        "違う",
+        "勤める",
+        "開く",
+        "寝る"
+      ],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n3-2": {
+      "order": 28,
+      "title": "N3 adjectives",
+      "subtitle": "Shades of description",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n3-1"
+      ],
+      "newForms": [],
+      "newWords": [
+        "暗い",
+        "綺麗な",
+        "楽しい",
+        "緑な",
+        "欲しい",
+        "色々",
+        "汚い",
+        "静かな",
+        "涼しい",
+        "黄色",
+        "温い",
+        "だめ"
+      ],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n3-3": {
+      "order": 29,
+      "title": "N3 する verbs",
+      "subtitle": "Abstract and formal actions",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n3-2"
+      ],
+      "newForms": [],
+      "newWords": [
+        "予定する",
+        "予約する",
+        "予習する",
+        "交通する",
+        "会話する",
+        "会議する",
+        "冷房する",
+        "利用する",
+        "卒業する",
+        "原因する",
+        "失敗する",
+        "復習する"
+      ],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n2-1": {
+      "order": 30,
+      "title": "N2 verbs",
+      "subtitle": "Verbs for reading and news",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n3-3"
+      ],
+      "newForms": [],
+      "newWords": [
+        "頼む",
+        "居る",
+        "飲む",
+        "忘れる",
+        "動く",
+        "掛ける",
+        "合う",
+        "晴れる",
+        "向かう",
+        "浴びる",
+        "喜ぶ",
+        "消える"
+      ],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n2-2": {
+      "order": 31,
+      "title": "N2 adjectives",
+      "subtitle": "Formal and written description",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n2-1"
+      ],
+      "newForms": [],
+      "newWords": [
+        "狭い",
+        "ソフト",
+        "甘い",
+        "丁寧",
+        "痛い",
+        "不便",
+        "白い",
+        "久しぶり",
+        "短い",
+        "別な",
+        "細い",
+        "十分"
+      ],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "vocab-n2-3": {
+      "order": 32,
+      "title": "N2 する verbs",
+      "subtitle": "The formal register",
+      "strand": "vocab",
+      "requires": [
+        "vocab-n2-2"
+      ],
+      "newForms": [],
+      "newWords": [
+        "急行する",
+        "戦争する",
+        "教育する",
+        "暖房する",
+        "水泳する",
+        "注射する",
+        "注意する",
+        "用意する",
+        "留守する",
+        "発音する",
+        "研究する",
+        "競争する"
+      ],
+      "questions": 16,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "irr-suru": {
+      "order": 33,
+      "title": "する",
+      "subtitle": "The verb that conjugates like nothing else",
+      "strand": "irregular",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "する"
+      ],
+      "questions": 10,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "irr-kuru": {
+      "order": 34,
+      "title": "来る",
+      "subtitle": "Come - irregular in almost every form",
+      "strand": "irregular",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "来る"
+      ],
+      "questions": 10,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "irr-iku": {
+      "order": 35,
+      "title": "行く",
+      "subtitle": "Godan, except for its て and た forms",
+      "strand": "irregular",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "行く"
+      ],
+      "questions": 10,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "irr-aru": {
+      "order": 36,
+      "title": "ある",
+      "subtitle": "Exists - with a negative that comes from nowhere",
+      "strand": "irregular",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "ある"
+      ],
+      "questions": 10,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "irr-iru": {
+      "order": 37,
+      "title": "いる",
+      "subtitle": "Exists (animate), and its casual contractions",
+      "strand": "irregular",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "いる"
+      ],
+      "questions": 10,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    },
+    "irr-ii": {
+      "order": 38,
+      "title": "いい",
+      "subtitle": "The adjective that conjugates as よい",
+      "strand": "irregular",
+      "requires": [
+        "te-form"
+      ],
+      "newForms": [],
+      "newWords": [
+        "いい"
+      ],
+      "questions": 10,
+      "pass": {
+        "accuracy": 0.85,
+        "perForm": 0.5
+      }
+    }
+  }
+}

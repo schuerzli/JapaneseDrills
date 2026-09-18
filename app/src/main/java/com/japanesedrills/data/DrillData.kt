@@ -1,6 +1,7 @@
 package com.japanesedrills.data
 
 import android.content.Context
+import com.japanesedrills.quiz.Curriculum
 import com.japanesedrills.quiz.Transformation
 import com.japanesedrills.quiz.TransformationBuilder
 import org.json.JSONObject
@@ -25,24 +26,35 @@ data class Word(
 )
 
 /** Word list with all conjugations pre-computed, plus every possible question transformation. */
-class DrillData(val words: List<Word>, val transformations: List<Transformation>) {
+class DrillData(
+    val words: List<Word>,
+    val transformations: List<Transformation>,
+    val curriculum: Curriculum,
+) {
+
+    /** Words by key, for the learn path, which names its vocabulary rather than filtering it. */
+    val wordsByKey: Map<String, Word> = words.associateBy { it.key }
 
     companion object {
         const val DICTIONARY = "dictionary"
 
         fun load(context: Context): DrillData {
             fun asset(name: String) = context.assets.open(name).bufferedReader(Charsets.UTF_8).use { it.readText() }
-            return fromJson(asset("words.json"), asset("rules.json"))
+            return fromJson(asset("words.json"), asset("rules.json"), asset("lessons.json"))
         }
 
-        fun fromJson(wordsJson: String, rulesJson: String): DrillData {
+        fun fromJson(wordsJson: String, rulesJson: String, lessonsJson: String): DrillData {
             val rules = parseRules(rulesJson)
             val words = parseWords(wordsJson, rules)
             val conjugationKeys = LinkedHashSet<String>().apply {
                 add(DICTIONARY)
                 rules.values.forEach { addAll(it.keys) }
             }
-            return DrillData(words, TransformationBuilder.build(conjugationKeys))
+            return DrillData(
+                words,
+                TransformationBuilder.build(conjugationKeys),
+                Curriculum.parse(lessonsJson),
+            )
         }
 
         /**

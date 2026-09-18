@@ -41,6 +41,7 @@ import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.HistoryEntry
+import com.japanesedrills.ui.LessonOutcome
 import com.japanesedrills.ui.components.JapaneseLocale
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.theme.DrillTheme
@@ -50,6 +51,7 @@ import com.japanesedrills.ui.theme.DrillTheme
 fun ResultsScreen(
     history: List<HistoryEntry>,
     options: QuizOptions,
+    outcome: LessonOutcome?,
     onBackToStart: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -86,9 +88,51 @@ fun ResultsScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (outcome != null) item { OutcomeCard(outcome) }
             item { ScoreCard(history) }
             itemsIndexed(history) { index, entry ->
                 HistoryRow(index + 1, entry, options)
+            }
+        }
+    }
+}
+
+/**
+ * Whether the lesson was passed, and if not, exactly why. A run can clear 85% overall and
+ * still fail on one form, which looks arbitrary unless the weak form is named.
+ */
+@Composable
+private fun OutcomeCard(outcome: LessonOutcome) {
+    val answers = DrillTheme.answerColors
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = if (outcome.passed) answers.correctContainer else MaterialTheme.colorScheme.errorContainer,
+            contentColor = if (outcome.passed) answers.onCorrectContainer else MaterialTheme.colorScheme.onErrorContainer,
+        ),
+    ) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(
+                if (outcome.passed) "${outcome.lesson.title} passed" else "${outcome.lesson.title} not passed yet",
+                style = MaterialTheme.typography.titleLarge,
+            )
+            if (!outcome.passed) {
+                val needed = (outcome.lesson.passAccuracy * 100).toInt()
+                Text(
+                    if (outcome.weakForms.isEmpty()) {
+                        "You need $needed% to pass. Try it again — the questions will be different."
+                    } else {
+                        "Still shaky on ${outcome.weakForms.joinToString(", ")}. " +
+                            "Try it again — the questions will be different."
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            } else if (outcome.unlocked.isNotEmpty()) {
+                Text(
+                    "Unlocked: " + outcome.unlocked.joinToString(", ") { it.title },
+                    style = MaterialTheme.typography.bodyMedium,
+                )
             }
         }
     }

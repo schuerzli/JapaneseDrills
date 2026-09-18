@@ -18,6 +18,12 @@ data class QuizOptions(
     val numQuestions: String = "10",
     /** Not a quiz setting, but it rides along to reuse the same persistence. */
     val theme: ThemeChoice = ThemeChoice.System,
+    /**
+     * Restricts the pool to these word keys. Null means "no restriction" and is what
+     * free practice always uses; lessons and review set it to pin their vocabulary.
+     * Never persisted — it is derived from the curriculum, not chosen by the user.
+     */
+    val wordKeys: Set<String>? = null,
 ) {
     fun isOn(key: String): Boolean = flags[key] ?: false
 
@@ -27,7 +33,8 @@ data class QuizOptions(
     fun with(key: String, value: Boolean): QuizOptions = copy(flags = flags + (key to value))
 
     /** True when both option sets produce the same question pool. */
-    fun sameQuestions(other: QuizOptions): Boolean = flags == other.flags && questionFocus == other.questionFocus
+    fun sameQuestions(other: QuizOptions): Boolean =
+        flags == other.flags && questionFocus == other.questionFocus && wordKeys == other.wordKeys
 
     val questionCount: Int? get() = numQuestions.toIntOrNull()?.takeIf { it in 1..MAX_QUESTIONS }
 
@@ -138,6 +145,14 @@ data class QuizOptions(
         // OptionsStore only restores keys that appear here.
         val DEFAULT_FLAGS: Map<String, Boolean> =
             ALL.associate { it.key to (it.key in ON_BY_DEFAULT) }
+
+        // Which kind of thing each flag selects. The curriculum needs to set the three
+        // kinds independently, so they are named here rather than re-derived from the
+        // display lists at every call site.
+        val FORM_KEYS: Set<String> = FORMS.map { it.key }.toSet()
+        val GROUP_KEYS: Set<String> =
+            (REGULAR_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES).map { it.key }.toSet()
+        val LEVEL_KEYS: Set<String> = LEVEL_FILTERS.map { it.key }.toSet()
     }
 }
 

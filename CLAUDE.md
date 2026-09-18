@@ -33,6 +33,13 @@ GRADLE="C:/Program Files/Unity/Hub/Editor/6000.0.58f1/Editor/Data/PlaybackEngine
 "$JBR" -cp "$GRADLE" org.gradle.launcher.GradleMain assembleDebug testDebugUnitTest
 ```
 
+The generated assets have a `--check` mode; run it after editing a generator or the word
+list, because a stale `lessons.json` is not otherwise visible:
+
+```bash
+python tools/lessons/generate.py --check
+```
+
 Install on the running emulator:
 
 ```bash
@@ -42,17 +49,19 @@ Install on the running emulator:
 ## Project layout
 
 ```
-app/src/main/assets/     words.json (the word list) and rules.json (conjugation rules)
+app/src/main/assets/     words.json (words), rules.json (conjugation), lessons.json (learn path)
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
-    quiz/               engine, question pool, romaji input, furigana, grammar explanations
+    quiz/               engine, question pool, romaji input, furigana, grammar explanations,
+                         curriculum, spaced repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          settings, quiz, results, about
+    ui/screens/          learn path, lesson intro, practice, quiz, results, settings, about
     ui/components/       furigana-aware rich text, shared card
     ui/theme/            Material 3 colour schemes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          regenerates words.json from open datasets (see extract.py)
 tools/theme/             regenerates the colour scheme from one seed (see schemes.py)
+tools/lessons/           regenerates lessons.json; its README holds the curriculum reasoning
 ```
 
 ## Data invariants
@@ -76,6 +85,17 @@ These look like mistakes without their reason. Check here before "fixing" one.
 - **Level tags are `n5`–`n2` only.** The source lists hold no N1 verbs or
   adjectives this app can conjugate. Words outside the lists carry no level tag and
   appear only when no filter is active.
+- **lessons.json stores deltas, not totals.** A lesson lists only the forms and words
+  it adds; its real reach is the union over its transitive prerequisites, resolved in
+  `quiz/Lessons.kt`. Lesson order comes from the explicit `order` field, because JSON
+  key order is preserved by Android's `JSONObject` and not by the `org.json` used in
+  unit tests.
+- **Progress is the only state that cannot be rebuilt from the assets.** Wiping
+  `ProgressStore` throws away real work, so it is written through on every answer and
+  only cleared behind a confirmation.
+
+Why the curriculum is ordered the way it is, and why review schedules skills rather than
+questions, is in `tools/lessons/README.md`.
 
 ## Traps
 

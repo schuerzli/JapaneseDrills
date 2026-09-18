@@ -21,7 +21,11 @@ class DrillLogicTest {
 
     private val data: DrillData by lazy {
         val assets = File("src/main/assets")
-        DrillData.fromJson(File(assets, "words.json").readText(), File(assets, "rules.json").readText())
+        DrillData.fromJson(
+            File(assets, "words.json").readText(),
+            File(assets, "rules.json").readText(),
+            File(assets, "lessons.json").readText(),
+        )
     }
 
     private fun forms(word: String, conjugation: String): List<String> =

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -25,7 +24,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -38,22 +36,15 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,114 +52,79 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.OptionItem
 import com.japanesedrills.quiz.QuizOptions
-import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.SectionCard
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * The free-practice tab: the full option grid, unchanged from before the learn path
+ * existed. Content only — the tab scaffold in MainActivity owns the bars.
+ */
 @Composable
-fun SettingsScreen(
+fun PracticeScreen(
     state: DrillUiState,
     onFlag: (String, Boolean) -> Unit,
     onFocus: (String) -> Unit,
     onNumQuestions: (String) -> Unit,
-    onStart: () -> Unit,
-    onReset: () -> Unit,
-    onAbout: () -> Unit,
-    onTheme: (ThemeChoice) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val options = state.options
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = { Text("Conjugation Drill") },
-                actions = {
-                    IconButton(onClick = onAbout) {
-                        Icon(Icons.Outlined.Info, contentDescription = "About and data sources")
-                    }
-                },
-                scrollBehavior = scrollBehavior,
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        SectionCard("Quiz") {
+            OutlinedTextField(
+                value = options.numQuestions,
+                onValueChange = onNumQuestions,
+                label = { Text("Number of questions") },
+                singleLine = true,
+                isError = options.questionCount == null,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+                modifier = Modifier.fillMaxWidth(),
             )
-        },
-        bottomBar = { StartBar(state, onStart, onReset) },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .consumeWindowInsets(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            SectionCard("Quiz") {
-                OutlinedTextField(
-                    value = options.numQuestions,
-                    onValueChange = onNumQuestions,
-                    label = { Text("Number of questions") },
-                    singleLine = true,
-                    isError = options.questionCount == null,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                FocusDropdown(selected = options.questionFocus, onSelected = onFocus)
-            }
-
-            SectionCard("Forms", "Which conjugations the questions may use") {
-                ChipGroup(QuizOptions.FORMS, options, onFlag)
-            }
-
-            SectionCard("Words") {
-                ChipGroup(QuizOptions.REGULAR_VERBS, options, onFlag, "Regular verbs")
-                ChipGroup(QuizOptions.IRREGULAR_VERBS, options, onFlag, "Irregular verbs")
-                ChipGroup(QuizOptions.ADJECTIVES, options, onFlag, "Adjectives")
-                ChipGroup(QuizOptions.IRREGULAR_ADJECTIVES, options, onFlag, "Irregular adjectives")
-            }
-
-            SectionCard("Filters", "Only ask about words in the selected lists") {
-                ChipGroup(QuizOptions.LEVEL_FILTERS, options, onFlag)
-            }
-
-            SectionCard("Appearance") {
-                SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                    ThemeChoice.entries.forEachIndexed { i, choice ->
-                        SegmentedButton(
-                            selected = options.theme == choice,
-                            onClick = { onTheme(choice) },
-                            shape = SegmentedButtonDefaults.itemShape(i, ThemeChoice.entries.size),
-                        ) {
-                            Text(choice.label)
-                        }
-                    }
-                }
-            }
-
-            SectionCard("Options") {
-                Column {
-                    QuizOptions.GENERAL.forEachIndexed { i, item ->
-                        if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        SwitchRow(item.label, options.isOn(item.key)) { onFlag(item.key, it) }
-                    }
-                }
-            }
-            Spacer(Modifier.height(8.dp))
+            FocusDropdown(selected = options.questionFocus, onSelected = onFocus)
         }
+
+        SectionCard("Forms", "Which conjugations the questions may use") {
+            ChipGroup(QuizOptions.FORMS, options, onFlag)
+        }
+
+        SectionCard("Words") {
+            ChipGroup(QuizOptions.REGULAR_VERBS, options, onFlag, "Regular verbs")
+            ChipGroup(QuizOptions.IRREGULAR_VERBS, options, onFlag, "Irregular verbs")
+            ChipGroup(QuizOptions.ADJECTIVES, options, onFlag, "Adjectives")
+            ChipGroup(QuizOptions.IRREGULAR_ADJECTIVES, options, onFlag, "Irregular adjectives")
+        }
+
+        SectionCard("Filters", "Only ask about words in the selected lists") {
+            ChipGroup(QuizOptions.LEVEL_FILTERS, options, onFlag)
+        }
+
+        SectionCard("Options") {
+            Column {
+                QuizOptions.GENERAL.forEachIndexed { i, item ->
+                    if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    SwitchRow(item.label, options.isOn(item.key)) { onFlag(item.key, it) }
+                }
+            }
+        }
+        Spacer(Modifier.height(8.dp))
     }
 }
 
+/** The practice tab's bottom bar: pool counts, reset and start. */
 @Composable
-private fun StartBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
+fun PracticeBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
     val options = state.options
     val pool = state.pool
     val count = options.questionCount

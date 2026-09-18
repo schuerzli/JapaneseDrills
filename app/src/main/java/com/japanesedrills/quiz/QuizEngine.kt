@@ -81,7 +81,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
 
     /** Whether the options allow this word at all, whatever the transformation. */
     private fun allowsWord(word: Word, options: QuizOptions, activeLevels: List<String>): Boolean =
-        options.isOn(word.group) && (activeLevels.isEmpty() || activeLevels.any { it in word.tags })
+        options.isOn(word.group) &&
+            (options.wordKeys?.contains(word.key) ?: true) &&
+            (activeLevels.isEmpty() || activeLevels.any { it in word.tags })
 
     /** Whether this word actually has both forms, and they match the question focus. */
     private fun allowsPair(word: Word, t: Transformation, options: QuizOptions): Boolean {
@@ -122,8 +124,12 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         return QuestionPool(options, words, regular.toIntArray(), trick.toIntArray())
     }
 
-    fun nextQuestion(pool: QuestionPool): Question? {
-        val packed = pool.pick(random) ?: return null
+    fun nextQuestion(pool: QuestionPool): Question? = pool.pick(random)?.let(::questionFor)
+
+    /** The word a packed pair refers to, without building the whole question. */
+    fun wordOf(packed: Int): Word = data.words[packed / data.transformations.size]
+
+    fun questionFor(packed: Int): Question {
         val count = data.transformations.size
         val word = data.words[packed / count]
         val t = data.transformations[packed % count]
@@ -137,7 +143,43 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         )
     }
 
+    /**
+     * The allowed pairs grouped by skill, for review scheduling.
+     *
+     * Review schedules skills rather than individual questions: there are on the order of
+     * 10^5 (word, transformation) pairs, so per-pair intervals would be meaningless. One
+     * scan per review session is cheap; picking a question is then an index lookup.
+     */
+    fun buildSkillIndex(options: QuizOptions): Map<String, IntArray> {
+        val transformations = data.transformations
+        val activeLevels = levelFilters.filter(options::isOn)
+        val enabled = transformations.mapIndexed { i, t -> i to t }
+            .filter { (_, t) -> !t.isTrick && t.tags.all(options::allows) }
+
+        val index = LinkedHashMap<String, IntList>()
+        data.words.forEachIndexed { w, word ->
+            if (!allowsWord(word, options, activeLevels)) return@forEachIndexed
+            for ((t, transformation) in enabled) {
+                if (allowsPair(word, transformation, options)) {
+                    index.getOrPut(skillOf(word, transformation)) { IntList() }
+                        .add(w * transformations.size + t)
+                }
+            }
+        }
+        return index.mapValues { it.value.toIntArray() }
+    }
+
     companion object {
+        /**
+         * The unit spaced repetition schedules: a grammar operation on a word class.
+         * Godan て-form and ichidan て-form are different skills because one is a table of
+         * exceptions and the other is a single rule.
+         */
+        fun skillOf(word: Word, t: Transformation): String = "${t.type}|${word.group}"
+
+        /** The half of a skill key naming the grammar, for the per-form pass floor. */
+        fun typeOfSkill(skill: String): String = skill.substringBefore('|')
+
         private val japaneseText = Regex(
             // From 　, so the iteration mark 々 (々) counts as Japanese; without it
             // words like 華々しい could not be answered in kanji at all.
