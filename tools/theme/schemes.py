@@ -11,16 +11,18 @@ Re-running with ACTIVE unchanged reproduces them byte for byte.
 To re-tune, edit ACTIVE below and re-run --apply:
 
   seed      the one colour everything else is derived from
-  neutral   how much of the seed's hue bleeds into the greys. 0.09 gives the warm
-            off-white/near-black paper feel; near 0 gives neutral grey surfaces
+  neutral   how much of the seed's hue bleeds into the greys. 0.12 gives the cream /
+            browned-near-black paper feel; near 0 gives neutral grey surfaces
   soften    dark-mode chroma for filled areas, as a fraction of the light palette's
 
-Why `soften` exists at all: light and dark pick different tones from the same palette.
-Light containers sit at tone 90, where sRGB cannot hold much chroma, so they come out
-pastel whether or not you intended it. The same roles in dark sit near tone 30, where
-it can, so at equal chroma a dark container becomes a saturated slab and the dark theme
-feels far harsher than the light one. Dark chroma is therefore scaled down; accents keep
-more than containers (ACCENT below) because they are small and go lifelessly grey first.
+Tone is the other half of how golden this comes out, and it works against you in light
+mode: at tone 90, where M3 puts its containers, sRGB simply cannot hold much chroma, so
+a gold container arrives pastel whether or not you asked for it. LIGHT_CONTAINER pulls
+those containers down to 86, which is where the gold survives. Dark has the opposite
+problem - its containers sit near tone 26, where the gamut is wide enough that full
+chroma turns them into glaring slabs - so `soften` scales dark container chroma down.
+Accents are exempt (ACCENT): they are small, they carry the gilding, and they go
+lifelessly grey before anything else does.
 
 Use --preview to compare seeds before committing to one. It renders the screens where
 colour actually shows - question card, correct/wrong answers, chips, start bar - in
@@ -35,19 +37,22 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 THEME = ROOT / "app/src/main/java/com/japanesedrills/ui/theme/Theme.kt"
 RES = ROOT / "app/src/main/res"
 
-# The scheme the app ships: 墨 sumi, ink and gold.
-ACTIVE = dict(seed="#8A6A1F", neutral=0.09, soften=0.65)
+# The scheme the app ships: 金箔 kinpaku, gold leaf on warm paper.
+ACTIVE = dict(seed="#D4A017", neutral=0.12, soften=0.90)
 
 # Alternatives kept for --preview; the first entry is whatever ACTIVE currently is.
 CANDIDATES = [
-    ("Sumi - ink + gold (active)", "#8A6A1F", 0.09),
+    ("Kinpaku - gold leaf (active)", "#D4A017", 0.12),
+    ("Sumi - the older, duller gold", "#8A6A1F", 0.09),
     ("Ai - indigo", "#2E4D8F", 0.055),
     ("Cha - warm paper", "#8A4B2A", 0.075),
     ("Edomurasaki - the old purple", "#77428D", 0.055),
 ]
 
-CONTAINER_TONE, ACCENT = 26, 0.85      # dark-mode container tone, dark-mode accent chroma
-GREEN = "#3A6B23"                      # "correct", deliberately independent of the seed
+LIGHT_CONTAINER, DARK_CONTAINER = 86, 26   # container tones; see the note above on tone
+ACCENT = 1.0                           # dark-mode accent chroma, as a fraction of light's
+ERROR_SOFTEN = 0.6                     # `soften` for the dark "wrong" slab; see below
+GREEN = "#476B1A"                      # "correct", deliberately independent of the seed
 RED = "#BA1A1A"                        # "wrong"
 
 # --- sRGB <-> CIELAB -------------------------------------------------------
@@ -115,30 +120,33 @@ def tone(seed, t, chroma_scale=1.0):
 def scheme(seed, neutral, soften, dark=False):
     k = soften if dark else 1.0
     P = lambda t, c=1.0: tone(seed, t, c * k)
-    S = lambda t, c=1.0: tone(seed, t, 0.34 * c * k)
+    S = lambda t, c=1.0: tone(seed, t, 0.45 * c * k)
     N = lambda t: tone(seed, t, neutral)
     NV = lambda t: tone(seed, t, neutral * 2.5)
     E = lambda t, c=1.0: tone(RED, t, c * k)
     G = lambda t, c=1.0: tone(GREEN, t, c * k)
     if not dark:
+        lc = LIGHT_CONTAINER
         return dict(
-            primary=P(40), onPrimary=P(100), primaryContainer=P(90), onPrimaryContainer=P(10),
+            primary=P(40), onPrimary=P(100), primaryContainer=P(lc), onPrimaryContainer=P(10),
             secondary=S(40), onSecondary=S(100), secondaryContainer=S(90), onSecondaryContainer=S(10),
             tertiary=S(40), onTertiary=S(100), tertiaryContainer=S(90), onTertiaryContainer=S(10),
-            error=E(40), onError=E(100), errorContainer=E(90), onErrorContainer=E(10),
+            error=E(40), onError=E(100), errorContainer=E(lc), onErrorContainer=E(10),
             background=N(99), onBackground=N(10), surface=N(99), onSurface=N(10),
             surfaceVariant=NV(90), onSurfaceVariant=NV(30), outline=NV(50), outlineVariant=NV(80),
             inverseSurface=N(20), inverseOnSurface=N(95), inversePrimary=P(80),
             surfaceBright=N(99), surfaceDim=N(87),
             surfaceContainerLowest=N(100), surfaceContainerLow=N(96), surfaceContainer=N(94),
             surfaceContainerHigh=N(92), surfaceContainerHighest=N(90),
-            correct=G(40), onCorrect=G(100), correctContainer=G(90), onCorrectContainer=G(10))
-    C, A, ct = soften, ACCENT, CONTAINER_TONE
+            correct=G(40), onCorrect=G(100), correctContainer=G(lc), onCorrectContainer=G(10))
+    C, A, ct = soften, ACCENT, DARK_CONTAINER
     return dict(
         primary=P(80, A), onPrimary=P(20, A), primaryContainer=P(ct, C), onPrimaryContainer=P(90, C),
         secondary=S(80, A), onSecondary=S(20, A), secondaryContainer=S(ct, C), onSecondaryContainer=S(90, C),
         tertiary=S(80, A), onTertiary=S(20, A), tertiaryContainer=S(ct, C), onTertiaryContainer=S(90, C),
-        error=E(80, A), onError=E(20, A), errorContainer=E(30, C), onErrorContainer=E(90, C),
+        # Red gets its own, lower `soften`: the gold is meant to glow, but a full-chroma
+        # red slab shouts over it, and a wrong answer only has to be read.
+        error=E(80, A), onError=E(20, A), errorContainer=E(30, ERROR_SOFTEN), onErrorContainer=E(90, C),
         background=N(10), onBackground=N(90), surface=N(10), onSurface=N(90),
         surfaceVariant=NV(30), onSurfaceVariant=NV(80), outline=NV(60), outlineVariant=NV(30),
         inverseSurface=N(90), inverseOnSurface=N(20), inversePrimary=P(40),
