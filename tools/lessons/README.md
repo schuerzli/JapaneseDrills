@@ -87,15 +87,15 @@ review schedule is what tracks whether the knowledge is still there.
 
 ## What review schedules, and why not questions
 
-Roughly 1000 words times ~244 transformations is on the order of 10^5 possible questions.
-Scheduling those individually is meaningless — almost every pair would be seen once or
-never, so "due" would carry no information.
+A thousand words times a couple of hundred transformations is on the order of 10^5
+possible questions. Scheduling those individually is meaningless — almost every pair
+would be seen once or never, so "due" would carry no information.
 
 So there are two axes, each in the hundreds:
 
-- **skills** — a grammar operation on a word class (`past|godan`), at most ~130. Godan and
-  ichidan て-form are separate skills because one is a table of exceptions and the other is
-  a single rule.
+- **skills** — a grammar operation on a word class (`past|godan`): one per question type
+  per class, so a hundred-odd at most. Godan and ichidan て-form are separate skills
+  because one is a table of exceptions and the other is a single rule.
 - **words** — only the ones actually met.
 
 A review question is chosen by picking a due skill and then a word within it, preferring

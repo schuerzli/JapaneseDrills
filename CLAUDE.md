@@ -1,7 +1,8 @@
 # JapaneseDrills
 
 Android app (Kotlin, Jetpack Compose, Material 3) that drills Japanese verb and
-adjective conjugation.
+adjective conjugation: a guided learn path with spaced review, a grammar reference,
+and a free-practice mode.
 
 ## How to use this file
 
@@ -23,24 +24,26 @@ and easy to get wrong. Nothing else belongs here.
 
 ## Build and run
 
-The Android Gradle plugin (8.7.2) runs on JDK 17 or newer and fails outright on
-anything older; the default JDK on this machine is 11, and the Gradle wrapper is not
-used. Run Gradle through Android Studio's bundled JDK instead:
+The Android Gradle plugin runs on JDK 17 or newer and fails outright on anything older,
+and the default JDK on this machine is 11. So the wrapper works, but only once
+`JAVA_HOME` points at Android Studio's bundled JDK:
 
 ```bash
-JBR="C:/Program Files/Android/Android Studio1/jbr/bin/java.exe"
-GRADLE="C:/Program Files/Unity/Hub/Editor/6000.0.58f1/Editor/Data/PlaybackEngines/AndroidPlayer/Tools/gradle/lib/gradle-launcher-8.11.jar"
-"$JBR" -cp "$GRADLE" org.gradle.launcher.GradleMain assembleDebug testDebugUnitTest
+JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug testDebugUnitTest
 ```
 
-The generated assets have a `--check` mode; run it after editing a generator or the word
-list, because a stale `lessons.json` is not otherwise visible:
+Three things are generated rather than written by hand: `words.json` (`tools/wordlist`),
+`lessons.json` (`tools/lessons`) and the colour scheme in `ui/theme/Theme.kt`
+(`tools/theme`). Edit the generator and re-run it; editing its output means the next run
+silently reverts you. `lessons.json` is the one whose staleness nothing else catches, so
+it has a check of its own:
 
 ```bash
 python tools/lessons/generate.py --check
 ```
 
-Install on the running emulator:
+Install on the running emulator; `-d` in place of `-s emulator-5554` installs on a
+USB-attached phone instead:
 
 ```bash
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" -s emulator-5554 install -r app/build/outputs/apk/debug/app-debug.apk
@@ -50,14 +53,16 @@ Install on the running emulator:
 
 ```
 app/src/main/assets/     words.json (words), rules.json (conjugation), lessons.json (learn path)
+app/src/main/res/        launcher icon, window background — colours generated with the theme
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
-    quiz/               engine, question pool, romaji input, furigana, grammar explanations,
-                         curriculum, spaced repetition, progress
+    quiz/                engine, question pool, romaji input, furigana, answer explanations,
+                         grammar reference, curriculum, spaced repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          learn path, lesson intro, practice, quiz, results, settings, about
+    ui/screens/          learn path, lesson intro, grammar, practice, quiz, results,
+                         settings, about
     ui/components/       furigana-aware rich text, shared card
-    ui/theme/            Material 3 colour schemes
+    ui/theme/            Material 3 colour schemes (generated)
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          regenerates words.json from open datasets (see extract.py)
 tools/theme/             regenerates the colour scheme from one seed (see schemes.py)
@@ -92,7 +97,8 @@ These look like mistakes without their reason. Check here before "fixing" one.
   unit tests.
 - **Progress is the only state that cannot be rebuilt from the assets.** Wiping
   `ProgressStore` throws away real work, so it is written through on every answer and
-  only cleared behind a confirmation.
+  only cleared behind a confirmation. It can also be copied out as text, so the encoded
+  shape is something other people hold copies of, not merely an internal detail.
 
 Why the curriculum is ordered the way it is, and why review schedules skills rather than
 questions, is in `tools/lessons/README.md`.
