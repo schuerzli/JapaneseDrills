@@ -5,12 +5,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -35,6 +32,7 @@ import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarNote
+import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.SolutionStep
@@ -184,27 +182,13 @@ private fun StepLine(step: SolutionStep, furiganaAlways: Boolean) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             furiganaAlways = furiganaAlways,
         )
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            RichText(
-                listOf(RichPart.Jp(step.from)),
-                style = MaterialTheme.typography.bodyLarge,
-                furiganaAlways = furiganaAlways,
-            )
-            Spacer(Modifier.width(8.dp))
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "becomes",
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.width(8.dp))
-            RichText(
-                step.to.flatMapIndexed { i, form ->
-                    if (i == 0) listOf(RichPart.Jp(form)) else listOf(RichPart.Text(" / "), RichPart.Jp(form))
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                furiganaAlways = furiganaAlways,
-            )
-        }
+        // The arrow is a character in the same run of text, the way the quiz's solution
+        // renders it, so it shares the baseline. An icon beside the text cannot: furigana
+        // makes the Japanese taller at the top, and centring floats the arrow above the words.
+        RichText(
+            listOf(RichPart.Jp(step.from), RichPart.Text("  →  ")) + Prompts.wordList(step.to),
+            style = MaterialTheme.typography.bodyLarge,
+            furiganaAlways = furiganaAlways,
+        )
     }
 }
