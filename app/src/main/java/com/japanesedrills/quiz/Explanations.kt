@@ -57,16 +57,35 @@ object Explanations {
     )
 
     // Kana rows used by godan verbs: あ, い, え and お rows for each dictionary ending.
-    private val godanRows = mapOf(
-        'う' to "わいえお", 'く' to "かきけこ", 'ぐ' to "がぎげご", 'す' to "さしせそ", 'つ' to "たちてと",
-        'ぬ' to "なにねの", 'ぶ' to "ばびべぼ", 'む' to "まみめも", 'る' to "らりれろ",
+    // The て-form ending that replaces each godan dictionary ending, in the order the
+    // fusions are usually taught. Its keys double as the set of kana a godan verb can end
+    // in: the row shifts are described in words, so the rows need no table of their own.
+    private val godanTe = mapOf(
+        'う' to "って", 'つ' to "って", 'る' to "って", 'ぬ' to "んで", 'ぶ' to "んで",
+        'む' to "んで", 'く' to "いて", 'ぐ' to "いで", 'す' to "して",
     )
 
-    // The て-form ending that replaces each godan dictionary ending.
-    private val godanTe = mapOf(
-        'う' to "って", 'つ' to "って", 'る' to "って", 'く' to "いて", 'ぐ' to "いで",
-        'す' to "して", 'ぬ' to "んで", 'ぶ' to "んで", 'む' to "んで",
-    )
+    /** The past ending for a て ending: the same fusion with a different tail. */
+    private fun pastOf(te: String) = te.dropLast(1) + if (te.last() == 'て') "た" else "だ"
+
+    /** One row of the godan sound changes: the endings that fuse the same way. */
+    data class Fusion(val endings: List<Char>, val te: String, val past: String)
+
+    /**
+     * The godan sound changes as a closed table, grouped by the ending they share.
+     *
+     * This is the one part of a conjugation that no rule can summarise — it has to be
+     * learned as a list — so the reference shows the list rather than a rule per example
+     * word. It is built from the same map the explanations are written from, so the table
+     * cannot show a change the drill would mark wrong.
+     */
+    val GODAN_FUSIONS: List<Fusion> = godanTe.entries
+        .groupBy({ it.value }, { it.key })
+        .map { (te, endings) -> Fusion(endings, te, pastOf(te)) }
+
+    /** The fusion table when [target] is built with one, or null when a row shift builds it. */
+    fun godanFusions(target: String): List<Fusion>? =
+        GODAN_FUSIONS.takeIf { target == "te-form" || target == "past" }
 
     fun solution(word: Word, target: String): Solution {
         if (target == DICTIONARY) return Solution(emptyList())
@@ -184,13 +203,11 @@ object Explanations {
 
     private fun derivationRule(word: Word, cls: WordClass, fromKey: String, key: String): List<RichPart>? {
         val from = word.forms(fromKey).firstOrNull() ?: return null
-        val u = lastKana(from)
-        val row = godanRows[u]
-        val wa = if (u == 'う') " (う becomes わ, not あ)" else ""
+        val wa = if (lastKana(from) == 'う') " う becomes わ, not あ." else ""
         return when (key) {
             "causative" -> when (cls) {
                 WordClass.GODAN, WordClass.IKU ->
-                    rule("Change the final $u to its あ-row kana ${row!![0]}$wa and add せる.")
+                    rule("Change the final kana from the う-row to the あ-row and add せる.$wa")
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
                 WordClass.ARU -> rule("Change the final る to ら and add せる. This form of ある is rare.")
                 WordClass.ICHIDAN, WordClass.IRU -> rule("Drop the final る and add させる.")
@@ -203,22 +220,15 @@ object Explanations {
                 // Godan verbs (except those ending in す) also have a contracted form: 書かされる.
                 val dictionaryEnd = lastKana(word.dictionary)
                 val original = classOf(word.group)
-                if (original == WordClass.GODAN || original == WordClass.IKU) {
-                    val a = godanRows.getValue(dictionaryEnd)[0]
-                    if (dictionaryEnd != 'す') {
-                        base + rule(
-                            " Godan verbs also have a shorter form: add される to the あ-row kana $a instead.",
-                        )
-                    } else {
-                        base
-                    }
+                if ((original == WordClass.GODAN || original == WordClass.IKU) && dictionaryEnd != 'す') {
+                    base + rule(" Godan verbs also have a shorter form: add される to the あ-row kana instead.")
                 } else {
                     base
                 }
             }
             "passive" -> when (cls) {
                 WordClass.GODAN, WordClass.IKU ->
-                    rule("Change the final $u to its あ-row kana ${row!![0]}$wa and add れる.")
+                    rule("Change the final kana from the う-row to the あ-row and add れる.$wa")
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
                 WordClass.ARU -> rule("Change the final る to ら and add れる. This form of ある is rare.")
                 WordClass.ICHIDAN, WordClass.IRU ->
@@ -229,7 +239,7 @@ object Explanations {
             }
             "potential" -> when (cls) {
                 WordClass.GODAN, WordClass.IKU ->
-                    rule("Change the final $u to its え-row kana ${row!![2]} and add る.")
+                    rule("Change the final kana from the う-row to the え-row and add る.")
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
                 // ある has no common potential form; あり得る is used instead.
                 WordClass.ARU -> rule("Change the final る to れ and add る. ある is hardly ever used this way.")
@@ -245,7 +255,7 @@ object Explanations {
             }
             "desire" -> {
                 val stem = word.forms("polite").firstOrNull()?.removeSuffix("ます") ?: return null
-                rule("Take the ます-stem ", jp(stem), " and add たい.")
+                rule("Take ", jp(stem), " and add たい.")
             }
             else -> null
         }
@@ -273,27 +283,38 @@ object Explanations {
         Op.POLITE_PAST_NEG to "ませんでした", Op.POLITE_VOL to "ましょう",
     )
 
+    /**
+     * A row shift is stated as the rule, not as the one substitution this word happens to
+     * need: "the final kana" rather than "the final く". Naming the kana made the reference
+     * read as though く were the only ending a godan verb has, and the worked example
+     * underneath already shows what the shift does to this particular word.
+     *
+     * The て and past endings stay concrete, because there the ending genuinely differs by
+     * kana — that is a table to learn, not an instance of a pattern.
+     */
     private fun godanRule(op: Op, u: Char): List<RichPart>? {
-        val row = godanRows[u] ?: return null
-        val (a, i, e, o) = row.toList()
-        val wa = if (u == 'う') " (う becomes わ, not あ)" else ""
-        val te = godanTe.getValue(u)
-        val ta = te.dropLast(1) + if (te.last() == 'て') "た" else "だ"
+        val te = godanTe[u] ?: return null
+        val ta = pastOf(te)
+        val aRow = "Change the final kana from the う-row to the あ-row"
+        val wa = if (u == 'う') " う becomes わ, not あ." else ""
         return when (op) {
-            Op.NEG -> rule("Change the final $u to its あ-row kana $a$wa and add ない.")
-            Op.PAST_NEG -> rule("Change the final $u to its あ-row kana $a$wa and add なかった.")
-            Op.TE_NEG -> rule("Change the final $u to its あ-row kana $a$wa and add なくて or ないで.")
-            Op.COND_NEG -> rule("Change the final $u to its あ-row kana $a$wa and add なかったら.")
-            Op.PROV_NEG -> rule("Change the final $u to its あ-row kana $a$wa and add なければ.")
+            Op.NEG -> rule("$aRow and add ない.$wa")
+            Op.PAST_NEG -> rule("$aRow and add なかった.$wa")
+            Op.TE_NEG -> rule("$aRow and add なくて or ないで.$wa")
+            Op.COND_NEG -> rule("$aRow and add なかったら.$wa")
+            Op.PROV_NEG -> rule("$aRow and add なければ.$wa")
             Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-                rule("Change the final $u to its い-row kana $i (the ます-stem) and add ${masuEndings.getValue(op)}.")
+                rule(
+                    "Change the final kana from the う-row to the い-row and add " +
+                        "${masuEndings.getValue(op)}.",
+                )
             Op.TE -> rule("Godan verbs ending in $u replace it with $te.")
             Op.PAST -> rule("Godan verbs ending in $u replace it with $ta (the same sound change as the て-form $te).")
             Op.COND -> rule("Make the past form (ending in $ta) and add ら.")
-            Op.PROV -> rule("Change the final $u to its え-row kana $e and add ば.")
-            Op.IMP -> rule("Change the final $u to its え-row kana $e.")
+            Op.PROV -> rule("Change the final kana from the う-row to the え-row and add ば.")
+            Op.IMP -> rule("Change the final kana from the う-row to the え-row.")
             Op.IMP_NEG -> rule("Add な to the dictionary form.")
-            Op.VOL -> rule("Change the final $u to its お-row kana $o and add う (a long お sound).")
+            Op.VOL -> rule("Change the final kana from the う-row to the お-row and add う (a long お sound).")
         }
     }
 
@@ -319,7 +340,7 @@ object Explanations {
         Op.NEG -> rule("Drop the final る and add ない.")
         Op.PAST_NEG -> rule("Drop the final る and add なかった.")
         Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-            rule("Drop the final る (this is the ます-stem) and add ${masuEndings.getValue(op)}.")
+            rule("Drop the final る and add ${masuEndings.getValue(op)}.")
         Op.PAST -> rule("Drop the final る and add た.")
         Op.TE -> rule("Drop the final る and add て.")
         Op.TE_NEG -> rule("Drop the final る and add なくて or ないで.")
@@ -336,7 +357,7 @@ object Explanations {
         Op.NEG -> rule("する becomes し, then add ない.")
         Op.PAST_NEG -> rule("する becomes し, then add なかった.")
         Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-            rule("する becomes its ます-stem し, then add ${masuEndings.getValue(op)}.")
+            rule("する becomes し, then add ${masuEndings.getValue(op)}.")
         Op.PAST -> rule("する becomes し, then add た.")
         Op.TE -> rule("する becomes し, then add て.")
         Op.TE_NEG -> rule("する becomes し, then add なくて or ないで.")
@@ -355,20 +376,20 @@ object Explanations {
         val ku = jp("来[く]")
         val irregular = "来る is irregular. "
         return when (op) {
-            Op.NEG -> rule(irregular, "Before ない its stem is ", ko, ": add ない.")
-            Op.PAST_NEG -> rule(irregular, "Before ない its stem is ", ko, ": add なかった.")
-            Op.TE_NEG -> rule(irregular, "Before ない its stem is ", ko, ": add なくて or ないで.")
-            Op.COND_NEG -> rule(irregular, "Before ない its stem is ", ko, ": add なかったら.")
-            Op.PROV_NEG -> rule(irregular, "Before ない its stem is ", ko, ": add なければ.")
+            Op.NEG -> rule(irregular, "Before ない it becomes ", ko, ": add ない.")
+            Op.PAST_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なかった.")
+            Op.TE_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なくて or ないで.")
+            Op.COND_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なかったら.")
+            Op.PROV_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なければ.")
             Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-                rule(irregular, "Its ます-stem is ", ki, ": add ${masuEndings.getValue(op)}.")
-            Op.PAST -> rule(irregular, "Before た its stem is ", ki, ": add た.")
-            Op.TE -> rule(irregular, "Before て its stem is ", ki, ": add て.")
-            Op.COND -> rule(irregular, "Before たら its stem is ", ki, ": add たら.")
+                rule(irregular, "Before ${masuEndings.getValue(op)} it becomes ", ki, ": add ${masuEndings.getValue(op)}.")
+            Op.PAST -> rule(irregular, "Before た it becomes ", ki, ": add た.")
+            Op.TE -> rule(irregular, "Before て it becomes ", ki, ": add て.")
+            Op.COND -> rule(irregular, "Before たら it becomes ", ki, ": add たら.")
             Op.PROV -> rule(irregular, "Before ば it keeps the reading ", ku, ": add れば.")
             Op.IMP -> rule(irregular, "Its imperative is ", jp("来[こ]い"), ".")
             Op.IMP_NEG -> rule("Add な to the dictionary form: ", jp("来[く]るな"), ".")
-            Op.VOL -> rule(irregular, "Before よう its stem is ", ko, ": add よう.")
+            Op.VOL -> rule(irregular, "Before よう it becomes ", ko, ": add よう.")
         }
     }
 

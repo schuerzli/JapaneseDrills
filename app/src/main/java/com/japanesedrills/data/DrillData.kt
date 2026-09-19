@@ -30,6 +30,8 @@ class DrillData(
     val words: List<Word>,
     val transformations: List<Transformation>,
     val curriculum: Curriculum,
+    /** Per group, the conjugations it defines itself. See [Companion.parseOwnForms]. */
+    val ownForms: Map<String, Set<String>>,
 ) {
 
     /** Words by key, for the learn path, which names its vocabulary rather than filtering it. */
@@ -54,6 +56,7 @@ class DrillData(
                 words,
                 TransformationBuilder.build(conjugationKeys),
                 Curriculum.parse(lessonsJson),
+                parseOwnForms(rulesJson),
             )
         }
 
@@ -63,6 +66,20 @@ class DrillData(
          * Groups that deliberately lack forms (ある, いる) stay standalone rather than
          * inheriting a set they would have to subtract from again.
          */
+        /**
+         * The conjugations each group declares itself, as opposed to inheriting through
+         * `_extends`. This is the difference between "irregular verb" and "irregular here":
+         * 行く extends godan and overrides only the forms built on its て-form, so it is a
+         * perfectly ordinary godan verb everywhere else.
+         */
+        fun parseOwnForms(json: String): Map<String, Set<String>> {
+            val root = JSONObject(json)
+            return root.keys().asSequence().associateWith { group ->
+                val groupObj = root.getJSONObject(group)
+                groupObj.keys().asSequence().filterNot { it.startsWith("_") }.toSet()
+            }
+        }
+
         fun parseRules(json: String): Map<String, Map<String, RuleSet>> {
             val root = JSONObject(json)
             val result = LinkedHashMap<String, Map<String, RuleSet>>()

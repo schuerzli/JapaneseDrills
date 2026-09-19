@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.QuizEngine
@@ -55,7 +56,7 @@ fun LessonIntroScreen(
     lesson: Lesson,
     words: List<Word>,
     forms: List<GrammarNote>,
-    examples: List<Word>,
+    examples: GrammarExamples,
     options: QuizOptions,
     onStart: () -> Unit,
     onQuit: () -> Unit,

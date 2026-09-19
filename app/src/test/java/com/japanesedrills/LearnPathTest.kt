@@ -1,9 +1,11 @@
 package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
+import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Curriculum
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
+import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
@@ -248,10 +250,11 @@ class LearnPathTest {
 
     @Test
     fun everyFormCanBeShownBeingBuilt() {
-        val examples = Grammar.EXAMPLE_KEYS.map { key ->
-            data.wordsByKey[key] ?: error("grammar example '$key' is not in words.json")
-        }
         for (note in Grammar.NOTES) {
+            val examples = Grammar.examplesFor(note.key).map { key ->
+                assertTrue("'$key' is an example for ${note.key} but not in EXAMPLE_KEYS", key in Grammar.EXAMPLE_KEYS)
+                data.wordsByKey[key] ?: error("grammar example '$key' is not in words.json")
+            }
             val target = Grammar.conjugationOf(note.key) ?: continue
             val usable = examples.filter { it.conjugations[target]?.forms?.isNotEmpty() == true }
             assertTrue("no example word has a ${note.key} form", usable.isNotEmpty())
@@ -261,6 +264,36 @@ class LearnPathTest {
                     Explanations.solution(word, target).steps.isNotEmpty(),
                 )
             }
+        }
+    }
+
+    /**
+     * The sound changes are shown as a table rather than derived per example word, so the
+     * table has to be the whole story: every change a godan verb in the word list can
+     * undergo must be a row in it.
+     */
+    @Test
+    fun theFusionTableCoversEverySoundChange() {
+        fun ending(word: Word): String? = word.conjugations["te-form"]?.forms?.firstOrNull()?.takeLast(2)
+
+        val everyChange = data.words.filter { it.group == "godan" }.mapNotNull(::ending).toSet()
+        assertEquals(everyChange, Explanations.GODAN_FUSIONS.map { it.te }.toSet())
+
+        // And every ending a godan verb can have is named in exactly one row.
+        val listed = Explanations.GODAN_FUSIONS.flatMap { it.endings }
+        assertEquals(listed.size, listed.toSet().size)
+        for (word in data.words.filter { it.group == "godan" }) {
+            val last = word.dictionary.last()
+            assertTrue("$last is not in the fusion table", last in listed)
+        }
+    }
+
+    /** The reference reads ichidan first, then godan: the class with no table comes first. */
+    @Test
+    fun theSimplestVerbClassIsShownFirst() {
+        for (note in Grammar.NOTES) {
+            val groups = Grammar.examplesFor(note.key).mapNotNull { data.wordsByKey[it]?.group }
+            assertEquals("${note.key} does not start with the ichidan example", "ichidan", groups.first())
         }
     }
 

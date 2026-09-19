@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Grammar
+import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.LessonRecord
@@ -44,7 +45,7 @@ enum class Tab(val label: String) {
     Settings("Settings"),
 }
 
-enum class Screen { Root, LessonIntro, Quiz, Results, About, GrammarDetail }
+enum class Screen { Root, LessonIntro, Quiz, Results, About, Primer, GrammarDetail }
 
 /** Which of the three things the running quiz is. */
 enum class SessionKind { Practice, Lesson, Review }
@@ -110,7 +111,7 @@ data class DrillUiState(
     /** The form being read about on the Grammar tab. */
     val grammarNote: GrammarNote? = null,
     /** Representative words for showing how a form is built. */
-    val grammarExamples: List<Word> = emptyList(),
+    val grammarExamples: GrammarExamples = GrammarExamples(),
     val outcome: LessonOutcome? = null,
     /** Set when stored progress could not be read and was put aside rather than overwritten. */
     val salvagedProgress: Boolean = false,
@@ -158,7 +159,10 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             val loaded = withContext(Dispatchers.IO) { DrillData.load(getApplication()) }
             data = loaded
             engine = QuizEngine(loaded)
-            val examples = Grammar.EXAMPLE_KEYS.mapNotNull(loaded.wordsByKey::get)
+            val examples = GrammarExamples(
+                Grammar.EXAMPLE_KEYS.mapNotNull(loaded.wordsByKey::get).associateBy { it.key },
+                loaded.ownForms,
+            )
             _state.update { it.copy(loading = false, grammarExamples = examples) }
             refreshPath()
             refreshPool()
@@ -181,6 +185,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun selectTab(tab: Tab) = _state.update { it.copy(tab = tab) }
 
     fun showAbout() = _state.update { it.copy(screen = Screen.About) }
+
+    fun showPrimer() = _state.update { it.copy(screen = Screen.Primer) }
 
     fun backToRoot() {
         queue.clear()

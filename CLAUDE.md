@@ -57,11 +57,12 @@ app/src/main/res/        launcher icon, window background — colours generated 
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
     quiz/                engine, question pool, romaji input, furigana, answer explanations,
-                         grammar reference, curriculum, spaced repetition, progress
+                         grammar reference, conjugation primer, curriculum, spaced
+                         repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          learn path, lesson intro, grammar, practice, quiz, results,
-                         settings, about
-    ui/components/       furigana-aware rich text, shared card
+    ui/screens/          learn path, lesson intro, grammar, primer, practice, quiz,
+                         results, settings, about
+    ui/components/       furigana-aware rich text and table, shared card
     ui/theme/            Material 3 colour schemes (generated)
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          regenerates words.json from open datasets (see extract.py)

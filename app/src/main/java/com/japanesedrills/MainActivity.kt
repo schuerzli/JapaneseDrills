@@ -36,6 +36,7 @@ import com.japanesedrills.ui.screens.GrammarScreen
 import com.japanesedrills.ui.screens.LearnPathScreen
 import com.japanesedrills.ui.screens.LessonIntroScreen
 import com.japanesedrills.ui.screens.PracticeBar
+import com.japanesedrills.ui.screens.PrimerScreen
 import com.japanesedrills.ui.screens.PracticeScreen
 import com.japanesedrills.ui.screens.QuizScreen
 import com.japanesedrills.ui.screens.ResultsScreen
@@ -112,6 +113,15 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             )
         }
 
+        state.screen == Screen.Primer -> {
+            BackHandler(onBack = viewModel::backToRoot)
+            PrimerScreen(
+                furiganaAlways = state.options.furiganaAlways,
+                onBack = viewModel::backToRoot,
+                modifier = contentModifier,
+            )
+        }
+
         state.screen == Screen.About -> {
             BackHandler(onBack = viewModel::backToRoot)
             AboutScreen(onBack = viewModel::backToRoot, modifier = contentModifier)
@@ -174,7 +184,11 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 modifier = inner,
             )
 
-            AppTab.Grammar -> GrammarScreen(onForm = viewModel::showGrammar, modifier = inner)
+            AppTab.Grammar -> GrammarScreen(
+                onPrimer = viewModel::showPrimer,
+                onForm = viewModel::showGrammar,
+                modifier = inner,
+            )
 
             AppTab.Practice -> PracticeScreen(
                 state = state,

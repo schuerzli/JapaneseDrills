@@ -1,5 +1,7 @@
 package com.japanesedrills.quiz
 
+import com.japanesedrills.data.Word
+
 /**
  * What a form *means*, for the Grammar reference and the lesson that introduces it.
  *
@@ -17,14 +19,52 @@ data class GrammarNote(
     val notes: List<String>,
 )
 
+/**
+ * The words the construction section builds its derivations from, and which of them are
+ * irregular for a given form rather than irregular in general.
+ */
+class GrammarExamples(
+    private val words: Map<String, Word> = emptyMap(),
+    private val ownForms: Map<String, Set<String>> = emptyMap(),
+) {
+    operator fun get(key: String): Word? = words[key]
+
+    /** True when [word]'s class defines its own rule for [target] instead of inheriting one. */
+    fun declaresOwnRule(word: Word, target: String): Boolean = target in ownForms[word.group].orEmpty()
+}
+
 object Grammar {
 
     /**
-     * Example words for the construction section: one per class, in the order the learn
-     * path meets them. A class is skipped for a form it does not have, which is how
-     * adjectives quietly drop out of the verb-only forms.
+     * Example words for the construction section. Ichidan leads because it is the class
+     * with no table and no exceptions; godan follows, then the irregulars, then the
+     * adjectives. A class is skipped for a form it does not have, which is how adjectives
+     * quietly drop out of the verb-only forms.
      */
-    val EXAMPLE_KEYS = listOf("書く", "食べる", "する", "来る", "行く", "高い", "便利な")
+    private const val ICHIDAN = "食べる"
+    private val GODAN = listOf("書く")
+    private val IRREGULAR = listOf("する", "来る", "行く")
+    private val ADJECTIVES = listOf("高い", "便利な")
+
+    /** 書く is the ordinary shift; 買う is the one exception, う to わ rather than あ. */
+    private val A_ROW = listOf("書く", "買う")
+
+    private val GODAN_BY_FORM = mapOf(
+        "negative" to A_ROW,
+        "passive" to A_ROW,
+        "causative" to A_ROW,
+    )
+
+    /** Shown under one heading, because "irregular" is the useful fact about all of them. */
+    val IRREGULAR_GROUPS = setOf("suru", "kuru", "iku")
+
+    /** The example words to build [formKey] with, in the order they should be shown. */
+    fun examplesFor(formKey: String): List<String> =
+        listOf(ICHIDAN) + (GODAN_BY_FORM[formKey] ?: GODAN) + IRREGULAR + ADJECTIVES
+
+    /** Every word any form might need, for loading them once. */
+    val EXAMPLE_KEYS: List<String> =
+        (listOf(ICHIDAN) + GODAN + A_ROW + IRREGULAR + ADJECTIVES).distinct()
 
     val NOTES: List<GrammarNote> = listOf(
         GrammarNote(

@@ -140,7 +140,7 @@ class DrillLogicTest {
         val shortForm = Explanations.solution(kiku, "causative passive").steps.last()
         assertTrue(
             (shortForm.rule.last() as RichPart.Text).text
-                .contains("shorter form: add される to the あ-row kana か"),
+                .contains("shorter form: add される to the あ-row kana instead"),
         )
         val hanasu = data.words.first { it.key == "話す" }
         val noShortForm = Explanations.solution(hanasu, "causative passive").steps.last()
@@ -196,7 +196,7 @@ class DrillLogicTest {
         assertEquals(listOf("Causative", "Causative passive", "Past negative"), steps.map { it.label })
         assertEquals(listOf("聞[き]かせる"), steps[0].to)
         assertEquals(
-            "Change the final く to its あ-row kana か and add せる.",
+            "Change the final kana from the う-row to the あ-row and add せる.",
             (steps[0].rule.single() as RichPart.Text).text,
         )
         assertEquals(RichPart.Text(" conjugates like an ichidan verb: "), steps[2].rule[1])
@@ -205,7 +205,7 @@ class DrillLogicTest {
         val kau = data.words.first { it.key == "買う" }
         val negative = Explanations.solution(kau, "negative").steps.single()
         assertEquals(
-            "Change the final う to its あ-row kana わ (う becomes わ, not あ) and add ない.",
+            "Change the final kana from the う-row to the あ-row and add ない. う becomes わ, not あ.",
             (negative.rule.single() as RichPart.Text).text,
         )
     }
