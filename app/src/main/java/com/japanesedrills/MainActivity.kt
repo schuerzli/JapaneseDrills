@@ -1,5 +1,9 @@
 package com.japanesedrills
 
+import android.app.UiModeManager
+import android.content.Context
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
@@ -28,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.japanesedrills.quiz.OptionsStore
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.DrillViewModel
@@ -47,8 +52,28 @@ import com.japanesedrills.ui.screens.ResultsScreen
 import com.japanesedrills.ui.theme.JapaneseDrillsTheme
 
 class MainActivity : ComponentActivity() {
+
+    /**
+     * The window background behind the app and the tint of the system bar icons are
+     * resources, so the framework picks them by the device's night setting rather than by
+     * the app's own. On Light or Dark those disagree, and it shows as the wrong scheme
+     * behind the app while it starts, so the stored choice goes into this activity's
+     * configuration before any resource is resolved.
+     */
+    override fun attachBaseContext(newBase: Context) {
+        val night = nightUiMode(newBase)
+        if (night == null) {
+            super.attachBaseContext(newBase)
+        } else {
+            val config = Configuration(newBase.resources.configuration)
+            config.uiMode = (config.uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or night
+            super.attachBaseContext(newBase.createConfigurationContext(config))
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        matchSystemNightMode()
         enableEdgeToEdge()
         setContent {
             val viewModel: DrillViewModel = viewModel()
@@ -62,6 +87,30 @@ class MainActivity : ComponentActivity() {
             }
             JapaneseDrillsTheme(darkTheme = dark) { DrillApp(state, viewModel) }
         }
+    }
+
+    /** The stored choice as a [Configuration] night bit, or null to follow the device. */
+    private fun nightUiMode(context: Context): Int? = when (OptionsStore(context).load().theme) {
+        ThemeChoice.System -> null
+        ThemeChoice.Light -> Configuration.UI_MODE_NIGHT_NO
+        ThemeChoice.Dark -> Configuration.UI_MODE_NIGHT_YES
+    }
+
+    /**
+     * The launcher draws the splash before this process exists, from the night mode the
+     * system holds for the app, so the app cannot colour it directly — it can only keep
+     * the system's copy of the choice in step. The system remembers, so the splash is
+     * right from the next launch on. Before API 31 there is nothing to tell it, and the
+     * splash follows the device.
+     */
+    private fun matchSystemNightMode() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+        val mode = when (nightUiMode(this)) {
+            Configuration.UI_MODE_NIGHT_NO -> UiModeManager.MODE_NIGHT_NO
+            Configuration.UI_MODE_NIGHT_YES -> UiModeManager.MODE_NIGHT_YES
+            else -> UiModeManager.MODE_NIGHT_AUTO
+        }
+        getSystemService(UiModeManager::class.java).setApplicationNightMode(mode)
     }
 }
 
