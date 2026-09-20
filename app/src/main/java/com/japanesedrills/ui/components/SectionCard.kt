@@ -22,7 +22,7 @@ fun SectionCard(title: String, subtitle: String? = null, content: @Composable ()
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Column {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+                Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
                 if (subtitle != null) {
                     Text(
                         subtitle,

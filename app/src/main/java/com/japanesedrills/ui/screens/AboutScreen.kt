@@ -101,6 +101,24 @@ private val SOURCES = listOf(
     ),
 )
 
+/** Bundled fonts. The OFL asks that the licence travel with them; it is in res/raw/ofl.txt. */
+private val TYPEFACES = listOf(
+    Source(
+        name = "Lora",
+        usedFor = "Titles and headings.",
+        credit = "The Lora Project Authors",
+        licence = "SIL Open Font License 1.1",
+        url = "https://fonts.google.com/specimen/Lora",
+    ),
+    Source(
+        name = "Manrope",
+        usedFor = "Everything you read.",
+        credit = "The Manrope Project Authors",
+        licence = "SIL Open Font License 1.1",
+        url = "https://fonts.google.com/specimen/Manrope",
+    ),
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
@@ -149,6 +167,20 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             ) {
                 Column {
                     SOURCES.forEachIndexed { i, source ->
+                        if (i > 0) {
+                            HorizontalDivider(
+                                Modifier.padding(vertical = 12.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        }
+                        SourceEntry(source)
+                    }
+                }
+            }
+
+            SectionCard("Typefaces", "Japanese is set in the system's own font; these cover the rest.") {
+                Column {
+                    TYPEFACES.forEachIndexed { i, source ->
                         if (i > 0) {
                             HorizontalDivider(
                                 Modifier.padding(vertical = 12.dp),
