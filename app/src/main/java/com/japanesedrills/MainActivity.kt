@@ -11,8 +11,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -122,6 +126,20 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             )
         }
 
+        state.screen == Screen.Settings -> {
+            BackHandler(onBack = viewModel::backToRoot)
+            AppSettingsScreen(
+                state = state,
+                onTheme = viewModel::setTheme,
+                onResetProgress = viewModel::resetProgress,
+                onExport = viewModel::exportProgress,
+                onImport = viewModel::importProgress,
+                onAbout = viewModel::showAbout,
+                onBack = viewModel::backToRoot,
+                modifier = contentModifier,
+            )
+        }
+
         state.screen == Screen.About -> {
             BackHandler(onBack = viewModel::backToRoot)
             AboutScreen(onBack = viewModel::backToRoot, modifier = contentModifier)
@@ -142,10 +160,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
     }
 }
 
-/**
- * The four tabs. Learn is first and the default: it is the one screen that tells a
- * newcomer what to do, where the practice grid assumes you already know the grammar.
- */
+/** The three tabs, with settings on the bar beside them rather than among them. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier: Modifier) {
@@ -153,7 +168,14 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
         modifier = modifier,
         topBar = {
             Column {
-                TopAppBar(title = { Text("Japanese Drills") })
+                TopAppBar(
+                    title = { Text("Japanese Drills") },
+                    actions = {
+                        IconButton(onClick = viewModel::showSettings) {
+                            Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        }
+                    },
+                )
                 PrimaryTabRow(selectedTabIndex = state.tab.ordinal) {
                     AppTab.entries.forEach { tab ->
                         Tab(
@@ -198,15 +220,6 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 modifier = inner,
             )
 
-            AppTab.Settings -> AppSettingsScreen(
-                state = state,
-                onTheme = viewModel::setTheme,
-                onResetProgress = viewModel::resetProgress,
-                onExport = viewModel::exportProgress,
-                onImport = viewModel::importProgress,
-                onAbout = viewModel::showAbout,
-                modifier = inner,
-            )
         }
     }
 }

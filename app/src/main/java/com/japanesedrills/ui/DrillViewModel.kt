@@ -38,14 +38,18 @@ import java.time.LocalDate
 import kotlin.random.Random
 
 /** Labels are kept short because four fixed tabs have to share one phone-width row. */
+/**
+ * The three places to be. Learn is first and the default: it is the one screen that tells
+ * a newcomer what to do. Settings is not among them — it is a destination, reached from
+ * the bar, not somewhere you spend time.
+ */
 enum class Tab(val label: String) {
     Learn("Learn"),
-    Grammar("Grammar"),
     Practice("Practice"),
-    Settings("Settings"),
+    Grammar("Grammar"),
 }
 
-enum class Screen { Root, LessonIntro, Quiz, Results, About, Primer, GrammarDetail }
+enum class Screen { Root, LessonIntro, Quiz, Results, Settings, About, Primer, GrammarDetail }
 
 /** Which of the three things the running quiz is. */
 enum class SessionKind { Practice, Lesson, Review }
@@ -183,6 +187,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     // Navigation
 
     fun selectTab(tab: Tab) = _state.update { it.copy(tab = tab) }
+
+    fun showSettings() = _state.update { it.copy(screen = Screen.Settings) }
 
     fun showAbout() = _state.update { it.copy(screen = Screen.About) }
 
