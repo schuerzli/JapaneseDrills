@@ -42,6 +42,13 @@ it has a check of its own:
 python tools/lessons/generate.py --check
 ```
 
+A palette is only finished when every foreground/background pair the app puts together
+clears 4.5:1, which is easy to break by eye and easy to check:
+
+```bash
+python tools/theme/schemes.py --check
+```
+
 Install on the running emulator; `-d` in place of `-s emulator-5554` installs on a
 USB-attached phone instead:
 
@@ -53,7 +60,7 @@ USB-attached phone instead:
 
 ```
 app/src/main/assets/     words.json (words), rules.json (conjugation), lessons.json (learn path)
-app/src/main/res/        launcher icon, window background — colours generated with the theme
+app/src/main/res/        launcher icon, window background, the two bundled fonts and their licence
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
     quiz/                engine, question pool, romaji input, furigana, answer explanations,
@@ -63,11 +70,11 @@ app/src/main/java/com/japanesedrills/
     ui/screens/          learn path, lesson intro, grammar, primer, practice, quiz,
                          results, settings, about
     ui/components/       furigana-aware rich text and table, shared card
-    ui/theme/            Material 3 colour schemes (generated)
+    ui/theme/            colour schemes (generated) and the type scale
 app/src/test/            data-integrity and logic tests; the safety net for data edits
-tools/wordlist/          regenerates words.json from open datasets (see extract.py)
-tools/theme/             regenerates the colour scheme from one seed (see schemes.py)
-tools/lessons/           regenerates lessons.json; its README holds the curriculum reasoning
+tools/wordlist/          words.json, from open datasets (see extract.py)
+tools/theme/             the colour scheme, and the palettes that were rejected (see schemes.py)
+tools/lessons/           lessons.json; its README holds the curriculum reasoning
 ```
 
 ## Data invariants
@@ -84,7 +91,9 @@ These look like mistakes without their reason. Check here before "fixing" one.
   independent second source for `furiganaMatchesTheDeclaredReading`. Deleting it as
   dead data would remove the check that caught six broken entries.
 - **rules.json: `_extends` inherits a group's forms; `_`-prefixed keys are skipped**
-  (directives, notes, and forms deliberately disabled).
+  (directives, notes, and forms deliberately disabled). Which group declares which form
+  is itself meaningful: it is how the grammar reference knows 行く is irregular in its
+  て-form and ordinary everywhere else (`DrillData.parseOwnForms`).
 - **`aru` and `iru` deliberately do not use `_extends`.** They lack forms on
   purpose — ある's rare potential/passive/causative/imperative, いる's progressive
   and desire. Inheriting from godan/ichidan would bring all of those back.
@@ -119,6 +128,10 @@ questions, is in `tools/lessons/README.md`.
   declaration, and treat a suspiciously fast green run as unverified.
 
 ## Licensing
+
+The bundled typefaces are under the SIL Open Font License, which asks that the licence
+travel with the font: it does, as `res/raw/ofl.txt`, and both faces are credited on the
+About screen.
 
 The word data comes from JMdict, JmdictFurigana, the Tanaka Corpus and
 open-anki-jlpt-decks. The first three are CC BY-SA, so words.json is a modified

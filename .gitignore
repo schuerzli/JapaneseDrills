@@ -7,3 +7,4 @@ local.properties
 captures/
 __pycache__/
 install_on_phone.txt
+tools/theme/preview.html
