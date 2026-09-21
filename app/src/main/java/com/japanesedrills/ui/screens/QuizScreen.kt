@@ -208,7 +208,7 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
             Text(
                 Prompts.INSTRUCTION,
                 style = MaterialTheme.typography.labelLarge,
-                color = onContainer.copy(alpha = 0.75f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(Modifier.height(6.dp))
             Surface(
@@ -237,7 +237,7 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
                 Text(
                     "Tap the word to show its reading",
                     style = MaterialTheme.typography.labelMedium,
-                    color = onContainer.copy(alpha = 0.7f),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }

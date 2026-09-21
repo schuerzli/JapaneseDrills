@@ -2,59 +2,56 @@ package com.japanesedrills.ui.theme
 
 import androidx.annotation.FontRes
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
 /**
- * A display face for anything that titles something and a body face for anything you read;
- * which faces is the palette's choice, the scale below is the same for all of them.
+ * A face as the four static weights the type scale uses, cut from its variable master by
+ * `tools/theme/schemes.py --fonts`.
  *
- * Every bundled face is a variable font, so one file covers every weight — [family]
- * instances the axis rather than shipping a file per weight.
- *
- * None of them covers kana or kanji, so Japanese falls back to the system's Japanese font.
- * That is deliberate: it keeps the drill content in a face designed for it, whatever the
- * palette does with the interface around it.
+ * Static, not variable: Android 17 ignores a weight asked of a variable font at runtime and
+ * draws the file's default instance, which for Manrope is ExtraLight — every label on the
+ * phone came out hairline while the emulator looked fine. A weight here that has no file
+ * would be synthesised, so these four are the only weights the scale below may use.
  */
-@OptIn(ExperimentalTextApi::class)
-private fun family(@FontRes resId: Int, vararg weights: Int) = FontFamily(
-    weights.map { weight ->
-        Font(
-            resId,
-            FontWeight(weight),
-            variationSettings = FontVariation.Settings(FontVariation.weight(weight)),
-        )
-    },
-)
+fun face(@FontRes regular: Int, @FontRes medium: Int, @FontRes semiBold: Int, @FontRes bold: Int) =
+    FontFamily(
+        Font(regular, FontWeight.Normal),
+        Font(medium, FontWeight.Medium),
+        Font(semiBold, FontWeight.SemiBold),
+        Font(bold, FontWeight.Bold),
+    )
 
 private val base = Typography()
 
 /**
- * Line heights are set a little looser than Material's defaults: the drill is read, not
- * scanned, and furigana need the room above the line.
+ * A display face for anything that titles something and a body face for anything you read;
+ * which faces is the palette's choice, the scale is the same for all of them.
+ *
+ * None of the faces covers kana or kanji, so Japanese falls back to the system's Japanese
+ * font. That is deliberate: it keeps the drill content in a face designed for it, whatever
+ * the palette does with the interface around it.
+ *
+ * Line heights are a little looser than Material's defaults: the drill is read, not scanned,
+ * and furigana need the room above the line. The smallest body text is set a weight heavier
+ * than the rest, because at 12sp a regular weight on a tinted card is what read as faint.
  */
-fun typographyOf(@FontRes display: Int, @FontRes body: Int): Typography {
-    val d = family(display, 400, 500, 600, 700)
-    val b = family(body, 400, 500, 600, 700)
-    return Typography(
-        displayLarge = base.displayLarge.copy(fontFamily = d),
-        displayMedium = base.displayMedium.copy(fontFamily = d),
-        displaySmall = base.displaySmall.copy(fontFamily = d),
-        headlineLarge = base.headlineLarge.copy(fontFamily = d, fontWeight = FontWeight.SemiBold),
-        headlineMedium = base.headlineMedium.copy(fontFamily = d, fontWeight = FontWeight.SemiBold),
-        headlineSmall = base.headlineSmall.copy(fontFamily = d, fontWeight = FontWeight.SemiBold),
-        titleLarge = base.titleLarge.copy(fontFamily = d, fontWeight = FontWeight.SemiBold),
-        titleMedium = base.titleMedium.copy(fontFamily = d, fontWeight = FontWeight.SemiBold),
-        titleSmall = base.titleSmall.copy(fontFamily = d, fontWeight = FontWeight.SemiBold),
-        bodyLarge = base.bodyLarge.copy(fontFamily = b, lineHeight = 26.sp),
-        bodyMedium = base.bodyMedium.copy(fontFamily = b, lineHeight = 22.sp),
-        bodySmall = base.bodySmall.copy(fontFamily = b, lineHeight = 18.sp),
-        labelLarge = base.labelLarge.copy(fontFamily = b, fontWeight = FontWeight.SemiBold),
-        labelMedium = base.labelMedium.copy(fontFamily = b, fontWeight = FontWeight.SemiBold),
-        labelSmall = base.labelSmall.copy(fontFamily = b, fontWeight = FontWeight.SemiBold),
-    )
-}
+fun typographyOf(display: FontFamily, body: FontFamily) = Typography(
+    displayLarge = base.displayLarge.copy(fontFamily = display),
+    displayMedium = base.displayMedium.copy(fontFamily = display),
+    displaySmall = base.displaySmall.copy(fontFamily = display),
+    headlineLarge = base.headlineLarge.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
+    headlineMedium = base.headlineMedium.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
+    headlineSmall = base.headlineSmall.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
+    titleLarge = base.titleLarge.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
+    titleMedium = base.titleMedium.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
+    titleSmall = base.titleSmall.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
+    bodyLarge = base.bodyLarge.copy(fontFamily = body, lineHeight = 26.sp),
+    bodyMedium = base.bodyMedium.copy(fontFamily = body, lineHeight = 22.sp),
+    bodySmall = base.bodySmall.copy(fontFamily = body, fontWeight = FontWeight.Medium, lineHeight = 18.sp),
+    labelLarge = base.labelLarge.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
+    labelMedium = base.labelMedium.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
+    labelSmall = base.labelSmall.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
+)

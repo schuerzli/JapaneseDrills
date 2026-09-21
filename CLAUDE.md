@@ -32,9 +32,9 @@ and the default JDK on this machine is 11. So the wrapper works, but only once
 JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug testDebugUnitTest
 ```
 
-Three things are generated rather than written by hand: `words.json` (`tools/wordlist`),
-`lessons.json` (`tools/lessons`) and the palettes in `ui/theme/Theme.kt`
-(`tools/theme`). Edit the generator and re-run it; editing its output means the next run
+Four things are generated rather than written by hand: `words.json` (`tools/wordlist`),
+`lessons.json` (`tools/lessons`), and the palettes in `ui/theme/Theme.kt` and the fonts in
+`res/font` (both `tools/theme`; `--fonts` needs `pip install fonttools`). Edit the generator and re-run it; editing its output means the next run
 silently reverts you. `lessons.json` is the one whose staleness nothing else catches, so
 it has a check of its own:
 
@@ -43,7 +43,7 @@ python tools/lessons/generate.py --check
 ```
 
 A palette is only finished when every foreground/background pair the app puts together
-clears 4.5:1, which is easy to break by eye and easy to check:
+clears 4.5:1, and secondary text 7:1, which is easy to break by eye and easy to check:
 
 ```bash
 python tools/theme/schemes.py --check
@@ -73,7 +73,8 @@ app/src/main/java/com/japanesedrills/
     ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
-tools/theme/             the palettes Settings offers, and why each looks as it does (see schemes.py)
+tools/theme/             the palettes Settings offers and why each looks as it does (see schemes.py);
+                         fonts/ holds the variable masters res/font is cut from
 tools/lessons/           lessons.json; its README holds the curriculum reasoning
 ```
 
@@ -113,7 +114,23 @@ These look like mistakes without their reason. Check here before "fixing" one.
 Why the curriculum is ordered the way it is, and why review schedules skills rather than
 questions, is in `tools/lessons/README.md`.
 
+## UI rules
+
+- **A state change must not make the screen around it jump.** An element may change size,
+  but not if that reshuffles a list or pushes its neighbours somewhere unpredictable. A tick
+  appearing on a selected chip did exactly that: the chip widened and every chip after it
+  reflowed. Where a change would move other things, show the state with colour or fill
+  inside the same footprint instead.
+- **No text in a colour faded with alpha.** Alpha bypasses the contrast check; use
+  `onSurfaceVariant`, which the check holds to 7:1 wherever the app sets small text.
+
 ## Traps
+
+- **Android 17 ignores the weight asked of a variable font** and draws the file's default
+  instance — Manrope came out ExtraLight on the phone while the Android 15 emulator looked
+  right. So `res/font` holds static instances, one per weight, cut by `schemes.py --fonts`.
+  Never point a `Font()` at a variable file, and check type changes on the phone, not only
+  the emulator.
 
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at

@@ -3,8 +3,9 @@
     python tools/theme/schemes.py --apply     # rewrite Theme.kt and the colors.xml files
     python tools/theme/schemes.py --check     # contrast sweep over every palette
     python tools/theme/schemes.py --preview   # write preview.html comparing them
+    python tools/theme/schemes.py --fonts     # rebuild res/font from tools/theme/fonts
 
-Needs only the standard library. --apply rewrites the generated region of
+Needs only the standard library, except --fonts, which needs fontTools. --apply rewrites the generated region of
 app/src/main/java/com/japanesedrills/ui/theme/Theme.kt and regenerates
 app/src/main/res/values{,-night}/colors.xml; it touches nothing else in those files.
 Re-running reproduces them byte for byte.
@@ -18,8 +19,14 @@ the hero card, which follows a single rule in every palette (see HERO_TINT).
 To re-tune, edit the palette below and re-run --apply. `--check` must stay clean: every
 foreground/background pair the app actually puts together needs 4.5:1.
 
-A palette is more than colour: each names its two faces (files in res/font) and where its
-accent goes beyond the shared roles. The type scale itself is Kotlin, in ui/theme/Type.kt.
+A palette is more than colour: each names its two faces and where its accent goes beyond
+the shared roles. The type scale itself is Kotlin, in ui/theme/Type.kt.
+
+The faces are variable fonts, kept in tools/theme/fonts, but the app never loads those:
+Android 17 ignores a weight asked of a variable font at runtime and draws the file's default
+instance instead — ExtraLight for Manrope, Thin for Outfit — while Android 15 honours it, so
+the bug only shows on a newer phone. --fonts cuts each face into one static file per weight
+the type scale uses, which every Android version draws the same.
 
 Each palette name must also be an entry of `Palette` in quiz/QuizOptions.kt. The generated
 code maps one to the other with an exhaustive `when`, so a mismatch fails to compile.
@@ -36,7 +43,18 @@ RES = ROOT / "app/src/main/res"
 # drawn from: those are resources, resolved before the app has read which palette was chosen.
 DEFAULT = "latte"
 
-# The faces a palette may name, by res/font file, with the name the theme picker shows.
+# The static weights cut from each face, as the suffix of its res/font file. These are the
+# weights ui/theme/Type.kt asks for; one it asked for that is not here would be synthesised.
+WEIGHTS = {400: "regular", 500: "medium", 600: "semibold", 700: "bold"}
+
+# What the interface is written in: Latin, punctuation, and the arrows the steps use. Japanese
+# falls back to the system font by design, so the faces need none of it.
+UNICODES = [*range(0x20, 0x7F), *range(0xA0, 0x180), *range(0x2000, 0x2070),
+            *range(0x20A0, 0x20D0), *range(0x2190, 0x2200), 0x2212]
+
+MASTERS = pathlib.Path(__file__).resolve().parent / "fonts"
+
+# The faces a palette may name, by master file, with the name the theme picker shows.
 FACES = {
     "lora": "Lora",
     "manrope": "Manrope",
@@ -107,7 +125,7 @@ LATTE_LIGHT = scheme(
     secondaryContainer="#F0E0CF", onSecondaryContainer="#3A2616",
     error="#9C3B2E", onError="#FFFFFF", errorContainer="#FBD9D0", onErrorContainer="#40120B",
     surface="#FCF7F1", onSurface="#2B1D16",
-    surfaceVariant="#EFE2D5", onSurfaceVariant="#5A483C",
+    surfaceVariant="#EFE2D5", onSurfaceVariant="#544337",
     outline="#8D7767", outlineVariant="#DECBB9",
     inverseSurface="#33241C", inverseOnSurface="#F7EDE3",
     surfaceContainerLow="#FFFFFF", surfaceContainer="#F8EFE6",
@@ -141,7 +159,7 @@ KISSATEN_LIGHT = scheme(
     secondaryContainer="#E3D2BE", onSecondaryContainer="#2E2013",
     error="#96342A", onError="#FFFFFF", errorContainer="#F6D3CB", onErrorContainer="#3A0F09",
     surface="#F4EDE4", onSurface="#241A14",
-    surfaceVariant="#E3D6C5", onSurfaceVariant="#57483A",
+    surfaceVariant="#E3D6C5", onSurfaceVariant="#4B3D31",
     outline="#8A7461", outlineVariant="#CDBCA6",
     inverseSurface="#241A14", inverseOnSurface="#F2E6D8",
     surfaceContainerLow="#FBF6EE", surfaceContainer="#EFE6DA",
@@ -169,7 +187,7 @@ WASHI_LIGHT = scheme(
     secondaryContainer="#F2EBE2", onSecondaryContainer="#241C17",
     error="#A03225", onError="#FFFFFF", errorContainer="#FAD6CD", onErrorContainer="#3B0E07",
     surface="#F7F3EC", onSurface="#241C17",
-    surfaceVariant="#EAE3D8", onSurfaceVariant="#5C5248",
+    surfaceVariant="#EAE3D8", onSurfaceVariant="#4C423A",
     outline="#9A8E80", outlineVariant="#D9D0C3",
     inverseSurface="#2E2620", inverseOnSurface="#F7F3EC",
     surfaceContainerLow="#FFFFFF", surfaceContainer="#FCF9F4",
@@ -198,7 +216,7 @@ CARAMEL_LIGHT = scheme(
     secondaryContainer="#F6E3CC", onSecondaryContainer="#3A2614",
     error="#9B3526", onError="#FFFFFF", errorContainer="#FBD7CD", onErrorContainer="#3C0F07",
     surface="#FDF8F2", onSurface="#2E2118",
-    surfaceVariant="#EFE1D0", onSurfaceVariant="#5C4B3C",
+    surfaceVariant="#EFE1D0", onSurfaceVariant="#504033",
     outline="#907B67", outlineVariant="#DFCDB8",
     inverseSurface="#2E2118", inverseOnSurface="#FDF8F2",
     surfaceContainerLow="#FFFFFF", surfaceContainer="#F9F0E5",
@@ -225,7 +243,7 @@ MOCHA_LIGHT = scheme(
     secondaryContainer="#EFE2CE", onSecondaryContainer="#2E2214",
     error="#98362A", onError="#FFFFFF", errorContainer="#F8D6CD", onErrorContainer="#3A1009",
     surface="#FAF4EA", onSurface="#271E14",
-    surfaceVariant="#EBE0CE", onSurfaceVariant="#584B39",
+    surfaceVariant="#EBE0CE", onSurfaceVariant="#4F4232",
     outline="#8C7D67", outlineVariant="#D4C6AE",
     inverseSurface="#271E14", inverseOnSurface="#FAF4EA",
     surfaceContainerLow="#FFFCF6", surfaceContainer="#F5EDE1",
@@ -237,7 +255,7 @@ MOCHA_DARK = scheme(
     secondaryContainer="#40342A", onSecondaryContainer="#EFE0CE",
     error="#FFB4A2", onError="#5C1A0F", errorContainer="#7E3020", onErrorContainer="#FFDAD2",
     surface="#1F1712", onSurface="#F0E5D8",
-    surfaceVariant="#51433A", onSurfaceVariant="#D6C6B5",
+    surfaceVariant="#51433A", onSurfaceVariant="#D7C7B6",
     outline="#9F8C79", outlineVariant="#51433A",
     inverseSurface="#F0E5D8", inverseOnSurface="#271E14",
     surfaceContainerLow="#261D17", surfaceContainer="#2C221B",
@@ -283,18 +301,32 @@ def contrast(a, b):
     return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
 
 
-# Every pair the app actually renders together. Anything below 4.5 here is a real
+# Every pair the app actually renders together. Anything below the floor here is a real
 # legibility bug, not a theoretical one.
 PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correct", "surface")]
          + [("onPrimaryContainer", "primaryContainer"),
             ("onSecondaryContainer", "secondaryContainer"),
             ("onErrorContainer", "errorContainer"),
             ("onCorrectContainer", "correctContainer"),
-            ("onSurfaceVariant", "surfaceVariant")]
+            ("onSurfaceVariant", "surfaceVariant"),
+            # Subtitles on passed lesson rows, and the quiet labels on the hero cards.
+            ("onSurfaceVariant", "secondaryContainer"),
+            ("onSurfaceVariant", "primaryContainer")]
          + [(fg, bg)
             for fg in ("onSurface", "onSurfaceVariant", "primary", "error")
             for bg in ("surface", "surfaceContainerLow", "surfaceContainer",
                        "surfaceContainerHigh", "surfaceContainerHighest")])
+
+# 4.5:1 is the floor for ordinary text. onSurfaceVariant is held to 7:1, because it is only
+# ever small secondary type — subtitles, counts, captions — which is exactly where 4.5 still
+# looked washed out on a phone. Nothing may reach for a faded colour with alpha instead:
+# alpha skips this check entirely.
+FLOOR = 4.5
+SECONDARY_FLOOR = 7.0
+# Where the app sets that small type. surfaceVariant is not among them: only Material's own
+# components use it, never under the app's secondary text, so that pair keeps the plain floor.
+SECONDARY_ON = {"surface", "surfaceContainerLow", "surfaceContainer", "surfaceContainerHigh",
+                "surfaceContainerHighest", "secondaryContainer", "primaryContainer"}
 
 
 def check():
@@ -303,15 +335,42 @@ def check():
         for tag, s in (("light", light), ("dark", dark)):
             for fg, bg in PAIRS:
                 ratio = contrast(s[fg], s[bg])
-                if ratio < 4.5:
+                secondary = fg == "onSurfaceVariant" and bg in SECONDARY_ON
+                if ratio < (SECONDARY_FLOOR if secondary else FLOOR):
                     bad += 1
                     print(f"  {name:9} {tag:5} {ratio:5.2f}  {fg} on {bg}  ({s[fg]}/{s[bg]})")
         print(f"{name:9} {faces(display, body)}")
-    print("\nall pairs >= 4.5" if not bad else f"\n{bad} pairs below 4.5")
+    print(f"\nall pairs clear {FLOOR} (secondary text {SECONDARY_FLOOR})" if not bad
+          else f"\n{bad} pairs below their floor")
     return bad
 
 
 # --- Apply -----------------------------------------------------------------
+
+def fonts():
+    """Cuts every master into one static, Latin-only file per weight in WEIGHTS."""
+    from fontTools import subset
+    from fontTools.ttLib import TTFont
+    from fontTools.varLib import instancer
+
+    for face in FACES:
+        for weight, suffix in WEIGHTS.items():
+            font = TTFont(MASTERS / f"{face}.ttf", recalcTimestamp=False)
+            # Every other axis stays at its default, which is what the variable font showed.
+            pins = {axis.axisTag: axis.defaultValue for axis in font["fvar"].axes}
+            pins["wght"] = weight
+            static = instancer.instantiateVariableFont(font, pins)
+            options = subset.Options()
+            options.layout_features = ["*"]  # keep tabular figures, kerning, ligatures
+            options.name_IDs = ["*"]  # keep the copyright notice with the font
+            subsetter = subset.Subsetter(options)
+            subsetter.populate(unicodes=UNICODES)
+            subsetter.subset(static)
+            static.recalcTimestamp = False
+            out = RES / "font" / f"{face}_{suffix}.ttf"
+            static.save(out)
+            print(f"  {out.name:24} {out.stat().st_size // 1024:4} KB")
+
 
 GENERATED = re.compile(r"(// <generated by tools/theme/schemes.py --apply>\n).*?(// </generated>\n)", re.S)
 
@@ -322,7 +381,11 @@ def kotlin_palettes():
     def roles(names, s, indent):
         return "".join("%s%s = %s,\n" % (indent, r, col(s[r])) for r in names)
 
-    out = []
+    used = sorted({face for p in PALETTES.values() for face in p[2:4]}, key=list(FACES).index)
+    out = ["".join(
+        f"private val {face.capitalize()}Face = face(\n"
+        + "".join(f"    R.font.{face}_{suffix},\n" for suffix in WEIGHTS.values())
+        + ")\n" for face in used)]
     for name, (light, dark, display, body, accents) in PALETTES.items():
         out.append(
             f"private val {name.capitalize()}Spec = PaletteSpec(\n"
@@ -330,8 +393,8 @@ def kotlin_palettes():
             f"    dark = darkColorScheme(\n{roles(ROLES, dark, ' ' * 8)}    ),\n"
             f"    lightAnswers = AnswerColors(\n{roles(ANSWER_ROLES, light, ' ' * 8)}    ),\n"
             f"    darkAnswers = AnswerColors(\n{roles(ANSWER_ROLES, dark, ' ' * 8)}    ),\n"
-            f"    display = R.font.{display},\n"
-            f"    body = R.font.{body},\n"
+            f"    display = {display.capitalize()}Face,\n"
+            f"    body = {body.capitalize()}Face,\n"
             f'    faces = "{faces(display, body)}",\n'
             f"    accents = Accents(titles = {str(accents['titles']).lower()}, "
             f"headings = {str(accents['headings']).lower()}),\n"
@@ -342,9 +405,10 @@ def kotlin_palettes():
 
 
 def apply():
-    for display, body in {(p[2], p[3]) for p in PALETTES.values()}:
-        for face in (display, body):
-            assert (RES / "font" / f"{face}.ttf").exists(), f"res/font/{face}.ttf is missing"
+    for face in {face for p in PALETTES.values() for face in p[2:4]}:
+        for suffix in WEIGHTS.values():
+            assert (RES / "font" / f"{face}_{suffix}.ttf").exists(), \
+                f"res/font/{face}_{suffix}.ttf is missing; run --fonts"
 
     src = THEME.read_text(encoding="utf-8")
     assert GENERATED.search(src), "Theme.kt has lost its generated markers"
@@ -426,12 +490,15 @@ if __name__ == "__main__":
     ap.add_argument("--apply", action="store_true", help="rewrite Theme.kt and colors.xml")
     ap.add_argument("--check", action="store_true", help="contrast sweep over every palette")
     ap.add_argument("--preview", action="store_true", help="write preview.html")
+    ap.add_argument("--fonts", action="store_true", help="rebuild res/font from the masters")
     args = ap.parse_args()
+    if args.fonts:
+        fonts()
     if args.check:
         raise SystemExit(1 if check() else 0)
     if args.apply:
         apply()
     if args.preview:
         preview()
-    if not (args.apply or args.preview or args.check):
+    if not (args.apply or args.preview or args.check or args.fonts):
         ap.print_help()

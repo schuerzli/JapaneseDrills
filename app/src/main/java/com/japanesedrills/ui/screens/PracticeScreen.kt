@@ -14,13 +14,13 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
@@ -56,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.OptionItem
 import com.japanesedrills.quiz.PracticePreset
@@ -203,17 +204,32 @@ private fun PresetRow(canUseLearned: Boolean, onPreset: (PracticePreset) -> Unit
     }
 }
 
-/** One line of the start bar's summary: a label with its count, or "…" while counting. */
+/**
+ * One line of the start bar's summary: a label with its count, or "…" while counting.
+ *
+ * Label and count share a baseline, and counts are right-aligned in tabular figures so the
+ * two lines' digits stand in columns; left-aligned proportional figures of different
+ * lengths looked ragged against each other.
+ */
 @Composable
 private fun CountRow(label: String, value: Int?) {
-    Row(verticalAlignment = Alignment.Bottom) {
+    Row {
         Text(
             label,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(76.dp),
+            modifier = Modifier
+                .width(76.dp)
+                .alignByBaseline(),
         )
-        Text(value?.toString() ?: "…", style = MaterialTheme.typography.titleMedium)
+        Text(
+            value?.toString() ?: "…",
+            style = MaterialTheme.typography.titleMedium.copy(fontFeatureSettings = "tnum"),
+            textAlign = TextAlign.End,
+            modifier = Modifier
+                .widthIn(min = 64.dp)
+                .alignByBaseline(),
+        )
     }
 }
 
@@ -240,18 +256,13 @@ private fun ChipGroup(
                     selected = selected,
                     onClick = { onFlag(item.key, !selected) },
                     label = { Text(item.label) },
-                    // The default selected fill sat barely off the card, leaving the tick to
-                    // carry the state alone. This grid is all state, so it gets the accent.
+                    // The fill alone carries the state. A tick widened the chip on selection
+                    // and reflowed every chip after it, which read as the grid jumping.
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = MaterialTheme.colorScheme.primary,
                         selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
                         selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
                     ),
-                    leadingIcon = if (selected) {
-                        { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
-                    } else {
-                        null
-                    },
                 )
             }
         }

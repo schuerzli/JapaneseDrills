@@ -144,6 +144,8 @@ fun AppSettingsScreen(
                         selected = state.options.theme == choice,
                         onClick = { onTheme(choice) },
                         shape = SegmentedButtonDefaults.itemShape(i, ThemeChoice.entries.size),
+                        // No tick: it pushes the label aside on selection. The fill says it.
+                        icon = {},
                     ) {
                         Text(choice.label)
                     }
