@@ -50,8 +50,15 @@ import com.japanesedrills.ui.theme.DrillTheme
 private data class Chapter(val title: String, val cards: List<LessonCard>) {
     val passed: Int get() = cards.count { it.passed }
 
-    /** Nothing in it can be started yet, so it is shown folded down to its heading. */
+    /** Nothing in it can be started yet. */
     val locked: Boolean get() = cards.none { it.unlocked }
+
+    /**
+     * Open unless the learner says otherwise: only a chapter with a lesson to do next. A
+     * finished chapter folds away like a locked one, or the top of the path would fill up
+     * with ticked rows as the learner moves on.
+     */
+    val openByDefault: Boolean get() = cards.any { it.unlocked && !it.passed }
 }
 
 /** Consecutive lessons sharing a chapter; the path is already in order. */
@@ -73,8 +80,8 @@ private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
  * anything to review, because returning daily is the habit worth building; the lesson list
  * is the slower, weekly sense of progress.
  *
- * Lessons are grouped into chapters, and a chapter with nothing unlocked folds down to its
- * heading. Listed one by one, the locked tail was thirty identical padlocks: it said "a long
+ * Lessons are grouped into chapters, and every chapter folds down to its heading; only the
+ * ones with a lesson to do next start open. Listed one by one, the locked tail was thirty identical padlocks: it said "a long
  * way to go" and nothing about what lay ahead.
  */
 @Composable
@@ -83,12 +90,10 @@ fun LearnPathScreen(
     onLesson: (Lesson) -> Unit,
     onReview: () -> Unit,
     onPrimer: () -> Unit,
+    onToggleChapter: (title: String, open: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val chapters = remember(state.path) { chaptersOf(state.path) }
-    // Locked chapters the learner has opened to look inside. Not saved: peeking ahead is a
-    // passing thing, and the folded view is the one worth coming back to.
-    var peeking by remember { mutableStateOf(emptySet<String>()) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
@@ -110,17 +115,13 @@ fun LearnPathScreen(
             item { ReviewCard(state.dueCount, onReview) }
         }
         chapters.forEachIndexed { index, chapter ->
-            val open = !chapter.locked || chapter.title in peeking
+            val open = state.chapterOpen[chapter.title] ?: chapter.openByDefault
             item(key = "chapter-${chapter.title}") {
                 ChapterHeader(
                     number = index + 1,
                     chapter = chapter,
                     open = open,
-                    onToggle = if (chapter.locked) {
-                        { peeking = if (open) peeking - chapter.title else peeking + chapter.title }
-                    } else {
-                        null
-                    },
+                    onToggle = { onToggleChapter(chapter.title, !open) },
                 )
             }
             if (open) {
@@ -133,15 +134,15 @@ fun LearnPathScreen(
 }
 
 /**
- * A chapter's name and how far through it the learner is. A locked chapter's heading is the
- * whole of it until tapped, so it says how many lessons are folded inside.
+ * A chapter's name and how far through it the learner is. Tapping it folds or unfolds the
+ * lessons; a locked chapter says how many are inside rather than how many are passed.
  */
 @Composable
-private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle: (() -> Unit)?) {
+private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (onToggle != null) Modifier.clickable(onClick = onToggle) else Modifier)
+            .clickable(onClick = onToggle)
             .padding(top = 8.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -163,14 +164,12 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        if (onToggle != null) {
-            Spacer(Modifier.width(4.dp))
-            Icon(
-                if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (open) "Hide lessons" else "Show lessons",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        Spacer(Modifier.width(4.dp))
+        Icon(
+            if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+            contentDescription = if (open) "Hide lessons" else "Show lessons",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 

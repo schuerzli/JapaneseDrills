@@ -258,6 +258,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onLesson = viewModel::openLesson,
                 onReview = viewModel::startReview,
                 onPrimer = viewModel::showPrimer,
+                onToggleChapter = viewModel::setChapterOpen,
                 modifier = inner,
             )
 

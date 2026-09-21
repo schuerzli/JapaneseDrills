@@ -119,6 +119,12 @@ data class DrillUiState(
     val introForms: List<GrammarNote> = emptyList(),
     /** Word classes [lesson] is about, introduced before its forms and words. */
     val introClasses: List<GrammarNote> = emptyList(),
+    /**
+     * Chapters the learner has folded or unfolded by hand, by title. Kept here rather than in
+     * the path screen, which leaves composition for every lesson and would forget. Only for
+     * the session: the defaults already follow progress, so they are right on the next launch.
+     */
+    val chapterOpen: Map<String, Boolean> = emptyMap(),
     /** Where closing the primer returns to: it opens from the Grammar tab and from lessons. */
     val primerFrom: Screen = Screen.Root,
     /** The form being read about on the Grammar tab. */
@@ -200,6 +206,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun showSettings() = _state.update { it.copy(screen = Screen.Settings) }
 
     fun showAbout() = _state.update { it.copy(screen = Screen.About) }
+
+    fun setChapterOpen(title: String, open: Boolean) =
+        _state.update { it.copy(chapterOpen = it.chapterOpen + (title to open)) }
 
     fun showPrimer() = _state.update { it.copy(screen = Screen.Primer, primerFrom = it.screen) }
 
