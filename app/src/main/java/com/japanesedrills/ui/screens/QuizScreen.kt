@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -100,7 +103,11 @@ fun QuizScreen(
     val number = minOf(quiz.history.size + if (answer == null) 1 else 0, quiz.total)
     val progress by animateFloatAsState(quiz.history.size / quiz.total.toFloat(), label = "progress")
 
-    LaunchedEffect(question.id, answer) { scroll.animateScrollTo(0) }
+    // A new question, or a fresh verdict, belongs at the top. The explanation is the one
+    // thing that opens further down, and it scrolls itself into view instead.
+    LaunchedEffect(question.id, answer) {
+        if (!quiz.showExplanation) scroll.animateScrollTo(0)
+    }
 
     Scaffold(
         modifier = modifier,
@@ -138,7 +145,13 @@ fun QuizScreen(
             QuestionCard(quiz, options)
 
             if (answer == null) {
-                AnswerInput(questionId = question.id, shakes = quiz.shakes, onSubmit = onSubmit)
+                AnswerInput(
+                    questionId = question.id,
+                    shakes = quiz.shakes,
+                    // Useful the first time or two; after that it is furniture above the fold.
+                    showHint = quiz.history.size < ROMAJI_HINT_QUESTIONS,
+                    onSubmit = onSubmit,
+                )
             } else {
                 ResultCard(
                     quiz = quiz,
@@ -231,7 +244,7 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
 }
 
 @Composable
-private fun AnswerInput(questionId: Int, shakes: Int, onSubmit: (String) -> Unit) {
+private fun AnswerInput(questionId: Int, shakes: Int, showHint: Boolean, onSubmit: (String) -> Unit) {
     var value by remember(questionId) { mutableStateOf(TextFieldValue("")) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -262,8 +275,10 @@ private fun AnswerInput(questionId: Int, shakes: Int, onSubmit: (String) -> Unit
                 value = if (converted == new.text) new else TextFieldValue(converted, TextRange(head.length))
             },
             label = { Text("Answer (答え)") },
-            supportingText = {
-                Text("Type romaji (e.g. \"tabenai\") or use a Japanese keyboard. Use \"nn\" for ん.")
+            supportingText = if (showHint) {
+                { Text("Type romaji (e.g. \"tabenai\") or use a Japanese keyboard. Use \"nn\" for ん.") }
+            } else {
+                null
             },
             textStyle = answerStyle().copy(textAlign = TextAlign.Center),
             singleLine = true,
@@ -288,6 +303,9 @@ private fun AnswerInput(questionId: Int, shakes: Int, onSubmit: (String) -> Unit
 }
 
 private fun answerStyle() = TextStyle(fontSize = 26.sp, localeList = JapaneseLocale)
+
+/** How many questions of a session show the romaji hint under the answer field. */
+private const val ROMAJI_HINT_QUESTIONS = 2
 
 @Composable
 private fun ResultCard(
@@ -385,6 +403,7 @@ private fun ResultCard(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> Unit) {
     val question = quiz.question
@@ -395,8 +414,15 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
     val uriHandler = LocalUriHandler.current
     val groupLabel = QuizEngine.groupLabels[word.group] ?: word.group
 
+    // Tapping "Explain" adds this card below everything already on screen, so without
+    // asking for it the card opens out of sight and looks as though nothing happened.
+    val bringIntoView = remember { BringIntoViewRequester() }
+    LaunchedEffect(Unit) { bringIntoView.bringIntoView() }
+
     ElevatedCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .bringIntoViewRequester(bringIntoView),
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {

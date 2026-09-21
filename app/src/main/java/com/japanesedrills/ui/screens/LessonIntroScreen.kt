@@ -27,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -56,9 +57,11 @@ fun LessonIntroScreen(
     lesson: Lesson,
     words: List<Word>,
     forms: List<GrammarNote>,
+    classes: List<GrammarNote>,
     examples: GrammarExamples,
     options: QuizOptions,
     onStart: () -> Unit,
+    onPrimer: () -> Unit,
     onQuit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -99,9 +102,29 @@ fun LessonIntroScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Grammar first: the words are practice material for whatever the form is.
+            // The rule text below leans on the kana grid and the verb classes, which only
+            // the primer explains; this is where not knowing them would first bite.
+            if (forms.isNotEmpty()) {
+                item(key = "primer") {
+                    TextButton(onClick = onPrimer) {
+                        Text("New to verb classes and the kana grid? Read how conjugation works")
+                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            modifier = Modifier.size(ButtonDefaults.IconSize),
+                        )
+                    }
+                }
+            }
+            // A new word class comes first: the forms and words after it are that class's.
+            for (note in classes) {
+                item(key = "class-${note.key}") { GrammarUsage(note, heading = note.title) }
+            }
+            // Grammar next: the words are practice material for whatever the form is.
+            // Titled by name, because the first lesson brings two forms at once.
             for (note in forms) {
-                item(key = "usage-${note.key}") { GrammarUsage(note) }
+                item(key = "usage-${note.key}") { GrammarUsage(note, heading = note.title) }
                 item(key = "build-${note.key}") {
                     GrammarConstruction(note, examples, furiganaAlways = true)
                 }

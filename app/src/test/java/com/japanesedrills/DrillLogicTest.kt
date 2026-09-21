@@ -86,6 +86,35 @@ class DrillLogicTest {
         assertEquals(listOf("高くない"), forms("高い", "negative"))
     }
 
+    /** Adjectives join the て form: the lesson on the connector is about them too. */
+    @Test
+    fun adjectivesHaveATeForm() {
+        assertEquals(listOf("高くて"), forms("高い", "te-form"))
+        assertEquals(listOf("良くて"), forms("いい", "te-form"))
+        assertEquals(listOf("便利で"), forms("便利な", "te-form"))
+        assertEquals(listOf("高くなくて"), forms("高い", "te-form negative"))
+        assertEquals(listOf("良くなくて"), forms("いい", "te-form negative"))
+        assertEquals(listOf("便利ではなくて", "便利じゃなくて"), forms("便利な", "te-form negative"))
+    }
+
+    /** いたい is everyday Japanese; only いる's progressive is missing on purpose. */
+    @Test
+    fun iruHasTheWholeDesireFamily() {
+        fun desire(group: String) = data.ownForms.getValue(group).filter { it.startsWith("desire") }.toSet()
+        assertEquals(desire("ichidan"), desire("iru"))
+        assertEquals(listOf("いたい"), forms("いる", "desire"))
+        assertTrue(data.ownForms.getValue("iru").none { it.startsWith("progressive") })
+    }
+
+    /** 来る lists every desire form itself, so it has to list the same ones as the others. */
+    @Test
+    fun kuruHasTheWholeDesireFamily() {
+        fun desire(group: String) = data.ownForms.getValue(group).filter { it.startsWith("desire") }.toSet()
+        assertEquals(desire("godan"), desire("kuru"))
+        assertEquals(listOf("来たかった"), forms("来る", "desire past"))
+        assertEquals(listOf("来たくないです"), forms("来る", "desire polite negative"))
+    }
+
     @Test
     fun regroupedVerbsConjugateCorrectly() {
         assertEquals(listOf("見ない"), forms("見る", "negative"))

@@ -147,9 +147,11 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 lesson = lesson,
                 words = state.introWords,
                 forms = state.introForms,
+                classes = state.introClasses,
                 examples = state.grammarExamples,
                 options = state.options,
                 onStart = { viewModel.startLesson(lesson) },
+                onPrimer = viewModel::showPrimer,
                 onQuit = viewModel::backToRoot,
                 modifier = contentModifier,
             )
@@ -167,10 +169,10 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
         }
 
         state.screen == Screen.Primer -> {
-            BackHandler(onBack = viewModel::backToRoot)
+            BackHandler(onBack = viewModel::closePrimer)
             PrimerScreen(
                 furiganaAlways = state.options.furiganaAlways,
-                onBack = viewModel::backToRoot,
+                onBack = viewModel::closePrimer,
                 modifier = contentModifier,
             )
         }
@@ -190,8 +192,9 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
         }
 
         state.screen == Screen.About -> {
-            BackHandler(onBack = viewModel::backToRoot)
-            AboutScreen(onBack = viewModel::backToRoot, modifier = contentModifier)
+            // Back to Settings rather than the path: About has no other way in.
+            BackHandler(onBack = viewModel::showSettings)
+            AboutScreen(onBack = viewModel::showSettings, modifier = contentModifier)
         }
 
         state.screen == Screen.Results && quiz != null -> {
@@ -201,6 +204,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 options = state.quizOptions,
                 outcome = state.outcome,
                 onBackToStart = viewModel::backToRoot,
+                onRetry = { state.outcome?.lesson?.let(viewModel::startLesson) },
                 modifier = contentModifier,
             )
         }
@@ -252,6 +256,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 state = state,
                 onLesson = viewModel::openLesson,
                 onReview = viewModel::startReview,
+                onPrimer = viewModel::showPrimer,
                 modifier = inner,
             )
 
@@ -266,6 +271,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onFlag = viewModel::setFlag,
                 onFocus = viewModel::setFocus,
                 onNumQuestions = viewModel::setNumQuestions,
+                onPreset = viewModel::applyPreset,
                 modifier = inner,
             )
 

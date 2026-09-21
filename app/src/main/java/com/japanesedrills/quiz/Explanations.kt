@@ -430,6 +430,8 @@ object Explanations {
             Op.POLITE -> rule("Replace だ with です.")
             Op.POLITE_NEG ->
                 rule("Replace だ with ではありません or じゃありません, or with ではないです or じゃないです.")
+            Op.TE -> rule("Replace だ with で.")
+            Op.TE_NEG -> rule("Replace だ with ではなくて, or with the more casual じゃなくて.")
             Op.POLITE_PAST -> rule("Replace だ with でした.")
             Op.POLITE_PAST_NEG ->
                 rule(

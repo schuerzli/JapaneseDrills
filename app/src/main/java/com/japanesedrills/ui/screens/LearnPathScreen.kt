@@ -15,7 +15,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -27,7 +30,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,37 +46,140 @@ import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.LessonCard
 import com.japanesedrills.ui.theme.DrillTheme
 
+/** One chapter of the path, in path order. */
+private data class Chapter(val title: String, val cards: List<LessonCard>) {
+    val passed: Int get() = cards.count { it.passed }
+
+    /** Nothing in it can be started yet, so it is shown folded down to its heading. */
+    val locked: Boolean get() = cards.none { it.unlocked }
+}
+
+/** Consecutive lessons sharing a chapter; the path is already in order. */
+private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
+    val chapters = ArrayList<Chapter>()
+    for (card in path) {
+        val last = chapters.lastOrNull()
+        if (last != null && last.title == card.lesson.chapter) {
+            chapters[chapters.lastIndex] = last.copy(cards = last.cards + card)
+        } else {
+            chapters += Chapter(card.lesson.chapter, listOf(card))
+        }
+    }
+    return chapters
+}
+
 /**
  * The learn path: what to do next, and what it is worth. Review comes first once there is
  * anything to review, because returning daily is the habit worth building; the lesson list
  * is the slower, weekly sense of progress.
+ *
+ * Lessons are grouped into chapters, and a chapter with nothing unlocked folds down to its
+ * heading. Listed one by one, the locked tail was thirty identical padlocks: it said "a long
+ * way to go" and nothing about what lay ahead.
  */
 @Composable
 fun LearnPathScreen(
     state: DrillUiState,
     onLesson: (Lesson) -> Unit,
     onReview: () -> Unit,
+    onPrimer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val chapters = remember(state.path) { chaptersOf(state.path) }
+    // Locked chapters the learner has opened to look inside. Not saved: peeking ahead is a
+    // passing thing, and the folded view is the one worth coming back to.
+    var peeking by remember { mutableStateOf(emptySet<String>()) }
+
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (!state.started) {
-            item { WelcomeCard() }
+            item { WelcomeCard(onPrimer) }
+        } else {
+            item {
+                Text(
+                    "${state.progress.passed.size} of ${state.path.size} lessons passed",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         if (state.progress.passed.isNotEmpty()) {
             item { ReviewCard(state.dueCount, onReview) }
         }
-        items(state.path, key = { it.lesson.id }) { card ->
-            LessonRow(card, onClick = { onLesson(card.lesson) })
+        chapters.forEachIndexed { index, chapter ->
+            val open = !chapter.locked || chapter.title in peeking
+            item(key = "chapter-${chapter.title}") {
+                ChapterHeader(
+                    number = index + 1,
+                    chapter = chapter,
+                    open = open,
+                    onToggle = if (chapter.locked) {
+                        { peeking = if (open) peeking - chapter.title else peeking + chapter.title }
+                    } else {
+                        null
+                    },
+                )
+            }
+            if (open) {
+                items(chapter.cards, key = { it.lesson.id }) { card ->
+                    LessonRow(card, onClick = { onLesson(card.lesson) })
+                }
+            }
         }
     }
 }
 
+/**
+ * A chapter's name and how far through it the learner is. A locked chapter's heading is the
+ * whole of it until tapped, so it says how many lessons are folded inside.
+ */
 @Composable
-private fun WelcomeCard() {
+private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle: (() -> Unit)?) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onToggle != null) Modifier.clickable(onClick = onToggle) else Modifier)
+            .padding(top = 8.dp, bottom = 2.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                "Chapter $number",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                chapter.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = if (chapter.locked) MaterialTheme.colorScheme.onSurfaceVariant else Color.Unspecified,
+            )
+        }
+        Spacer(Modifier.width(12.dp))
+        Text(
+            if (chapter.locked) "${chapter.cards.size} lessons" else "${chapter.passed} of ${chapter.cards.size}",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (onToggle != null) {
+            Spacer(Modifier.width(4.dp))
+            Icon(
+                if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = if (open) "Hide lessons" else "Show lessons",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+/**
+ * The welcome, with the way into the primer. Every rule on the path is phrased in terms of
+ * the kana grid and the verb classes, and the primer is the only place that explains them.
+ */
+@Composable
+private fun WelcomeCard(onPrimer: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -84,6 +195,21 @@ private fun WelcomeCard() {
                     "one when you pass. Anything you have learned comes back for review.",
                 style = MaterialTheme.typography.bodyMedium,
             )
+            TextButton(
+                onClick = onPrimer,
+                contentPadding = PaddingValues(0.dp),
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ),
+            ) {
+                Text("Read first: how conjugation works", style = MaterialTheme.typography.labelLarge)
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(ButtonDefaults.IconSize),
+                )
+            }
         }
     }
 }
@@ -118,7 +244,7 @@ private fun ReviewCard(due: Int, onReview: () -> Unit) {
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
-            Button(onClick = onReview, enabled = true) {
+            Button(onClick = onReview) {
                 Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                 Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                 Text(if (nothingDue) "Practise" else "Review")
@@ -163,7 +289,7 @@ private fun LessonRow(card: LessonCard, onClick: () -> Unit) {
                 )
                 if (lesson.newWords.isNotEmpty()) {
                     Text(
-                        "${lesson.newWords.size} new words",
+                        if (lesson.newWords.size == 1) "1 new word" else "${lesson.newWords.size} new words",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

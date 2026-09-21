@@ -3291,6 +3291,34 @@
     }
    ]
   },
+  "desire past": {
+   "forms": [
+    {
+     "result": "来[き]たかった"
+    }
+   ]
+  },
+  "desire past negative": {
+   "forms": [
+    {
+     "result": "来[き]たくなかった"
+    }
+   ]
+  },
+  "desire te-form": {
+   "forms": [
+    {
+     "result": "来[き]たくて"
+    }
+   ]
+  },
+  "desire te-form negative": {
+   "forms": [
+    {
+     "result": "来[き]たくなくて"
+    }
+   ]
+  },
   "desire polite": {
    "forms": [
     {
@@ -3302,6 +3330,20 @@
    "forms": [
     {
      "result": "来[き]たくないです"
+    }
+   ]
+  },
+  "desire polite past": {
+   "forms": [
+    {
+     "result": "来[き]たかったです"
+    }
+   ]
+  },
+  "desire polite past negative": {
+   "forms": [
+    {
+     "result": "来[き]たくなかったです"
     }
    ]
   },
@@ -4323,6 +4365,86 @@
     }
    ]
   },
+  "desire": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たい"
+    }
+   ]
+  },
+  "desire negative": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たくない"
+    }
+   ]
+  },
+  "desire past": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たかった"
+    }
+   ]
+  },
+  "desire past negative": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たくなかった"
+    }
+   ]
+  },
+  "desire te-form": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たくて"
+    }
+   ]
+  },
+  "desire te-form negative": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たくなくて"
+    }
+   ]
+  },
+  "desire polite": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たいです"
+    }
+   ]
+  },
+  "desire polite negative": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たくないです"
+    }
+   ]
+  },
+  "desire polite past": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たかったです"
+    }
+   ]
+  },
+  "desire polite past negative": {
+   "forms": [
+    {
+     "before": "る",
+     "after": "たくなかったです"
+    }
+   ]
+  },
   "volitional": {
    "forms": [
     {
@@ -4402,6 +4524,22 @@
      "after": "くありませんでした"
     }
    ]
+  },
+  "te-form": {
+   "forms": [
+    {
+     "before": "い",
+     "after": "くて"
+    }
+   ]
+  },
+  "te-form negative": {
+   "forms": [
+    {
+     "before": "い",
+     "after": "くなくて"
+    }
+   ]
   }
  },
  "ii": {
@@ -4451,6 +4589,20 @@
     },
     {
      "result": "良[よ]くありませんでした"
+    }
+   ]
+  },
+  "te-form": {
+   "forms": [
+    {
+     "result": "良[よ]くて"
+    }
+   ]
+  },
+  "te-form negative": {
+   "forms": [
+    {
+     "result": "良[よ]くなくて"
     }
    ]
   }
@@ -4541,6 +4693,26 @@
     {
      "before": "だ",
      "after": "じゃありませんでした"
+    }
+   ]
+  },
+  "te-form": {
+   "forms": [
+    {
+     "before": "だ",
+     "after": "で"
+    }
+   ]
+  },
+  "te-form negative": {
+   "forms": [
+    {
+     "before": "だ",
+     "after": "ではなくて"
+    },
+    {
+     "before": "だ",
+     "after": "じゃなくて"
     }
    ]
   }

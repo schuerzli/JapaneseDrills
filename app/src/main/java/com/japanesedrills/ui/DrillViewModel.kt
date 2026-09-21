@@ -11,6 +11,7 @@ import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.OptionsStore
+import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
 import com.japanesedrills.quiz.ProgressStore
@@ -37,7 +38,6 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import kotlin.random.Random
 
-/** Labels are kept short because four fixed tabs have to share one phone-width row. */
 /**
  * The three places to be. Learn is first and the default: it is the one screen that tells
  * a newcomer what to do. Settings is not among them — it is a destination, reached from
@@ -112,6 +112,10 @@ data class DrillUiState(
     val introWords: List<Word> = emptyList(),
     /** New grammar to present before [lesson] starts, in the order the lesson adds it. */
     val introForms: List<GrammarNote> = emptyList(),
+    /** Word classes [lesson] is about, introduced before its forms and words. */
+    val introClasses: List<GrammarNote> = emptyList(),
+    /** Where closing the primer returns to: it opens from the Grammar tab and from lessons. */
+    val primerFrom: Screen = Screen.Root,
     /** The form being read about on the Grammar tab. */
     val grammarNote: GrammarNote? = null,
     /** Representative words for showing how a form is built. */
@@ -192,7 +196,13 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showAbout() = _state.update { it.copy(screen = Screen.About) }
 
-    fun showPrimer() = _state.update { it.copy(screen = Screen.Primer) }
+    fun showPrimer() = _state.update { it.copy(screen = Screen.Primer, primerFrom = it.screen) }
+
+    /** Back to wherever the primer was opened from, with that screen's state still in place. */
+    fun closePrimer() {
+        if (_state.value.primerFrom == Screen.Root) backToRoot()
+        else _state.update { it.copy(screen = it.primerFrom) }
+    }
 
     fun backToRoot() {
         queue.clear()
@@ -203,6 +213,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 lesson = null,
                 introWords = emptyList(),
                 introForms = emptyList(),
+                introClasses = emptyList(),
                 grammarNote = null,
                 outcome = null,
             )
@@ -217,7 +228,15 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFlag(key: String, value: Boolean) = updateOptions { it.with(key, value) }
 
-    fun setFocus(focus: String) = updateOptions { it.copy(questionFocus = focus) }
+    fun setFocus(focus: String) = updateOptions { it.withFocus(focus) }
+
+    fun applyPreset(preset: PracticePreset) {
+        val data = data ?: return
+        val passed = _state.value.progress.passed
+        val forms = passed.flatMapTo(HashSet()) { data.curriculum.forms(it) }
+        val groups = passed.flatMap { data.curriculum.words(it) }.mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
+        updateOptions { it.withPreset(preset, forms, groups) }
+    }
 
     fun setNumQuestions(text: String) = updateOptions { it.copy(numQuestions = text.filter(Char::isDigit).take(3)) }
 
@@ -304,16 +323,24 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val data = data ?: return
         val words = lesson.newWords.mapNotNull(data.wordsByKey::get)
         val forms = lesson.newForms.mapNotNull(Grammar::get)
-        if (words.isEmpty() && forms.isEmpty()) {
+        val classes = lesson.newClasses.mapNotNull(Grammar::classNote)
+        if (words.isEmpty() && forms.isEmpty() && classes.isEmpty()) {
             startLesson(lesson)
             return
         }
         // Whatever the lesson adds is shown before it is graded. Vocabulary because the
         // drill tests production, and grading a word never shown tests nothing useful;
         // grammar because a form lesson used to go straight to questions about a rule it
-        // had never stated.
+        // had never stated. A new word class likewise, or な-adjectives arrive as eight
+        // words with nothing to say that they do not conjugate.
         _state.update {
-            it.copy(screen = Screen.LessonIntro, lesson = lesson, introWords = words, introForms = forms)
+            it.copy(
+                screen = Screen.LessonIntro,
+                lesson = lesson,
+                introWords = words,
+                introForms = forms,
+                introClasses = classes,
+            )
         }
     }
 
@@ -344,6 +371,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                     kind = SessionKind.Lesson,
                     lesson = lesson,
                     introWords = emptyList(),
+                    introForms = emptyList(),
+                    introClasses = emptyList(),
                     quiz = QuizState(lesson.questions, question),
                     quizOptions = options,
                 )

@@ -211,9 +211,11 @@ object Primer {
             "Irregular verbs",
             listOf(
                 PrimerBlock.Line("There are only two verbs in Japanese that are irregular throughout:"),
-                PrimerBlock.Bullet("する (to do) — し, さ and すれ all appear: します, しない, して, すれば"),
+                PrimerBlock.Bullet(
+                    "する (to do) — し, さ and すれ all appear: します, しない, して, させる, すれば",
+                ),
                 PrimerBlock.Bullet("来る (to come) — the reading itself changes: きます, こない, きて"),
-                PrimerBlock.Line("Three more are regular except in one specific place:"),
+                PrimerBlock.Line("Three more are regular verbs with exceptions worth knowing:"),
                 PrimerBlock.Bullet(
                     "行く — godan in every way, except that its て-form and past are 行って and 行った, " +
                         "not 行いて",
@@ -222,7 +224,7 @@ object Primer {
                     "ある — its negative is ない, not あらない. It also has no imperative, potential, " +
                         "passive or causative",
                 ),
-                PrimerBlock.Bullet("いる — no progressive and no desire form; it already describes a state"),
+                PrimerBlock.Bullet("いる — already a state, so it is not put into the progressive ている"),
             ),
         ),
 
@@ -234,7 +236,7 @@ object Primer {
                         "adjective:",
                 ),
                 PrimerBlock.Bullet(
-                    "い-adjectives behave much like verbs. Drop the final い and add the ending: " +
+                    "い-adjectives behave much like verbs. The final い is replaced by the ending: " +
                         "高い → 高くない, 高かった.",
                 ),
                 PrimerBlock.Bullet(

@@ -70,9 +70,11 @@ object Grammar {
         GrammarNote(
             key = "plain",
             title = "Plain form",
-            summary = "The dictionary form — how a word is listed, and how it is said casually.",
+            summary = "The casual style. Its present is the dictionary form — how a word is listed.",
             notes = listOf(
                 "Used with family, close friends and anyone below you in a hierarchy.",
+                "Every tense has one: 食べた and 食べない are as plain as 食べる. It is a register, " +
+                    "not a single form.",
                 "The normal form inside a longer sentence: before と思う, から, けど, and " +
                     "directly in front of a noun.",
                 "The standard style for most writing that is not a letter — news, novels, notes.",
@@ -138,7 +140,8 @@ object Grammar {
             summary = "たい: wanting to do something.",
             notes = listOf(
                 "About your own wishes, or a question about the listener's.",
-                "Stating a third person's desire needs たがる instead — たい is not used for it.",
+                "Said flatly about someone else it is wrong: use たがる, or hedge with " +
+                    "たいようだ or たいそうです.",
                 "The result conjugates as an い-adjective: 食べたくない, 食べたかった.",
                 "The object may take が as well as を.",
             ),
@@ -215,15 +218,92 @@ object Grammar {
             summary = "Making or letting someone else do something.",
             notes = listOf(
                 "\"Make\" and \"let\" are the same form — the particle and the context decide.",
-                "The person made to act is marked by に, or を when they have no say.",
+                "After an intransitive verb the person takes を for making them and に for " +
+                    "letting them. After a transitive verb を is already spoken for, so it is に.",
                 "With てください it becomes asking permission: 行かせてください, please let me go.",
             ),
         ),
     )
 
+    /**
+     * Notes about a word class rather than a form, keyed by the word group, for the lessons
+     * that introduce one. They have no construction of their own: how a class conjugates is
+     * shown by the form notes, on the example words.
+     */
+    val CLASS_NOTES: List<GrammarNote> = listOf(
+        GrammarNote(
+            key = "i-adjective",
+            title = "い-adjectives",
+            summary = "Adjectives ending in い that conjugate on their own, much like verbs.",
+            notes = listOf(
+                "The final い is replaced by the ending: 高い → 高くない, 高かった, 高くて.",
+                "The polite forms add です to the plain ones: 高いです, 高かったです.",
+                "In front of a noun they need nothing extra: 高い山, a tall mountain.",
+                "Not every adjective ending in い is one: きれい and 嫌い are な-adjectives.",
+            ),
+        ),
+        GrammarNote(
+            key = "na-adjective",
+            title = "な-adjectives",
+            summary = "Adjectives that behave like nouns: the word itself never changes.",
+            notes = listOf(
+                "The だ after them does the conjugating: 便利だ → 便利じゃない, 便利だった, 便利で.",
+                "In front of a noun they take な — 便利な店, a handy shop — which is where the name comes from.",
+                "The drill lists them with だ, because that is the part that changes.",
+                "じゃ is the everyday spoken form of では; either is accepted.",
+            ),
+        ),
+        GrammarNote(
+            key = "suru",
+            title = "する verbs",
+            summary = "A noun plus する: the noun names the action and する does all the conjugating.",
+            notes = listOf(
+                "勉強 is \"study\" and 勉強する is \"to study\". Only する changes: 勉強しない, 勉強した.",
+                "Every one of them conjugates exactly like する, irregular forms included.",
+                "The potential swaps する for できる: 勉強できる.",
+            ),
+        ),
+        GrammarNote(
+            key = "aru",
+            title = "ある",
+            summary = "To exist, for things that are not alive: \"there is\", and often \"to have\".",
+            notes = listOf(
+                "Otherwise an ordinary godan verb: あります, あった, あって.",
+                "Its negative is simply ない. あらない is not a word.",
+                "It has no imperative, potential, passive or causative in everyday use.",
+                "For people and animals, use いる instead.",
+            ),
+        ),
+        GrammarNote(
+            key = "iru",
+            title = "いる",
+            summary = "To exist, for people and animals: \"to be\" somewhere.",
+            notes = listOf(
+                "An ordinary ichidan verb: います, いない, いた, いて.",
+                "It is the いる in ている: 食べている is 食べて plus いる.",
+                "Already a state, so it is not itself put into ている.",
+                "For things that are not alive, use ある instead.",
+            ),
+        ),
+        GrammarNote(
+            key = "ii",
+            title = "いい",
+            summary = "Good — the one い-adjective that changes its first sound when it conjugates.",
+            notes = listOf(
+                "Every other form is built from its older twin よい: よくない, よかった, よくて.",
+                "Only the present stays いい: いい and いいです.",
+                "The endings themselves are the ordinary い-adjective ones.",
+            ),
+        ),
+    )
+
     private val byKey = NOTES.associateBy { it.key }
+    private val classByKey = CLASS_NOTES.associateBy { it.key }
 
     operator fun get(key: String): GrammarNote? = byKey[key]
+
+    /** The note introducing a word group, or null for a group no lesson is about. */
+    fun classNote(group: String): GrammarNote? = classByKey[group]
 
     /**
      * The conjugation to derive when showing how a form is built, or null when there is

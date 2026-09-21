@@ -42,6 +42,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.OptionItem
+import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.SectionCard
@@ -71,9 +73,11 @@ fun PracticeScreen(
     onFlag: (String, Boolean) -> Unit,
     onFocus: (String) -> Unit,
     onNumQuestions: (String) -> Unit,
+    onPreset: (PracticePreset) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val options = state.options
+    val canUseLearned = state.progress.passed.isNotEmpty()
 
     Column(
         modifier = modifier
@@ -82,6 +86,10 @@ fun PracticeScreen(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        SectionCard("Start from", "Sets the forms and words below in one tap") {
+            PresetRow(canUseLearned, onPreset)
+        }
+
         SectionCard("Quiz") {
             OutlinedTextField(
                 value = options.numQuestions,
@@ -180,6 +188,21 @@ fun PracticeBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun PresetRow(canUseLearned: Boolean, onPreset: (PracticePreset) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (preset in PracticePreset.entries) {
+            SuggestionChip(
+                onClick = { onPreset(preset) },
+                label = { Text(preset.label) },
+                // Nothing passed means nothing learned, which would select no forms at all.
+                enabled = preset != PracticePreset.Learned || canUseLearned,
+            )
+        }
+    }
+}
+
 /** One line of the start bar's summary: a label with its count, or "…" while counting. */
 @Composable
 private fun CountRow(label: String, value: Int?) {
@@ -217,6 +240,13 @@ private fun ChipGroup(
                     selected = selected,
                     onClick = { onFlag(item.key, !selected) },
                     label = { Text(item.label) },
+                    // The default selected fill sat barely off the card, leaving the tick to
+                    // carry the state alone. This grid is all state, so it gets the accent.
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = MaterialTheme.colorScheme.primary,
+                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
                     leadingIcon = if (selected) {
                         { Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(FilterChipDefaults.IconSize)) }
                     } else {

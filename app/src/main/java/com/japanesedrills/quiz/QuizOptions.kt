@@ -32,6 +32,53 @@ data class QuizOptions(
 
     fun with(key: String, value: Boolean): QuizOptions = copy(flags = flags + (key to value))
 
+    /**
+     * Exactly these forms and word groups, no level filter, and [focus]. The general
+     * options (kana, furigana, trick questions…) are preferences rather than a choice of
+     * what to practise, so they are left as they are.
+     */
+    fun select(forms: Set<String>, groups: Set<String>, focus: String = FOCUS_NONE): QuizOptions =
+        copy(
+            flags = flags.mapValues { (key, on) ->
+                when (key) {
+                    in FORM_KEYS -> key in forms
+                    in GROUP_KEYS -> key in groups
+                    in LEVEL_KEYS -> false
+                    else -> on
+                }
+            },
+            questionFocus = focus,
+        )
+
+    /**
+     * [preset] applied. [learnedForms] and [learnedGroups] are what the passed lessons have
+     * taught, which only the curriculum and the learner's progress can say.
+     */
+    fun withPreset(preset: PracticePreset, learnedForms: Set<String>, learnedGroups: Set<String>): QuizOptions =
+        when (preset) {
+            PracticePreset.Learned -> select(learnedForms, learnedGroups)
+            // て and た are one sound change, so the focus is the switch between them and the
+            // forms without it. Godan is where the change is; 行く is its exception.
+            PracticePreset.TeTa -> select(setOf("plain", "past", "te-form"), setOf("godan", "iku"), FOCUS_TETAKEI)
+            PracticePreset.Everything -> select(FORM_KEYS, GROUP_KEYS)
+        }
+
+    /**
+     * The forms [focus] asks about, switched on. Picking a focus whose form is off used to
+     * leave the pool empty until the matching chip was found; a focus is a stronger
+     * statement of intent than a chip left over from last time.
+     */
+    fun withFocus(focus: String): QuizOptions {
+        val needed = when (focus) {
+            FOCUS_NONE -> emptyList()
+            "politeness" -> listOf("plain", "polite")
+            FOCUS_TETAKEI -> listOf("te-form", "past")
+            else -> listOf(focus)
+        }
+        return needed.filter { it in FORM_KEYS }
+            .fold(copy(questionFocus = focus)) { options, key -> options.with(key, true) }
+    }
+
     /** True when both option sets produce the same question pool. */
     fun sameQuestions(other: QuizOptions): Boolean =
         flags == other.flags && questionFocus == other.questionFocus && wordKeys == other.wordKeys
@@ -129,6 +176,13 @@ data class QuizOptions(
             OptionItem(FOCUS_TETAKEI, "Godan て / た form"),
         )
 
+        /**
+         * A transformation type as the learner sees it. Types are the form keys except that
+         * plain and polite share "politeness", a word no screen otherwise uses, so anything
+         * that shows a type has to come through here rather than print the key.
+         */
+        fun typeLabel(type: String): String = FOCUS.firstOrNull { it.key == type }?.label ?: type
+
         /** Every option the start screen offers, in the order it shows them. */
         val ALL: List<OptionItem> =
             FORMS + REGULAR_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES +
@@ -154,6 +208,14 @@ data class QuizOptions(
             (REGULAR_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES).map { it.key }.toSet()
         val LEVEL_KEYS: Set<String> = LEVEL_FILTERS.map { it.key }.toSet()
     }
+}
+
+/** One-tap starting points for free practice, so the option grid is optional. */
+enum class PracticePreset(val label: String) {
+    /** Whatever the passed lessons have taught; only offered once one has been passed. */
+    Learned("What I've learned"),
+    TeTa("て and た forms"),
+    Everything("Everything"),
 }
 
 /** Persists [QuizOptions] between launches. */

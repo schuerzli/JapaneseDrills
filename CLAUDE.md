@@ -95,8 +95,8 @@ These look like mistakes without their reason. Check here before "fixing" one.
   is itself meaningful: it is how the grammar reference knows 行く is irregular in its
   て-form and ordinary everywhere else (`DrillData.parseOwnForms`).
 - **`aru` and `iru` deliberately do not use `_extends`.** They lack forms on
-  purpose — ある's rare potential/passive/causative/imperative, いる's progressive
-  and desire. Inheriting from godan/ichidan would bring all of those back.
+  purpose — ある's rare potential/passive/causative/imperative, いる's progressive.
+  Inheriting from godan/ichidan would bring those back.
 - **Level tags are `n5`–`n2` only.** The source lists hold no N1 verbs or
   adjectives this app can conjugate. Words outside the lists carry no level tag and
   appear only when no filter is active.

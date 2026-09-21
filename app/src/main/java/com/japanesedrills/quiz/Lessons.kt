@@ -16,9 +16,15 @@ data class Lesson(
     val order: Int,
     val title: String,
     val subtitle: String,
-    /** "form", "vocab" or "irregular"; only used to label the path. */
-    val strand: String,
+    /** The heading the path groups this lesson under. */
+    val chapter: String,
     val requires: List<String>,
+    /**
+     * Word classes this lesson is about, each introduced by a note of its own. Not simply
+     * the classes of [newWords]: する is met in lesson one, but compound する verbs are
+     * taught later.
+     */
+    val newClasses: List<String>,
     val newForms: List<String>,
     val newWords: List<String>,
     val questions: Int,
@@ -119,8 +125,9 @@ class Curriculum(val lessons: List<Lesson>) {
                     order = obj.getInt("order"),
                     title = obj.getString("title"),
                     subtitle = obj.getString("subtitle"),
-                    strand = obj.getString("strand"),
+                    chapter = obj.getString("chapter"),
                     requires = obj.getJSONArray("requires").strings(),
+                    newClasses = obj.getJSONArray("newClasses").strings(),
                     newForms = obj.getJSONArray("newForms").strings(),
                     newWords = obj.getJSONArray("newWords").strings(),
                     questions = obj.getInt("questions"),

@@ -51,10 +51,16 @@ learns, `する` is the base of every compound suru verb, and their irregularity
 exactly where the curriculum already is: します and きます are polite forms, which is what
 lesson one teaches, and 行く only misbehaves in its past and て forms, taught later.
 
-`ある`, `いる` and `いい` stay on a branch off て form. These are exceptions worth noticing
+`ある`, `いる` and `いい` are short side lessons. These are exceptions worth noticing
 rather than vocabulary to have — ある and いる are defined as much by the forms they lack as
 by the ones they have, and いい simply conjugates as よい. The gaps only read as gaps once
 the regular shapes are solid.
+
+Each branches off where it becomes legible and rejoins at the lesson that needs it: ある and
+いる open after て form and are required by the progressive, which is built from いる; いい
+opens after い-adjectives and is required by な-adjectives. They used to hang off て form
+with nothing requiring them, so the whole path could be finished without ever being asked
+about ある. A test now fails if any lesson but the last is a dead end.
 
 Each of the latter three gets its own one-word lesson rather than being mixed into a batch,
 where a learner could pass without ever being asked about the word the lesson exists for.
@@ -67,11 +73,30 @@ taught, in lesson one, and it taught 説明する twenty lessons before する. 
 deferred to a later batch, where the contrast with `する` is the point rather than a
 coincidence.
 
+## Word classes get a note
+
+A lesson about a word class (い-adjectives, な-adjectives, する verbs and the three side
+irregulars) names that class, and the app shows a note on it before the lesson starts.
+The form notes cannot do this job: they are per form, so without a class note a learner
+met な-adjectives as eight words with nothing to say that they do not conjugate.
+
+The class is named explicitly rather than inferred from "first word of that class", because
+the two differ: する is met in lesson one, but compound する verbs are taught much later.
+
 ## Ordering
 
 Display order is assigned after the graph is built, so a branch appears next to the lesson
 it hangs off. Appending branches was what buried the irregulars at the bottom of a
 thirty-odd-item list even though they unlock early — reachable, but not findable.
+
+Lessons are grouped into chapters, and the path folds a chapter with nothing unlocked down
+to its heading. Listed one by one, the locked tail was thirty identical padlocks.
+
+Every form is taught by the end of the causative, so what follows is vocabulary alone. It
+used to be nine vocabulary lessons in a row; the three N4 batches now sit among the later
+grammar lessons, and the N3 and N2 batches form a final chapter of their own, which says
+plainly what they are. The N4 batches could move without changing their words only because
+each still follows every earlier batch drawing on the same word classes — see `SPINE`.
 
 ## Pass marks
 

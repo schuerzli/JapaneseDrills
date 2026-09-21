@@ -140,10 +140,14 @@ fun GrammarDetailScreen(
     }
 }
 
-/** The prose half: what the form means and when it is reached for. */
+/**
+ * The prose half: what the form means and when it is reached for. [heading] defaults to
+ * the question the card answers; where several notes share a screen, their titles say
+ * which is which.
+ */
 @Composable
-fun GrammarUsage(note: GrammarNote) {
-    SectionCard("What it is for") {
+fun GrammarUsage(note: GrammarNote, heading: String = "What it is for") {
+    SectionCard(heading) {
         Text(note.summary, style = MaterialTheme.typography.bodyLarge)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             for (line in note.notes) {
@@ -217,10 +221,18 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAl
                         furiganaAlways = furiganaAlways,
                     )
                 }
-                for ((_, steps) in group) {
+                // Examples after the first state only what their rule adds to the first
+                // one's, so 買う shows "う becomes わ" instead of the whole sentence again.
+                val lead = group.first().second.singleOrNull()?.rule
+                group.forEachIndexed { i, (_, steps) ->
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (step in steps) {
-                            StepLine(step, furiganaAlways, showRule = table == null)
+                            val rule = when {
+                                table != null -> emptyList()
+                                i > 0 && lead != null && steps.size == 1 -> extensionOf(lead, step.rule) ?: step.rule
+                                else -> step.rule
+                            }
+                            StepLine(step, rule, furiganaAlways)
                         }
                     }
                 }
@@ -229,16 +241,34 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAl
     }
 }
 
+/**
+ * The part of [rule] that goes beyond [shown], or null when [rule] does not begin with it.
+ *
+ * Rules are whole sentences, so [shown] has to end one; that keeps a shared first word from
+ * being mistaken for a shared rule.
+ */
+private fun extensionOf(shown: List<RichPart>, rule: List<RichPart>): List<RichPart>? {
+    if (shown.isEmpty() || rule.size < shown.size) return null
+    val last = shown.lastIndex
+    for (i in 0 until last) if (rule[i] != shown[i]) return null
+    val head = shown[last] as? RichPart.Text ?: return null
+    val same = rule[last] as? RichPart.Text ?: return null
+    if (!head.text.endsWith(".") || !same.text.startsWith(head.text)) return null
+    val rest = same.text.removePrefix(head.text).trimStart()
+    return listOfNotNull(same.copy(text = rest).takeIf { rest.isNotEmpty() }) + rule.drop(shown.size)
+}
+
 private fun headingFor(word: Word): String =
     if (word.group in Grammar.IRREGULAR_GROUPS) "irregular verbs"
     else QuizEngine.groupLabels[word.group] ?: word.group
 
+/** [rule] is what to say above the change; empty says nothing and shows the change alone. */
 @Composable
-private fun StepLine(step: SolutionStep, furiganaAlways: Boolean, showRule: Boolean = true) {
+private fun StepLine(step: SolutionStep, rule: List<RichPart>, furiganaAlways: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        if (showRule) {
+        if (rule.isNotEmpty()) {
             RichText(
-                step.rule,
+                rule,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 furiganaAlways = furiganaAlways,

@@ -7,6 +7,7 @@ import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.LessonRecord
+import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
 import com.japanesedrills.quiz.QuizEngine
@@ -74,6 +75,26 @@ class LearnPathTest {
     @Test
     fun theFirstLessonNeedsNothing() {
         assertTrue(curriculum.lessons.any { it.requires.isEmpty() })
+    }
+
+    /**
+     * A lesson nothing requires is a side road the path can be finished without. The
+     * irregulars were three of those, which is how a learner could reach the end having
+     * never been asked about ある.
+     */
+    @Test
+    fun onlyTheLastLessonIsADeadEnd() {
+        val required = curriculum.lessons.flatMap { it.requires }.toSet()
+        val deadEnds = curriculum.lessons.map { it.id }.filterNot { it in required }
+        assertEquals(listOf(curriculum.lessons.last().id), deadEnds)
+    }
+
+    /** The path groups consecutive lessons, so a chapter that came back would split in two. */
+    @Test
+    fun eachChapterIsOneUnbrokenRun() {
+        val runs = curriculum.lessons.map { it.chapter }
+            .fold(emptyList<String>()) { acc, chapter -> if (acc.lastOrNull() == chapter) acc else acc + chapter }
+        assertEquals("a chapter appears in more than one place", runs.size, runs.toSet().size)
     }
 
     @Test
@@ -232,6 +253,48 @@ class LearnPathTest {
         }
         for (note in Grammar.NOTES) {
             assertTrue("grammar note '${note.key}' is not a form the drill offers", note.key in QuizOptions.FORM_KEYS)
+        }
+    }
+
+    @Test
+    fun everyClassALessonIsAboutHasANote() {
+        val groups = data.words.map { it.group }.toSet()
+        for (lesson in curriculum.lessons) {
+            for (group in lesson.newClasses) {
+                assertNotNull("${lesson.id} is about '$group', which has no class note", Grammar.classNote(group))
+            }
+        }
+        for (note in Grammar.CLASS_NOTES) {
+            assertTrue("class note '${note.key}' is not a word group", note.key in groups)
+        }
+    }
+
+    /** Types reach the learner in the failure message; "politeness" is not a word they know. */
+    @Test
+    fun everyQuestionTypeHasALearnerFacingName() {
+        for (type in data.transformations.map { it.type }.toSet()) {
+            assertTrue("no label for question type '$type'", QuizOptions.FOCUS.any { it.key == type })
+        }
+    }
+
+    /** A focus switches on the forms it asks about, so it can never empty the pool. */
+    @Test
+    fun choosingAFocusAlwaysLeavesSomethingToAsk() {
+        for (focus in QuizOptions.FOCUS) {
+            val pool = engine.buildPool(QuizOptions().withFocus(focus.key))
+            assertFalse("focus '${focus.key}' leaves nothing to ask", pool.isEmpty)
+        }
+    }
+
+    @Test
+    fun everyPresetAsksSomething() {
+        val passed = setOf(curriculum.lessons.first().id)
+        val forms = passed.flatMapTo(HashSet()) { curriculum.forms(it) }
+        val groups = passed.flatMap { curriculum.words(it) }.mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
+        for (preset in PracticePreset.entries) {
+            val options = QuizOptions().withPreset(preset, forms, groups)
+            assertTrue("$preset selects neither plain nor polite", options.hasPoliteness)
+            assertFalse("$preset leaves nothing to ask", engine.buildPool(options).isEmpty)
         }
     }
 

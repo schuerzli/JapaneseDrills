@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -28,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -53,8 +55,11 @@ fun ResultsScreen(
     options: QuizOptions,
     outcome: LessonOutcome?,
     onBackToStart: () -> Unit,
+    /** Runs the same lesson again; only offered when it was not passed. */
+    onRetry: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val failed = outcome != null && !outcome.passed
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -69,16 +74,31 @@ fun ResultsScreen(
         },
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 8.dp) {
-                Button(
-                    onClick = onBackToStart,
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.navigationBars)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                    Text("Back to Start")
+                    // After a failed lesson the likely next move is another go, so that is the
+                    // filled button; going back to the path to find the same row is the detour.
+                    if (failed) {
+                        OutlinedButton(onClick = onBackToStart, modifier = Modifier.weight(1f)) {
+                            Text("Back to Start")
+                        }
+                        Button(onClick = onRetry, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Try again")
+                        }
+                    } else {
+                        Button(onClick = onBackToStart, modifier = Modifier.fillMaxWidth()) {
+                            Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Text("Back to Start")
+                        }
+                    }
                 }
             }
         },
@@ -123,7 +143,10 @@ private fun OutcomeCard(outcome: LessonOutcome) {
                     if (outcome.weakForms.isEmpty()) {
                         "You need $needed% to pass. Try it again — the questions will be different."
                     } else {
-                        "Still shaky on ${outcome.weakForms.joinToString(", ")}. " +
+                        "Still shaky on " +
+                            outcome.weakForms.joinToString(", ") {
+                                QuizOptions.typeLabel(it).replaceFirstChar(Char::lowercase)
+                            } + ". " +
                             "Try it again — the questions will be different."
                     },
                     style = MaterialTheme.typography.bodyMedium,
@@ -171,11 +194,14 @@ private fun ScoreCard(history: List<HistoryEntry>) {
             Spacer(Modifier.width(24.dp))
             Column {
                 Text(title, style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    "${history.size - correct} to review below",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Start,
-                )
+                val missed = history.size - correct
+                if (missed > 0) {
+                    Text(
+                        "$missed to review below",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Start,
+                    )
+                }
             }
         }
     }

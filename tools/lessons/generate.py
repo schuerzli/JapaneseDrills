@@ -111,95 +111,132 @@ CORE_VERBS = ["する", "来る", "行く"]
 # since solid and the contrast is the point.
 DEFERRED = {"vocab-verbs-4": ["やる"]}
 
-# The path. Each entry adds forms, words, or both; `after` names the prerequisites.
+def chapter(title):
+    """Starts a chapter: every lesson after it belongs to it until the next one."""
+    return ("chapter", title)
+
+
+# The path. Each entry adds forms, words, or both; each requires the lesson before it.
 #
 # Order rationale (see README.md): politeness first because it is the one distinction a
 # beginner meets in every sentence, then negative/past because they compose with
 # everything after them, then て because half the later grammar is built on it. The
 # harder-to-motivate forms (passive, causative) come last. Vocabulary batches are
 # interleaved so no lesson is ever pure memorisation or pure grammar.
+#
+# `classes` names a word class the lesson is *about*, which gets its own note before the
+# lesson starts. It is not the same as "the first lesson with a word of that class":
+# する arrives in lesson one, but the する-verbs lesson is where compound nouns are taught.
+#
+# Moving a vocabulary batch changes which words it is dealt, because batches drawing on the
+# same word classes are dealt in path order. The N4 batches sit among the later grammar
+# lessons without changing their words only because each still follows every earlier
+# batch that draws on its classes.
 SPINE = [
-    # id, title, subtitle, strand, forms, words-spec, questions
+    # id, title, subtitle, classes, forms, words-spec, questions
+    chapter("Getting started"),
     ("start", "First verbs", "Plain and polite present tense",
-     "form", ["plain", "polite"], (VERBS, 5, CORE_VERBS), 12),
+     [], ["plain", "polite"], (VERBS, 5, CORE_VERBS), 12),
     ("negative", "Negative", "Saying something does not happen",
-     "form", ["negative"], None, 14),
+     [], ["negative"], None, 14),
     ("vocab-verbs-1", "More verbs", "Eight more everyday verbs",
-     "vocab", [], (VERBS, 8), 12),
+     [], [], (VERBS, 8), 12),
     ("past", "Past tense", "Saying something already happened",
-     "form", ["past"], None, 14),
+     [], ["past"], None, 14),
     ("vocab-verbs-2", "Everyday actions", "Verbs you need every day",
-     "vocab", [], (VERBS, 8), 12),
+     [], [], (VERBS, 8), 12),
+
+    chapter("The て form"),
     ("te-form", "て form", "The connector half the grammar is built on",
-     "form", ["te-form"], None, 16),
+     [], ["te-form"], None, 16),
     ("vocab-verbs-3", "Verbs of motion", "Coming, going and carrying",
-     "vocab", [], (VERBS, 8), 12),
+     [], [], (VERBS, 8), 12),
     ("progressive", "Progressive", "Something happening right now",
-     "form", ["progressive"], None, 14),
+     [], ["progressive"], None, 14),
+
+    chapter("Adjectives and する verbs"),
     ("i-adjectives", "い adjectives", "Adjectives that conjugate like verbs",
-     "form", [], (("i-adjective",), 8), 14),
+     ["i-adjective"], [], (("i-adjective",), 8), 14),
     ("vocab-adj-1", "Describing things", "More い adjectives",
-     "vocab", [], (("i-adjective",), 8), 12),
+     [], [], (("i-adjective",), 8), 12),
     ("na-adjectives", "な adjectives", "Adjectives that behave like nouns",
-     "form", [], (("na-adjective",), 8), 14),
+     ["na-adjective"], [], (("na-adjective",), 8), 14),
     ("suru-verbs", "する verbs", "Nouns turned into verbs",
-     "form", [], (("suru",), 8), 14),
+     ["suru"], [], (("suru",), 8), 14),
+
+    chapter("Ability, intention and desire"),
     ("potential", "Potential", "Being able to do something",
-     "form", ["potential"], None, 14),
+     [], ["potential"], None, 14),
     ("vocab-verbs-4", "Work and study", "Verbs for getting things done",
-     "vocab", [], (VERBS, 7), 12),
+     [], [], (VERBS, 7), 12),
     ("volitional", "Volitional", "Let's do it",
-     "form", ["volitional"], None, 14),
-    ("desire", "Desire", "Wanting to do something",
-     "form", ["desire"], None, 14),
-    ("vocab-verbs-5", "Around the house", "Daily-life verbs",
-     "vocab", [], (VERBS, 8), 12),
-    ("conditional", "Conditional (たら)", "If and when",
-     "form", ["conditional"], None, 14),
-    ("provisional", "Provisional (ば)", "The other conditional",
-     "form", ["provisional"], None, 14),
-    ("vocab-adj-2", "Opinions", "Adjectives for describing people and things",
-     "vocab", [], (("i-adjective", "na-adjective"), 8), 12),
-    ("imperative", "Imperative", "Direct commands",
-     "form", ["imperative"], None, 14),
-    ("vocab-verbs-6", "Talking and thinking", "Verbs of speech and mind",
-     "vocab", [], (VERBS, 8), 12),
-    ("passive", "Passive", "Having something done to you",
-     "form", ["passive"], None, 16),
-    ("causative", "Causative", "Making or letting someone act",
-     "form", ["causative"], None, 16),
-    ("vocab-n4-1", "N4 verbs", "Stepping beyond the basics",
-     "vocab", [], (VERBS, 10), 14),
-    ("vocab-n4-2", "N4 adjectives", "Describing with more precision",
-     "vocab", [], (("i-adjective", "na-adjective"), 10), 14),
+     [], ["volitional"], None, 14),
     ("vocab-n4-3", "N4 する verbs", "Compound verbs in daily use",
-     "vocab", [], (("suru",), 10), 14),
+     [], [], (("suru",), 10), 14),
+    ("desire", "Desire", "Wanting to do something",
+     [], ["desire"], None, 14),
+    ("vocab-verbs-5", "Around the house", "Daily-life verbs",
+     [], [], (VERBS, 8), 12),
+
+    chapter("Conditions and commands"),
+    ("conditional", "Conditional (たら)", "If and when",
+     [], ["conditional"], None, 14),
+    ("provisional", "Provisional (ば)", "The other conditional",
+     [], ["provisional"], None, 14),
+    ("vocab-adj-2", "Opinions", "Adjectives for describing people and things",
+     [], [], (("i-adjective", "na-adjective"), 8), 12),
+    ("imperative", "Imperative", "Direct commands",
+     [], ["imperative"], None, 14),
+    ("vocab-n4-2", "N4 adjectives", "Describing with more precision",
+     [], [], (("i-adjective", "na-adjective"), 10), 14),
+
+    chapter("Passive and causative"),
+    ("vocab-verbs-6", "Talking and thinking", "Verbs of speech and mind",
+     [], [], (VERBS, 8), 12),
+    ("passive", "Passive", "Having something done to you",
+     [], ["passive"], None, 16),
+    ("vocab-n4-1", "N4 verbs", "Stepping beyond the basics",
+     [], [], (VERBS, 10), 14),
+    ("causative", "Causative", "Making or letting someone act",
+     [], ["causative"], None, 16),
+
+    # Every form has been taught by here, so what is left is vocabulary. It is a chapter of
+    # its own rather than more of the grammar path, so it reads as what it is: the rest of
+    # the word list, drilled with everything learned.
+    chapter("Wider vocabulary"),
     ("vocab-n3-1", "N3 verbs", "Wider everyday vocabulary",
-     "vocab", [], (VERBS, 12), 16),
+     [], [], (VERBS, 12), 16),
     ("vocab-n3-2", "N3 adjectives", "Shades of description",
-     "vocab", [], (("i-adjective", "na-adjective"), 12), 16),
+     [], [], (("i-adjective", "na-adjective"), 12), 16),
     ("vocab-n3-3", "N3 する verbs", "Abstract and formal actions",
-     "vocab", [], (("suru",), 12), 16),
+     [], [], (("suru",), 12), 16),
     ("vocab-n2-1", "N2 verbs", "Verbs for reading and news",
-     "vocab", [], (VERBS, 12), 16),
+     [], [], (VERBS, 12), 16),
     ("vocab-n2-2", "N2 adjectives", "Formal and written description",
-     "vocab", [], (("i-adjective", "na-adjective"), 12), 16),
+     [], [], (("i-adjective", "na-adjective"), 12), 16),
     ("vocab-n2-3", "N2 する verbs", "The formal register",
-     "vocab", [], (("suru",), 12), 16),
+     [], [], (("suru",), 12), 16),
 ]
 
-# The remaining irregulars are a side branch off て form. Unlike the core three, these are
+# The remaining irregulars are short side lessons. Unlike the core three, these are
 # genuinely exceptions to notice rather than vocabulary to have: ある and いる are defined as
 # much by the forms they lack as by the ones they have, and いい simply conjugates as よい.
-# Meeting them once the regular shapes are solid is what makes the gaps legible.
+#
+# Each branches off the point where it becomes legible and rejoins the path at the lesson
+# that needs it, so the path cannot be finished without them. ある and いる open after て
+# form and are required by the progressive, which is built from いる. いい opens once regular
+# い-adjectives have been met and is required before な-adjectives.
 #
 # Each gets its own short lesson rather than being mixed into a batch, where a learner could
 # pass without ever being asked about the one word the lesson exists for.
-BRANCH_AFTER = "te-form"
 IRREGULARS = [
-    ("irr-aru", "ある", "Exists - with a negative that comes from nowhere", "ある"),
-    ("irr-iru", "いる", "Exists (animate), and its casual contractions", "いる"),
-    ("irr-ii", "いい", "The adjective that conjugates as よい", "いい"),
+    # id, title, subtitle, word, class, opens after, required by
+    ("irr-aru", "ある", "Exists - with a negative that comes from nowhere", "ある", "aru",
+     "te-form", "progressive"),
+    ("irr-iru", "いる", "Exists (animate), and its casual contractions", "いる", "iru",
+     "te-form", "progressive"),
+    ("irr-ii", "いい", "The adjective that conjugates as よい", "いい", "ii",
+     "i-adjectives", "na-adjectives"),
 ]
 
 WORD_TAGS = {}
@@ -214,60 +251,67 @@ def build():
     # into a batch as well as being introduced by name.
     for key in CORE_VERBS:
         picker.reserve(key)
-    for _, _, _, key in IRREGULARS:
+    for _, _, _, key, *_ in IRREGULARS:
         picker.reserve(key)
     for keys in DEFERRED.values():
         for key in keys:
             picker.reserve(key)
 
     lessons = {}
+    sequence = []
     previous = None
+    current_chapter = None
 
-    for lesson_id, title, subtitle, strand, forms, spec, questions in SPINE:
+    for entry in SPINE:
+        if entry[0] == "chapter":
+            current_chapter = entry[1]
+            continue
+        lesson_id, title, subtitle, classes, forms, spec, questions = entry
         new_words = []
         if spec is not None:
             groups, count = spec[0], spec[1]
             pins = picker.pinned(spec[2]) if len(spec) > 2 else []
             pins += picker.pinned(DEFERRED.get(lesson_id, []))
             new_words = pins + picker.take(groups, count)
-        lessons[lesson_id] = {
-            "title": title,
-            "subtitle": subtitle,
-            "strand": strand,
-            "requires": [previous] if previous else [],
-            "newForms": forms,
-            "newWords": new_words,
-            "questions": questions,
-            "pass": {"accuracy": PASS_ACCURACY, "perForm": PASS_PER_FORM},
-        }
+        lessons[lesson_id] = lesson(
+            title, subtitle, current_chapter, [previous] if previous else [],
+            classes, forms, new_words, questions,
+        )
+        sequence.append(lesson_id)
         previous = lesson_id
 
-    # The irregular branch hangs off て form, the point by which the learner has met
-    # enough forms for the exceptions to be visible as exceptions.
-    for lesson_id, title, subtitle, key in IRREGULARS:
-        lessons[lesson_id] = {
-            "title": title,
-            "subtitle": subtitle,
-            "strand": "irregular",
-            "requires": [BRANCH_AFTER],
-            "newForms": [],
-            "newWords": picker.one(key),
-            "questions": 10,
-            "pass": {"accuracy": PASS_ACCURACY, "perForm": PASS_PER_FORM},
-        }
+    for lesson_id, title, subtitle, key, word_class, after, joins in IRREGULARS:
+        lessons[lesson_id] = lesson(
+            title, subtitle, lessons[after]["chapter"], [after],
+            [word_class], [], picker.one(key), 10,
+        )
+        lessons[joins]["requires"].append(lesson_id)
+        # Shown straight after the lesson it opens from, next to where it unlocks.
+        # Appending branches at the end is what once buried them at the bottom of the list.
+        at = sequence.index(after) + 1
+        while at < len(sequence) and sequence[at].startswith("irr-"):
+            at += 1
+        sequence.insert(at, lesson_id)
 
-    # Display order is assigned last so a branch sits next to what it hangs off rather than
-    # after the whole spine. Appending it was what buried the irregulars at the bottom of
-    # the list even though they unlock early.
-    sequence = [lesson_id for lesson_id, *_ in SPINE]
-    base = sequence.index(BRANCH_AFTER) + 1
-    for offset, (lesson_id, *_) in enumerate(IRREGULARS):
-        sequence.insert(base + offset, lesson_id)
     for position, lesson_id in enumerate(sequence):
         lessons[lesson_id]["order"] = position
 
     # Key order follows the path, so the file reads the way the app presents it.
     return {"lessons": {lesson_id: lessons[lesson_id] for lesson_id in sequence}}
+
+
+def lesson(title, subtitle, chapter_title, requires, classes, forms, words, questions):
+    return {
+        "title": title,
+        "subtitle": subtitle,
+        "chapter": chapter_title,
+        "requires": requires,
+        "newClasses": classes,
+        "newForms": forms,
+        "newWords": words,
+        "questions": questions,
+        "pass": {"accuracy": PASS_ACCURACY, "perForm": PASS_PER_FORM},
+    }
 
 
 def render(data):
