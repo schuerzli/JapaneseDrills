@@ -72,7 +72,7 @@ surfaceContainerLowest surfaceContainerLow surfaceContainer
 surfaceContainerHigh surfaceContainerHighest""".split()
 ANSWER_ROLES = ["correct", "onCorrect", "correctContainer", "onCorrectContainer"]
 
-# The primer's worked examples mark what a conjugation touches: the last kana, the form's
+# The Conjugation Intro's worked examples mark what a conjugation touches: the last kana, the form's
 # ending, and the two fused into one. Three hues that read as three different things, none
 # of them the red and green that mean wrong and right everywhere else in the app. The last
 # kana takes the palette's accent; the other two are shared, one set per mode, because they
@@ -82,8 +82,8 @@ MARKS_LIGHT = dict(markEnding="#1F5C8F", markFused="#7B3A82")
 MARKS_DARK = dict(markEnding="#8FC2F0", markFused="#E2A6E6")
 
 
-# The hero cards — the question, the welcome, the primer link and the score — are a light
-# wash of the accent over the page, with ordinary ink on top. They used to be a slab of
+# The hero cards — the question, the welcome, the Conjugation Intro link and the score — are a
+# light wash of the accent over the page, with ordinary ink on top. They used to be a slab of
 # their own colour (espresso in Latte, caramel in Caramel), which made the question card the
 # loudest object on the screen when the word inside it is already set at 44sp: the size
 # carries the emphasis, so the card only has to say "this is the question". One rule for
@@ -328,7 +328,7 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
             for fg in ("onSurface", "onSurfaceVariant", "primary", "error")
             for bg in ("surface", "surfaceContainerLow", "surfaceContainer",
                        "surfaceContainerHigh", "surfaceContainerHighest")]
-         # The primer's marked kana: on its cards, and on the tables inside them.
+         # The Conjugation Intro's marked kana: on its cards, and on the tables inside them.
          + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")])
 
 # 4.5:1 is the floor for ordinary text. onSurfaceVariant is held to 7:1, because it is only

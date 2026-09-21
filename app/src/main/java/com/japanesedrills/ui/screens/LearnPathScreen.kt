@@ -38,7 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.japanesedrills.quiz.Primer
+import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.StepCard
@@ -80,7 +80,7 @@ fun LearnPathScreen(
     onStep: (Step) -> Unit,
     onStepIntro: (Step) -> Unit,
     onReview: () -> Unit,
-    onPrimer: () -> Unit,
+    onConjugationIntro: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -94,7 +94,7 @@ fun LearnPathScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (!state.started) {
-            item { WelcomeCard(onPrimer) }
+            item { WelcomeCard(onConjugationIntro) }
         } else {
             item {
                 Text(
@@ -176,11 +176,12 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
 }
 
 /**
- * The welcome, with the way into the primer. Every rule on the path is phrased in terms of
- * the kana grid and the verb classes, and the primer is the only place that explains them.
+ * The welcome, with the way into the Conjugation Intro. Every rule on the path is phrased in
+ * terms of the kana grid and the verb classes, and the Conjugation Intro is the only place
+ * that explains them.
  */
 @Composable
-private fun WelcomeCard(onPrimer: () -> Unit) {
+private fun WelcomeCard(onConjugationIntro: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -197,13 +198,13 @@ private fun WelcomeCard(onPrimer: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium,
             )
             TextButton(
-                onClick = onPrimer,
+                onClick = onConjugationIntro,
                 contentPadding = PaddingValues(0.dp),
                 colors = ButtonDefaults.textButtonColors(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
             ) {
-                Text("Read first: ${Primer.TITLE}", style = MaterialTheme.typography.labelLarge)
+                Text("Read first: ${ConjugationIntro.TITLE}", style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,

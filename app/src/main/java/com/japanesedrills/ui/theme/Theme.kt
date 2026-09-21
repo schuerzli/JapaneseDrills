@@ -33,8 +33,8 @@ data class AnswerColors(
 )
 
 /**
- * Colours for what the primer's worked examples mark: the last kana, the form's ending, and
- * the two fused. Each is also set apart by weight or underline, so none rests on colour alone.
+ * Colours for what the Conjugation Intro's worked examples mark: the last kana, the form's
+ * ending, and the two fused. Each is also set apart by weight or underline, so none rests on colour alone.
  */
 @Immutable
 data class MarkColors(

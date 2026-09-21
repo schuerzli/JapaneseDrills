@@ -46,11 +46,11 @@ import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.Tab as AppTab
 import com.japanesedrills.ui.screens.AboutScreen
 import com.japanesedrills.ui.screens.AppSettingsScreen
+import com.japanesedrills.ui.screens.ConjugationIntroScreen
 import com.japanesedrills.ui.screens.GrammarDetailScreen
 import com.japanesedrills.ui.screens.GrammarScreen
 import com.japanesedrills.ui.screens.LearnPathScreen
 import com.japanesedrills.ui.screens.PracticeBar
-import com.japanesedrills.ui.screens.PrimerScreen
 import com.japanesedrills.ui.screens.PracticeScreen
 import com.japanesedrills.ui.screens.QuizScreen
 import com.japanesedrills.ui.screens.ResultsScreen
@@ -177,7 +177,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 examples = state.grammarExamples,
                 options = state.options,
                 onStart = { viewModel.startStep(step) },
-                onPrimer = viewModel::showPrimer,
+                onConjugationIntro = viewModel::showConjugationIntro,
                 onQuit = viewModel::backToRoot,
                 modifier = contentModifier,
             )
@@ -193,10 +193,10 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             )
         }
 
-        state.screen == Screen.Primer -> {
-            BackHandler(onBack = viewModel::closePrimer)
-            PrimerScreen(
-                onBack = viewModel::closePrimer,
+        state.screen == Screen.ConjugationIntro -> {
+            BackHandler(onBack = viewModel::closeConjugationIntro)
+            ConjugationIntroScreen(
+                onBack = viewModel::closeConjugationIntro,
                 modifier = contentModifier,
             )
         }
@@ -284,13 +284,13 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onStep = viewModel::openStep,
                 onStepIntro = viewModel::showStepIntro,
                 onReview = viewModel::startReview,
-                onPrimer = viewModel::showPrimer,
+                onConjugationIntro = viewModel::showConjugationIntro,
                 onToggleChapter = viewModel::setChapterOpen,
                 modifier = inner,
             )
 
             AppTab.Grammar -> GrammarScreen(
-                onPrimer = viewModel::showPrimer,
+                onConjugationIntro = viewModel::showConjugationIntro,
                 onForm = viewModel::showGrammar,
                 modifier = inner,
             )

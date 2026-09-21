@@ -168,7 +168,7 @@ fun RichText(
     val hasReading = items.any { it is Item.Cluster && it.segments.any { s -> s.reading != null } }
     // Nothing to set above the line: one Text does it, wrapping and all. Laying out every
     // word as its own piece made a page of prose dozens of layouts where it had been one,
-    // and the primer stuttered as its paragraphs scrolled in.
+    // and the Conjugation Intro stuttered as its paragraphs scrolled in.
     if (!hasReading && parts.none { it is RichPart.Tag }) {
         val reserved = if (reserveReadingSpace) with(LocalDensity.current) { rubySize.toDp() } else 0.dp
         Text(

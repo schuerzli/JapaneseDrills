@@ -16,7 +16,8 @@ import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.RichPart
 
 /**
- * A small table of Japanese cells: the kana grid and the sound changes in the primer, and
+ * A small table of Japanese cells: the kana grid and the sound changes in the Conjugation
+ * Intro, and
  * the same sound changes in the grammar reference.
  *
  * Cells share the width evenly, which caps a readable table at about nine columns on a

@@ -326,7 +326,8 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         fun isJapanese(text: String): Boolean = japaneseText.matches(text)
 
         /**
-         * A word's class as the learner is taught it, in the primer's terms: "aru verb" said
+         * A word's class as the learner is taught it, in the Conjugation Intro's terms: "aru verb"
+         * said
          * nothing a learner could use, where "godan, irregular negative" says both what ある
          * is and what to watch for.
          */

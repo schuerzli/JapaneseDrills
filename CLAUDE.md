@@ -58,9 +58,9 @@ USB-attached phone instead:
 ```
 
 **The phone gets the release build** (`assembleRelease`, `apk/release/app-release.apk`).
-A debuggable Compose app stutters where the release one does not: the primer's first
-scroll had half-second frames in debug and none in release. So judge smoothness only on a
-release build. It is signed with the debug key, so each build installs over the other
+A debuggable Compose app stutters where the release one does not: the Conjugation
+Intro's first scroll had half-second frames in debug and none in release. So judge
+smoothness only on a release build. It is signed with the debug key, so each build installs over the other
 and progress survives.
 
 ## Project layout
@@ -71,10 +71,10 @@ app/src/main/res/        launcher icon, window background, the bundled fonts and
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
     quiz/                engine, question pool, romaji input, furigana, answer explanations,
-                         grammar reference, conjugation primer, learn path, spaced
+                         grammar reference, Conjugation Intro, learn path, spaced
                          repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          learn path, step intro, grammar, primer, practice, quiz,
+    ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice, quiz,
                          results, settings, about
     ui/components/       furigana-aware rich text and table, shared card and switch row,
                          scrollbars
@@ -140,17 +140,19 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
 - **Japanese goes through `RichText` or `FuriganaText`, never a bare `Text`**, with every
   kanji in furigana notation. Readings are one setting for the whole app (`LocalFurigana`),
   and a bare `Text` can neither show them nor hide them. `everyKanjiShownHasAReading` checks
-  the notes, primer, labels, step titles and sentences; it cannot check a call site.
+  the notes, the Conjugation Intro, labels, step titles and sentences; it cannot check a call
+  site.
 - **Worked examples mark what a conjugation touches** — the last kana, the form's ending, the
-  two fused — in their own markup (`RichPart.marked`, explained in `quiz/Primer.kt`), read
-  only where a caller asks for it, never in prose. The colours are palette roles
+  two fused — in their own markup (`RichPart.marked`, explained in
+  `quiz/ConjugationIntro.kt`), read only where a caller asks for it, never in prose. The colours are palette roles
   (`MarkColors`, from `tools/theme/schemes.py`) with a second cue in weight or underline, so
   a new mark needs a role there and must pass `--check`.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in
   the frame it scrolls in, so a card of paragraphs and tables in one item stutters a fling;
-  the primer is one item per block for that reason (`ui/screens/PrimerScreen.kt`).
+  the Conjugation Intro is one item per block for that reason
+  (`ui/screens/ConjugationIntroScreen.kt`).
 
 - **A state change must not make the screen around it jump.** An element may change size,
   but not if that reshuffles a list or pushes its neighbours somewhere unpredictable. A tick

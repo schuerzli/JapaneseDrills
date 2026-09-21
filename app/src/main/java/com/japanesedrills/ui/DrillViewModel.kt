@@ -52,7 +52,7 @@ enum class Tab(val label: String) {
     Grammar("Grammar"),
 }
 
-enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, Primer, GrammarDetail }
+enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, ConjugationIntro, GrammarDetail }
 
 /** Which of the three things the running quiz is. */
 enum class SessionKind { Practice, Step, Review }
@@ -144,8 +144,11 @@ data class DrillUiState(
      * the session: the defaults already follow progress, so they are right on the next launch.
      */
     val chapterOpen: Map<String, Boolean> = emptyMap(),
-    /** Where closing the primer returns to: it opens from the Grammar tab and from steps. */
-    val primerFrom: Screen = Screen.Root,
+    /**
+     * Where closing the Conjugation Intro returns to: it opens from the Grammar tab and from
+     * steps.
+     */
+    val conjugationIntroFrom: Screen = Screen.Root,
     /** The form being read about on the Grammar tab. */
     val grammarNote: GrammarNote? = null,
     /** Representative words for showing how a form is built. */
@@ -235,12 +238,16 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun setChapterOpen(title: String, open: Boolean) =
         _state.update { it.copy(chapterOpen = it.chapterOpen + (title to open)) }
 
-    fun showPrimer() = _state.update { it.copy(screen = Screen.Primer, primerFrom = it.screen) }
+    fun showConjugationIntro() =
+        _state.update { it.copy(screen = Screen.ConjugationIntro, conjugationIntroFrom = it.screen) }
 
-    /** Back to wherever the primer was opened from, with that screen's state still in place. */
-    fun closePrimer() {
-        if (_state.value.primerFrom == Screen.Root) backToRoot()
-        else _state.update { it.copy(screen = it.primerFrom) }
+    /**
+     * Back to wherever the Conjugation Intro was opened from, with that screen's state still in
+     * place.
+     */
+    fun closeConjugationIntro() {
+        if (_state.value.conjugationIntroFrom == Screen.Root) backToRoot()
+        else _state.update { it.copy(screen = it.conjugationIntroFrom) }
     }
 
     fun backToRoot() {

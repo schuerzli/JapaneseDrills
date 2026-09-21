@@ -30,11 +30,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
-import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
@@ -51,7 +51,11 @@ import com.japanesedrills.ui.theme.DrillTheme
  * opens its note: for a form, what it means and how it is built.
  */
 @Composable
-fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modifier = Modifier) {
+fun GrammarScreen(
+    onConjugationIntro: () -> Unit,
+    onForm: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val list = rememberLazyListState()
     LazyColumn(
         state = list,
@@ -73,7 +77,7 @@ fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modi
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = onPrimer),
+                    .clickable(onClick = onConjugationIntro),
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -81,8 +85,8 @@ fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modi
             ) {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(Primer.TITLE, style = MaterialTheme.typography.titleMedium)
-                        Text(Primer.SUMMARY, style = MaterialTheme.typography.bodySmall)
+                        Text(ConjugationIntro.TITLE, style = MaterialTheme.typography.titleMedium)
+                        Text(ConjugationIntro.SUMMARY, style = MaterialTheme.typography.bodySmall)
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
                 }

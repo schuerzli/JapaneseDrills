@@ -11,57 +11,61 @@ package com.japanesedrills.quiz
  * Worked examples are written with marks ([RichPart.marked]): `書[か](く)` for the last kana,
  * `+ない` for the form's ending, `〈って〉` for the two fused. Prose is never read for marks.
  */
-sealed interface PrimerBlock {
+sealed interface ConjugationIntroBlock {
 
     /** A paragraph. Its Japanese is in furigana notation like everything else shown. */
-    data class Line(val text: String) : PrimerBlock
+    data class Line(val text: String) : ConjugationIntroBlock
 
-    data class Bullet(val text: String) : PrimerBlock
+    data class Bullet(val text: String) : ConjugationIntroBlock
 
     /** A heading inside a section, such as the two systems under godan. */
-    data class Sub(val title: String) : PrimerBlock
+    data class Sub(val title: String) : ConjugationIntroBlock
 
     /** One worked change, [from] and [to] written with marks. [note] names the form, if given. */
-    data class Step(val from: String, val to: String, val note: String = "") : PrimerBlock
+    data class Step(val from: String, val to: String, val note: String = "") : ConjugationIntroBlock
 
     /** [header] may be empty, in which case no header row is drawn. [marked] cells are worked examples. */
-    data class Table(val header: List<String>, val rows: List<List<String>>, val marked: Boolean = false) : PrimerBlock
+    data class Table(
+        val header: List<String>,
+        val rows: List<List<String>>,
+        val marked: Boolean = false,
+    ) : ConjugationIntroBlock
 
     /** Says what the marks in the examples mean, shown in the marks themselves. */
-    data class Legend(val parts: List<RichPart>) : PrimerBlock
+    data class Legend(val parts: List<RichPart>) : ConjugationIntroBlock
 }
 
-data class PrimerSection(val title: String, val blocks: List<PrimerBlock>)
+data class ConjugationIntroSection(val title: String, val blocks: List<ConjugationIntroBlock>)
 
-object Primer {
+object ConjugationIntro {
 
     const val TITLE = "Conjugation Intro"
     const val SUMMARY = "Forms, the last kana, the verb classes and the systems every form is built with."
 
-    val SECTIONS: List<PrimerSection> = listOf(
-        PrimerSection(
+    val SECTIONS: List<ConjugationIntroSection> = listOf(
+        ConjugationIntroSection(
             "The last kana",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "When we talk about Japanese conjugation, what we mean is changing a verb or an " +
                         "adjective to change its meaning. That can mean changing it from present to past, " +
                         "or it can be more subtle, as with the て-form, which has many different uses. As " +
                         "the name て-form suggests, we call these states that verbs and adjectives can take " +
                         "on \"forms\". Here are some examples:",
                 ),
-                PrimerBlock.Bullet("the negative form"),
-                PrimerBlock.Bullet("the past form"),
-                PrimerBlock.Bullet("the て-form"),
-                PrimerBlock.Bullet("the progressive form"),
-                PrimerBlock.Bullet("the desire form"),
-                PrimerBlock.Bullet("the polite form"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Bullet("the negative form"),
+                ConjugationIntroBlock.Bullet("the past form"),
+                ConjugationIntroBlock.Bullet("the て-form"),
+                ConjugationIntroBlock.Bullet("the progressive form"),
+                ConjugationIntroBlock.Bullet("the desire form"),
+                ConjugationIntroBlock.Bullet("the polite form"),
+                ConjugationIntroBlock.Line(
                     "Japanese conjugation is remarkably regular. It revolves almost entirely around the " +
                         "very last kana of a verb or adjective: when we change form, only the last kana of " +
                         "the dictionary form, the form a word is listed under, is ever affected. We call " +
                         "the part that never changes the stem.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "Every form has an ending associated with it. For example, the て-form's ending is " +
                         "て. When we change a verb to that form, we do something with the last kana of the " +
                         "word to attach the form's ending. There are a total of three ways to attach a " +
@@ -71,18 +75,18 @@ object Primer {
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "Verb classes",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "Verbs are generally talked about as belonging to one of three classes. How a verb " +
                         "changes when it changes form decides which class it belongs to. The three " +
                         "classes are:",
                 ),
-                PrimerBlock.Bullet("一[いち]段[だん] (ichidan) verbs"),
-                PrimerBlock.Bullet("五[ご]段[だん] (godan) verbs"),
-                PrimerBlock.Bullet("irregular verbs"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Bullet("一[いち]段[だん] (ichidan) verbs"),
+                ConjugationIntroBlock.Bullet("五[ご]段[だん] (godan) verbs"),
+                ConjugationIntroBlock.Bullet("irregular verbs"),
+                ConjugationIntroBlock.Line(
                     "Irregular verbs aside, that leaves two classes and three ways to attach a form " +
                         "ending. How does that work? 一[いち]段[だん] verbs change in a single way for every " +
                         "form. 五[ご]段[だん] verbs use one system for some forms and another system for the " +
@@ -91,27 +95,27 @@ object Primer {
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "一[いち]段[だん] (ichidan) verbs",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "一[いち]段[だん] verbs are extremely simple and regular. They always change in the same " +
                         "way, whatever the form. All 一[いち]段[だん] verbs end in either -いる or -える in " +
                         "their dictionary forms. This means they end in any kana with an i or an e vowel, " +
                         "followed by る: 見[み]る, 食[た]べる, 信[しん]じる, 出[で]る.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "Be aware that all 一[いち]段[だん] verbs end in -いる or -える, but not all verbs that " +
                         "end in -いる or -える are 一[いち]段[だん] verbs. 帰[かえ]る, 入[はい]る, 走[はし]る, " +
                         "知[し]る, 滑[すべ]る and 参[まい]る are all 五[ご]段[だん] verbs. This is just something " +
                         "you learn on a case-by-case basis. The rule that does hold without exception runs " +
                         "the other way: a verb that does not end in る is always 五[ご]段[だん].",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "To change a 一[いち]段[だん] verb, all you do is drop the last kana of the dictionary " +
                         "form, which is always る, and add the form's ending.",
                 ),
-                PrimerBlock.Legend(
+                ConjugationIntroBlock.Legend(
                     listOf(
                         RichPart.Text("In the examples, the last kana is marked like "),
                         RichPart.Marked("る", Mark.LastKana),
@@ -122,35 +126,35 @@ object Primer {
                         RichPart.Text("."),
                     ),
                 ),
-                PrimerBlock.Step("食[た]べ(る)", "食[た]べ+ない"),
-                PrimerBlock.Step("食[た]べ(る)", "食[た]べ+た"),
-                PrimerBlock.Step("食[た]べ(る)", "食[た]べ+て"),
-                PrimerBlock.Line("The stem 食[た]べ never changes."),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Step("食[た]べ(る)", "食[た]べ+ない"),
+                ConjugationIntroBlock.Step("食[た]べ(る)", "食[た]べ+た"),
+                ConjugationIntroBlock.Step("食[た]べ(る)", "食[た]べ+て"),
+                ConjugationIntroBlock.Line("The stem 食[た]べ never changes."),
+                ConjugationIntroBlock.Line(
                     "A few forms have an ending of their own for 一[いち]段[だん] verbs: the potential and " +
                         "the passive take られる, the causative させる, the volitional よう and the " +
                         "imperative ろ.",
                 ),
-                PrimerBlock.Step("食[た]べ(る)", "食[た]べ+られる"),
-                PrimerBlock.Line("Each form's page in the Grammar tab shows its ending for every class."),
+                ConjugationIntroBlock.Step("食[た]べ(る)", "食[た]べ+られる"),
+                ConjugationIntroBlock.Line("Each form's page in the Grammar tab shows its ending for every class."),
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "五[ご]段[だん] (godan) verbs",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "五[ご]段[だん] verbs are a little more complicated, and there are two different systems " +
                         "for conjugation, depending on the target form. We will call these two systems the " +
                         "row-shift system and the fusion system. But to understand these systems, and " +
                         "Japanese conjugation in general, we need a little bit of context first.",
                 ),
-                PrimerBlock.Sub("The kana grid"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Sub("The kana grid"),
+                ConjugationIntroBlock.Line(
                     "To understand Japanese verb conjugation, we must think of the last kana of a verb " +
                         "as living on this grid.",
                 ),
-                PrimerBlock.Table(
+                ConjugationIntroBlock.Table(
                     header = emptyList(),
                     rows = listOf(
                         listOf("あ", "か", "が", "さ", "た", "な", "ば", "ま", "ら"),
@@ -160,64 +164,64 @@ object Primer {
                         listOf("お", "こ", "ご", "そ", "と", "の", "ぼ", "も", "ろ"),
                     ),
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "We call each row in the grid by its kana in the first column: the あ-row, the " +
                         "い-row, and so on down to the お-row. There are two things to note about this grid:",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "1. Every Japanese verb, in its dictionary form, ends in a kana from the う-row of " +
                         "this grid. No exceptions.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "2. There are exactly five rows in it, which is where 五[ご]段[だん], \"five rows\", " +
                         "gets its name.",
                 ),
-                PrimerBlock.Sub("The row-shift system"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Sub("The row-shift system"),
+                ConjugationIntroBlock.Line(
                     "When we change a 五[ご]段[だん] verb to a form that uses the row-shift system, we do not " +
                         "drop the last kana of the dictionary form. Rather, we shift it up or down to a " +
                         "different row in the same column. Which row we shift it to depends on the form we " +
                         "are changing to.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "For the negative, we shift the last kana from the う-row to the あ-row and add the " +
                         "negative ending ない.",
                 ),
-                PrimerBlock.Step("書[か](く)", "書[か](か)+ない"),
-                PrimerBlock.Line("The う-row く turns into the あ-row kana from the same column, か."),
-                PrimerBlock.Line("Other forms use other rows. たい takes the い-row, and so does the polite ます form."),
-                PrimerBlock.Step("書[か](く)", "書[か](き)+たい"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Step("書[か](く)", "書[か](か)+ない"),
+                ConjugationIntroBlock.Line("The う-row く turns into the あ-row kana from the same column, か."),
+                ConjugationIntroBlock.Line("Other forms use other rows. たい takes the い-row, and so does the polite ます form."),
+                ConjugationIntroBlock.Step("書[か](く)", "書[か](き)+たい"),
+                ConjugationIntroBlock.Line(
                     "Five rows, five kana the last kana of the word can be: that is the 五[ご] in " +
                         "五[ご]段[だん]. It also explains why 一[いち]段[だん] verbs are called 一[いち]段[だん], " +
                         "or \"one row\" verbs. Since they drop their last kana when they change, they can " +
                         "only ever be in one row: the row of the last kana of the stem, like べ in 食[た]べる.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "This system is extremely regular. There is only one special case in the whole " +
                         "shift logic: when a verb in dictionary form ends in the actual kana う, its " +
                         "あ-row kana is わ, not あ.",
                 ),
-                PrimerBlock.Step("買[か](う)", "買[か](わ)+ない"),
-                PrimerBlock.Line("The following forms all use the row-shift system, each with its row and ending:"),
-                PrimerBlock.Bullet("the negative and all its compounds: あ-row + ない"),
-                PrimerBlock.Bullet("the passive: あ-row + れる"),
-                PrimerBlock.Bullet("the causative: あ-row + せる"),
-                PrimerBlock.Bullet("every polite form: い-row + ます"),
-                PrimerBlock.Bullet("the desire form: い-row + たい"),
-                PrimerBlock.Bullet("the provisional: え-row + ば"),
-                PrimerBlock.Bullet("the potential: え-row + る"),
-                PrimerBlock.Bullet("the imperative: え-row, with no ending at all"),
-                PrimerBlock.Bullet("the volitional: お-row + う"),
-                PrimerBlock.Sub("The fusion system"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Step("買[か](う)", "買[か](わ)+ない"),
+                ConjugationIntroBlock.Line("The following forms all use the row-shift system, each with its row and ending:"),
+                ConjugationIntroBlock.Bullet("the negative and all its compounds: あ-row + ない"),
+                ConjugationIntroBlock.Bullet("the passive: あ-row + れる"),
+                ConjugationIntroBlock.Bullet("the causative: あ-row + せる"),
+                ConjugationIntroBlock.Bullet("every polite form: い-row + ます"),
+                ConjugationIntroBlock.Bullet("the desire form: い-row + たい"),
+                ConjugationIntroBlock.Bullet("the provisional: え-row + ば"),
+                ConjugationIntroBlock.Bullet("the potential: え-row + る"),
+                ConjugationIntroBlock.Bullet("the imperative: え-row, with no ending at all"),
+                ConjugationIntroBlock.Bullet("the volitional: お-row + う"),
+                ConjugationIntroBlock.Sub("The fusion system"),
+                ConjugationIntroBlock.Line(
                     "In this system, rather than modifying the last kana and adding an ending, the " +
                         "form's ending fuses with the last kana. How they fuse depends on the specific " +
                         "last kana of the dictionary form, and must be memorized. This table shows all " +
                         "fusions for all nine possible う-row kana, for the て-form and the past form. " +
                         "行[い]く is the one exception, and is covered below.",
                 ),
-                PrimerBlock.Table(
+                ConjugationIntroBlock.Table(
                     header = listOf("dictionary", "て-form", "past"),
                     rows = listOf(
                         listOf("う · つ · る", "って", "った"),
@@ -227,7 +231,7 @@ object Primer {
                         listOf("す", "して", "した"),
                     ),
                 ),
-                PrimerBlock.Table(
+                ConjugationIntroBlock.Table(
                     header = emptyList(),
                     marked = true,
                     rows = listOf(
@@ -242,97 +246,97 @@ object Primer {
                         listOf("話[はな](す)", "話[はな]〈して〉", "話[はな]〈した〉"),
                     ),
                 ),
-                PrimerBlock.Line("That's it. You will have to memorize which fusion applies to which last kana."),
-                PrimerBlock.Line("The following forms use the fusion system:"),
-                PrimerBlock.Bullet("the て-form"),
-                PrimerBlock.Bullet("the past"),
-                PrimerBlock.Bullet("the conditional: the past + ら, 書[か]いたら"),
-                PrimerBlock.Bullet("every form built on the て-form, such as the progressive: 書[か]いている"),
+                ConjugationIntroBlock.Line("That's it. You will have to memorize which fusion applies to which last kana."),
+                ConjugationIntroBlock.Line("The following forms use the fusion system:"),
+                ConjugationIntroBlock.Bullet("the て-form"),
+                ConjugationIntroBlock.Bullet("the past"),
+                ConjugationIntroBlock.Bullet("the conditional: the past + ら, 書[か]いたら"),
+                ConjugationIntroBlock.Bullet("every form built on the て-form, such as the progressive: 書[か]いている"),
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "Irregular verbs",
             listOf(
-                PrimerBlock.Line("There are only two verbs in Japanese that are irregular throughout:"),
-                PrimerBlock.Bullet("する (to do) — し, さ and すれ all appear: しない, して, させる, すれば"),
-                PrimerBlock.Bullet("来[く]る (to come) — the reading itself changes: こない, きた, きて"),
-                PrimerBlock.Line("Three more are regular verbs with exceptions worth knowing:"),
-                PrimerBlock.Bullet(
+                ConjugationIntroBlock.Line("There are only two verbs in Japanese that are irregular throughout:"),
+                ConjugationIntroBlock.Bullet("する (to do) — し, さ and すれ all appear: しない, して, させる, すれば"),
+                ConjugationIntroBlock.Bullet("来[く]る (to come) — the reading itself changes: こない, きた, きて"),
+                ConjugationIntroBlock.Line("Three more are regular verbs with exceptions worth knowing:"),
+                ConjugationIntroBlock.Bullet(
                     "行[い]く — 五[ご]段[だん] in every way, except that its て-form and past are 行[い]って " +
                         "and 行[い]った, not 行[い]いて",
                 ),
-                PrimerBlock.Bullet(
+                ConjugationIntroBlock.Bullet(
                     "ある — its negative is ない, not あらない. It also has no imperative, potential, " +
                         "passive or causative",
                 ),
-                PrimerBlock.Bullet("いる — already a state, so it is not put into the progressive ている"),
+                ConjugationIntroBlock.Bullet("いる — already a state, so it is not put into the progressive ている"),
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "Adjectives",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "Japanese adjectives conjugate in two different ways, plus a single irregular " +
                         "adjective.",
                 ),
-                PrimerBlock.Sub("い-adjectives"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Sub("い-adjectives"),
+                ConjugationIntroBlock.Line(
                     "い-adjectives change much like 一[いち]段[だん] verbs: they drop their last kana, い, " +
                         "and add an ending. The endings are their own, though, not the ones verbs take:",
                 ),
-                PrimerBlock.Step("高[たか](い)", "高[たか]+くない"),
-                PrimerBlock.Step("高[たか](い)", "高[たか]+かった"),
-                PrimerBlock.Step("高[たか](い)", "高[たか]+くて"),
-                PrimerBlock.Sub("な-adjectives"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Step("高[たか](い)", "高[たか]+くない"),
+                ConjugationIntroBlock.Step("高[たか](い)", "高[たか]+かった"),
+                ConjugationIntroBlock.Step("高[たか](い)", "高[たか]+くて"),
+                ConjugationIntroBlock.Sub("な-adjectives"),
+                ConjugationIntroBlock.Line(
                     "な-adjectives do not conjugate at all. Instead, they appear with the copula だ " +
                         "after them, and that is conjugated:",
                 ),
-                PrimerBlock.Step("便[べん]利[り](だ)", "便[べん]利[り]+じゃない"),
-                PrimerBlock.Step("便[べん]利[り](だ)", "便[べん]利[り]+だった"),
-                PrimerBlock.Step("便[べん]利[り](だ)", "便[べん]利[り]+で"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Step("便[べん]利[り](だ)", "便[べん]利[り]+じゃない"),
+                ConjugationIntroBlock.Step("便[べん]利[り](だ)", "便[べん]利[り]+だった"),
+                ConjugationIntroBlock.Step("便[べん]利[り](だ)", "便[べん]利[り]+で"),
+                ConjugationIntroBlock.Line(
                     "The negative has a more formal version, 便[べん]利[り]ではない. な-adjectives are " +
                         "named for the form they take before a noun, 便[べん]利[り]な人[ひと].",
                 ),
-                PrimerBlock.Sub("いい"),
-                PrimerBlock.Line("いい switches to よ- the moment it conjugates:"),
-                PrimerBlock.Step("いい", "よくない"),
-                PrimerBlock.Step("いい", "よかった"),
-                PrimerBlock.Step("いい", "よくて"),
+                ConjugationIntroBlock.Sub("いい"),
+                ConjugationIntroBlock.Line("いい switches to よ- the moment it conjugates:"),
+                ConjugationIntroBlock.Step("いい", "よくない"),
+                ConjugationIntroBlock.Step("いい", "よかった"),
+                ConjugationIntroBlock.Step("いい", "よくて"),
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "Combining forms",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "Some forms do not stop after one change. For example, you might want the negative " +
                         "of the potential form. In this case, true to form, Japanese is rather simple and " +
                         "regular. You first construct one form, then treat that as the new dictionary form " +
                         "to construct the next.",
                 ),
-                PrimerBlock.Step("書[か](く)", "書[か](け)+る", "potential"),
-                PrimerBlock.Step("書[か]け(る)", "書[か]け+ない", "negative"),
-                PrimerBlock.Line("write → can write → cannot write"),
-                PrimerBlock.Line("The same goes for:"),
-                PrimerBlock.Step("書[か](く)", "書[か](か)+れる", "passive"),
-                PrimerBlock.Step("書[か](く)", "書[か](か)+せる", "causative"),
-                PrimerBlock.Step("書[か](く)", "書[か]〈いて〉+いる", "progressive"),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Step("書[か](く)", "書[か](け)+る", "potential"),
+                ConjugationIntroBlock.Step("書[か]け(る)", "書[か]け+ない", "negative"),
+                ConjugationIntroBlock.Line("write → can write → cannot write"),
+                ConjugationIntroBlock.Line("The same goes for:"),
+                ConjugationIntroBlock.Step("書[か](く)", "書[か](か)+れる", "passive"),
+                ConjugationIntroBlock.Step("書[か](く)", "書[か](か)+せる", "causative"),
+                ConjugationIntroBlock.Step("書[か](く)", "書[か]〈いて〉+いる", "progressive"),
+                ConjugationIntroBlock.Line(
                     "Every one of these new words ends in -える or -いる, and is treated as a " +
                         "一[いち]段[だん] verb from then on. So 書[か]ける goes to 書[か]けない and 書[か]けた " +
                         "exactly the way 食[た]べる goes to 食[た]べない and 食[た]べた. The same is true of the " +
                         "一[いち]段[だん] and irregular versions: 食[た]べられる, させる and 来[こ]させる are all " +
                         "一[いち]段[だん] verbs too.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "In 書[か]く → 書[か]きたい (desire), たい is not a verb but an い-adjective. It behaves " +
                         "like 高[たか]い: 書[か]きたくない, 書[か]きたかった.",
                 ),
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "This is why a text this short covers every form in this app's Grammar tab. A long " +
                         "form is a short form with another short form applied to it, and the second step " +
                         "follows rules you already know.",
@@ -340,10 +344,10 @@ object Primer {
             ),
         ),
 
-        PrimerSection(
+        ConjugationIntroSection(
             "What comes next",
             listOf(
-                PrimerBlock.Line(
+                ConjugationIntroBlock.Line(
                     "Every form in the Grammar tab is one of these changes plus an ending. Once the row " +
                         "shifts and the fusion table are mastered, the rest is mostly vocabulary.",
                 ),

@@ -25,8 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.japanesedrills.quiz.Primer
-import com.japanesedrills.quiz.PrimerBlock
+import com.japanesedrills.quiz.ConjugationIntro
+import com.japanesedrills.quiz.ConjugationIntroBlock
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
@@ -37,18 +37,18 @@ import com.japanesedrills.ui.components.SectionSpacing
 import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
- * The conjugation primer: one page, read top to bottom. It is the only screen in the app
+ * The Conjugation Intro: one page, read top to bottom. It is the only screen in the app
  * meant to be read rather than used, which is why it is a page of its own rather than a
  * long entry in the form list.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrimerScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun ConjugationIntroScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(Primer.TITLE) },
+                title = { Text(ConjugationIntro.TITLE) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.Close, contentDescription = "Back to the form list")
@@ -66,11 +66,11 @@ fun PrimerScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             modifier = Modifier.padding(padding).verticalScrollbar(list),
             contentPadding = PaddingValues(16.dp),
         ) {
-            for (section in Primer.SECTIONS) {
+            for (section in ConjugationIntro.SECTIONS) {
                 val last = section.blocks.lastIndex
                 item(key = section.title) { Piece(first = true, last = false) { SectionHeading(section.title) } }
                 itemsIndexed(section.blocks, key = { i, _ -> "${section.title}/$i" }) { i, block ->
-                    Piece(first = false, last = i == last) { PrimerBlockView(block) }
+                    Piece(first = false, last = i == last) { ConjugationIntroBlockView(block) }
                 }
             }
         }
@@ -110,24 +110,24 @@ private fun Piece(first: Boolean, last: Boolean, content: @Composable () -> Unit
 }
 
 @Composable
-private fun PrimerBlockView(block: PrimerBlock) {
+private fun ConjugationIntroBlockView(block: ConjugationIntroBlock) {
     when (block) {
-        is PrimerBlock.Line -> FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium)
+        is ConjugationIntroBlock.Line -> FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium)
 
         // On the text's baseline, or a reading over the first line lifts the bullet above it.
-        is PrimerBlock.Bullet -> Row {
+        is ConjugationIntroBlock.Bullet -> Row {
             Text("•  ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
             FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
         }
 
-        is PrimerBlock.Sub -> FuriganaText(
+        is ConjugationIntroBlock.Sub -> FuriganaText(
             block.title,
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 4.dp),
         )
 
-        is PrimerBlock.Step -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        is ConjugationIntroBlock.Step -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
             if (block.note.isNotEmpty()) {
                 Text(
                     block.note,
@@ -141,12 +141,12 @@ private fun PrimerBlockView(block: PrimerBlock) {
             )
         }
 
-        is PrimerBlock.Table -> RichTable(
+        is ConjugationIntroBlock.Table -> RichTable(
             rows = block.rows,
             header = block.header,
             marked = block.marked,
         )
 
-        is PrimerBlock.Legend -> RichText(block.parts, style = MaterialTheme.typography.bodyMedium)
+        is ConjugationIntroBlock.Legend -> RichText(block.parts, style = MaterialTheme.typography.bodyMedium)
     }
 }

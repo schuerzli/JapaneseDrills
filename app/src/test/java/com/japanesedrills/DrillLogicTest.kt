@@ -1,12 +1,12 @@
 package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
+import com.japanesedrills.quiz.ConjugationIntro
+import com.japanesedrills.quiz.ConjugationIntroBlock
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.Mark
-import com.japanesedrills.quiz.Primer
-import com.japanesedrills.quiz.PrimerBlock
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -434,15 +434,15 @@ class DrillLogicTest {
             for (note in Grammar.NOTES + Grammar.CLASS_NOTES) {
                 add(note.title); add(note.summary); addAll(note.notes)
             }
-            for (section in Primer.SECTIONS) {
+            for (section in ConjugationIntro.SECTIONS) {
                 add(section.title)
                 for (block in section.blocks) when (block) {
-                    is PrimerBlock.Line -> add(block.text)
-                    is PrimerBlock.Bullet -> add(block.text)
-                    is PrimerBlock.Sub -> add(block.title)
-                    is PrimerBlock.Step -> { add(block.from); add(block.to); add(block.note) }
-                    is PrimerBlock.Table -> { addAll(block.header); block.rows.forEach(::addAll) }
-                    is PrimerBlock.Legend -> Unit
+                    is ConjugationIntroBlock.Line -> add(block.text)
+                    is ConjugationIntroBlock.Bullet -> add(block.text)
+                    is ConjugationIntroBlock.Sub -> add(block.title)
+                    is ConjugationIntroBlock.Step -> { add(block.from); add(block.to); add(block.note) }
+                    is ConjugationIntroBlock.Table -> { addAll(block.header); block.rows.forEach(::addAll) }
+                    is ConjugationIntroBlock.Legend -> Unit
                 }
             }
             addAll(QuizOptions.ALL.map { it.label })
@@ -455,15 +455,15 @@ class DrillLogicTest {
     }
 
     /**
-     * A primer example whose marks do not close would show its brackets as text. Unmarked,
-     * every example reads as plain Japanese, and each change starts from a marked last kana.
+     * A Conjugation Intro example whose marks do not close would show its brackets as text.
+     * Unmarked, every example reads as plain Japanese, and each change starts from a marked last kana.
      */
     @Test
-    fun primerExamplesAreMarkedUpCleanly() {
-        val examples = Primer.SECTIONS.flatMap { it.blocks }.flatMap { block ->
+    fun conjugationIntroExamplesAreMarkedUpCleanly() {
+        val examples = ConjugationIntro.SECTIONS.flatMap { it.blocks }.flatMap { block ->
             when (block) {
-                is PrimerBlock.Step -> listOf(block.from, block.to)
-                is PrimerBlock.Table -> if (block.marked) block.rows.flatten() else emptyList()
+                is ConjugationIntroBlock.Step -> listOf(block.from, block.to)
+                is ConjugationIntroBlock.Table -> if (block.marked) block.rows.flatten() else emptyList()
                 else -> emptyList()
             }
         }

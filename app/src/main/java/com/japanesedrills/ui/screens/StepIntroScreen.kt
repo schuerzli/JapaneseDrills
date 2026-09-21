@@ -35,10 +35,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
-import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -64,7 +64,7 @@ fun StepIntroScreen(
     examples: GrammarExamples,
     options: QuizOptions,
     onStart: () -> Unit,
-    onPrimer: () -> Unit,
+    onConjugationIntro: () -> Unit,
     onQuit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -108,11 +108,11 @@ fun StepIntroScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             // The rule text below leans on the kana grid and the verb classes, which only
-            // the primer explains; this is where not knowing them would first bite.
+            // the Conjugation Intro explains; this is where not knowing them would first bite.
             if (forms.isNotEmpty()) {
-                item(key = "primer") {
-                    TextButton(onClick = onPrimer) {
-                        Text("New to verb classes and the kana grid? Read the ${Primer.TITLE}")
+                item(key = "conjugation-intro") {
+                    TextButton(onClick = onConjugationIntro) {
+                        Text("New to verb classes and the kana grid? Read the ${ConjugationIntro.TITLE}")
                         Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight,
