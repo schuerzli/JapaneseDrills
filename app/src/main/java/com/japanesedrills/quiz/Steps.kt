@@ -1,6 +1,6 @@
 package com.japanesedrills.quiz
 
-import com.japanesedrills.data.Word
+import com.japanesedrills.data.DrillData
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -92,15 +92,14 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
      * The average rather than the weakest item, so one slip dims the ring instead of
      * emptying it.
      */
-    fun solidity(step: Step, progress: Progress, wordOf: (String) -> Word?): Float {
+    fun solidity(step: Step, progress: Progress, data: DrillData): Float {
         val strengths = if (step.focus == QuizOptions.FOCUS_NONE) {
             newWords(step).map { progress.words[it] }
         } else {
             val forms = TransformationBuilder.formsOfType(step.focus)
-            words(step).mapNotNull(wordOf)
+            words(step).mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
                 // Only word types that have the form: ある has no potential to be solid in.
-                .filter { word -> word.conjugations.keys.any { key -> key.split(" ").any(forms::contains) } }
-                .mapTo(HashSet()) { it.group }
+                .filter { group -> data.groupForms[group].orEmpty().any(forms::contains) }
                 .map { progress.skills[QuizEngine.skillKey(step.focus, it)] }
         }
         if (strengths.isEmpty()) return 0f

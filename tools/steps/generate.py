@@ -55,22 +55,24 @@ class WordPicker:
         for key, word in sorted(words.items(), key=sort_key):
             self.pools[word["group"]].append(key)
         self.known = set(words)
+        self.tags = {key: set(word.get("tags", [])) for key, word in words.items()}
         self.taken = set()
 
-    def take(self, groups, count):
+    def take(self, groups, count, levels=None):
         out = []
-        for key in self._candidates(groups):
+        for key in self._candidates(groups, levels):
             if len(out) == count:
                 break
             out.append(key)
             self.taken.add(key)
         if len(out) < count:
-            raise SystemExit(f"ran out of words for groups={groups}")
+            raise SystemExit(f"ran out of words for groups={groups} levels={levels}")
         return out
 
-    def _candidates(self, groups):
+    def _candidates(self, groups, levels):
         # Round-robin across the groups so a batch is a mix rather than all godan first.
-        queues = [[k for k in self.pools[g] if k not in self.taken] for g in groups]
+        queues = [[k for k in self.pools[g] if k not in self.taken and (levels is None or levels & self.tags[k])]
+                  for g in groups]
         while any(queues):
             for queue in queues:
                 if queue:
@@ -122,7 +124,7 @@ def chapter(title):
 
 
 def deal(batch, groups, count):
-    return ("deal", batch, groups, count, [])
+    return ("deal", batch, groups, count, [], None)
 
 
 def form(key, title, subtitle, questions=14):
@@ -130,11 +132,12 @@ def form(key, title, subtitle, questions=14):
 
 
 def word_type(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), questions=12):
-    return ("word_type", batch, title, subtitle, groups, count, list(pins), list(classes), questions)
+    return ("word_type", batch, title, subtitle, groups, count, list(pins), list(classes), questions, None)
 
 
-def words(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), questions=12):
-    return ("words", batch, title, subtitle, groups, count, list(pins), list(classes), questions)
+def words(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), questions=12, levels=None):
+    return ("words", batch, title, subtitle, groups, count, list(pins), list(classes), questions,
+            set(levels) if levels else None)
 
 
 def polite(step_id, title, subtitle, forms, questions=16):
@@ -201,14 +204,24 @@ SPINE = [
            ["negative", "past"]),
     polite("polite-everywhere", "Polite everywhere", "The polite version of every form", None),
 
-    # Every form is known by here, so what is left is vocabulary drilled with all of it.
+    # Every form is known by here, so what is left is vocabulary drilled with all of it. These
+    # batches draw on their JLPT level alone; without that the commonest-first order dealt
+    # N5 verbs into "N3 verbs".
     chapter("Wider vocabulary"),
-    words("n3-verbs", "N3 verbs", "Wider everyday vocabulary", VERBS, 12, questions=16),
-    words("n3-adjectives", "N3 adjectives", "Shades of description", ADJECTIVES, 12, questions=16),
-    words("n3-suru", "N3 する verbs", "Abstract and formal actions", ("suru",), 12, questions=16),
-    words("n2-verbs", "N2 verbs", "Verbs for reading and news", VERBS, 12, questions=16),
-    words("n2-adjectives", "N2 adjectives", "Formal and written description", ADJECTIVES, 12, questions=16),
-    words("n2-suru", "N2 する verbs", "The formal register", ("suru",), 12, questions=16),
+    words("n3-verbs", "N3 verbs", "Wider everyday vocabulary", VERBS, 12, questions=16, levels=["n3"]),
+    words("n3-adjectives", "N3 adjectives", "Shades of description", ADJECTIVES, 12, questions=16, levels=["n3"]),
+    words("n3-suru", "N3 する verbs", "Nouns turned into verbs, N3", ("suru",), 12, questions=16, levels=["n3"]),
+    words("n2-verbs", "N2 verbs", "Less common everyday verbs", VERBS, 12, questions=16, levels=["n2"]),
+    words("n2-adjectives", "N2 adjectives", "Sharper description", ADJECTIVES, 12, questions=16, levels=["n2"]),
+    words("n2-suru", "N2 する verbs", "Nouns turned into verbs, N2", ("suru",), 12, questions=16, levels=["n2"]),
+]
+
+
+# In the word list, so free practice has them, but never dealt into a step.
+KEPT_OFF_THE_PATH = [
+    # The potential of 使う, listed as a verb of its own: drilled as one, 使えない would be
+    # asked as the negative of a verb the learner meets again as a form of another.
+    "使える",
 ]
 
 
@@ -222,6 +235,8 @@ def build():
         if entry[0] in ("word_type", "words"):
             for key in entry[6]:
                 picker.reserve(key)
+    for key in KEPT_OFF_THE_PATH:
+        picker.reserve(key)
 
     batches = {}  # batch id -> word keys, in path order
     known = []  # forms taught so far, in the order they were taught
@@ -235,10 +250,10 @@ def build():
     def with_form(key):
         return [b for b in batches if any(key in has[g] for g in groups_of(b))]
 
-    def dealt(batch, groups, count, pins):
+    def dealt(batch, groups, count, pins, levels=None):
         if batch in batches:
             raise SystemExit(f"batch {batch!r} dealt twice")
-        batches[batch] = list(pins) + (picker.take(groups, count) if count else [])
+        batches[batch] = list(pins) + (picker.take(groups, count, levels) if count else [])
         return batch
 
     def step(step_id, title, subtitle, forms, focus, used, questions, new_forms=(), classes=()):
@@ -264,23 +279,23 @@ def build():
         if kind == "chapter":
             current_chapter = entry[1]
         elif kind == "deal":
-            _, batch, groups, count, pins = entry
-            pending.append(dealt(batch, groups, count, pins))
+            _, batch, groups, count, pins, levels = entry
+            pending.append(dealt(batch, groups, count, pins, levels))
         elif kind == "form":
             _, key, title, subtitle, questions = entry
             known.append(key)
             step(key, title, subtitle, known, key, with_form(key), questions, new_forms=[key])
         elif kind == "word_type":
-            _, batch, title, subtitle, groups, count, pins, classes, questions = entry
-            pending.append(dealt(batch, groups, count, pins))
+            _, batch, title, subtitle, groups, count, pins, classes, questions, levels = entry
+            pending.append(dealt(batch, groups, count, pins, levels))
             forms_here = set().union(*(has[g] for g in groups_of(batch)))
             for i, key in enumerate(f for f in known if f in forms_here):
                 step(f"{batch}-{key}", f"{title} · {FORM_LABELS[key]}", subtitle,
                      known[:known.index(key) + 1], key, [batch], questions,
                      classes=classes if i == 0 else ())
         elif kind == "words":
-            _, batch, title, subtitle, groups, count, pins, classes, questions = entry
-            pending.append(dealt(batch, groups, count, pins))
+            _, batch, title, subtitle, groups, count, pins, classes, questions, levels = entry
+            pending.append(dealt(batch, groups, count, pins, levels))
             step(batch, title, subtitle, known, FOCUS_NONE, [batch], questions, classes=classes)
         elif kind == "polite":
             _, step_id, title, subtitle, forms, questions = entry

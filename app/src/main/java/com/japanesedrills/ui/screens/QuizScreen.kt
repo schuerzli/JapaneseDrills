@@ -73,6 +73,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Prompts
@@ -153,6 +154,7 @@ fun QuizScreen(
                 AnswerInput(
                     questionId = question.id,
                     shakes = quiz.shakes,
+                    kana = options.kana,
                     // Useful the first time or two; after that it is furniture above the fold.
                     showHint = quiz.history.size < ROMAJI_HINT_QUESTIONS,
                     onSubmit = onSubmit,
@@ -262,7 +264,7 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions, onToggleFurigana
 }
 
 @Composable
-private fun AnswerInput(questionId: Int, shakes: Int, showHint: Boolean, onSubmit: (String) -> Unit) {
+private fun AnswerInput(questionId: Int, shakes: Int, kana: Boolean, showHint: Boolean, onSubmit: (String) -> Unit) {
     var value by remember(questionId) { mutableStateOf(TextFieldValue("")) }
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -292,7 +294,8 @@ private fun AnswerInput(questionId: Int, shakes: Int, showHint: Boolean, onSubmi
                 val converted = head + new.text.drop(caret)
                 value = if (converted == new.text) new else TextFieldValue(converted, TextRange(head.length))
             },
-            label = { FuriganaText("Answer (答[こた]え)", style = LocalTextStyle.current) },
+            // No kanji in hiragana mode, the label included.
+            label = { FuriganaText(if (kana) "Answer (こたえ)" else "Answer (答[こた]え)", style = LocalTextStyle.current) },
             supportingText = if (showHint) {
                 { Text("Type romaji (e.g. \"tabenai\") or use a Japanese keyboard. Use \"nn\" for ん.") }
             } else {
@@ -503,9 +506,22 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             SectionTitle("Solution")
-            val solution = remember(question.id) { Explanations.solution(word, t.to) }
+            // Asked for the dictionary form, there is nothing to build: the answer is where the
+            // building starts. So show how the given form was built from it, to be undone.
+            // Every focused step asks both ways, which made this half of all explanations.
+            val reverse = t.to == DrillData.DICTIONARY && t.from != DrillData.DICTIONARY
+            val solution = remember(question.id) { Explanations.solution(word, if (reverse) t.from else t.to) }
             val display: (String) -> String = { if (options.kana) Furigana.toKana(it) else it }
-            if (solution.steps.isEmpty()) {
+            if (reverse) {
+                RichText(
+                    listOf(
+                        RichPart.Text("The answer is the dictionary form. This is how "),
+                        RichPart.Jp(display(word.dictionary)),
+                        RichPart.Text(" becomes the form you were given; undo the steps to get back to it."),
+                    ),
+                    style = body,
+                )
+            } else if (solution.steps.isEmpty()) {
                 Text("This is the dictionary form itself, so nothing needs to be added.", style = body)
             }
             solution.steps.forEachIndexed { i, step ->
@@ -530,7 +546,13 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
 private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) -> String) {
     // The rule is supporting text; the forms it produces are the part worth looking at.
     val ruleStyle = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale)
-    val rule = step.rule.map { if (it is RichPart.Jp) RichPart.Jp(display(it.word)) else it }
+    val rule = step.rule.map {
+        when (it) {
+            is RichPart.Jp -> RichPart.Jp(display(it.word))
+            is RichPart.Text -> it.copy(text = display(it.text))
+            is RichPart.Tag -> it
+        }
+    }
 
     Row {
         Surface(

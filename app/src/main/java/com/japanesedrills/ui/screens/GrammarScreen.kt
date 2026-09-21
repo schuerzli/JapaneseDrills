@@ -46,7 +46,10 @@ import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 
-/** Every form the drill can ask about. Tapping one opens what it means and how it is built. */
+/**
+ * Every form the drill can ask about, then every word type a step introduces. Tapping one
+ * opens its note: for a form, what it means and how it is built.
+ */
 @Composable
 fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modifier = Modifier) {
     val list = rememberLazyListState()
@@ -85,29 +88,46 @@ fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modi
                 }
             }
         }
-        items(Grammar.NOTES, key = { it.key }) { note ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onForm(note.key) },
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-            ) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        FuriganaText(note.title, style = MaterialTheme.typography.titleMedium)
-                        FuriganaText(
-                            note.summary,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Icon(
-                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+        item(key = "forms") { ListHeading("Forms") }
+        items(Grammar.NOTES, key = { it.key }) { note -> NoteRow(note) { onForm(note.key) } }
+        // A step shows these once, when it is first opened; this is where they are found again.
+        item(key = "classes") { ListHeading("Word types") }
+        items(Grammar.CLASS_NOTES, key = { "class-${it.key}" }) { note -> NoteRow(note) { onForm(note.key) } }
+    }
+}
+
+@Composable
+private fun ListHeading(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 8.dp),
+    )
+}
+
+@Composable
+private fun NoteRow(note: GrammarNote, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+    ) {
+        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                FuriganaText(note.title, style = MaterialTheme.typography.titleMedium)
+                FuriganaText(
+                    note.summary,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
@@ -142,7 +162,8 @@ fun GrammarDetailScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item { GrammarUsage(note) }
-            item { GrammarConstruction(note, examples) }
+            // A word class has no construction of its own: the form notes show it on examples.
+            if (note in Grammar.NOTES) item { GrammarConstruction(note, examples) }
         }
     }
 }

@@ -24,15 +24,19 @@ data class StepRecord(
             return if (window == 0) 0.0 else Integer.bitCount(recent) / window.toDouble()
         }
 
-    /** Whether the recent answers clear the bar on their own, whatever [ready] says. */
-    val clearsTheBar: Boolean get() = answered >= READY_MIN_ANSWERS && recentAccuracy >= READY_ACCURACY
+    /**
+     * Whether the recent answers clear the bar on their own, whatever [ready] says, for a step
+     * that asks [questions] per session.
+     */
+    fun clearsTheBar(questions: Int): Boolean =
+        answered >= minAnswers(questions) && recentAccuracy >= READY_ACCURACY
 
-    fun with(correct: Boolean): StepRecord {
+    fun with(correct: Boolean, questions: Int): StepRecord {
         val next = copy(
             recent = ((recent shl 1) or (if (correct) 1 else 0)) and WINDOW_MASK,
             answered = answered + 1,
         )
-        return if (next.clearsTheBar) next.copy(ready = true) else next
+        return if (next.clearsTheBar(questions)) next.copy(ready = true) else next
     }
 
     companion object {
@@ -42,6 +46,13 @@ data class StepRecord(
         /** Enough answers that one lucky run is not the whole of the evidence. */
         const val READY_MIN_ANSWERS = 12
         const val READY_ACCURACY = 0.85
+
+        /**
+         * The answers a step needs before it can be ready: [READY_MIN_ANSWERS], or one whole
+         * session where a session is shorter, or a perfect six-question step could never
+         * be ready on the day it was played.
+         */
+        fun minAnswers(questions: Int): Int = minOf(READY_MIN_ANSWERS, questions)
     }
 }
 

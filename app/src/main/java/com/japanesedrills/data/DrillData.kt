@@ -32,6 +32,8 @@ class DrillData(
     val learnPath: LearnPath,
     /** Per group, the conjugations it defines itself. See [Companion.parseOwnForms]. */
     val ownForms: Map<String, Set<String>>,
+    /** Per group, every form option its conjugations use, inherited ones included. */
+    val groupForms: Map<String, Set<String>>,
 ) {
 
     /** Words by key, for the learn path, which names its vocabulary rather than filtering it. */
@@ -59,6 +61,7 @@ class DrillData(
                 TransformationBuilder.build(conjugationKeys),
                 LearnPath.parse(stepsJson),
                 parseOwnForms(rulesRoot),
+                rules.mapValues { (_, sets) -> sets.keys.flatMapTo(HashSet()) { it.split(" ") } },
             )
         }
 

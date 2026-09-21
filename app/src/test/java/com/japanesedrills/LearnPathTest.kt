@@ -516,8 +516,8 @@ class LearnPathTest {
     fun aStepIsReadyAtTheBarAndNotBefore() {
         fun answered(correct: Int, wrong: Int): StepRecord {
             var record = StepRecord()
-            repeat(wrong) { record = record.with(correct = false) }
-            repeat(correct) { record = record.with(correct = true) }
+            repeat(wrong) { record = record.with(correct = false, questions = 14) }
+            repeat(correct) { record = record.with(correct = true, questions = 14) }
             return record
         }
         assertFalse("too few answers to judge", answered(correct = 11, wrong = 0).ready)
@@ -526,12 +526,20 @@ class LearnPathTest {
         assertTrue("17 of 20 is on it", answered(correct = 17, wrong = 3).ready)
     }
 
+    /** A step shorter than the minimum is ready after one whole session of it. */
+    @Test
+    fun aShortStepCanBeReadyAfterOneSession() {
+        var record = StepRecord()
+        repeat(6) { record = record.with(correct = true, questions = 6) }
+        assertTrue(record.ready)
+    }
+
     @Test
     fun readinessIsStickyThroughALaterBadRun() {
         var record = StepRecord()
-        repeat(12) { record = record.with(correct = true) }
-        repeat(20) { record = record.with(correct = false) }
-        assertFalse(record.clearsTheBar)
+        repeat(12) { record = record.with(correct = true, questions = 14) }
+        repeat(20) { record = record.with(correct = false, questions = 14) }
+        assertFalse(record.clearsTheBar(14))
         assertTrue(record.ready)
     }
 
@@ -544,9 +552,9 @@ class LearnPathTest {
         val later = own.copy(
             skills = own.skills + ("negative|i-adjective" to SrsState()) + ("politeness|godan" to SrsState()),
         )
-        val ring = learnPath.solidity(first, own, data.wordsByKey::get)
+        val ring = learnPath.solidity(first, own, data)
         assertEquals(1f, ring, 0.001f)
-        assertEquals(ring, learnPath.solidity(first, later, data.wordsByKey::get), 0.001f)
+        assertEquals(ring, learnPath.solidity(first, later, data), 0.001f)
     }
 
     @Test
@@ -554,10 +562,10 @@ class LearnPathTest {
         val step = steps.first { it.focus == QuizOptions.FOCUS_NONE && it.newBatches.isNotEmpty() }
         val words = learnPath.newWords(step)
         val half = words.take(words.size / 2).associateWith { SrsState(step = Scheduler.LADDER.size - 1) }
-        assertEquals(0f, learnPath.solidity(step, Progress(), data.wordsByKey::get), 0.001f)
+        assertEquals(0f, learnPath.solidity(step, Progress(), data), 0.001f)
         assertEquals(
             (words.size / 2).toFloat() / words.size,
-            learnPath.solidity(step, Progress(words = half), data.wordsByKey::get),
+            learnPath.solidity(step, Progress(words = half), data),
             0.001f,
         )
     }
@@ -565,8 +573,8 @@ class LearnPathTest {
     @Test
     fun aStepRecordKeepsOnlyTheLastWindowOfAnswers() {
         var record = StepRecord()
-        repeat(StepRecord.WINDOW) { record = record.with(correct = true) }
-        record = record.with(correct = false)
+        repeat(StepRecord.WINDOW) { record = record.with(correct = true, questions = 14) }
+        record = record.with(correct = false, questions = 14)
         assertEquals(StepRecord.WINDOW + 1, record.answered)
         assertEquals(StepRecord.WINDOW - 1, Integer.bitCount(record.recent))
     }

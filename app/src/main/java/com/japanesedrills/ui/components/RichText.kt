@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
@@ -128,15 +129,16 @@ fun RichText(
         }
         val ruby = remember(reading, rubyStyle) { measurer.measure(reading, rubyStyle, softWrap = false, maxLines = 1) }
         val rubyColor = if (furigana) textColor else Color.Transparent
-        // Where layout put the reading, for drawing it: layout always runs before draw.
-        val rubyX = remember { IntArray(1) }
+        // Where layout put the reading, for drawing it. State, so a layout that moves the
+        // reading without changing the cell's size still redraws it.
+        val rubyX = remember { mutableIntStateOf(0) }
         BasicText(
             segment.text,
             style = baseStyle,
             softWrap = false,
             // The drawing sits outside the layout, so it paints in the whole cell's space.
             modifier = modifier
-                .drawBehind { drawText(ruby, color = rubyColor, topLeft = Offset(rubyX[0].toFloat(), 0f)) }
+                .drawBehind { drawText(ruby, color = rubyColor, topLeft = Offset(rubyX.intValue.toFloat(), 0f)) }
                 .layout { measurable, _ ->
                     val base = measurable.measure(Constraints())
                     // A long reading may overhang a neighbour without furigana a little,
@@ -147,7 +149,7 @@ fun RichText(
                     val end = if (hangEnd) minOf(extra / 2, maxHang) else 0
                     val width = maxOf(base.width, ruby.size.width - start - end)
                     val top = ruby.size.height
-                    rubyX[0] = -start + (width + start + end - ruby.size.width) / 2
+                    rubyX.intValue = -start + (width + start + end - ruby.size.width) / 2
                     layout(width, top + base.height, mapOf(FirstBaseline to top + base[FirstBaseline])) {
                         base.placeRelative((width - base.width) / 2, top)
                     }
@@ -285,116 +287,5 @@ private fun RichPart.plainText(): String = when (this) {
 fun tagParts(tags: List<String>): List<RichPart> =
     tags.flatMap { listOf(RichPart.Tag(it), RichPart.Text(" ")) }.dropLast(1)
 
-/** One unbreakable piece of a line, followed by [gap] spaces. */
-private sealed interface Item {
-    val gap: Int
-
-    data class Cluster(
-        val segments: List<RubySegment>,
-        val emphasis: Boolean,
-        val japanese: Boolean,
-        override val gap: Int = 0,
-    ) : Item
-
-    data class Tag(val text: String, override val gap: Int = 0) : Item
-}
-
-private fun Item.withGap(gap: Int): Item = when (this) {
-    is Item.Cluster -> copy(gap = gap)
-    is Item.Tag -> copy(gap = gap)
-}
-
-private val wordPattern = Regex("[^ ]+| +")
-
-/**
- * Splits the parts into the pieces a line may break between. English breaks at spaces;
- * Japanese has none, so a run of it breaks before each kanji and every few kana instead.
- * A [RichPart.Jp] word is never broken: it is the thing being drilled. Each item carries the
- * number of spaces that follow it, so a gap can only end a line, never start one.
- */
-private fun layoutItems(parts: List<RichPart>): List<Item> {
-    val items = ArrayList<Item>()
-    for (part in parts) {
-        when (part) {
-            is RichPart.Jp -> items += Item.Cluster(mergeRuns(Furigana.segments(part.word)), emphasis = false, japanese = true)
-            is RichPart.Tag -> items += Item.Tag(part.text)
-            is RichPart.Text -> for (token in wordPattern.findAll(part.text).map { it.value }) {
-                if (token.isBlank()) {
-                    if (items.isNotEmpty()) {
-                        val last = items.removeAt(items.lastIndex)
-                        items += last.withGap(last.gap + token.length)
-                    }
-                } else if (token.any(::isJapanese) || Furigana.hasReading(token)) {
-                    items += japaneseClusters(token, part.emphasis)
-                } else {
-                    items += Item.Cluster(listOf(RubySegment(token, null)), part.emphasis, japanese = false)
-                }
-            }
-        }
-    }
-    return items
-}
-
 /** Breaks Japanese between phrases, not between any two kana (Android 13 and later; ignored before). */
 private val JapaneseLineBreak = LineBreak(LineBreak.Strategy.HighQuality, LineBreak.Strictness.Strict, LineBreak.WordBreak.Phrase)
-
-/** Kana a cluster may run to before a line is allowed to break inside a kana run. */
-private const val KANA_RUN = 6
-
-private fun japaneseClusters(token: String, emphasis: Boolean): List<Item.Cluster> {
-    // Units: each annotated kanji (or braced group) whole, every other character alone.
-    val units = Furigana.segments(token).flatMap { segment ->
-        if (segment.reading != null) listOf(segment) else segment.text.map { RubySegment(it.toString(), null) }
-    }
-    val clusters = ArrayList<MutableList<RubySegment>>()
-    for (unit in units) {
-        val current = clusters.lastOrNull()
-        val lastChar = current?.lastOrNull()?.text?.lastOrNull()
-        val char = unit.text.first()
-        val joins = current != null && (
-            (lastChar != null && lastChar in OPENING) ||
-                // A compound stays whole: 勉強 does not break between its kanji.
-                (unit.reading != null && current.last().reading != null) ||
-                unit.reading == null && (
-                    char in CLOSING ||
-                        (char.isLatin() && (lastChar?.isLatin() == true || lastChar == '-' || lastChar == '\'')) ||
-                        (!char.isLatin() && lastChar?.isLatin() == false && current.sumOf { it.text.length } < KANA_RUN)
-                    )
-            )
-        if (joins) current!!.add(unit) else clusters += mutableListOf(unit)
-    }
-    return clusters.map { units ->
-        Item.Cluster(mergeRuns(units), emphasis, japanese = units.any { s -> s.reading != null || s.text.any(::isJapanese) })
-    }
-}
-
-/**
- * Joins neighbouring segments of the same kind. Plain characters become one run, so a
- * cluster is a few Text calls rather than one per character. Neighbouring kanji share one
- * reading span, as printed furigana does: きょう is wider than 強, and set over 強 alone it
- * pushed 勉強 apart into 勉 強.
- */
-private fun mergeRuns(units: List<RubySegment>): List<RubySegment> {
-    val merged = ArrayList<RubySegment>()
-    for (unit in units) {
-        val last = merged.lastOrNull()
-        if (last != null && (unit.reading == null) == (last.reading == null)) {
-            val reading = unit.reading?.let { last.reading + it }
-            merged[merged.lastIndex] = RubySegment(last.text + unit.text, reading)
-        } else {
-            merged += unit
-        }
-    }
-    return merged
-}
-
-/** Never at the start of a line: punctuation, small kana and the long-vowel mark. */
-private const val CLOSING = "、。，．,.!?！？:;：；)）」』]】〉》ー〜…ゃゅょっぁぃぅぇぉャュョッァィゥェォ-"
-
-/** Never at the end of a line. */
-private const val OPENING = "(（「『[【〈《"
-
-private fun Char.isLatin(): Boolean = this in 'a'..'z' || this in 'A'..'Z' || this in '0'..'9'
-
-private fun isJapanese(c: Char): Boolean =
-    c in '぀'..'ヿ' || c in '㐀'..'䶿' || c in '一'..'鿿' || c == '々' || c in '＀'..'￯'

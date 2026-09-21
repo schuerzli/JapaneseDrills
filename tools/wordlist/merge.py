@@ -12,12 +12,16 @@ Verify afterwards with:
     python tools/wordlist/verify_conjugations.py > after.txt   # diff against before
     gradlew testDebugUnitTest                                  # the data-integrity tests
 
-The example sentences are written in furigana notation, so the app can show readings over
-every kanji in them. The readings come from Sudachi, a morphological analyser, which needs a
-64-bit Python and `pip install sudachipy sudachidict_core`; the merge ends with that step.
-It can also be re-run on its own, on the current words.json, without the source data:
+The merge ends with two steps that also run on their own, on the current words.json,
+without the source data:
 
-    py -3.13 tools/wordlist/merge.py --furigana
+    py -3.13 tools/wordlist/merge.py --finish
+
+1. Curation (CURATION below): words dropped, and glosses fixed, where the datasets are wrong
+   for a conjugation drill. Every entry says why.
+2. The example sentences are written in furigana notation, so the app can show readings
+   over every kanji in them. The readings come from Sudachi, a morphological analyser, which
+   needs a 64-bit Python and `pip install sudachipy sudachidict_core`.
 """
 import collections
 import csv
@@ -155,18 +159,59 @@ def annotate_sentences(entries):
     print("sentences annotated; readings shared across kanji: %d" % grouped)
 
 
+# --- curation -----------------------------------------------------------------
+# Words the datasets get wrong for this app. Dropped before selection too, so a full merge
+# fills their places; the stand-alone run can only remove them.
+CURATION_DROP = {
+    # The same word twice, in two spellings with one gloss: a learner would drill it twice
+    # and be marked right for both. Kept is the everyday spelling.
+    "うかがう": "伺う", "おる": "折る", "かける": "掛ける", "しめる": "占める", "たしか": "確か",
+    "交ざる": "まざる (混ざる is the standard kanji, 交 a variant)", "交じる": "まじる", "交ぜる": "まぜる",
+    "凭れる": "もたれる", "喧しい": "やかましい", "下りる": "降りる", "円い": "丸い",
+    "乗換する": "乗り換えする", "交替する": "交代する", "保障する": "保証する", "剥す": "剥がす",
+    "硬い": "固い", "居る": "いる, which has a step of its own",
+    # A mangled reading of 修理する, which is in the list already: すり is pickpocketing.
+    "すりする": "修理する",
+    # Not something to conjugate: ない is ある's negative, and drilled as an adjective three
+    # steps after ある it teaches the two as unrelated.
+    "ない": "the negative of ある",
+    # Nouns, not な-adjectives: they take の before a noun (緑の服), so the な-adjective note
+    # would teach a mistake, and 緑な服 in the example sentence is one.
+    "緑な": "noun", "黄色": "noun; 黄色い is the adjective", "病気な": "noun",
+    # Nouns JMdict marks as taking する that are not said as verbs.
+    "交通する": "not a verb", "冷房する": "not a verb", "暖房する": "not a verb",
+    "原因する": "not a verb in ordinary use",
+}
+
+
+def curate(entries):
+    """Applies CURATION_DROP, and gives する verbs a gloss that says they are verbs: JMdict
+    glosses the noun, so 旅行する read "travel, trip" beside verbs that all begin with "to"."""
+    for key in CURATION_DROP:
+        entries.pop(key, None)
+    for w in entries.values():
+        if w["group"] == "suru" and not w["meaning"].startswith("to ") and not w["meaning"].endswith(VERB_MARK):
+            w["meaning"] += VERB_MARK
+
+
+VERB_MARK = " (as a verb)"
+
+
 def write(entries):
     json.dump(entries, open(WORDS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     open(WORDS, "a", encoding="utf-8").write("\n")
 
 
-if "--furigana" in sys.argv:
+if "--finish" in sys.argv:
     current = json.load(open(WORDS, encoding="utf-8"), object_pairs_hook=collections.OrderedDict)
+    curate(current)
     annotate_sentences(current)
     write(current)
     sys.exit()
 
 words = json.load(open(HERE / "curated-seed.json", encoding="utf-8"))
+for dropped in CURATION_DROP:
+    words.pop(dropped, None)
 cands = json.load(open(DATA / "candidates.json", encoding="utf-8"))
 
 # --- real JLPT levels for the seed words ------------------------------------
@@ -210,7 +255,7 @@ for key, c in sorted(cands.items()):
     if c["group"] == "na-adjective":       # the rules expect a だ ending
         c["dictionary"] += "だ"
         c["reading"] += "だ"
-    if kanji(c["dictionary"]) in SPECIAL or key in SPECIAL:
+    if kanji(c["dictionary"]) in SPECIAL or key in SPECIAL or key in CURATION_DROP:
         continue
     if key in words or kanji(c["dictionary"]) in taken_kanji or c["reading"] in taken_kana:
         continue
@@ -272,6 +317,7 @@ for key, c in chosen:
     }
 
 out = collections.OrderedDict(sorted(words.items()))
+curate(out)
 annotate_sentences(out)
 write(out)
 

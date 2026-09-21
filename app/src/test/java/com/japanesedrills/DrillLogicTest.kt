@@ -39,9 +39,13 @@ class DrillLogicTest {
     private fun kana(word: String, conjugation: String): List<String> =
         data.words.first { it.key == word }.conjugations.getValue(conjugation).forms.map(Furigana::toKana)
 
+    /**
+     * A full merge fills the list to a thousand; curation run on its own can only remove, so
+     * this is a floor against losing words by accident rather than an exact count.
+     */
     @Test
     fun loadsAllWords() {
-        assertEquals(1000, data.words.size)
+        assertTrue("only ${data.words.size} words", data.words.size >= 950)
         // Each word must appear once; the source list used to hold 静な/静かな and 行う/行なう twice.
         assertEquals(data.words.size, data.words.map { it.dictionary }.toSet().size)
     }
@@ -63,7 +67,7 @@ class DrillLogicTest {
             assertTrue("$key -> $written", written.length >= key.length - 1)
             checked++
         }
-        assertEquals(1000, checked)
+        assertEquals(data.words.size, checked)
     }
 
     @Test
@@ -375,6 +379,25 @@ class DrillLogicTest {
         assertEquals("おおきい", RomajiConverter.convert("ookii"))
         assertEquals("k", RomajiConverter.convert("k"))
         assertEquals("食べ", RomajiConverter.convert("食be"))
+    }
+
+    /** The same word in two spellings was drilled twice: かける and 掛ける, 下りる and 降りる. */
+    @Test
+    fun noWordIsListedTwiceUnderTwoSpellings() {
+        val twice = data.words
+            .groupBy { Triple(Furigana.toKana(it.dictionary), it.group, it.meaning.substringBefore(',')) }
+            .values.filter { it.size > 1 }
+            .map { same -> same.joinToString(" / ") { it.key } }
+        assertEquals(emptyList<String>(), twice)
+    }
+
+    /** JMdict glosses a する verb's noun; beside "to eat", "travel, trip" did not read as a verb. */
+    @Test
+    fun everySuruVerbIsGlossedAsAVerb() {
+        val nouny = data.words
+            .filter { it.group == "suru" && !it.meaning.startsWith("to ") && !it.meaning.endsWith("(as a verb)") }
+            .map { it.key }
+        assertEquals(emptyList<String>(), nouny)
     }
 
     @Test

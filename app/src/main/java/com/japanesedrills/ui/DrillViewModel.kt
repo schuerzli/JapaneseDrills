@@ -91,6 +91,8 @@ data class StepCard(
     val step: Step,
     /** Opened at least once, so its introduction has been seen. */
     val started: Boolean,
+    /** It introduces something, so there is an introduction to reopen. */
+    val hasIntro: Boolean,
     /** Its recent answers have cleared the bar at some point; see [StepRecord.ready]. */
     val ready: Boolean,
     /** How well its content is holding up in review, 0f..1f; see [LearnPath.solidity]. */
@@ -180,6 +182,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     private var engine: QuizEngine? = null
     private var pool: QuestionPool? = null
     private var poolJob: Job? = null
+
+    /** The session being drawn, so a second tap on Start while it is cannot start another. */
+    private var startJob: Job? = null
 
     /**
      * The rest of the running session's questions, as packed pairs. Every session kind
@@ -329,16 +334,17 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     // Learn path
 
     private fun refreshPath() {
-        val learnPath = data?.learnPath ?: return
+        val data = data ?: return
+        val learnPath = data.learnPath
         val progress = _state.value.progress
-        val words = data?.wordsByKey.orEmpty()
         val path = learnPath.steps.map { step ->
             val record = progress.steps[step.id]
             StepCard(
                 step = step,
                 started = record != null,
+                hasIntro = step.newBatches.isNotEmpty() || step.newForms.isNotEmpty() || step.newClasses.isNotEmpty(),
                 ready = record?.ready == true,
-                strength = learnPath.solidity(step, progress, words::get),
+                strength = learnPath.solidity(step, progress, data),
                 newWords = learnPath.newWords(step).size,
             )
         }
@@ -368,14 +374,20 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Shows whatever the step adds the first time it is opened, and goes straight to the
-     * questions after that: the Grammar tab holds every note for rereading.
+     * questions after that. The introduction stays one tap away ([showStepIntro]), and its
+     * notes are on the Grammar tab too.
      */
-    fun openStep(step: Step) {
+    fun openStep(step: Step) = open(step, intro = step.id !in _state.value.progress.steps)
+
+    /** The step's introduction again, new words and all, whether or not it has been opened. */
+    fun showStepIntro(step: Step) = open(step, intro = true)
+
+    private fun open(step: Step, intro: Boolean) {
         val data = data ?: return
         val words = data.learnPath.newWords(step).mapNotNull(data.wordsByKey::get)
         val forms = step.newForms.mapNotNull(Grammar::get)
         val classes = step.newClasses.mapNotNull(Grammar::classNote)
-        if (step.id in _state.value.progress.steps || (words.isEmpty() && forms.isEmpty() && classes.isEmpty())) {
+        if (!intro || (words.isEmpty() && forms.isEmpty() && classes.isEmpty())) {
             startStep(step)
             return
         }
@@ -395,12 +407,13 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     // Grammar
 
-    fun showGrammar(formKey: String) {
-        val note = Grammar[formKey] ?: return
+    fun showGrammar(key: String) {
+        val note = Grammar.note(key) ?: return
         _state.update { it.copy(screen = Screen.GrammarDetail, grammarNote = note) }
     }
 
     fun startStep(step: Step) {
+        if (startJob?.isActive == true) return
         val engine = engine ?: return
         val learnPath = data?.learnPath ?: return
         val options = learnPath.optionsFor(step, _state.value.options)
@@ -410,7 +423,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         if (step.id !in progress.steps) persist(progress.copy(steps = progress.steps + (step.id to StepRecord())))
         wasReady = progress.steps[step.id]?.ready == true
 
-        viewModelScope.launch {
+        startJob = viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
                 engine.buildQueue(engine.buildPool(options), step.questions)
             }
@@ -435,13 +448,14 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startReview() {
+        if (startJob?.isActive == true) return
         val engine = engine ?: return
         val learnPath = data?.learnPath ?: return
         val practised = practised() ?: return
         val progress = _state.value.progress
         val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
 
-        viewModelScope.launch {
+        startJob = viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
                 engine.buildReviewQueue(options, progress, today)
             }
@@ -538,7 +552,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 if (next <= 0) progress.leeches - leech else progress.leeches + (leech to next)
             },
             steps = stepOf(_state.value)?.let { step ->
-                progress.steps + (step.id to (progress.steps[step.id] ?: StepRecord()).with(entry.correct))
+                progress.steps + (step.id to (progress.steps[step.id] ?: StepRecord()).with(entry.correct, step.questions))
             } ?: progress.steps,
         )
         persist(updated)

@@ -27,7 +27,9 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -75,6 +77,7 @@ private fun chaptersOf(path: List<StepCard>): List<Chapter> {
 fun LearnPathScreen(
     state: DrillUiState,
     onStep: (Step) -> Unit,
+    onStepIntro: (Step) -> Unit,
     onReview: () -> Unit,
     onPrimer: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
@@ -120,7 +123,12 @@ fun LearnPathScreen(
             }
             if (open) {
                 items(chapter.cards, key = { it.step.id }) { card ->
-                    StepRow(card, recommended = card.step == state.nextStep, onClick = { onStep(card.step) })
+                    StepRow(
+                        card,
+                        recommended = card.step == state.nextStep,
+                        onClick = { onStep(card.step) },
+                        onIntro = { onStepIntro(card.step) },
+                    )
                 }
             }
         }
@@ -276,7 +284,7 @@ private fun NextUpCard(step: Step, onStart: () -> Unit) {
 }
 
 @Composable
-private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit) {
+private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
     val step = card.step
     Card(
         modifier = Modifier
@@ -309,6 +317,16 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit) {
                         if (card.newWords == 1) "1 new word" else "${card.newWords} new words",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            // On every step that has an introduction, opened or not, so rows never change shape.
+            if (card.hasIntro) {
+                IconButton(onClick = onIntro) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        contentDescription = "About this step",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

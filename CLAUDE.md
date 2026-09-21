@@ -33,7 +33,7 @@ JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug
 ```
 
 Four things are generated rather than written by hand: `words.json` (`tools/wordlist`;
-the sentence readings need Sudachi, see `merge.py`), `steps.json` (`tools/steps`), and the
+curation and sentence readings re-run alone as `merge.py --finish`), `steps.json` (`tools/steps`), and the
 palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both `tools/theme`; `--fonts`
 needs `pip install fonttools`). Edit the generator and re-run it; editing its output means
 the next run silently reverts you. `steps.json` is the one whose staleness nothing else
@@ -124,9 +124,10 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   old word before calling it done. The old name survives only where it describes history,
   such as the version-1 backup format of the old lesson path. The whole is the *learn
   path* (`LearnPath`), its units are *steps*.
-- **The same goes for data: a word has one class everywhere** it is shown or conjugated.
-  A class fix goes into `tools/wordlist/curated-seed.json` as well as `words.json`, since
-  `merge.py` rebuilds the one from the other and would quietly undo it.
+- **The same goes for data: a word has one class everywhere** it is shown or conjugated,
+  and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
+  it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone
+  by the next merge.
 
 ## UI rules
 

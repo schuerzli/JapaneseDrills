@@ -326,6 +326,9 @@ object Grammar {
 
     operator fun get(key: String): GrammarNote? = byKey[key]
 
+    /** A form's note or a word class's, for the Grammar tab, which lists both. */
+    fun note(key: String): GrammarNote? = byKey[key] ?: classByKey[key]
+
     /** The note introducing a word group, or null for a group no step introduces. */
     fun classNote(group: String): GrammarNote? = classByKey[group]
 

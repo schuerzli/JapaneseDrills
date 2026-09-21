@@ -114,7 +114,7 @@ fun AppSettingsScreen(
     var pendingImport by remember { mutableStateOf<String?>(null) }
     var notice by remember { mutableStateOf<String?>(null) }
     val clipboard = LocalClipboardManager.current
-    val started = state.path.count { it.started }
+    val ready = state.path.count { it.ready }
 
     Scaffold(
         modifier = modifier,
@@ -160,10 +160,10 @@ fun AppSettingsScreen(
             )
         }
 
-        SectionCard("Progress", "Steps started and everything scheduled for review") {
+        SectionCard("Progress", "Steps ready and everything scheduled for review") {
             Text(
                 if (state.started) {
-                    "$started of ${state.path.size} steps started. Tracking " +
+                    "$ready of ${state.path.size} steps ready. Tracking " +
                         plural(state.progress.words.size, "word") + " and " +
                         plural(state.progress.skills.size, "skill") + "."
                 } else {

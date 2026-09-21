@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -83,19 +83,20 @@ fun PrimerScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
  */
 @Composable
 private fun Piece(first: Boolean, last: Boolean, content: @Composable () -> Unit) {
-    val corner = 12.dp
-    val shape = RoundedCornerShape(
-        topStart = if (first) corner else 0.dp,
-        topEnd = if (first) corner else 0.dp,
-        bottomStart = if (last) corner else 0.dp,
-        bottomEnd = if (last) corner else 0.dp,
+    // The card's own shape, square where one slice meets the next.
+    val card = MaterialTheme.shapes.extraLarge
+    val shape = card.copy(
+        topStart = if (first) card.topStart else ZeroCornerSize,
+        topEnd = if (first) card.topEnd else ZeroCornerSize,
+        bottomStart = if (last) card.bottomStart else ZeroCornerSize,
+        bottomEnd = if (last) card.bottomEnd else ZeroCornerSize,
     )
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = shape,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = if (last) 12.dp else 0.dp),
+            .padding(bottom = if (last) SectionSpacing else 0.dp),
     ) {
         Box(
             Modifier.padding(

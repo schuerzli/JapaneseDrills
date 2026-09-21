@@ -87,11 +87,17 @@ in review.
 is introduced once, by the step that names it. する matters most: it is also an ordinary
 common suru verb and would otherwise be dealt into a batch as well. やる, a casual synonym of
 する, is held back to a later batch, where the contrast is the point rather than a
-coincidence.
+coincidence. 使える is kept off the path altogether: it is 使う's potential, listed as a verb
+of its own, and drilled as one it would ask the negative of a verb that is also a form.
+
+Batches are dealt commonest first, which is right for the early path and wrong for the
+chapter named after a JLPT level: "N3 verbs" was filled with N5 ones. Those batches draw on
+their level alone.
 
 ## Word classes get a note
 
-A step that introduces a word class names it, and the app shows a note on it first. The
+A step that introduces a word class names it, and the app shows a note on it first; the
+note stays on the Grammar tab, and the step's introduction a tap away on its row. The
 form notes cannot do this job: they are per form, so without a class note な-adjectives
 would arrive as eight words with nothing to say that they do not conjugate.
 

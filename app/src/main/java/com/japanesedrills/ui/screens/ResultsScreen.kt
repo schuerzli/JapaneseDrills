@@ -174,9 +174,9 @@ private fun ReadinessCard(outcome: StepOutcome) {
                         "$percent% of your last $recent answers here were right. Next up: ${outcome.next.title}."
                     outcome.becameReady -> "$percent% of your last $recent answers here were right."
                     record.ready -> "Come back to it whenever you like; review keeps it fresh."
-                    record.answered < StepRecord.READY_MIN_ANSWERS ->
+                    record.answered < StepRecord.minAnswers(outcome.step.questions) ->
                         "Ready once $bar% of your recent answers are right, over at least " +
-                            "${StepRecord.READY_MIN_ANSWERS}. So far: $percent% of $recent."
+                            "${StepRecord.minAnswers(outcome.step.questions)}. So far: $percent% of $recent."
                     else -> "$percent% of your last $recent answers were right; ready at $bar%."
                 },
                 style = MaterialTheme.typography.bodyMedium,
