@@ -28,6 +28,7 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -41,6 +42,7 @@ import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.DrillViewModel
 import com.japanesedrills.ui.Screen
+import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.Tab as AppTab
 import com.japanesedrills.ui.screens.AboutScreen
 import com.japanesedrills.ui.screens.AppSettingsScreen
@@ -98,7 +100,10 @@ class MainActivity : ComponentActivity() {
                 )
                 onDispose {}
             }
-            JapaneseDrillsTheme(darkTheme = dark, palette = state.options.palette) { DrillApp(state, viewModel) }
+            JapaneseDrillsTheme(darkTheme = dark, palette = state.options.palette) {
+                // One value for every screen, so furigana can never be on in one place and off in another.
+                CompositionLocalProvider(LocalFurigana provides state.options.furigana) { DrillApp(state, viewModel) }
+            }
         }
     }
 
@@ -156,6 +161,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 onSubmit = viewModel::submit,
                 onProceed = viewModel::proceed,
                 onExplain = viewModel::explain,
+                onToggleFurigana = viewModel::toggleFurigana,
                 onQuit = viewModel::backToRoot,
                 modifier = contentModifier,
             )
@@ -182,7 +188,6 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             GrammarDetailScreen(
                 note = note,
                 examples = state.grammarExamples,
-                furiganaAlways = state.options.furiganaAlways,
                 onBack = viewModel::backToRoot,
                 modifier = contentModifier,
             )
@@ -191,7 +196,6 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
         state.screen == Screen.Primer -> {
             BackHandler(onBack = viewModel::closePrimer)
             PrimerScreen(
-                furiganaAlways = state.options.furiganaAlways,
                 onBack = viewModel::closePrimer,
                 modifier = contentModifier,
             )
@@ -203,6 +207,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 state = state,
                 onTheme = viewModel::setTheme,
                 onPalette = viewModel::setPalette,
+                onFurigana = viewModel::setFurigana,
                 onResetProgress = viewModel::resetProgress,
                 onExport = viewModel::exportProgress,
                 onImport = viewModel::importProgress,

@@ -32,11 +32,12 @@ and the default JDK on this machine is 11. So the wrapper works, but only once
 JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug testDebugUnitTest
 ```
 
-Four things are generated rather than written by hand: `words.json` (`tools/wordlist`),
-`steps.json` (`tools/steps`), and the palettes in `ui/theme/Theme.kt` and the fonts in
-`res/font` (both `tools/theme`; `--fonts` needs `pip install fonttools`). Edit the
-generator and re-run it; editing its output means the next run silently reverts you. `steps.json` is the one whose staleness nothing else catches, so
-it has a check of its own:
+Four things are generated rather than written by hand: `words.json` (`tools/wordlist`;
+the sentence readings need Sudachi, see `merge.py`), `steps.json` (`tools/steps`), and the
+palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both `tools/theme`; `--fonts`
+needs `pip install fonttools`). Edit the generator and re-run it; editing its output means
+the next run silently reverts you. `steps.json` is the one whose staleness nothing else
+catches, so it has a check of its own:
 
 ```bash
 python tools/steps/generate.py --check
@@ -69,7 +70,7 @@ app/src/main/java/com/japanesedrills/
     ui/                  ViewModel and state
     ui/screens/          learn path, step intro, grammar, primer, practice, quiz,
                          results, settings, about
-    ui/components/       furigana-aware rich text and table, shared card
+    ui/components/       furigana-aware rich text and table, shared card and switch row
     ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
@@ -85,7 +86,8 @@ These look like mistakes without their reason. Check here before "fixing" one.
 - **Furigana notation binds a reading to the single preceding character**:
   `食[た]べる`. A reading spanning two kanji (`大人[おとな]`) silently produces a
   wrong kana form. `tools/wordlist/extract.py` drops such words rather than
-  inventing a split.
+  inventing a split. Sentences and prose may brace a group that shares one reading,
+  `{今日}[きょう]`; word forms never do, because the conjugation rules work per kana.
 - **な-adjectives are stored with だ**, because the rules match on that ending.
   頑な is the one word whose な is part of the stem, so it is 頑[かたく]なだ.
 - **`reading` in words.json is parsed by nothing.** It exists only as an
@@ -126,6 +128,11 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   `merge.py` rebuilds the one from the other and would quietly undo it.
 
 ## UI rules
+
+- **Japanese goes through `RichText` or `FuriganaText`, never a bare `Text`**, with every
+  kanji in furigana notation. Readings are one setting for the whole app (`LocalFurigana`),
+  and a bare `Text` can neither show them nor hide them. `everyKanjiShownHasAReading` checks
+  the notes, primer, labels, step titles and sentences; it cannot check a call site.
 
 - **A state change must not make the screen around it jump.** An element may change size,
   but not if that reshuffles a list or pushes its neighbours somewhere unpredictable. A tick

@@ -34,6 +34,11 @@ data class QuizOptions(
     /** Rides along for the same reason as [theme]. */
     val palette: Palette = Palette.Latte,
     /**
+     * Whether readings are shown above kanji, everywhere in the app. A display setting like
+     * [theme], not a choice of what to practise, so it is not one of the [flags].
+     */
+    val furigana: Boolean = true,
+    /**
      * Restricts the pool to these word keys. Null means "no restriction" and is what
      * free practice always uses; steps and review set it to pin their vocabulary.
      * Never persisted — it is derived from the learn path, not chosen by the user.
@@ -101,7 +106,6 @@ data class QuizOptions(
     val questionCount: Int? get() = numQuestions.toIntOrNull()?.takeIf { it in 1..MAX_QUESTIONS }
 
     val kana: Boolean get() = isOn(KANA)
-    val furiganaAlways: Boolean get() = isOn(FURIGANA_ALWAYS)
     val autoNext: Boolean get() = isOn(AUTO_NEXT)
     val autoExplain: Boolean get() = isOn(AUTO_EXPLAIN)
     val hasPoliteness: Boolean get() = isOn("plain") || isOn("polite")
@@ -110,8 +114,7 @@ data class QuizOptions(
         const val FOCUS_NONE = "none"
         const val FOCUS_TETAKEI = "tetakei"
         const val KANA = "kana"
-        const val FURIGANA_ALWAYS = "furigana_always"
-        const val AUTO_NEXT = "go_to_next_question"
+            const val AUTO_NEXT = "go_to_next_question"
         const val AUTO_EXPLAIN = "auto_show_explanation"
         const val MAX_QUESTIONS = 999
 
@@ -139,8 +142,8 @@ data class QuizOptions(
 
         val IRREGULAR_VERBS = listOf(
             OptionItem("suru", "する verbs"),
-            OptionItem("kuru", "来る verb"),
-            OptionItem("iku", "行く verb"),
+            OptionItem("kuru", "来[く]る verb"),
+            OptionItem("iku", "行[い]く verb"),
             OptionItem("aru", "ある verb"),
             OptionItem("iru", "いる verbs"),
         )
@@ -168,7 +171,6 @@ data class QuizOptions(
         val GENERAL = listOf(
             OptionItem(TransformationBuilder.TRICK, "Trick questions (answers may be the same as the given form)"),
             OptionItem(KANA, "Use hiragana throughout the test (no kanji)"),
-            OptionItem(FURIGANA_ALWAYS, "Always show furigana (otherwise tap a word to reveal it)"),
             OptionItem(AUTO_NEXT, "Automatically go to the next question on success"),
             OptionItem(AUTO_EXPLAIN, "Automatically show the explanation on error"),
         )
@@ -207,7 +209,7 @@ data class QuizOptions(
         private val ON_BY_DEFAULT = setOf(
             "plain", "negative", "past",
             "godan", "ichidan", "iku", "kuru", "suru", "iru", "aru",
-            TransformationBuilder.TRICK, FURIGANA_ALWAYS,
+            TransformationBuilder.TRICK,
         )
 
         // Derived from ALL so an option can never be offered without a default behind it:
@@ -253,6 +255,7 @@ class OptionsStore(context: Context) {
             palette = prefs.getString("palette", null)
                 ?.let { name -> Palette.entries.firstOrNull { it.name == name } }
                 ?: defaults.palette,
+            furigana = prefs.getBoolean("furigana", defaults.furigana),
         )
     }
 
@@ -263,6 +266,7 @@ class OptionsStore(context: Context) {
             putString("numQuestions", options.numQuestions)
             putString("theme", options.theme.name)
             putString("palette", options.palette.name)
+            putBoolean("furigana", options.furigana)
         }.apply()
     }
 }

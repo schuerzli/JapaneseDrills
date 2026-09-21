@@ -7,7 +7,8 @@ and a change is reviewable as a diff. See README.md for why it is shaped the way
     python tools/steps/generate.py --check    # fail if it would change
 
 Every step is spelled out in full: the forms it switches on, the one question type it
-asks about (or none), and the word batches it draws on. The app only reads that; all the
+asks about (or none), and the word batches it draws on. Titles are shown with furigana, so
+their kanji are written in the same notation as the word list. The app only reads that; all the
 bookkeeping of what is known by which point happens here.
 """
 
@@ -156,7 +157,7 @@ SPINE = [
 
     chapter("The irregular verbs"),
     # Three words in one form both ways is six questions, so six it asks rather than repeat.
-    word_type("irregular", "する, 来る, 行く", "The verbs that break the rules",
+    word_type("irregular", "する, 来[く]る, 行[い]く", "The verbs that break the rules",
               pins=["する", "来る", "行く"], classes=["suru", "kuru", "iku"], questions=6),
     words("verbs-3", "Everyday actions", "Verbs you need every day", VERBS, 8),
     words("existence", "ある and いる", "To exist — with a negative that comes from nowhere",

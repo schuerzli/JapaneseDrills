@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.LearnPath
+import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
@@ -59,6 +60,12 @@ enum class SessionKind { Practice, Step, Review }
 data class HistoryEntry(val question: Question, val response: String) {
     /** Decided once: the score badge, the grading and the results all ask again. */
     val correct: Boolean = question.isCorrect(response)
+
+    /**
+     * What was typed, as the accepted spelling it matches when there is one: that carries
+     * the readings the typed text does not, so a right answer in kanji shows its furigana.
+     */
+    val responseDisplay: String = question.answers.firstOrNull { Furigana.toKanji(it) == response } ?: response
 }
 
 data class QuizState(
@@ -268,8 +275,13 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setPalette(palette: Palette) = updateOptions { it.copy(palette = palette) }
 
+    /** One setting, flipped from Settings or by tapping the question card. */
+    fun setFurigana(on: Boolean) = updateOptions { it.copy(furigana = on) }
+
+    fun toggleFurigana() = setFurigana(!_state.value.options.furigana)
+
     /** Resets the practice settings only; the appearance is not one of them. */
-    fun resetDefaults() = updateOptions { QuizOptions(theme = it.theme, palette = it.palette) }
+    fun resetDefaults() = updateOptions { QuizOptions(theme = it.theme, palette = it.palette, furigana = it.furigana) }
 
     /** The whole learn path as text, for copying somewhere safe. */
     fun exportProgress(): String = ProgressCodec.encode(_state.value.progress, indent = 2)

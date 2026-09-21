@@ -43,6 +43,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -82,7 +83,9 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.SolutionStep
 import com.japanesedrills.ui.QuizState
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.JapaneseLocale
+import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.tagParts
 import com.japanesedrills.ui.theme.DrillTheme
@@ -95,6 +98,7 @@ fun QuizScreen(
     onSubmit: (String) -> Unit,
     onProceed: () -> Unit,
     onExplain: () -> Unit,
+    onToggleFurigana: () -> Unit,
     onQuit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -143,7 +147,7 @@ fun QuizScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            QuestionCard(quiz, options)
+            QuestionCard(quiz, options, onToggleFurigana)
 
             if (answer == null) {
                 AnswerInput(
@@ -186,17 +190,25 @@ private fun ScoreBadge(correct: Int) {
 }
 
 @Composable
-private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
+private fun QuestionCard(quiz: QuizState, options: QuizOptions, onToggleFurigana: () -> Unit) {
     val question = quiz.question
     val formLabel = Prompts.formLabel(question.transformation.phrase)
     val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
+    val given = question.givenDisplay(options.kana)
+    // Nothing to read in kana mode, or in a word with no kanji, so no switch either.
+    val switchable = Furigana.hasReading(given)
 
     Card(
+        onClick = onToggleFurigana,
+        enabled = switchable,
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
+        // The disabled colours would grey the card out; being untappable is not a state to show.
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = onContainer,
+            disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            disabledContentColor = onContainer,
         ),
     ) {
         Column(
@@ -226,16 +238,21 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
             }
             Spacer(Modifier.height(24.dp))
             RichText(
-                parts = listOf(RichPart.Jp(question.givenDisplay(options.kana))),
+                parts = listOf(RichPart.Jp(given)),
                 style = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Medium),
                 color = onContainer,
-                furiganaAlways = options.furiganaAlways,
                 horizontalArrangement = Arrangement.Center,
             )
-            if (!options.furiganaAlways && !options.kana) {
+            // The line is kept, empty, for a word with nothing to read, so the card does not
+            // change height from one question to the next.
+            if (!options.kana) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Tap the word to show its reading",
+                    when {
+                        !switchable -> ""
+                        LocalFurigana.current -> "Tap to hide readings"
+                        else -> "Tap to show readings"
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -275,7 +292,7 @@ private fun AnswerInput(questionId: Int, shakes: Int, showHint: Boolean, onSubmi
                 val converted = head + new.text.drop(caret)
                 value = if (converted == new.text) new else TextFieldValue(converted, TextRange(head.length))
             },
-            label = { Text("Answer (答え)") },
+            label = { FuriganaText("Answer (答[こた]え)", style = LocalTextStyle.current) },
             supportingText = if (showHint) {
                 { Text("Type romaji (e.g. \"tabenai\") or use a Japanese keyboard. Use \"nn\" for ん.") }
             } else {
@@ -349,10 +366,7 @@ private fun ResultCard(
                     )
                 }
                 Spacer(Modifier.width(12.dp))
-                Text(
-                    answer.response,
-                    style = MaterialTheme.typography.titleLarge.copy(localeList = JapaneseLocale),
-                )
+                RichText(listOf(RichPart.Jp(answer.responseDisplay)), style = MaterialTheme.typography.titleLarge)
             }
         }
 
@@ -369,7 +383,6 @@ private fun ResultCard(
                         RichText(
                             parts = Prompts.wordList(quiz.question.answersDisplay(options.kana)),
                             style = MaterialTheme.typography.headlineSmall,
-                            furiganaAlways = options.furiganaAlways,
                         )
                     }
                 }
@@ -410,7 +423,6 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
     val question = quiz.question
     val t = question.transformation
     val word = question.word
-    val furigana = options.furiganaAlways
     val body = MaterialTheme.typography.bodyLarge
     val uriHandler = LocalUriHandler.current
     val groupLabel = QuizEngine.groupLabels[word.group] ?: word.group
@@ -429,8 +441,8 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SectionTitle("Goal")
             // The given word is already shown in the question card, so only the tags are compared here.
-            FormRow("from", tagParts(t.fromTags), furigana)
-            FormRow("to", tagParts(t.toTags), furigana)
+            FormRow("from", tagParts(t.fromTags))
+            FormRow("to", tagParts(t.toTags))
             if (t.isTrick) {
                 Text(
                     "It is already in that form — this was a trick question.",
@@ -448,7 +460,6 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
                 RichText(
                     listOf(RichPart.Jp(question.dictionaryDisplay(options.kana))),
                     style = MaterialTheme.typography.headlineSmall,
-                    furiganaAlways = furigana,
                     modifier = Modifier.weight(1f),
                 )
                 TextButton(
@@ -478,9 +489,9 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                     modifier = Modifier.padding(start = 12.dp),
                 ) {
-                    Text(
-                        word.sentenceJp,
-                        style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
+                    FuriganaText(
+                        if (options.kana) Furigana.toKana(word.sentenceJp) else word.sentenceJp,
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
                         word.sentenceEn,
@@ -498,7 +509,7 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
                 Text("This is the dictionary form itself, so nothing needs to be added.", style = body)
             }
             solution.steps.forEachIndexed { i, step ->
-                SolutionStepView(i + 1, step, display, furigana)
+                SolutionStepView(i + 1, step, display)
             }
 
             val proceedFocus = remember { FocusRequester() }
@@ -516,7 +527,7 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
 }
 
 @Composable
-private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) -> String, furigana: Boolean) {
+private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) -> String) {
     // The rule is supporting text; the forms it produces are the part worth looking at.
     val ruleStyle = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale)
     val rule = step.rule.map { if (it is RichPart.Jp) RichPart.Jp(display(it.word)) else it }
@@ -543,7 +554,6 @@ private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) 
                 rule,
                 style = ruleStyle,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                furiganaAlways = furigana,
             )
             Surface(
                 shape = MaterialTheme.shapes.medium,
@@ -553,7 +563,6 @@ private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) 
                     listOf(RichPart.Jp(display(step.from)), RichPart.Text("  →  ")) +
                         Prompts.wordList(step.to.map(display)),
                     style = MaterialTheme.typography.titleMedium,
-                    furiganaAlways = furigana,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 )
             }
@@ -573,7 +582,7 @@ private fun SectionTitle(text: String) {
 
 /** One line of the goal: a "from"/"to" label followed by the form's tags. */
 @Composable
-private fun FormRow(label: String, parts: List<RichPart>, furigana: Boolean) {
+private fun FormRow(label: String, parts: List<RichPart>) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             label,
@@ -581,6 +590,6 @@ private fun FormRow(label: String, parts: List<RichPart>, furigana: Boolean) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(44.dp),
         )
-        RichText(parts, style = MaterialTheme.typography.bodyLarge, furiganaAlways = furigana)
+        RichText(parts, style = MaterialTheme.typography.bodyLarge)
     }
 }

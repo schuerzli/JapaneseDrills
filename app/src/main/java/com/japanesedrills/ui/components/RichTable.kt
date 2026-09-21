@@ -27,7 +27,6 @@ fun RichTable(
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
     header: List<String> = emptyList(),
-    furiganaAlways: Boolean = true,
 ) {
     Surface(
         modifier = modifier,
@@ -57,7 +56,6 @@ fun RichTable(
                         RichText(
                             listOf(RichPart.Jp(cell)),
                             style = MaterialTheme.typography.bodyMedium,
-                            furiganaAlways = furiganaAlways,
                             horizontalArrangement = Arrangement.Center,
                             modifier = Modifier.weight(1f),
                         )

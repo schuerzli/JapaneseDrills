@@ -51,6 +51,7 @@ import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.SwitchRow
 import com.japanesedrills.ui.theme.facesOf
 
 private fun plural(count: Int, noun: String) = if (count == 1) "1 $noun" else "$count ${noun}s"
@@ -102,6 +103,7 @@ fun AppSettingsScreen(
     state: DrillUiState,
     onTheme: (ThemeChoice) -> Unit,
     onPalette: (Palette) -> Unit,
+    onFurigana: (Boolean) -> Unit,
     onResetProgress: () -> Unit,
     onExport: () -> String,
     onImport: (String) -> Boolean,
@@ -151,6 +153,12 @@ fun AppSettingsScreen(
                     }
                 }
             }
+            SwitchRow(
+                "Show furigana",
+                checked = state.options.furigana,
+                supporting = "Readings above every kanji. Tapping a question card switches this too.",
+                onChange = onFurigana,
+            )
         }
 
         SectionCard("Progress", "Steps started and everything scheduled for review") {

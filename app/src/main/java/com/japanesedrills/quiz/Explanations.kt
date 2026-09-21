@@ -374,7 +374,7 @@ object Explanations {
         val ko = jp("来[こ]")
         val ki = jp("来[き]")
         val ku = jp("来[く]")
-        val irregular = "来る is irregular. "
+        val irregular = "来[く]る is irregular. "
         return when (op) {
             Op.NEG -> rule(irregular, "Before ない it becomes ", ko, ": add ない.")
             Op.PAST_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なかった.")

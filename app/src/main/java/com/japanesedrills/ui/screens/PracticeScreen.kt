@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,8 +25,6 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -36,15 +33,12 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -53,16 +47,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.OptionItem
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.ui.DrillUiState
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.SwitchRow
 
 /**
  * The free-practice tab: one-tap presets above the full option grid. Content only — the tab
@@ -249,13 +245,24 @@ private fun ChipGroup(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        // One chip with a reading makes the whole row keep room for one, so the labels sit
+        // on a shared baseline instead of the annotated ones dropping below the rest.
+        val readings = items.any { Furigana.hasReading(it.label) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for (item in items) {
                 val selected = options.isOn(item.key)
                 FilterChip(
                     selected = selected,
                     onClick = { onFlag(item.key, !selected) },
-                    label = { Text(item.label) },
+                    label = { FuriganaText(item.label, reserveReadingSpace = readings) },
+                    // A chip is a fixed 32dp, which leaves a reading pressed against its edge.
+                    // The padding stands in for the touch margin the fixed height takes away,
+                    // so the rows keep the spacing every other group has.
+                    modifier = if (readings) {
+                        Modifier.padding(vertical = 8.dp).height(READING_CHIP_HEIGHT)
+                    } else {
+                        Modifier
+                    },
                     // The fill alone carries the state. A tick widened the chip on selection
                     // and reflowed every chip after it, which read as the grid jumping.
                     colors = FilterChipDefaults.filterChipColors(
@@ -269,15 +276,8 @@ private fun ChipGroup(
     }
 }
 
-@Composable
-private fun SwitchRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    ListItem(
-        headlineContent = { Text(label) },
-        trailingContent = { Switch(checked = checked, onCheckedChange = null) },
-        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        modifier = Modifier.toggleable(value = checked, role = Role.Switch, onValueChange = onChange),
-    )
-}
+/** Room for a label with a reading over it: the standard chip height plus the reading's line. */
+private val READING_CHIP_HEIGHT = 40.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -39,6 +39,7 @@ import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.SolutionStep
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
@@ -89,8 +90,8 @@ fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modi
             ) {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(note.title, style = MaterialTheme.typography.titleMedium)
-                        Text(
+                        FuriganaText(note.title, style = MaterialTheme.typography.titleMedium)
+                        FuriganaText(
                             note.summary,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -113,7 +114,6 @@ fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modi
 fun GrammarDetailScreen(
     note: GrammarNote,
     examples: GrammarExamples,
-    furiganaAlways: Boolean,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -121,7 +121,7 @@ fun GrammarDetailScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(note.title) },
+                title = { FuriganaText(note.title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.Close, contentDescription = "Back to the form list")
@@ -136,7 +136,7 @@ fun GrammarDetailScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             item { GrammarUsage(note) }
-            item { GrammarConstruction(note, examples, furiganaAlways) }
+            item { GrammarConstruction(note, examples) }
         }
     }
 }
@@ -149,12 +149,13 @@ fun GrammarDetailScreen(
 @Composable
 fun GrammarUsage(note: GrammarNote, heading: String = "What it is for") {
     SectionCard(heading) {
-        Text(note.summary, style = MaterialTheme.typography.bodyLarge)
+        FuriganaText(note.summary, style = MaterialTheme.typography.bodyLarge)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             for (line in note.notes) {
+                // On the text's baseline, or a reading over the first line lifts the bullet above it.
                 Row {
-                    Text("•  ", style = MaterialTheme.typography.bodyMedium)
-                    Text(line, style = MaterialTheme.typography.bodyMedium)
+                    Text("•  ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
+                    FuriganaText(line, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
                 }
             }
         }
@@ -167,7 +168,7 @@ fun GrammarUsage(note: GrammarNote, heading: String = "What it is for") {
  * an adjective has no passive — simply does not appear.
  */
 @Composable
-fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAlways: Boolean) {
+fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
     val words = Grammar.examplesFor(note.key).mapNotNull(examples::get)
     val target = Grammar.conjugationOf(note.key)
     if (target == null) {
@@ -176,7 +177,6 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAl
                 RichText(
                     listOf(RichPart.Jp(word.dictionary), RichPart.Text("  ${word.meaning}")),
                     style = MaterialTheme.typography.bodyLarge,
-                    furiganaAlways = furiganaAlways,
                 )
             }
         }
@@ -223,7 +223,6 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAl
                             listOf(fusion.endings.joinToString(" · "), fusion.te, fusion.past)
                         },
                         header = listOf("plain", "て-form", "past"),
-                        furiganaAlways = furiganaAlways,
                     )
                 }
                 // Examples after the first state only what their rule adds to the first
@@ -237,7 +236,7 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAl
                                 i > 0 && lead != null && steps.size == 1 -> extensionOf(lead, step.rule) ?: step.rule
                                 else -> step.rule
                             }
-                            StepLine(step, rule, furiganaAlways)
+                            StepLine(step, rule)
                         }
                     }
                 }
@@ -269,14 +268,13 @@ private fun headingFor(word: Word): String =
 
 /** [rule] is what to say above the change; empty says nothing and shows the change alone. */
 @Composable
-private fun StepLine(step: SolutionStep, rule: List<RichPart>, furiganaAlways: Boolean) {
+private fun StepLine(step: SolutionStep, rule: List<RichPart>) {
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         if (rule.isNotEmpty()) {
             RichText(
                 rule,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                furiganaAlways = furiganaAlways,
             )
         }
         // The arrow is a character in the same run of text, the way the quiz's solution
@@ -285,7 +283,6 @@ private fun StepLine(step: SolutionStep, rule: List<RichPart>, furiganaAlways: B
         RichText(
             listOf(RichPart.Jp(step.from), RichPart.Text("  →  ")) + Prompts.wordList(step.to),
             style = MaterialTheme.typography.bodyLarge,
-            furiganaAlways = furiganaAlways,
         )
     }
 }

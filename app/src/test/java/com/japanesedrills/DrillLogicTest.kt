@@ -3,6 +3,9 @@ package com.japanesedrills
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.Grammar
+import com.japanesedrills.quiz.Primer
+import com.japanesedrills.quiz.PrimerBlock
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -382,6 +385,45 @@ class DrillLogicTest {
             listOf(RubySegment("上", "あ"), RubySegment("げる", null)),
             Furigana.segments("上[あ]げる"),
         )
+        // A reading shared by several kanji, as sentences need for 今日.
+        assertEquals("きょうは", Furigana.toKana("{今日}[きょう]は"))
+        assertEquals("今日は", Furigana.toKanji("{今日}[きょう]は"))
+        assertEquals(
+            listOf(RubySegment("今日", "きょう"), RubySegment("は", null), RubySegment("雨", "あめ")),
+            Furigana.segments("{今日}[きょう]は雨[あめ]"),
+        )
+    }
+
+    /**
+     * Readings are shown over every kanji in the app, so every text that reaches the screen
+     * has to carry them. A kanji with no reading after it is one the learner cannot read.
+     */
+    @Test
+    fun everyKanjiShownHasAReading() {
+        val bare = Regex("[\\u3400-\\u4dbf\\u4e00-\\u9fff々](?!\\[)")
+        fun unread(text: String) = bare.containsMatchIn(text.replace(Regex("\\{[^}]*\\}\\[[^\\]]*\\]"), ""))
+
+        val texts = buildList {
+            for (note in Grammar.NOTES + Grammar.CLASS_NOTES) {
+                add(note.title); add(note.summary); addAll(note.notes)
+            }
+            for (section in Primer.SECTIONS) {
+                add(section.title)
+                for (block in section.blocks) when (block) {
+                    is PrimerBlock.Line -> add(block.text)
+                    is PrimerBlock.Bullet -> add(block.text)
+                    is PrimerBlock.Sub -> add(block.title)
+                    is PrimerBlock.Step -> { add(block.from); add(block.to); add(block.note) }
+                    is PrimerBlock.Table -> { addAll(block.header); block.rows.forEach(::addAll) }
+                }
+            }
+            addAll(QuizOptions.ALL.map { it.label })
+            for (step in data.learnPath.steps) {
+                add(step.title); add(step.subtitle); add(step.chapter)
+            }
+            addAll(data.words.map { it.sentenceJp })
+        }
+        assertEquals("kanji without a reading", emptyList<String>(), texts.filter(::unread))
     }
 
     @Test

@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.StepCard
 import com.japanesedrills.ui.theme.DrillTheme
 
@@ -257,8 +258,8 @@ private fun NextUpCard(step: Step, onStart: () -> Unit) {
         Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text("Next up", style = MaterialTheme.typography.labelLarge)
-                Text(step.title, style = MaterialTheme.typography.titleMedium)
-                Text(step.subtitle, style = MaterialTheme.typography.bodyMedium)
+                FuriganaText(step.title, style = MaterialTheme.typography.titleMedium)
+                FuriganaText(step.subtitle, style = MaterialTheme.typography.bodyMedium)
             }
             Spacer(Modifier.width(12.dp))
             Button(onClick = onStart) {
@@ -293,8 +294,8 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit) {
             StatusBadge(card)
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(step.title, style = MaterialTheme.typography.titleMedium)
-                Text(
+                FuriganaText(step.title, style = MaterialTheme.typography.titleMedium)
+                FuriganaText(
                     step.subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -41,7 +41,7 @@ import com.japanesedrills.quiz.Step
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
-import com.japanesedrills.ui.components.JapaneseLocale
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
 
 /**
@@ -69,7 +69,7 @@ fun StepIntroScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(step.title) },
+                title = { FuriganaText(step.title) },
                 navigationIcon = {
                     IconButton(onClick = onQuit) {
                         Icon(Icons.Default.Close, contentDescription = "Back to the path")
@@ -126,7 +126,7 @@ fun StepIntroScreen(
             for (note in forms) {
                 item(key = "usage-${note.key}") { GrammarUsage(note, heading = note.title) }
                 item(key = "build-${note.key}") {
-                    GrammarConstruction(note, examples, furiganaAlways = true)
+                    GrammarConstruction(note, examples)
                 }
             }
             if (words.isNotEmpty()) {
@@ -154,8 +154,6 @@ private fun WordCard(word: Word, options: QuizOptions) {
             RichText(
                 listOf(RichPart.Jp(dictionary)),
                 style = MaterialTheme.typography.headlineSmall,
-                // Always on here: the whole point of the card is that the word is new.
-                furiganaAlways = true,
             )
             Text(word.meaning, style = MaterialTheme.typography.bodyLarge)
             Text(
@@ -165,9 +163,9 @@ private fun WordCard(word: Word, options: QuizOptions) {
             )
             if (word.sentenceJp.isNotEmpty()) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                Text(
-                    word.sentenceJp,
-                    style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
+                FuriganaText(
+                    if (options.kana) Furigana.toKana(word.sentenceJp) else word.sentenceJp,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     word.sentenceEn,

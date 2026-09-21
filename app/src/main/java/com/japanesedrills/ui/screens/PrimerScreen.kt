@@ -24,7 +24,7 @@ import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.PrimerBlock
 import com.japanesedrills.quiz.PrimerSection
 import com.japanesedrills.quiz.RichPart
-import com.japanesedrills.ui.components.JapaneseLocale
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
@@ -36,7 +36,7 @@ import com.japanesedrills.ui.components.SectionCard
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PrimerScreen(furiganaAlways: Boolean, onBack: () -> Unit, modifier: Modifier = Modifier) {
+fun PrimerScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -56,35 +56,29 @@ fun PrimerScreen(furiganaAlways: Boolean, onBack: () -> Unit, modifier: Modifier
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(Primer.SECTIONS, key = { it.title }) { section ->
-                PrimerCard(section, furiganaAlways)
+                PrimerCard(section)
             }
         }
     }
 }
 
 @Composable
-private fun PrimerCard(section: PrimerSection, furiganaAlways: Boolean) {
+private fun PrimerCard(section: PrimerSection) {
     SectionCard(section.title) {
         for (block in section.blocks) {
             when (block) {
-                is PrimerBlock.Line -> Text(
-                    block.text,
-                    style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
-                )
+                is PrimerBlock.Line -> FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium)
 
+                // On the text's baseline, or a reading over the first line lifts the bullet above it.
                 is PrimerBlock.Bullet -> Row {
-                    Text("•  ", style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        block.text,
-                        style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
-                    )
+                    Text("•  ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
+                    FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
                 }
 
-                is PrimerBlock.Sub -> Text(
+                is PrimerBlock.Sub -> FuriganaText(
                     block.title,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 4.dp),
                 )
 
@@ -99,14 +93,12 @@ private fun PrimerCard(section: PrimerSection, furiganaAlways: Boolean) {
                     RichText(
                         listOf(RichPart.Jp(block.from), RichPart.Text("  →  "), RichPart.Jp(block.to)),
                         style = MaterialTheme.typography.bodyLarge,
-                        furiganaAlways = furiganaAlways,
                     )
                 }
 
                 is PrimerBlock.Table -> RichTable(
                     rows = block.rows,
                     header = block.header,
-                    furiganaAlways = furiganaAlways,
                 )
             }
         }

@@ -47,7 +47,7 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.ui.HistoryEntry
 import com.japanesedrills.ui.StepOutcome
-import com.japanesedrills.ui.components.JapaneseLocale
+import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.theme.DrillTheme
 import kotlin.math.roundToInt
@@ -156,7 +156,7 @@ private fun ReadinessCard(outcome: StepOutcome) {
         ),
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
+            FuriganaText(
                 when {
                     outcome.becameReady -> "Ready for the next step"
                     record.ready -> "${outcome.step.title} is ready"
@@ -164,7 +164,7 @@ private fun ReadinessCard(outcome: StepOutcome) {
                 },
                 style = MaterialTheme.typography.titleLarge,
             )
-            Text(
+            FuriganaText(
                 when {
                     outcome.becameReady && outcome.next != null ->
                         "$percent% of your last $recent answers here were right. Next up: ${outcome.next.title}."
@@ -259,11 +259,10 @@ private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
                         Prompts.question(question.transformation.phrase, question.givenDisplay(options.kana)),
                     style = MaterialTheme.typography.bodyLarge,
                     emphasisColor = scheme.primary,
-                    furiganaAlways = options.furiganaAlways,
                 )
-                Text(
-                    "Your answer: ${entry.response}",
-                    style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
+                RichText(
+                    listOf(RichPart.Text("Your answer: "), RichPart.Jp(entry.responseDisplay)),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = if (entry.correct) answerColors.correct else scheme.error,
                 )
                 if (!entry.correct) {
@@ -271,7 +270,6 @@ private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
                         listOf(RichPart.Text("Correct: ")) + Prompts.wordList(question.answersDisplay(options.kana)),
                         style = MaterialTheme.typography.bodyMedium,
                         color = answerColors.correct,
-                        furiganaAlways = options.furiganaAlways,
                     )
                 }
             }

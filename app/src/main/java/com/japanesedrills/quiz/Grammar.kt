@@ -73,9 +73,9 @@ object Grammar {
             summary = "The casual style. Its present is the dictionary form — how a word is listed.",
             notes = listOf(
                 "Used with family, close friends and anyone below you in a hierarchy.",
-                "Every tense has one: 食べた and 食べない are as plain as 食べる. It is a register, " +
+                "Every tense has one: 食[た]べた and 食[た]べない are as plain as 食[た]べる. It is a register, " +
                     "not a single form.",
-                "The normal form inside a longer sentence: before と思う, から, けど, and " +
+                "The normal form inside a longer sentence: before と思[おも]う, から, けど, and " +
                     "directly in front of a noun.",
                 "The standard style for most writing that is not a letter — news, novels, notes.",
             ),
@@ -88,9 +88,9 @@ object Grammar {
                 "Default with strangers, colleagues, shop staff and teachers.",
                 "Politeness is carried by the final verb, so only the end of a sentence changes.",
                 "Neither rude nor humble — it is the unmarked choice when in doubt.",
-                "Built on the same い-row stem as たい: 書きたい, 書きます.",
-                "A layer over the other forms rather than a form of its own: 書いています, " +
-                    "書けます, 書かれます are the polite progressive, potential and passive.",
+                "Built on the same い-row stem as たい: 書[か]きたい, 書[か]きます.",
+                "A layer over the other forms rather than a form of its own: 書[か]いています, " +
+                    "書[か]けます, 書[か]かれます are the polite progressive, potential and passive.",
             ),
         ),
         GrammarNote(
@@ -109,10 +109,10 @@ object Grammar {
             title = "Past",
             summary = "Something already happened, or a state that held before now.",
             notes = listOf(
-                "Japanese has no separate perfect tense: 食べた covers \"ate\" and \"have eaten\".",
+                "Japanese has no separate perfect tense: 食[た]べた covers \"ate\" and \"have eaten\".",
                 "The plain past uses the same sound changes as the て form, so learning one " +
                     "gives you the other.",
-                "In front of a noun the plain past describes it: 買った本 — the book I bought.",
+                "In front of a noun the plain past describes it: 買[か]った本[ほん] — the book I bought.",
             ),
         ),
         GrammarNote(
@@ -133,9 +133,9 @@ object Grammar {
             notes = listOf(
                 "With action verbs it is \"is doing\": food is being eaten right now.",
                 "With change-of-state verbs it is the resulting state, not the change: " +
-                    "知っている means \"know\", 結婚している means \"is married\".",
+                    "知[し]っている means \"know\", 結[けっ]婚[こん]している means \"is married\".",
                 "Also covers habits — what someone does these days.",
-                "Casual speech drops the い: 食べてる.",
+                "Casual speech drops the い: 食[た]べてる.",
             ),
         ),
         GrammarNote(
@@ -146,8 +146,8 @@ object Grammar {
                 "About your own wishes, or a question about the listener's.",
                 "Said flatly about someone else it is wrong: use たがる, or hedge with " +
                     "たいようだ or たいそうです.",
-                "Built on the い-row stem: 書く → 書きたい. The polite ます form uses the same stem.",
-                "The result conjugates as an い-adjective: 食べたくない, 食べたかった.",
+                "Built on the い-row stem: 書[か]く → 書[か]きたい. The polite ます form uses the same stem.",
+                "The result conjugates as an い-adjective: 食[た]べたくない, 食[た]べたかった.",
                 "The object may take が as well as を.",
             ),
         ),
@@ -157,7 +157,7 @@ object Grammar {
             summary = "\"Let's\", or a decision you are announcing to yourself.",
             notes = listOf(
                 "Polite ましょう is the everyday \"let's\"; plain よう/おう is casual.",
-                "With と思う it becomes an intention: \"I think I'll…\".",
+                "With と思[おも]う it becomes an intention: \"I think I'll…\".",
                 "Not a request — for that, use the て form with ください.",
             ),
         ),
@@ -168,7 +168,7 @@ object Grammar {
             notes = listOf(
                 "What would be the object often takes が rather than を.",
                 "Ichidan potential looks identical to the passive; context separates them.",
-                "Speech commonly drops the ら — 見れる for 見られる — though it is still " +
+                "Speech commonly drops the ら — 見[み]れる for 見[み]られる — though it is still " +
                     "considered informal in writing.",
                 "する has its own word for this: できる.",
             ),
@@ -199,9 +199,9 @@ object Grammar {
             title = "Imperative",
             summary = "A blunt order. Strong enough that it is rarely used to someone's face.",
             notes = listOf(
-                "Heard in anger, in sports and military speech, and on signs: 止まれ.",
+                "Heard in anger, in sports and military speech, and on signs: 止[と]まれ.",
                 "Common when quoting an order indirectly, where the rudeness does not land.",
-                "The negative is the plain form plus な: 行くな, don't go.",
+                "The negative is the plain form plus な: 行[い]くな, don't go.",
                 "For an ordinary request use the て form with ください instead.",
             ),
         ),
@@ -225,7 +225,7 @@ object Grammar {
                 "\"Make\" and \"let\" are the same form — the particle and the context decide.",
                 "After an intransitive verb the person takes を for making them and に for " +
                     "letting them. After a transitive verb を is already spoken for, so it is に.",
-                "With てください it becomes asking permission: 行かせてください, please let me go.",
+                "With てください it becomes asking permission: 行[い]かせてください, please let me go.",
             ),
         ),
     )
@@ -241,10 +241,10 @@ object Grammar {
             title = "い-adjectives",
             summary = "Adjectives ending in い that conjugate on their own, much like verbs.",
             notes = listOf(
-                "The final い is replaced by the ending: 高い → 高くない, 高かった, 高くて.",
-                "The polite forms add です to the plain ones: 高いです, 高かったです.",
-                "In front of a noun they need nothing extra: 高い山, a tall mountain.",
-                "Not every adjective ending in い is one: きれい and 嫌い are な-adjectives.",
+                "The final い is replaced by the ending: 高[たか]い → 高[たか]くない, 高[たか]かった, 高[たか]くて.",
+                "The polite forms add です to the plain ones: 高[たか]いです, 高[たか]かったです.",
+                "In front of a noun they need nothing extra: 高[たか]い山[やま], a tall mountain.",
+                "Not every adjective ending in い is one: きれい and 嫌[きら]い are な-adjectives.",
             ),
         ),
         GrammarNote(
@@ -252,8 +252,8 @@ object Grammar {
             title = "な-adjectives",
             summary = "Adjectives that behave like nouns: the word itself never changes.",
             notes = listOf(
-                "The だ after them does the conjugating: 便利だ → 便利じゃない, 便利だった, 便利で.",
-                "In front of a noun they take な — 便利な店, a handy shop — which is where the name comes from.",
+                "The だ after them does the conjugating: 便[べん]利[り]だ → 便[べん]利[り]じゃない, 便[べん]利[り]だった, 便[べん]利[り]で.",
+                "In front of a noun they take な — 便[べん]利[り]な店[みせ], a handy shop — which is where the name comes from.",
                 "The drill lists them with だ, because that is the part that changes.",
                 "じゃ is the everyday spoken form of では; either is accepted.",
             ),
@@ -265,26 +265,26 @@ object Grammar {
             notes = listOf(
                 "Its stem changes with the form: しない, した, して, and later させる, すれば.",
                 "The potential is a different verb altogether: できる.",
-                "Put after a noun it makes a verb: 勉強 is \"study\", 勉強する is \"to study\". " +
-                    "Those conjugate exactly like する: 勉強しない, 勉強した.",
+                "Put after a noun it makes a verb: 勉[べん]強[きょう] is \"study\", 勉[べん]強[きょう]する is \"to study\". " +
+                    "Those conjugate exactly like する: 勉[べん]強[きょう]しない, 勉[べん]強[きょう]した.",
             ),
         ),
         GrammarNote(
             key = "kuru",
-            title = "来る",
+            title = "来[く]る",
             summary = "To come — the other verb that is irregular throughout.",
             notes = listOf(
                 "The kanji stays; its reading changes: くる, こない, きた, きて.",
-                "The endings themselves are the ordinary ones. Only the vowel of 来 moves.",
+                "The endings themselves are the ordinary ones. Only the reading of the kanji moves.",
             ),
         ),
         GrammarNote(
             key = "iku",
-            title = "行く",
+            title = "行[い]く",
             summary = "To go — an ordinary godan verb with one exception.",
             notes = listOf(
-                "Its past and て form are 行った and 行って, not 行いた and 行いて.",
-                "Everything else follows the godan rules: 行かない, 行ける, 行こう.",
+                "Its past and て form are 行[い]った and 行[い]って, not 行[い]いた and 行[い]いて.",
+                "Everything else follows the godan rules: 行[い]かない, 行[い]ける, 行[い]こう.",
             ),
         ),
         GrammarNote(
@@ -304,7 +304,7 @@ object Grammar {
             summary = "To exist, for people and animals: \"to be\" somewhere.",
             notes = listOf(
                 "An ordinary ichidan verb: いない, いた, いて.",
-                "It is the いる in ている: 食べている is 食べて plus いる.",
+                "It is the いる in ている: 食[た]べている is 食[た]べて plus いる.",
                 "Already a state, so it is not itself put into ている.",
                 "For things that are not alive, use ある instead.",
             ),

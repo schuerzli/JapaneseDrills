@@ -10,7 +10,7 @@ package com.japanesedrills.quiz
  */
 sealed interface PrimerBlock {
 
-    /** A paragraph. Japanese inside it is plain text; [Step] is where furigana belongs. */
+    /** A paragraph. Its Japanese is in furigana notation like everything else shown. */
     data class Line(val text: String) : PrimerBlock
 
     data class Bullet(val text: String) : PrimerBlock
@@ -50,7 +50,7 @@ object Primer {
                 PrimerBlock.Line("Modify the last kana, then add an ending depending on the form."),
                 PrimerBlock.Step("書[か]く", "書[か]かない"),
                 PrimerBlock.Line(
-                    "The stem 書 stays the same, the last kana く becomes か, and we add the ending ない.",
+                    "The stem 書[か] stays the same, the last kana く becomes か, and we add the ending ない.",
                 ),
                 PrimerBlock.Sub("The fusion system"),
                 PrimerBlock.Line(
@@ -58,7 +58,7 @@ object Primer {
                 ),
                 PrimerBlock.Step("買[か]う", "買[か]って"),
                 PrimerBlock.Line(
-                    "The stem 買 stays the same, and the last kana う and the ending て fuse to become って.",
+                    "The stem 買[か] stays the same, and the last kana う and the ending て fuse to become って.",
                 ),
             ),
         ),
@@ -68,8 +68,8 @@ object Primer {
             listOf(
                 PrimerBlock.Line(
                     "Verbs are generally talked about as belonging to one of three classes. A verb's " +
-                        "class defines how it changes when it changes form. The classes are 一段 " +
-                        "(ichidan) verbs, 五段 (godan) verbs, and a handful of irregular verbs.",
+                        "class defines how it changes when it changes form. The classes are 一[いち]段[だん] " +
+                        "(ichidan) verbs, 五[ご]段[だん] (godan) verbs, and a handful of irregular verbs.",
                 ),
                 PrimerBlock.Line("Adjectives work differently again, and are covered at the end."),
             ),
@@ -104,12 +104,12 @@ object Primer {
         ),
 
         PrimerSection(
-            "一段 (ichidan) verbs",
+            "一[いち]段[だん] (ichidan) verbs",
             listOf(
                 PrimerBlock.Line(
                     "Ichidan verbs all end in either -いる or -える in their plain forms. This means " +
                         "they end in any kana with an i or an e vowel, taken from the full gojūon, " +
-                        "followed by る: 見る, 食べる, 信じる, 出る.",
+                        "followed by る: 見[み]る, 食[た]べる, 信[しん]じる, 出[で]る.",
                 ),
                 PrimerBlock.Line(
                     "To change their form, all you do is drop the last kana of the plain form, which " +
@@ -118,10 +118,10 @@ object Primer {
                 PrimerBlock.Step("食[た]べる", "食[た]べない"),
                 PrimerBlock.Step("食[た]べる", "食[た]べた"),
                 PrimerBlock.Step("食[た]べる", "食[た]べて"),
-                PrimerBlock.Line("The stem 食べ never changes."),
+                PrimerBlock.Line("The stem 食[た]べ never changes."),
                 PrimerBlock.Line(
                     "Be aware: all ichidan verbs end in -いる or -える, but not all verbs that end in " +
-                        "-いる or -える are ichidan verbs. 帰る, 入る, 走る, 知る, 滑る and 参る are all " +
+                        "-いる or -える are ichidan verbs. 帰[かえ]る, 入[はい]る, 走[はし]る, 知[し]る, 滑[すべ]る and 参[まい]る are all " +
                         "godan verbs. This is just something you learn on a case-by-case basis.",
                 ),
                 PrimerBlock.Line(
@@ -132,23 +132,23 @@ object Primer {
         ),
 
         PrimerSection(
-            "五段 (godan) verbs",
+            "五[ご]段[だん] (godan) verbs",
             listOf(
                 PrimerBlock.Line(
-                    "五段 verbs are a little more complicated, and there are two different systems " +
+                    "五[ご]段[だん] verbs are a little more complicated, and there are two different systems " +
                         "for conjugation, depending on the target form.",
                 ),
                 PrimerBlock.Sub("The row-shift system"),
                 PrimerBlock.Line(
-                    "五段 means \"five rows\". With this in mind, we can go back to the kana grid and " +
+                    "五[ご]段[だん] means \"five rows\". With this in mind, we can go back to the kana grid and " +
                         "reveal the second insight: there are exactly five rows in it.",
                 ),
                 PrimerBlock.Line(
-                    "When we change the form of a 五段 verb, we do not drop the last kana of the plain " +
+                    "When we change the form of a 五[ご]段[だん] verb, we do not drop the last kana of the plain " +
                         "form. Rather, we shift it up or down to a different row in the same column. " +
                         "Which row we shift it to depends on the form we are changing to. For the " +
                         "negative, we shift the last kana from the う-row to the あ-row and add ない. " +
-                        "In 書く, the う-row く turns into the あ-row kana from the same column, か.",
+                        "In 書[か]く, the う-row く turns into the あ-row kana from the same column, か.",
                 ),
                 PrimerBlock.Step("書[か]く", "書[か]かない"),
                 PrimerBlock.Line(
@@ -157,10 +157,10 @@ object Primer {
                 ),
                 PrimerBlock.Step("書[か]く", "書[か]きたい"),
                 PrimerBlock.Line(
-                    "Five rows, five kana the last kana of the word can be, so: 五段. This also " +
-                        "explains why 一段 verbs are called 一段, or \"one row\" verbs. Since they drop " +
+                    "Five rows, five kana the last kana of the word can be, so: 五[ご]段[だん]. This also " +
+                        "explains why 一[いち]段[だん] verbs are called 一[いち]段[だん], or \"one row\" verbs. Since they drop " +
                         "their last kana when they change, they can only ever be in one: the row of " +
-                        "the last kana of the stem, べ in 食べる.",
+                        "the last kana of the stem, べ in 食[た]べる.",
                 ),
                 PrimerBlock.Line(
                     "This system is extremely regular, and there is only one exception in the whole " +
@@ -179,7 +179,7 @@ object Primer {
                         "form-specific ending fuses with the last kana. How they fuse depends on the " +
                         "specific last kana of the plain form, and must be memorized. This table shows " +
                         "all fusions for all nine possible う-row kana, for the て-form and the past " +
-                        "form. 行く is the one exception, and is covered below.",
+                        "form. 行[い]く is the one exception, and is covered below.",
                 ),
                 PrimerBlock.Table(
                     header = listOf("plain", "て-form", "past"),
@@ -215,11 +215,11 @@ object Primer {
                 PrimerBlock.Bullet(
                     "する (to do) — し, さ and すれ all appear: しない, して, させる, すれば",
                 ),
-                PrimerBlock.Bullet("来る (to come) — the reading itself changes: こない, きた, きて"),
+                PrimerBlock.Bullet("来[く]る (to come) — the reading itself changes: こない, きた, きて"),
                 PrimerBlock.Line("Three more are regular verbs with exceptions worth knowing:"),
                 PrimerBlock.Bullet(
-                    "行く — godan in every way, except that its て-form and past are 行って and 行った, " +
-                        "not 行いて",
+                    "行[い]く — godan in every way, except that its て-form and past are 行[い]って and 行[い]った, " +
+                        "not 行[い]いて",
                 ),
                 PrimerBlock.Bullet(
                     "ある — its negative is ない, not あらない. It also has no imperative, potential, " +
@@ -238,12 +238,12 @@ object Primer {
                 ),
                 PrimerBlock.Bullet(
                     "い-adjectives behave much like verbs. The final い is replaced by the ending: " +
-                        "高い → 高くない, 高かった.",
+                        "高[たか]い → 高[たか]くない, 高[たか]かった.",
                 ),
                 PrimerBlock.Bullet(
                     "な-adjectives do not conjugate at all. The だ after them does the work: " +
-                        "便利だ → 便利じゃない, 便利だった. They are named for the form they take before a " +
-                        "noun, 便利な人.",
+                        "便[べん]利[り]だ → 便[べん]利[り]じゃない, 便[べん]利[り]だった. They are named for the form they take before a " +
+                        "noun, 便[べん]利[り]な人[ひと].",
                 ),
                 PrimerBlock.Bullet("いい switches to よ- the moment it conjugates: よくない, よかった."),
             ),
@@ -263,14 +263,14 @@ object Primer {
                 PrimerBlock.Step("書[か]く", "書[か]いている", "progressive"),
                 PrimerBlock.Line(
                     "Every one of those ends in -える or -いる, which means each one is now an ichidan " +
-                        "verb. So 書ける goes to 書けない and 書けた exactly the way 食べる goes to " +
-                        "食べない and 食べた. The same is true of the ichidan and irregular versions: " +
-                        "食べられる, させる and 来させる are all ichidan verbs too.",
+                        "verb. So 書[か]ける goes to 書[か]けない and 書[か]けた exactly the way 食[た]べる goes to " +
+                        "食[た]べない and 食[た]べた. The same is true of the ichidan and irregular versions: " +
+                        "食[た]べられる, させる and 来[こ]させる are all ichidan verbs too.",
                 ),
                 PrimerBlock.Step("書[か]く", "書[か]きたい", "desire"),
                 PrimerBlock.Line(
-                    "たい is not a verb at all but an い-adjective, so it behaves like 高い: " +
-                        "書きたくない, 書きたかった.",
+                    "たい is not a verb at all but an い-adjective, so it behaves like 高[たか]い: " +
+                        "書[か]きたくない, 書[か]きたかった.",
                 ),
                 PrimerBlock.Line(
                     "This is why the two systems are enough for the whole reference. A long form is " +
