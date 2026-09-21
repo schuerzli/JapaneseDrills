@@ -5,10 +5,10 @@
     python tools/theme/schemes.py --preview   # write preview.html comparing them
     python tools/theme/schemes.py --fonts     # rebuild res/font from tools/theme/fonts
 
-Needs only the standard library, except --fonts, which needs fontTools. --apply rewrites the generated region of
-app/src/main/java/com/japanesedrills/ui/theme/Theme.kt and regenerates
-app/src/main/res/values{,-night}/colors.xml; it touches nothing else in those files.
-Re-running reproduces them byte for byte.
+Needs only the standard library, except --fonts, which needs fontTools. --apply rewrites
+the generated region of app/src/main/java/com/japanesedrills/ui/theme/Theme.kt and
+regenerates app/src/main/res/values{,-night}/colors.xml, touching nothing else in those
+files. Both it and --fonts reproduce their output byte for byte.
 
 An earlier version of this file derived every role from one seed colour by walking a
 tonal palette. That was dropped: the shipped scheme puts the accent where it means
@@ -16,17 +16,14 @@ something rather than where a tone curve lands it, and no seed produces that. Pa
 written out in full instead, and `--check` is what keeps them honest. The one exception is
 the hero card, which follows a single rule in every palette (see HERO_TINT).
 
-To re-tune, edit the palette below and re-run --apply. `--check` must stay clean: every
-foreground/background pair the app actually puts together needs 4.5:1.
+To re-tune, edit a palette below and re-run --apply; `--check` must stay clean (the floors
+are with PAIRS).
 
 A palette is more than colour: each names its two faces and where its accent goes beyond
 the shared roles. The type scale itself is Kotlin, in ui/theme/Type.kt.
 
-The faces are variable fonts, kept in tools/theme/fonts, but the app never loads those:
-Android 17 ignores a weight asked of a variable font at runtime and draws the file's default
-instance instead — ExtraLight for Manrope, Thin for Outfit — while Android 15 honours it, so
-the bug only shows on a newer phone. --fonts cuts each face into one static file per weight
-the type scale uses, which every Android version draws the same.
+The faces' masters are variable fonts in tools/theme/fonts, which the app never loads:
+--fonts cuts each into one static file per weight. Why, is in ui/theme/Type.kt.
 
 Each palette name must also be an entry of `Palette` in quiz/QuizOptions.kt. The generated
 code maps one to the other with an exhaustive `when`, so a mismatch fails to compile.
@@ -113,7 +110,7 @@ def scheme(**kw):
     return s
 
 
-# --- The shipped palette ---------------------------------------------------
+# --- The default palette ---------------------------------------------------
 #
 # Latte. A warm cafe: cream page, white cards, a caramel-washed question card, and one
 # caramel accent. The accent is spent on three things and nothing else — the form pill, the
@@ -207,10 +204,8 @@ WASHI_DARK = scheme(
     correct="#A9CE8E", onCorrect="#1D3311", correctContainer="#364C27", onCorrectContainer="#D6EDC6",
 )
 
-# Caramel. The buttons go espresso and the page goes warmer. It was built with the question
-# card as a caramel slab, which is why it was not taken: a big saturated field behind the
-# thing you must read is tiring, and on the learn path the filled card read as a button.
-# That slab is gone now that every palette shares the hero rule.
+# Caramel. The buttons go espresso and the page goes warmer. Its question card is a cooler
+# grey-beige than the others', because the shared hero wash is of that espresso accent.
 CARAMEL_LIGHT = scheme(
     primary="#4A3021", onPrimary="#FFF6ED",
     secondaryContainer="#F6E3CC", onSecondaryContainer="#3A2614",
@@ -318,9 +313,8 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
                        "surfaceContainerHigh", "surfaceContainerHighest")])
 
 # 4.5:1 is the floor for ordinary text. onSurfaceVariant is held to 7:1, because it is only
-# ever small secondary type — subtitles, counts, captions — which is exactly where 4.5 still
-# looked washed out on a phone. Nothing may reach for a faded colour with alpha instead:
-# alpha skips this check entirely.
+# ever the smallest type on screen — subtitles, counts, captions — where 4.5:1 leaves too
+# little margin on a tinted card.
 FLOOR = 4.5
 SECONDARY_FLOOR = 7.0
 # Where the app sets that small type. surfaceVariant is not among them: only Material's own
@@ -345,7 +339,7 @@ def check():
     return bad
 
 
-# --- Apply -----------------------------------------------------------------
+# --- Fonts -----------------------------------------------------------------
 
 def fonts():
     """Cuts every master into one static, Latin-only file per weight in WEIGHTS."""
@@ -371,6 +365,8 @@ def fonts():
             static.save(out)
             print(f"  {out.name:24} {out.stat().st_size // 1024:4} KB")
 
+
+# --- Apply -----------------------------------------------------------------
 
 GENERATED = re.compile(r"(// <generated by tools/theme/schemes.py --apply>\n).*?(// </generated>\n)", re.S)
 

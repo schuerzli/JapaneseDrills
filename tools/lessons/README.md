@@ -8,8 +8,8 @@ Keep this file about the reasoning. If it starts listing lessons, delete the lis
 
 ## Why generated
 
-Hand-writing forty lessons produces forty chances to introduce a word twice or leave one
-unreachable, and no way to re-cut the path when the word list changes. Generating it makes
+Hand-writing dozens of lessons produces dozens of chances to introduce a word twice or
+leave one unreachable, and no way to re-cut the path when the word list changes. Generating it makes
 the ordering rules the artefact and the curriculum a build product, the same way
 `tools/wordlist` and `tools/theme` work. `--check` fails if the committed file is stale.
 
@@ -89,8 +89,9 @@ Display order is assigned after the graph is built, so a branch appears next to 
 it hangs off. Appending branches was what buried the irregulars at the bottom of a
 thirty-odd-item list even though they unlock early — reachable, but not findable.
 
-Lessons are grouped into chapters, and the path folds a chapter with nothing unlocked down
-to its heading. Listed one by one, the locked tail was thirty identical padlocks.
+Lessons are grouped into chapters, each a stage with a theme, so the path reads as a handful
+of stages rather than thirty-odd rows. Listed one by one, the locked tail was a column of
+identical padlocks. How the path screen folds them is in `ui/screens/LearnPathScreen.kt`.
 
 Every form is taught by the end of the causative, so what follows is vocabulary alone. It
 used to be nine vocabulary lessons in a row; the three N4 batches now sit among the later

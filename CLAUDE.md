@@ -43,7 +43,7 @@ python tools/lessons/generate.py --check
 ```
 
 A palette is only finished when every foreground/background pair the app puts together
-clears 4.5:1, and secondary text 7:1, which is easy to break by eye and easy to check:
+clears its contrast floor, which is easy to break by eye and easy to check:
 
 ```bash
 python tools/theme/schemes.py --check
@@ -122,23 +122,23 @@ questions, is in `tools/lessons/README.md`.
   reflowed. Where a change would move other things, show the state with colour or fill
   inside the same footprint instead.
 - **No text in a colour faded with alpha.** Alpha bypasses the contrast check; use
-  `onSurfaceVariant`, which the check holds to 7:1 wherever the app sets small text.
+  `onSurfaceVariant`, which the check holds to its strictest floor.
 
 ## Traps
 
-- **Android 17 ignores the weight asked of a variable font** and draws the file's default
-  instance — Manrope came out ExtraLight on the phone while the Android 15 emulator looked
-  right. So `res/font` holds static instances, one per weight, cut by `schemes.py --fonts`.
-  Never point a `Font()` at a variable file, and check type changes on the phone, not only
-  the emulator.
+- **Android 17 ignores the weight asked of a variable font**, which the Android 15 emulator
+  honours, so type can look right here and hairline on the phone. `res/font` therefore holds
+  static weights (why, in `ui/theme/Type.kt`). Never point a `Font()` at a variable file, and
+  check type changes on the phone.
 
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at
   a time with a short pause.
-- **The working tree is CRLF**, pinned by `.gitattributes` because the generators write
-  CRLF and their `--check` modes compare bytes. `grep -c $'\r'` is not to be trusted for
-  checking this — it reports every line as matching even in an LF-only file. Count the
-  bytes instead: `tr -cd '\r' < file | wc -c`.
+- **Checkouts are CRLF**, pinned by `.gitattributes` because the generators write CRLF and
+  their `--check` modes compare bytes. A file saved by a tool that writes LF stays LF until
+  the next checkout; git stores LF either way, so only generated output has to keep CRLF.
+  `grep -c $'\r'` is not to be trusted for checking this — it reports every line as
+  matching even in an LF-only file. Count the bytes instead: `tr -cd '\r' < file | wc -c`.
 - **The unit tests read the JSON assets straight off disk.** `app/build.gradle.kts`
   declares that directory as a test input so a data edit re-runs them; without it
   Gradle reports the tests "up to date" and silently skips them. Do not remove that

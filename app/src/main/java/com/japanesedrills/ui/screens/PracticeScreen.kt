@@ -65,8 +65,8 @@ import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.SectionCard
 
 /**
- * The free-practice tab: the full option grid, unchanged from before the learn path
- * existed. Content only — the tab scaffold in MainActivity owns the bars.
+ * The free-practice tab: one-tap presets above the full option grid. Content only — the tab
+ * scaffold in MainActivity owns the bars.
  */
 @Composable
 fun PracticeScreen(
