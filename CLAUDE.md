@@ -33,7 +33,7 @@ JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug
 ```
 
 Three things are generated rather than written by hand: `words.json` (`tools/wordlist`),
-`lessons.json` (`tools/lessons`) and the colour scheme in `ui/theme/Theme.kt`
+`lessons.json` (`tools/lessons`) and the palettes in `ui/theme/Theme.kt`
 (`tools/theme`). Edit the generator and re-run it; editing its output means the next run
 silently reverts you. `lessons.json` is the one whose staleness nothing else catches, so
 it has a check of its own:
@@ -60,7 +60,7 @@ USB-attached phone instead:
 
 ```
 app/src/main/assets/     words.json (words), rules.json (conjugation), lessons.json (learn path)
-app/src/main/res/        launcher icon, window background, the two bundled fonts and their licence
+app/src/main/res/        launcher icon, window background, the bundled fonts and their licence
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
     quiz/                engine, question pool, romaji input, furigana, answer explanations,
@@ -70,10 +70,10 @@ app/src/main/java/com/japanesedrills/
     ui/screens/          learn path, lesson intro, grammar, primer, practice, quiz,
                          results, settings, about
     ui/components/       furigana-aware rich text and table, shared card
-    ui/theme/            colour schemes (generated) and the type scale
+    ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
-tools/theme/             the colour scheme, and the palettes that were rejected (see schemes.py)
+tools/theme/             the palettes Settings offers, and why each looks as it does (see schemes.py)
 tools/lessons/           lessons.json; its README holds the curriculum reasoning
 ```
 
@@ -130,8 +130,8 @@ questions, is in `tools/lessons/README.md`.
 ## Licensing
 
 The bundled typefaces are under the SIL Open Font License, which asks that the licence
-travel with the font: it does, as `res/raw/ofl.txt`, and both faces are credited on the
-About screen.
+travel with the font: it does, as `res/raw/ofl.txt`, and every face is credited on the
+About screen. A face added to a palette needs its copyright line there and an About entry.
 
 The word data comes from JMdict, JmdictFurigana, the Tanaka Corpus and
 open-anki-jlpt-decks. The first three are CC BY-SA, so words.json is a modified

@@ -11,6 +11,7 @@ import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.OptionsStore
+import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
@@ -246,8 +247,10 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setTheme(theme: ThemeChoice) = updateOptions { it.copy(theme = theme) }
 
-    /** Resets the practice settings only; the chosen theme is not one of them. */
-    fun resetDefaults() = updateOptions { QuizOptions(theme = it.theme) }
+    fun setPalette(palette: Palette) = updateOptions { it.copy(palette = palette) }
+
+    /** Resets the practice settings only; the appearance is not one of them. */
+    fun resetDefaults() = updateOptions { QuizOptions(theme = it.theme, palette = it.palette) }
 
     /** The whole learn path as text, for copying somewhere safe. */
     fun exportProgress(): String = ProgressCodec.encode(_state.value.progress, indent = 2)

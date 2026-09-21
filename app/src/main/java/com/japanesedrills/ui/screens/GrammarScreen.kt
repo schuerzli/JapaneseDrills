@@ -20,6 +20,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import com.japanesedrills.ui.theme.DrillTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -209,7 +210,11 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples, furiganaAl
                 Text(
                     heading,
                     style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = if (DrillTheme.accents.headings) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
                     fontWeight = FontWeight.Medium,
                 )
                 if (table != null) {

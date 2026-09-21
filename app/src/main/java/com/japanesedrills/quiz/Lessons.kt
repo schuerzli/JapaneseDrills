@@ -88,6 +88,7 @@ class Curriculum(val lessons: List<Lesson>) {
             flags = flags,
             questionFocus = QuizOptions.FOCUS_NONE,
             theme = base.theme,
+            palette = base.palette,
             wordKeys = words,
         )
     }

@@ -11,6 +11,19 @@ enum class ThemeChoice(val label: String) {
     Dark("Dark"),
 }
 
+/**
+ * Which palette the app is dressed in. The names are tools/theme/schemes.py's palette keys:
+ * the generated theme maps each to its colours with an exhaustive `when`, so a palette added
+ * on one side and not the other fails to compile rather than crashing.
+ */
+enum class Palette(val label: String) {
+    Latte("Latte"),
+    Kissaten("Kissaten"),
+    Washi("Washi"),
+    Caramel("Caramel"),
+    Mocha("Mocha"),
+}
+
 /** Settings chosen on the start screen. Flag keys match the web drill's option ids. */
 data class QuizOptions(
     val flags: Map<String, Boolean> = DEFAULT_FLAGS,
@@ -18,6 +31,8 @@ data class QuizOptions(
     val numQuestions: String = "10",
     /** Not a quiz setting, but it rides along to reuse the same persistence. */
     val theme: ThemeChoice = ThemeChoice.System,
+    /** Rides along for the same reason as [theme]. */
+    val palette: Palette = Palette.Latte,
     /**
      * Restricts the pool to these word keys. Null means "no restriction" and is what
      * free practice always uses; lessons and review set it to pin their vocabulary.
@@ -235,6 +250,9 @@ class OptionsStore(context: Context) {
             theme = prefs.getString("theme", null)
                 ?.let { name -> ThemeChoice.entries.firstOrNull { it.name == name } }
                 ?: defaults.theme,
+            palette = prefs.getString("palette", null)
+                ?.let { name -> Palette.entries.firstOrNull { it.name == name } }
+                ?: defaults.palette,
         )
     }
 
@@ -244,6 +262,7 @@ class OptionsStore(context: Context) {
             putString("questionFocus", options.questionFocus)
             putString("numQuestions", options.numQuestions)
             putString("theme", options.theme.name)
+            putString("palette", options.palette.name)
         }.apply()
     }
 }

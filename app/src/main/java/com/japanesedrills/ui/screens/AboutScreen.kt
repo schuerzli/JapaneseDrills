@@ -105,17 +105,38 @@ private val SOURCES = listOf(
 private val TYPEFACES = listOf(
     Source(
         name = "Lora",
-        usedFor = "Titles and headings.",
+        usedFor = "Titles in the Latte and Kissaten themes.",
         credit = "The Lora Project Authors",
         licence = "SIL Open Font License 1.1",
         url = "https://fonts.google.com/specimen/Lora",
     ),
     Source(
         name = "Manrope",
-        usedFor = "Everything you read.",
+        usedFor = "Text in the Latte, Kissaten and Mocha themes.",
         credit = "The Manrope Project Authors",
         licence = "SIL Open Font License 1.1",
         url = "https://fonts.google.com/specimen/Manrope",
+    ),
+    Source(
+        name = "Outfit",
+        usedFor = "The Washi theme.",
+        credit = "The Outfit Project Authors",
+        licence = "SIL Open Font License 1.1",
+        url = "https://fonts.google.com/specimen/Outfit",
+    ),
+    Source(
+        name = "Fraunces",
+        usedFor = "Titles in the Caramel theme.",
+        credit = "The Fraunces Project Authors",
+        licence = "SIL Open Font License 1.1",
+        url = "https://fonts.google.com/specimen/Fraunces",
+    ),
+    Source(
+        name = "Nunito Sans",
+        usedFor = "Text in the Caramel theme.",
+        credit = "The Nunito Sans Project Authors",
+        licence = "SIL Open Font License 1.1",
+        url = "https://fonts.google.com/specimen/Nunito+Sans",
     ),
 )
 

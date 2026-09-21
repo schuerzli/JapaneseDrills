@@ -85,7 +85,7 @@ class MainActivity : ComponentActivity() {
                 ThemeChoice.Light -> false
                 ThemeChoice.Dark -> true
             }
-            JapaneseDrillsTheme(darkTheme = dark) { DrillApp(state, viewModel) }
+            JapaneseDrillsTheme(darkTheme = dark, palette = state.options.palette) { DrillApp(state, viewModel) }
         }
     }
 
@@ -182,6 +182,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             AppSettingsScreen(
                 state = state,
                 onTheme = viewModel::setTheme,
+                onPalette = viewModel::setPalette,
                 onResetProgress = viewModel::resetProgress,
                 onExport = viewModel::exportProgress,
                 onImport = viewModel::importProgress,

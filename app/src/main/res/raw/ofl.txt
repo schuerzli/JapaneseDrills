@@ -5,6 +5,12 @@ Copyright 2011 The Lora Project Authors (https://github.com/cyrealtype/Lora-Cyri
 
 Copyright 2018 The Manrope Project Authors (https://github.com/googlefonts/manrope)
 
+Copyright 2021 The Outfit Project Authors (https://github.com/Outfitio/Outfit-Fonts)
+
+Copyright 2020 The Fraunces Project Authors (github.com/undercasetype/Fraunces)
+
+Copyright 2016 The Nunito Sans Project Authors (https://github.com/Fonthausen/NunitoSans)
+
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:
 https://scripts.sil.org/OFL

@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -335,7 +336,7 @@ private fun ResultCard(
         ) {
             Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    shape = MaterialTheme.shapes.extraLarge,
+                    shape = CircleShape,
                     color = if (correct) answerColors.correct else scheme.error,
                     contentColor = if (correct) answerColors.onCorrect else scheme.onError,
                 ) {
@@ -522,7 +523,7 @@ private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) 
 
     Row {
         Surface(
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = CircleShape,
             color = MaterialTheme.colorScheme.secondaryContainer,
             contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.size(24.dp),

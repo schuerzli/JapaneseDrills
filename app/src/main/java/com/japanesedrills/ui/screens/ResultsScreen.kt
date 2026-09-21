@@ -1,6 +1,7 @@
 package com.japanesedrills.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -220,7 +221,7 @@ private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
     ) {
         Row(Modifier.padding(16.dp)) {
             Surface(
-                shape = MaterialTheme.shapes.extraLarge,
+                shape = CircleShape,
                 color = if (entry.correct) answerColors.correctContainer else scheme.errorContainer,
                 contentColor = if (entry.correct) answerColors.onCorrectContainer else scheme.onErrorContainer,
             ) {

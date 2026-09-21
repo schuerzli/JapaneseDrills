@@ -19,6 +19,11 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ButtonDefaults
@@ -42,11 +47,53 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.theme.facesOf
 
 private fun plural(count: Int, noun: String) = if (count == 1) "1 $noun" else "$count ${noun}s"
+
+/** The palettes by name, each with the faces it is set in, since those change too. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PaletteDropdown(selected: Palette, onSelected: (Palette) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+        OutlinedTextField(
+            value = selected.label,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Theme") },
+            supportingText = { Text(facesOf(selected)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                .fillMaxWidth(),
+        )
+        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            for (palette in Palette.entries) {
+                DropdownMenuItem(
+                    text = {
+                        Column {
+                            Text(palette.label)
+                            Text(
+                                facesOf(palette),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    onClick = {
+                        onSelected(palette)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
 
 /** Appearance, progress and attribution, reached from the cog in the top bar. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,6 +101,7 @@ private fun plural(count: Int, noun: String) = if (count == 1) "1 $noun" else "$
 fun AppSettingsScreen(
     state: DrillUiState,
     onTheme: (ThemeChoice) -> Unit,
+    onPalette: (Palette) -> Unit,
     onResetProgress: () -> Unit,
     onExport: () -> String,
     onImport: (String) -> Boolean,
@@ -89,6 +137,7 @@ fun AppSettingsScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         SectionCard("Appearance") {
+            PaletteDropdown(state.options.palette, onPalette)
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                 ThemeChoice.entries.forEachIndexed { i, choice ->
                     SegmentedButton(
