@@ -57,6 +57,12 @@ USB-attached phone instead:
 "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" -s emulator-5554 install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
+**The phone gets the release build** (`assembleRelease`, `apk/release/app-release.apk`).
+A debuggable Compose app stutters where the release one does not: the primer's first
+scroll had half-second frames in debug and none in release. So judge smoothness only on a
+release build. It is signed with the debug key, so each build installs over the other
+and progress survives.
+
 ## Project layout
 
 ```

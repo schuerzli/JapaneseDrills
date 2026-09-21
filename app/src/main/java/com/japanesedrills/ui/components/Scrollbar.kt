@@ -47,26 +47,64 @@ fun Modifier.verticalScrollbar(state: ScrollState): Modifier {
 }
 
 /**
- * A scrollbar for a lazy list. Items differ in height and only the visible ones are measured,
- * so the thumb is an estimate from their average: close enough to say where in the page you
- * are and how much is left, which is all a scrollbar is for.
+ * A scrollbar for a lazy list. Only the visible items are measured, so the list remembers
+ * every height it has seen and estimates the rest from their average. An estimate from the
+ * visible items alone jumped whenever a tall table scrolled in among short lines; this one
+ * only firms up, and is exact once the list has been scrolled through.
  */
 @Composable
 fun Modifier.verticalScrollbar(state: LazyListState): Modifier {
     val scrollable = state.canScrollForward || state.canScrollBackward
     val alpha = scrollbarAlpha(state.isScrollInProgress, scrollable)
     val color = scrollbarColor()
+    // Per item index, the height it was last measured at. Written while drawing, so a plain
+    // array rather than state: recording a height must not ask for another frame.
+    val heights = remember(state) { HeightLog() }
     return drawWithContent {
         drawContent()
         val info = state.layoutInfo
         val visible = info.visibleItemsInfo
         if (!scrollable || visible.isEmpty()) return@drawWithContent
+        heights.record(info.totalItemsCount, visible.map { it.index to it.size })
+        val gap = info.mainAxisItemSpacing
+        val first = visible.first()
+        val scrolled = heights.sumBefore(first.index) + gap * first.index - first.offset
+        val content = info.beforeContentPadding + info.afterContentPadding +
+            heights.sumBefore(info.totalItemsCount) + gap * (info.totalItemsCount - 1f)
         val viewport = (info.viewportEndOffset - info.viewportStartOffset).toFloat()
-        val average = visible.sumOf { it.size }.toFloat() / visible.size
-        val content = maxOf(viewport, average * info.totalItemsCount + info.beforeContentPadding + info.afterContentPadding)
-        val scrolled = state.firstVisibleItemIndex * average + state.firstVisibleItemScrollOffset
-        val fraction = if (!state.canScrollForward) 1f else (scrolled / (content - viewport)).coerceIn(0f, 1f)
-        drawThumb(viewport * viewport / content, fraction, alpha, color)
+        val length = maxOf(content, viewport)
+        val fraction = if (!state.canScrollForward) 1f else (scrolled / (length - viewport)).coerceIn(0f, 1f)
+        drawThumb(viewport * viewport / length, fraction, alpha, color)
+    }
+}
+
+/** The heights a lazy list's items have been seen at, and the average standing in for the rest. */
+private class HeightLog {
+    private var sizes = IntArray(0)
+    private var seen = 0
+    private var total = 0L
+
+    fun record(count: Int, measured: List<Pair<Int, Int>>) {
+        if (count != sizes.size) {
+            sizes = IntArray(count)
+            seen = 0
+            total = 0
+        }
+        for ((index, size) in measured) {
+            if (index >= count || size <= 0) continue
+            val old = sizes[index]
+            if (old == 0) seen++
+            total += size - old
+            sizes[index] = size
+        }
+    }
+
+    /** The height of the items before [index]: measured where seen, the average elsewhere. */
+    fun sumBefore(index: Int): Float {
+        val average = if (seen == 0) 0f else total.toFloat() / seen
+        var sum = 0f
+        for (i in 0 until index) sum += if (sizes[i] > 0) sizes[i].toFloat() else average
+        return sum
     }
 }
 
