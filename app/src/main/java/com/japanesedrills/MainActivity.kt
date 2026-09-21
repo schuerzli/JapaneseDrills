@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -27,9 +28,12 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.japanesedrills.quiz.OptionsStore
@@ -85,6 +89,15 @@ class MainActivity : ComponentActivity() {
                 ThemeChoice.Light -> false
                 ThemeChoice.Dark -> true
             }
+            // The icons' tint was decided in onCreate from the choice stored then, so a
+            // switch made in Settings would leave dark icons on a dark bar until a restart.
+            DisposableEffect(dark) {
+                enableEdgeToEdge(
+                    statusBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT) { dark },
+                    navigationBarStyle = SystemBarStyle.auto(LIGHT_SCRIM, DARK_SCRIM) { dark },
+                )
+                onDispose {}
+            }
             JapaneseDrillsTheme(darkTheme = dark, palette = state.options.palette) { DrillApp(state, viewModel) }
         }
     }
@@ -111,6 +124,13 @@ class MainActivity : ComponentActivity() {
             else -> UiModeManager.MODE_NIGHT_AUTO
         }
         getSystemService(UiModeManager::class.java).setApplicationNightMode(mode)
+    }
+
+    private companion object {
+        val TRANSPARENT = Color.Transparent.toArgb()
+        // enableEdgeToEdge's own defaults, which it keeps private.
+        val LIGHT_SCRIM = Color(0xE6FFFFFF).toArgb()
+        val DARK_SCRIM = Color(0x801B1B1B).toArgb()
     }
 }
 

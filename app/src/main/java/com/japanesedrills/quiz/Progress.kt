@@ -30,8 +30,12 @@ data class Progress(
 
     val isEmpty: Boolean get() = lessons.isEmpty() && skills.isEmpty() && words.isEmpty()
 
-    /** How many skills are ready to be reviewed. The one definition of "due" for the UI. */
-    fun dueCount(today: Long): Int = skills.count { (_, state) -> Scheduler.isDue(state, today) }
+    /**
+     * How many skills are ready to be reviewed, of those [reachable] accepts. The one
+     * definition of "due" for the UI.
+     */
+    fun dueCount(today: Long, reachable: (skill: String) -> Boolean = { true }): Int =
+        skills.count { (skill, state) -> Scheduler.isDue(state, today) && reachable(skill) }
 
     companion object {
         /** A pairing missed this often is a leech: it gets picked first in review. */
@@ -161,6 +165,11 @@ class ProgressStore(context: Context) {
 
     /** True when [load] had to set a document aside; the settings screen says so. */
     fun hasSalvage(): Boolean = prefs.contains(SALVAGE_KEY)
+
+    /** Drops a set-aside document once imported progress has replaced it. */
+    fun discardSalvage() {
+        prefs.edit().remove(SALVAGE_KEY).apply()
+    }
 
     fun save(progress: Progress) {
         prefs.edit().putString(KEY, ProgressCodec.encode(progress)).apply()

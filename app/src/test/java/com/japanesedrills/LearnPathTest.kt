@@ -16,6 +16,7 @@ import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
 import com.japanesedrills.quiz.TransformationBuilder
 import java.io.File
+import kotlin.random.Random
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -375,6 +376,26 @@ class LearnPathTest {
         assertTrue(words.containsAll(asked))
     }
 
+    @Test
+    fun reviewDoesNotRepeatAQuestionWhileUnaskedOnesRemain() {
+        val passed = setOf("start", "negative")
+        val words = passed.flatMapTo(HashSet()) { curriculum.words(it) }
+        val forms = passed.flatMapTo(HashSet()) { curriculum.forms(it) }
+        val options = curriculum.optionsFor(words, forms, QuizOptions())
+        val index = engine.buildSkillIndex(options)
+
+        // One leech per skill: it is picked first, and used to be picked every time.
+        val leeches = index.map { (skill, entries) ->
+            Progress.leechKey(engine.wordOf(entries.first()).key, QuizEngine.typeOfSkill(skill)) to
+                Progress.LEECH_THRESHOLD
+        }.toMap()
+        repeat(20) { seed ->
+            val queue = QuizEngine(data, Random(seed)).buildReviewQueue(options, Progress(leeches = leeches), day = 0)
+            assertTrue("pool too small for the check", index.values.sumOf { it.size } >= queue.size)
+            assertEquals("seed $seed repeated a question", queue.size, queue.toSet().size)
+        }
+    }
+
     // Scheduler
 
     @Test
@@ -480,6 +501,7 @@ class LearnPathTest {
         assertEquals(1, progress.dueCount(10))
         assertEquals(2, progress.dueCount(50))
         assertEquals(0, progress.dueCount(4))
+        assertEquals("only what review can reach", 1, progress.dueCount(50) { it.startsWith("past|") })
     }
 
     // Backup. The stored document and the one the user copies out are the same text, so

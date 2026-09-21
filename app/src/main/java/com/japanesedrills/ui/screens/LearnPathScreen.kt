@@ -81,8 +81,8 @@ private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
  * is the slower, weekly sense of progress.
  *
  * Lessons are grouped into chapters, and every chapter folds down to its heading; only the
- * ones with a lesson to do next start open. Listed one by one, the locked tail was thirty identical padlocks: it said "a long
- * way to go" and nothing about what lay ahead.
+ * ones with a lesson to do next start open. Listed one by one, the locked tail was thirty
+ * identical padlocks: it said "a long way to go" and nothing about what lay ahead.
  */
 @Composable
 fun LearnPathScreen(

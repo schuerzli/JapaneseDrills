@@ -46,7 +46,9 @@ class DrillData(
         }
 
         fun fromJson(wordsJson: String, rulesJson: String, lessonsJson: String): DrillData {
-            val rules = parseRules(rulesJson)
+            // Parsed once for both readings of it.
+            val rulesRoot = JSONObject(rulesJson)
+            val rules = parseRules(rulesRoot)
             val words = parseWords(wordsJson, rules)
             val conjugationKeys = LinkedHashSet<String>().apply {
                 add(DICTIONARY)
@@ -56,9 +58,20 @@ class DrillData(
                 words,
                 TransformationBuilder.build(conjugationKeys),
                 Curriculum.parse(lessonsJson),
-                parseOwnForms(rulesJson),
+                parseOwnForms(rulesRoot),
             )
         }
+
+        /**
+         * The conjugations each group declares itself, as opposed to inheriting through
+         * `_extends`. This is the difference between "irregular verb" and "irregular here":
+         * 行く extends godan and overrides only the forms built on its て-form, so it is a
+         * perfectly ordinary godan verb everywhere else.
+         */
+        fun parseOwnForms(root: JSONObject): Map<String, Set<String>> =
+            root.keys().asSequence().associateWith { group ->
+                root.getJSONObject(group).keys().asSequence().filterNot { it.startsWith("_") }.toSet()
+            }
 
         /**
          * A group may declare `"_extends": "<group>"` to inherit that group's forms and list
@@ -66,22 +79,7 @@ class DrillData(
          * Groups that deliberately lack forms (ある, いる) stay standalone rather than
          * inheriting a set they would have to subtract from again.
          */
-        /**
-         * The conjugations each group declares itself, as opposed to inheriting through
-         * `_extends`. This is the difference between "irregular verb" and "irregular here":
-         * 行く extends godan and overrides only the forms built on its て-form, so it is a
-         * perfectly ordinary godan verb everywhere else.
-         */
-        fun parseOwnForms(json: String): Map<String, Set<String>> {
-            val root = JSONObject(json)
-            return root.keys().asSequence().associateWith { group ->
-                val groupObj = root.getJSONObject(group)
-                groupObj.keys().asSequence().filterNot { it.startsWith("_") }.toSet()
-            }
-        }
-
-        fun parseRules(json: String): Map<String, Map<String, RuleSet>> {
-            val root = JSONObject(json)
+        fun parseRules(root: JSONObject): Map<String, Map<String, RuleSet>> {
             val result = LinkedHashMap<String, Map<String, RuleSet>>()
 
             fun resolve(group: String, seen: Set<String>): Map<String, RuleSet> {

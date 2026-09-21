@@ -7,6 +7,8 @@ import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Prompts
+import com.japanesedrills.quiz.Question
+import com.japanesedrills.quiz.QuestionPool
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.RubySegment
 import java.io.File
@@ -461,3 +463,7 @@ class DrillLogicTest {
         assertEquals(engine.buildPool(QuizOptions()).size, engine.buildPool(QuizOptions().with("common", false)).size)
     }
 }
+
+/** One question from [pool], drawn the way a session draws them. */
+private fun QuizEngine.nextQuestion(pool: QuestionPool): Question? =
+    buildQueue(pool, 1).firstOrNull()?.let(::questionFor)

@@ -93,10 +93,9 @@ class Curriculum(val lessons: List<Lesson>) {
         )
     }
 
-    /** A lesson's own reach, plus the question count it is graded over. */
+    /** A lesson's own reach. */
     fun optionsFor(lesson: Lesson, base: QuizOptions): QuizOptions =
         optionsFor(words(lesson.id), forms(lesson.id), base)
-            .copy(numQuestions = lesson.questions.toString())
 
     private fun resolve(id: String, seen: Set<String>): Pair<Set<String>, Set<String>> {
         formsOf[id]?.let { return it to wordsOf.getValue(id) }

@@ -148,7 +148,7 @@ fun RichText(
                 }
 
                 is RichPart.Jp -> Row(itemModifier, verticalAlignment = Alignment.Bottom) {
-                    val segments = Furigana.segments(part.word)
+                    val segments = remember(part.word) { Furigana.segments(part.word) }
                     segments.forEachIndexed { i, segment ->
                         Cell(
                             reading = segment.reading,

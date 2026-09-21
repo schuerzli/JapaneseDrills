@@ -27,6 +27,7 @@ import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.quiz.TransformationBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -37,7 +38,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
-import kotlin.random.Random
 
 /**
  * The three places to be. Learn is first and the default: it is the one screen that tells
@@ -56,7 +56,8 @@ enum class Screen { Root, LessonIntro, Quiz, Results, Settings, About, Primer, G
 enum class SessionKind { Practice, Lesson, Review }
 
 data class HistoryEntry(val question: Question, val response: String) {
-    val correct: Boolean get() = question.isCorrect(response)
+    /** Decided once: the score badge, the grading and the results all ask again. */
+    val correct: Boolean = question.isCorrect(response)
 }
 
 data class QuizState(
@@ -82,7 +83,6 @@ data class LessonCard(
     val lesson: Lesson,
     val unlocked: Boolean,
     val passed: Boolean,
-    val bestAccuracy: Double,
     /** How well the skills this lesson taught are holding up, 0f..1f. */
     val strength: Float,
 )
@@ -245,11 +245,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun setFocus(focus: String) = updateOptions { it.withFocus(focus) }
 
     fun applyPreset(preset: PracticePreset) {
-        val data = data ?: return
-        val passed = _state.value.progress.passed
-        val forms = passed.flatMapTo(HashSet()) { data.curriculum.forms(it) }
-        val groups = passed.flatMap { data.curriculum.words(it) }.mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
-        updateOptions { it.withPreset(preset, forms, groups) }
+        val learned = learned() ?: return
+        updateOptions { it.withPreset(preset, learned.forms, learned.groups) }
     }
 
     fun setNumQuestions(text: String) = updateOptions { it.copy(numQuestions = text.filter(Char::isDigit).take(3)) }
@@ -270,6 +267,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun importProgress(text: String): Boolean {
         val imported = ProgressCodec.decodeOrNull(text) ?: return false
+        // The notice would otherwise come back on the next launch, from the copy on disk.
+        progressStore.discardSalvage()
         _state.update { it.copy(progress = imported, salvagedProgress = false) }
         refreshPath()
         return true
@@ -296,7 +295,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         poolJob?.cancel()
         _state.update { it.copy(pool = null) }
         poolJob = viewModelScope.launch {
-            val newPool = withContext(Dispatchers.Default) { engine.buildPool(options) }
+            val newPool = withContext(Dispatchers.Default) { engine.buildPool(options) { ensureActive() } }
             pool = newPool
             _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size)) }
         }
@@ -315,11 +314,34 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 lesson = lesson,
                 unlocked = curriculum.isUnlocked(lesson.id, passed),
                 passed = lesson.id in passed,
-                bestAccuracy = progress.lessons[lesson.id]?.bestAccuracy ?: 0.0,
                 strength = strengthOf(lesson, progress),
             )
         }
-        _state.update { it.copy(path = path, dueCount = progress.dueCount(day)) }
+        // Only what a review can reach: a failed lesson also schedules its forms, and
+        // counting those showed work due that no review would ever ask about.
+        val learned = learned()
+        val dueCount = if (learned == null) 0 else progress.dueCount(day) { skill ->
+            QuizEngine.typeOfSkill(skill) in learned.types &&
+                QuizEngine.groupOfSkill(skill) in learned.groups
+        }
+        _state.update { it.copy(path = path, dueCount = dueCount) }
+    }
+
+    /** What the passed lessons have taught between them, or null if none has been passed. */
+    private class Learned(val words: Set<String>, val forms: Set<String>, val groups: Set<String>) {
+        val types: Set<String> = forms.mapTo(HashSet(), TransformationBuilder::typeOfForm)
+    }
+
+    private fun learned(): Learned? {
+        val data = data ?: return null
+        val passed = _state.value.progress.passed
+        if (passed.isEmpty()) return null
+        val words = passed.flatMapTo(HashSet()) { data.curriculum.words(it) }
+        return Learned(
+            words = words,
+            forms = passed.flatMapTo(HashSet()) { data.curriculum.forms(it) },
+            groups = words.mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group },
+        )
     }
 
     /** A lesson's mastery is the weakest of the skills it drills, so one rusty form shows. */
@@ -399,17 +421,13 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     fun startReview() {
         val engine = engine ?: return
         val curriculum = data?.curriculum ?: return
+        val learned = learned() ?: return
         val progress = _state.value.progress
-        val passed = progress.passed
-        if (passed.isEmpty()) return
-
-        val words = passed.flatMapTo(HashSet()) { curriculum.words(it) }
-        val forms = passed.flatMapTo(HashSet()) { curriculum.forms(it) }
-        val options = curriculum.optionsFor(words, forms, _state.value.options)
+        val options = curriculum.optionsFor(learned.words, learned.forms, _state.value.options)
 
         viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
-                buildReviewQueue(engine, options, progress, today)
+                engine.buildReviewQueue(options, progress, today)
             }
             val question = startQueue(drawn)
             if (question == null) {
@@ -426,74 +444,6 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 )
             }
         }
-    }
-
-    /**
-     * Picks the review questions up front, cycling through the due skills so the session
-     * interleaves them rather than blocking one skill at a time. Interleaving feels harder
-     * and retains better, which is the whole point of a review.
-     */
-    private fun buildReviewQueue(
-        engine: QuizEngine,
-        options: QuizOptions,
-        progress: Progress,
-        day: Long,
-    ): List<Int> {
-        val index = engine.buildSkillIndex(options)
-        if (index.isEmpty()) return emptyList()
-
-        val due = index.keys.filter { key ->
-            progress.skills[key]?.let { Scheduler.isDue(it, day) } ?: true
-        }
-        val skills = (due.ifEmpty { index.keys.toList() }).shuffled()
-        val count = (skills.size * QUESTIONS_PER_SKILL).coerceIn(MIN_REVIEW, MAX_REVIEW)
-
-        val queue = ArrayList<Int>(count)
-        var i = 0
-        while (queue.size < count) {
-            val skill = skills[i++ % skills.size]
-            val entries = index[skill] ?: continue
-            queue += pickForSkill(engine, entries, progress, day, QuizEngine.typeOfSkill(skill))
-        }
-        return queue
-    }
-
-    /** Within a skill, a leech beats a due word beats anything else. */
-    private fun pickForSkill(
-        engine: QuizEngine,
-        entries: IntArray,
-        progress: Progress,
-        day: Long,
-        type: String,
-    ): Int {
-        pickWhere(entries) { packed ->
-            val key = Progress.leechKey(engine.wordOf(packed).key, type)
-            (progress.leeches[key] ?: 0) >= Progress.LEECH_THRESHOLD
-        }?.let { return it }
-
-        pickWhere(entries) { packed ->
-            progress.words[engine.wordOf(packed).key]?.let { Scheduler.isDue(it, day) } ?: true
-        }?.let { return it }
-
-        return entries[Random.nextInt(entries.size)]
-    }
-
-    /**
-     * One matching entry, chosen uniformly, in a single pass and without allocating.
-     *
-     * A broad skill holds thousands of packed pairs once the vocabulary opens up, and
-     * filtering it into a list would box every candidate just to pick one of them.
-     */
-    private inline fun pickWhere(entries: IntArray, matches: (Int) -> Boolean): Int? {
-        var chosen = 0
-        var seen = 0
-        for (packed in entries) {
-            if (!matches(packed)) continue
-            seen++
-            // Reservoir sampling: the nth match replaces the incumbent with probability 1/n.
-            if (Random.nextInt(seen) == 0) chosen = packed
-        }
-        return if (seen == 0) null else chosen
     }
 
     // Quiz flow
@@ -650,11 +600,5 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             weakForms = weakForms,
             unlocked = if (passed) curriculum?.unlockedBy(lesson.id, updated.passed).orEmpty() else emptyList(),
         )
-    }
-
-    private companion object {
-        const val QUESTIONS_PER_SKILL = 2
-        const val MIN_REVIEW = 10
-        const val MAX_REVIEW = 30
     }
 }

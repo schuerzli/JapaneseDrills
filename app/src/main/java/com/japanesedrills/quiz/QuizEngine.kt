@@ -83,7 +83,7 @@ class QuestionPool(
 
     val isEmpty: Boolean get() = size == 0
 
-    internal fun pick(random: Random): Int? = when {
+    private fun pick(random: Random): Int? = when {
         isEmpty -> null
         regular.isEmpty() -> trick.random(random)
         trick.isEmpty() -> regular.random(random)
@@ -133,11 +133,6 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     private val levelFilters = QuizOptions.LEVEL_FILTERS.map { it.key }
     private var nextId = 0
 
-    fun isValid(word: Word, t: Transformation, options: QuizOptions): Boolean =
-        allowsWord(word, options, levelFilters.filter(options::isOn)) &&
-            t.tags.all(options::allows) &&
-            allowsPair(word, t, options)
-
     /** Whether the options allow this word at all, whatever the transformation. */
     private fun allowsWord(word: Word, options: QuizOptions, activeLevels: List<String>): Boolean =
         options.isOn(word.group) &&
@@ -158,7 +153,11 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         }
     }
 
-    fun buildPool(options: QuizOptions): QuestionPool {
+    /**
+     * [checkpoint] runs once per word, so a caller can abandon a scan whose options have
+     * already changed again; the whole-pool scan is long enough for that to matter.
+     */
+    fun buildPool(options: QuizOptions, checkpoint: () -> Unit = {}): QuestionPool {
         val transformations = data.transformations
         // Both of these are the same for every word, so they are decided once per pool
         // rather than once per (word, transformation) pair.
@@ -170,6 +169,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         val trick = IntList(1024)
         var words = 0
         data.words.forEachIndexed { w, word ->
+            checkpoint()
             if (!allowsWord(word, options, activeLevels)) return@forEachIndexed
             var asked = false
             for ((t, transformation) in enabled) {
@@ -183,8 +183,6 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         }
         return QuestionPool(options, words, regular.toIntArray(), trick.toIntArray())
     }
-
-    fun nextQuestion(pool: QuestionPool): Question? = pool.pick(random)?.let(::questionFor)
 
     /** A whole session's questions up front, drawn without replacement. */
     fun buildQueue(pool: QuestionPool, count: Int): List<Int> = pool.sample(count, random)
@@ -232,7 +230,76 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         return index.mapValues { it.value.toIntArray() }
     }
 
+    /**
+     * A review session's questions, cycling through the due skills so the session
+     * interleaves them rather than blocking one skill at a time. Interleaving feels harder
+     * and retains better, which is the whole point of a review.
+     */
+    fun buildReviewQueue(options: QuizOptions, progress: Progress, day: Long): List<Int> {
+        val index = buildSkillIndex(options)
+        if (index.isEmpty()) return emptyList()
+
+        val due = index.keys.filter { key ->
+            progress.skills[key]?.let { Scheduler.isDue(it, day) } ?: true
+        }
+        val skills = due.ifEmpty { index.keys.toList() }.shuffled(random)
+        val count = (skills.size * QUESTIONS_PER_SKILL).coerceIn(MIN_REVIEW, MAX_REVIEW)
+
+        val queue = ArrayList<Int>(count)
+        val asked = HashSet<Int>()
+        var i = 0
+        while (queue.size < count) {
+            val skill = skills[i++ % skills.size]
+            val picked = pickForSkill(index.getValue(skill), progress, day, typeOfSkill(skill), asked)
+            asked += picked
+            queue += picked
+        }
+        return queue
+    }
+
+    /**
+     * Within a skill, a leech beats a due word beats anything else, and anything not yet
+     * asked this session beats a repeat. Without that last rule a skill with one leech
+     * asked that same question every time the cycle came round to it.
+     */
+    private fun pickForSkill(entries: IntArray, progress: Progress, day: Long, type: String, asked: Set<Int>): Int {
+        pickWhere(entries) { packed ->
+            packed !in asked &&
+                (progress.leeches[Progress.leechKey(wordOf(packed).key, type)] ?: 0) >= Progress.LEECH_THRESHOLD
+        }?.let { return it }
+
+        pickWhere(entries) { packed ->
+            packed !in asked && progress.words[wordOf(packed).key]?.let { Scheduler.isDue(it, day) } ?: true
+        }?.let { return it }
+
+        pickWhere(entries) { packed -> packed !in asked }?.let { return it }
+
+        return entries[random.nextInt(entries.size)]
+    }
+
+    /**
+     * One matching entry, chosen uniformly, in a single pass.
+     *
+     * A broad skill holds thousands of packed pairs once the vocabulary opens up, and
+     * filtering it into a list would box every candidate just to pick one of them.
+     */
+    private inline fun pickWhere(entries: IntArray, matches: (Int) -> Boolean): Int? {
+        var chosen = 0
+        var seen = 0
+        for (packed in entries) {
+            if (!matches(packed)) continue
+            seen++
+            // Reservoir sampling: the nth match replaces the incumbent with probability 1/n.
+            if (random.nextInt(seen) == 0) chosen = packed
+        }
+        return if (seen == 0) null else chosen
+    }
+
     companion object {
+        private const val QUESTIONS_PER_SKILL = 2
+        private const val MIN_REVIEW = 10
+        private const val MAX_REVIEW = 30
+
         /**
          * The unit spaced repetition schedules: a grammar operation on a word class.
          * Godan て-form and ichidan て-form are different skills because one is a table of
@@ -242,6 +309,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
 
         /** The half of a skill key naming the grammar, for the per-form pass floor. */
         fun typeOfSkill(skill: String): String = skill.substringBefore('|')
+
+        /** The half of a skill key naming the word class. */
+        fun groupOfSkill(skill: String): String = skill.substringAfter('|')
 
         private val japaneseText = Regex(
             // From 　, so the iteration mark 々 (々) counts as Japanese; without it
