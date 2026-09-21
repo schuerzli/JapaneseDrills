@@ -60,8 +60,8 @@ USB-attached phone instead:
 **The phone gets the release build** (`assembleRelease`, `apk/release/app-release.apk`).
 A debuggable Compose app stutters where the release one does not: the Conjugation
 Intro's first scroll had half-second frames in debug and none in release. So judge
-smoothness only on a release build. It is signed with the debug key, so each build installs over the other
-and progress survives.
+smoothness only on a release build. It is signed with the debug key, so each build
+installs over the other and progress survives.
 
 ## Project layout
 
@@ -129,7 +129,8 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   text. Renaming one means renaming all of them in the same change, then grepping for the
   old word before calling it done. The old name survives only where it describes history,
   such as the version-1 backup format of the old lesson path. The whole is the *learn
-  path* (`LearnPath`), its units are *steps*.
+  path* (`LearnPath`), its units are *steps*; the page that explains conjugation is the
+  *Conjugation Intro* (`ConjugationIntro`).
 - **The same goes for data: a word has one class everywhere** it is shown or conjugated,
   and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
   it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone

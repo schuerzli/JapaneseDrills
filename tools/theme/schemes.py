@@ -72,11 +72,12 @@ surfaceContainerLowest surfaceContainerLow surfaceContainer
 surfaceContainerHigh surfaceContainerHighest""".split()
 ANSWER_ROLES = ["correct", "onCorrect", "correctContainer", "onCorrectContainer"]
 
-# The Conjugation Intro's worked examples mark what a conjugation touches: the last kana, the form's
-# ending, and the two fused into one. Three hues that read as three different things, none
-# of them the red and green that mean wrong and right everywhere else in the app. The last
-# kana takes the palette's accent; the other two are shared, one set per mode, because they
-# only have to differ from the accent and from each other, not carry a palette's character.
+# The Conjugation Intro's worked examples mark what a conjugation touches: the last kana, the
+# form's ending, and the two fused into one. Three hues that read as three different things,
+# none of them the red and green that mean wrong and right everywhere else in the app. The
+# last kana takes the palette's accent; the other two are shared, one set per mode, because
+# they only have to differ from the accent and from each other, not carry a palette's
+# character.
 MARK_ROLES = ["markKana", "markEnding", "markFused"]
 MARKS_LIGHT = dict(markEnding="#1F5C8F", markFused="#7B3A82")
 MARKS_DARK = dict(markEnding="#8FC2F0", markFused="#E2A6E6")
