@@ -26,7 +26,7 @@ class DrillLogicTest {
         DrillData.fromJson(
             File(assets, "words.json").readText(),
             File(assets, "rules.json").readText(),
-            File(assets, "lessons.json").readText(),
+            File(assets, "steps.json").readText(),
         )
     }
 
@@ -88,7 +88,7 @@ class DrillLogicTest {
         assertEquals(listOf("高くない"), forms("高い", "negative"))
     }
 
-    /** Adjectives join the て form: the lesson on the connector is about them too. */
+    /** Adjectives join the て form: the step on the connector is about them too. */
     @Test
     fun adjectivesHaveATeForm() {
         assertEquals(listOf("高くて"), forms("高い", "te-form"))
@@ -255,6 +255,8 @@ class DrillLogicTest {
         assertEquals(listOf("暑くない"), forms("暑い", "negative"))
         assertEquals(listOf("暖かかった"), forms("暖かい", "past"))
         assertEquals(listOf("幸いです"), forms("幸い", "polite"))
+        // 嫌い ends in い but is a な-adjective: 嫌くない is not a word.
+        assertEquals(listOf("嫌いではない", "嫌いじゃない"), forms("嫌い", "negative"))
         assertEquals(listOf("黄色くない"), forms("黄色い", "negative"))
         assertEquals(listOf("きいろくない"), kana("黄色い", "negative"))
     }

@@ -38,6 +38,10 @@ object TransformationBuilder {
     fun typeOfForm(formKey: String): String =
         if (formKey == "plain" || formKey == "polite") "politeness" else formKey
 
+    /** The form options a [Transformation.type] needs switched on: [typeOfForm] reversed. */
+    fun formsOfType(type: String): List<String> =
+        if (type == "politeness") listOf("plain", "polite") else listOf(type)
+
     private val fromExtra = mapOf(
         "negative" to "affirmative",
         "past" to "present",

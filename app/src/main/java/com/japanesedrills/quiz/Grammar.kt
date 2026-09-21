@@ -3,7 +3,7 @@ package com.japanesedrills.quiz
 import com.japanesedrills.data.Word
 
 /**
- * What a form *means*, for the Grammar reference and the lesson that introduces it.
+ * What a form *means*, for the Grammar reference and the step that introduces it.
  *
  * Only the prose lives here. How a form is built is derived per word from [Explanations],
  * so the construction shown can never drift from the answers the drill accepts — and the
@@ -88,6 +88,9 @@ object Grammar {
                 "Default with strangers, colleagues, shop staff and teachers.",
                 "Politeness is carried by the final verb, so only the end of a sentence changes.",
                 "Neither rude nor humble — it is the unmarked choice when in doubt.",
+                "Built on the same い-row stem as たい: 書きたい, 書きます.",
+                "A layer over the other forms rather than a form of its own: 書いています, " +
+                    "書けます, 書かれます are the polite progressive, potential and passive.",
             ),
         ),
         GrammarNote(
@@ -95,7 +98,8 @@ object Grammar {
             title = "Negative",
             summary = "Says that something does not or will not happen.",
             notes = listOf(
-                "Plain ない and polite ません mean the same thing at different politeness levels.",
+                "Built from the plain form alone. The polite ません says the same thing and " +
+                    "comes with the polite layer.",
                 "The plain negative behaves like an い-adjective, which is why its past is なかった.",
                 "With a verb it is \"does not\"; with an adjective, \"is not\".",
             ),
@@ -142,6 +146,7 @@ object Grammar {
                 "About your own wishes, or a question about the listener's.",
                 "Said flatly about someone else it is wrong: use たがる, or hedge with " +
                     "たいようだ or たいそうです.",
+                "Built on the い-row stem: 書く → 書きたい. The polite ます form uses the same stem.",
                 "The result conjugates as an い-adjective: 食べたくない, 食べたかった.",
                 "The object may take が as well as を.",
             ),
@@ -226,7 +231,7 @@ object Grammar {
     )
 
     /**
-     * Notes about a word class rather than a form, keyed by the word group, for the lessons
+     * Notes about a word class rather than a form, keyed by the word group, for the steps
      * that introduce one. They have no construction of their own: how a class conjugates is
      * shown by the form notes, on the example words.
      */
@@ -255,12 +260,31 @@ object Grammar {
         ),
         GrammarNote(
             key = "suru",
-            title = "する verbs",
-            summary = "A noun plus する: the noun names the action and する does all the conjugating.",
+            title = "する",
+            summary = "To do — irregular throughout, and the most useful verb there is.",
             notes = listOf(
-                "勉強 is \"study\" and 勉強する is \"to study\". Only する changes: 勉強しない, 勉強した.",
-                "Every one of them conjugates exactly like する, irregular forms included.",
-                "The potential swaps する for できる: 勉強できる.",
+                "Its stem changes with the form: しない, した, して, and later させる, すれば.",
+                "The potential is a different verb altogether: できる.",
+                "Put after a noun it makes a verb: 勉強 is \"study\", 勉強する is \"to study\". " +
+                    "Those conjugate exactly like する: 勉強しない, 勉強した.",
+            ),
+        ),
+        GrammarNote(
+            key = "kuru",
+            title = "来る",
+            summary = "To come — the other verb that is irregular throughout.",
+            notes = listOf(
+                "The kanji stays; its reading changes: くる, こない, きた, きて.",
+                "The endings themselves are the ordinary ones. Only the vowel of 来 moves.",
+            ),
+        ),
+        GrammarNote(
+            key = "iku",
+            title = "行く",
+            summary = "To go — an ordinary godan verb with one exception.",
+            notes = listOf(
+                "Its past and て form are 行った and 行って, not 行いた and 行いて.",
+                "Everything else follows the godan rules: 行かない, 行ける, 行こう.",
             ),
         ),
         GrammarNote(
@@ -268,7 +292,7 @@ object Grammar {
             title = "ある",
             summary = "To exist, for things that are not alive: \"there is\", and often \"to have\".",
             notes = listOf(
-                "Otherwise an ordinary godan verb: あります, あった, あって.",
+                "Otherwise an ordinary godan verb: あった, あって.",
                 "Its negative is simply ない. あらない is not a word.",
                 "It has no imperative, potential, passive or causative in everyday use.",
                 "For people and animals, use いる instead.",
@@ -279,7 +303,7 @@ object Grammar {
             title = "いる",
             summary = "To exist, for people and animals: \"to be\" somewhere.",
             notes = listOf(
-                "An ordinary ichidan verb: います, いない, いた, いて.",
+                "An ordinary ichidan verb: いない, いた, いて.",
                 "It is the いる in ている: 食べている is 食べて plus いる.",
                 "Already a state, so it is not itself put into ている.",
                 "For things that are not alive, use ある instead.",
@@ -302,7 +326,7 @@ object Grammar {
 
     operator fun get(key: String): GrammarNote? = byKey[key]
 
-    /** The note introducing a word group, or null for a group no lesson is about. */
+    /** The note introducing a word group, or null for a group no step introduces. */
     fun classNote(group: String): GrammarNote? = classByKey[group]
 
     /**

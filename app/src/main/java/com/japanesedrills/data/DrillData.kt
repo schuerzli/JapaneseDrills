@@ -1,7 +1,7 @@
 package com.japanesedrills.data
 
 import android.content.Context
-import com.japanesedrills.quiz.Curriculum
+import com.japanesedrills.quiz.LearnPath
 import com.japanesedrills.quiz.Transformation
 import com.japanesedrills.quiz.TransformationBuilder
 import org.json.JSONObject
@@ -29,7 +29,7 @@ data class Word(
 class DrillData(
     val words: List<Word>,
     val transformations: List<Transformation>,
-    val curriculum: Curriculum,
+    val learnPath: LearnPath,
     /** Per group, the conjugations it defines itself. See [Companion.parseOwnForms]. */
     val ownForms: Map<String, Set<String>>,
 ) {
@@ -42,10 +42,10 @@ class DrillData(
 
         fun load(context: Context): DrillData {
             fun asset(name: String) = context.assets.open(name).bufferedReader(Charsets.UTF_8).use { it.readText() }
-            return fromJson(asset("words.json"), asset("rules.json"), asset("lessons.json"))
+            return fromJson(asset("words.json"), asset("rules.json"), asset("steps.json"))
         }
 
-        fun fromJson(wordsJson: String, rulesJson: String, lessonsJson: String): DrillData {
+        fun fromJson(wordsJson: String, rulesJson: String, stepsJson: String): DrillData {
             // Parsed once for both readings of it.
             val rulesRoot = JSONObject(rulesJson)
             val rules = parseRules(rulesRoot)
@@ -57,7 +57,7 @@ class DrillData(
             return DrillData(
                 words,
                 TransformationBuilder.build(conjugationKeys),
-                Curriculum.parse(lessonsJson),
+                LearnPath.parse(stepsJson),
                 parseOwnForms(rulesRoot),
             )
         }

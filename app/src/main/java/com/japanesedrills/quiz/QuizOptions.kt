@@ -35,8 +35,8 @@ data class QuizOptions(
     val palette: Palette = Palette.Latte,
     /**
      * Restricts the pool to these word keys. Null means "no restriction" and is what
-     * free practice always uses; lessons and review set it to pin their vocabulary.
-     * Never persisted — it is derived from the curriculum, not chosen by the user.
+     * free practice always uses; steps and review set it to pin their vocabulary.
+     * Never persisted — it is derived from the learn path, not chosen by the user.
      */
     val wordKeys: Set<String>? = null,
 ) {
@@ -66,12 +66,12 @@ data class QuizOptions(
         )
 
     /**
-     * [preset] applied. [learnedForms] and [learnedGroups] are what the passed lessons have
-     * taught, which only the curriculum and the learner's progress can say.
+     * [preset] applied. [practisedForms] and [practisedGroups] are what the learner has
+     * answered on the path so far, which only their progress can say.
      */
-    fun withPreset(preset: PracticePreset, learnedForms: Set<String>, learnedGroups: Set<String>): QuizOptions =
+    fun withPreset(preset: PracticePreset, practisedForms: Set<String>, practisedGroups: Set<String>): QuizOptions =
         when (preset) {
-            PracticePreset.Learned -> select(learnedForms, learnedGroups)
+            PracticePreset.Practised -> select(practisedForms, practisedGroups)
             // て and た are one sound change, so the focus is the switch between them and the
             // forms without it. Godan is where the change is; 行く is its exception.
             PracticePreset.TeTa -> select(setOf("plain", "past", "te-form"), setOf("godan", "iku"), FOCUS_TETAKEI)
@@ -215,7 +215,7 @@ data class QuizOptions(
         val DEFAULT_FLAGS: Map<String, Boolean> =
             ALL.associate { it.key to (it.key in ON_BY_DEFAULT) }
 
-        // Which kind of thing each flag selects. The curriculum needs to set the three
+        // Which kind of thing each flag selects. The learn path needs to set the three
         // kinds independently, so they are named here rather than re-derived from the
         // display lists at every call site.
         val FORM_KEYS: Set<String> = FORMS.map { it.key }.toSet()
@@ -227,8 +227,8 @@ data class QuizOptions(
 
 /** One-tap starting points for free practice, so the option grid is optional. */
 enum class PracticePreset(val label: String) {
-    /** Whatever the passed lessons have taught; only offered once one has been passed. */
-    Learned("What I've learned"),
+    /** Whatever the path has drilled so far; only offered once something has been answered there. */
+    Practised("What I've practised"),
     TeTa("て and た forms"),
     Everything("Everything"),
 }

@@ -3,12 +3,47 @@ package com.japanesedrills.quiz
 import android.content.Context
 import org.json.JSONObject
 
-/** How a lesson has gone so far. [passed] is sticky: a later bad run does not lock it again. */
-data class LessonRecord(
-    val passed: Boolean = false,
-    val bestAccuracy: Double = 0.0,
-    val attempts: Int = 0,
-)
+/**
+ * How a step has gone so far: its last [WINDOW] answers, newest in the lowest bit, and how
+ * many it has had in all. It exists as soon as the step is first opened, which is how the
+ * introduction knows to show only once.
+ */
+data class StepRecord(
+    val recent: Int = 0,
+    val answered: Int = 0,
+    /**
+     * Sticky: once the recent answers have cleared the bar, the step stays ticked. A bad
+     * session later is not a reason to take it away; the ring is what shows fading.
+     */
+    val ready: Boolean = false,
+) {
+    /** How many of the recent answers were right, over how many there are. */
+    val recentAccuracy: Double
+        get() {
+            val window = minOf(answered, WINDOW)
+            return if (window == 0) 0.0 else Integer.bitCount(recent) / window.toDouble()
+        }
+
+    /** Whether the recent answers clear the bar on their own, whatever [ready] says. */
+    val clearsTheBar: Boolean get() = answered >= READY_MIN_ANSWERS && recentAccuracy >= READY_ACCURACY
+
+    fun with(correct: Boolean): StepRecord {
+        val next = copy(
+            recent = ((recent shl 1) or (if (correct) 1 else 0)) and WINDOW_MASK,
+            answered = answered + 1,
+        )
+        return if (next.clearsTheBar) next.copy(ready = true) else next
+    }
+
+    companion object {
+        const val WINDOW = 20
+        private const val WINDOW_MASK = (1 shl WINDOW) - 1
+
+        /** Enough answers that one lucky run is not the whole of the evidence. */
+        const val READY_MIN_ANSWERS = 12
+        const val READY_ACCURACY = 0.85
+    }
+}
 
 /**
  * Everything the learner has earned. This is the first state in the app that cannot be
@@ -21,14 +56,12 @@ data class LessonRecord(
  * [leeches] records the handful of specific pairings that keep going wrong.
  */
 data class Progress(
-    val lessons: Map<String, LessonRecord> = emptyMap(),
+    val steps: Map<String, StepRecord> = emptyMap(),
     val skills: Map<String, SrsState> = emptyMap(),
     val words: Map<String, SrsState> = emptyMap(),
     val leeches: Map<String, Int> = emptyMap(),
 ) {
-    val passed: Set<String> get() = lessons.filterValues { it.passed }.keys
-
-    val isEmpty: Boolean get() = lessons.isEmpty() && skills.isEmpty() && words.isEmpty()
+    val isEmpty: Boolean get() = steps.isEmpty() && skills.isEmpty() && words.isEmpty()
 
     /**
      * How many skills are ready to be reviewed, of those [reachable] accepts. The one
@@ -54,8 +87,11 @@ data class Progress(
  */
 object ProgressCodec {
 
-    /** Bumped only when the shape changes; [decode] refuses anything newer. */
-    const val VERSION = 1
+    /**
+     * Bumped only when the shape changes; [decode] refuses any other version. Version 1 was
+     * the gated lesson path, whose records mean nothing on the step path.
+     */
+    const val VERSION = 2
 
     /** [indent] > 0 pretty-prints, which is what makes an exported backup readable. */
     fun encode(progress: Progress, indent: Int = 0): String {
@@ -70,24 +106,25 @@ object ProgressCodec {
         // progress and quietly replace the real thing.
         val version = root.getInt("version")
         require(version <= VERSION) { "Backup is from a newer version ($version)" }
+        require(version == VERSION) { "Backup is from an older version ($version)" }
         return parse(root)
     }
+
+    /** True for a document from before the current version, which is dropped rather than read. */
+    fun isOutdated(text: String): Boolean =
+        runCatching { JSONObject(text).getInt("version") < VERSION }.getOrDefault(false)
 
     fun decodeOrNull(text: String): Progress? = runCatching { decode(text.trim()) }.getOrNull()
 
     private fun parse(root: JSONObject): Progress {
-        val lessons = root.optJSONObject("lessons")?.let { obj ->
+        val steps = root.optJSONObject("steps")?.let { obj ->
             obj.keys().asSequence().associateWith { id ->
                 val o = obj.getJSONObject(id)
-                LessonRecord(
-                    passed = o.optBoolean("passed"),
-                    bestAccuracy = o.optDouble("best", 0.0),
-                    attempts = o.optInt("attempts"),
-                )
+                StepRecord(recent = o.optInt("recent"), answered = o.optInt("answered"), ready = o.optBoolean("ready"))
             }
         }.orEmpty()
         return Progress(
-            lessons = lessons,
+            steps = steps,
             skills = root.optJSONObject("skills").states(),
             words = root.optJSONObject("words").states(),
             leeches = root.optJSONObject("leeches")?.let { obj ->
@@ -98,12 +135,12 @@ object ProgressCodec {
 
     private fun render(progress: Progress) = JSONObject().apply {
         put("version", VERSION)
-        put("lessons", JSONObject().apply {
-            progress.lessons.forEach { (id, record) ->
+        put("steps", JSONObject().apply {
+            progress.steps.forEach { (id, record) ->
                 put(id, JSONObject().apply {
-                    put("passed", record.passed)
-                    put("best", record.bestAccuracy)
-                    put("attempts", record.attempts)
+                    put("recent", record.recent)
+                    put("answered", record.answered)
+                    put("ready", record.ready)
                 })
             }
         })
@@ -153,6 +190,12 @@ class ProgressStore(context: Context) {
 
     fun load(): Progress {
         val raw = prefs.getString(KEY, null) ?: return Progress()
+        if (ProgressCodec.isOutdated(raw)) {
+            // Readable, but from the lesson path: its review schedules include forms the
+            // step path only reaches at the end, so starting clean is the point.
+            prefs.edit().remove(KEY).apply()
+            return Progress()
+        }
         return runCatching { ProgressCodec.decode(raw) }.getOrElse {
             // Corrupt, truncated, or written by a newer version. Starting clean is the only
             // way to open at all, but the next answered question would persist the empty

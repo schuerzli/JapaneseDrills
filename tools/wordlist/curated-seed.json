@@ -3757,9 +3757,9 @@
   "tags": []
  },
  "嫌い": {
-  "group": "i-adjective",
-  "dictionary": "嫌[きら]い",
-  "reading": "きらい",
+  "group": "na-adjective",
+  "dictionary": "嫌[きら]いだ",
+  "reading": "きらいだ",
   "meaning": "dislike",
   "sentences": [
    "彼は嫌いな食べ物があります。",

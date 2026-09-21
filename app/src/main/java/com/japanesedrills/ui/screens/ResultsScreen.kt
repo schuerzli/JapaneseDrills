@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
@@ -43,24 +44,27 @@ import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
+import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.ui.HistoryEntry
-import com.japanesedrills.ui.LessonOutcome
+import com.japanesedrills.ui.StepOutcome
 import com.japanesedrills.ui.components.JapaneseLocale
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.theme.DrillTheme
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultsScreen(
     history: List<HistoryEntry>,
     options: QuizOptions,
-    outcome: LessonOutcome?,
+    /** Set when the session was a step, which can be gone through again from here. */
+    outcome: StepOutcome?,
     onBackToStart: () -> Unit,
-    /** Runs the same lesson again; only offered when it was not passed. */
     onRetry: () -> Unit,
+    /** Opens [StepOutcome.next]. */
+    onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val failed = outcome != null && !outcome.passed
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -82,16 +86,30 @@ fun ResultsScreen(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // After a failed lesson the likely next move is another go, so that is the
-                    // filled button; going back to the path to find the same row is the detour.
-                    if (failed) {
+                    // A step that has just become ready points on to the next one; otherwise
+                    // another go is the likely move, since a step is never finished.
+                    val next = outcome?.next?.takeIf { outcome.becameReady }
+                    if (next != null) {
+                        OutlinedButton(onClick = onRetry, modifier = Modifier.weight(1f)) {
+                            Text("Go again")
+                        }
+                        Button(onClick = onNext, modifier = Modifier.weight(1f)) {
+                            Text("Next step")
+                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                            Icon(
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                            )
+                        }
+                    } else if (outcome != null) {
                         OutlinedButton(onClick = onBackToStart, modifier = Modifier.weight(1f)) {
                             Text("Back to Start")
                         }
                         Button(onClick = onRetry, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                            Text("Try again")
+                            Text("Go again")
                         }
                     } else {
                         Button(onClick = onBackToStart, modifier = Modifier.fillMaxWidth()) {
@@ -109,7 +127,7 @@ fun ResultsScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (outcome != null) item { OutcomeCard(outcome) }
+            if (outcome != null) item { ReadinessCard(outcome) }
             item { ScoreCard(history) }
             itemsIndexed(history) { index, entry ->
                 HistoryRow(index + 1, entry, options)
@@ -119,45 +137,46 @@ fun ResultsScreen(
 }
 
 /**
- * Whether the lesson was passed, and if not, exactly why. A run can clear 85% overall and
- * still fail on one form, which looks arbitrary unless the weak form is named.
+ * Where the step stands after this session. Readiness is judged on the recent answers
+ * across sessions, not on this one alone, so the card says which.
  */
 @Composable
-private fun OutcomeCard(outcome: LessonOutcome) {
+private fun ReadinessCard(outcome: StepOutcome) {
     val answers = DrillTheme.answerColors
+    val record = outcome.record
+    val recent = minOf(record.answered, StepRecord.WINDOW)
+    val percent = (record.recentAccuracy * 100).roundToInt()
+    val bar = (StepRecord.READY_ACCURACY * 100).roundToInt()
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
-            containerColor = if (outcome.passed) answers.correctContainer else MaterialTheme.colorScheme.errorContainer,
-            contentColor = if (outcome.passed) answers.onCorrectContainer else MaterialTheme.colorScheme.onErrorContainer,
+            containerColor = if (outcome.becameReady) answers.correctContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = if (outcome.becameReady) answers.onCorrectContainer else MaterialTheme.colorScheme.onSurface,
         ),
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(
-                if (outcome.passed) "${outcome.lesson.title} passed" else "${outcome.lesson.title} not passed yet",
+                when {
+                    outcome.becameReady -> "Ready for the next step"
+                    record.ready -> "${outcome.step.title} is ready"
+                    else -> "${outcome.step.title}: not ready yet"
+                },
                 style = MaterialTheme.typography.titleLarge,
             )
-            if (!outcome.passed) {
-                val needed = (outcome.lesson.passAccuracy * 100).toInt()
-                Text(
-                    if (outcome.weakForms.isEmpty()) {
-                        "You need $needed% to pass. Try it again — the questions will be different."
-                    } else {
-                        "Still shaky on " +
-                            outcome.weakForms.joinToString(", ") {
-                                QuizOptions.typeLabel(it).replaceFirstChar(Char::lowercase)
-                            } + ". " +
-                            "Try it again — the questions will be different."
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            } else if (outcome.unlocked.isNotEmpty()) {
-                Text(
-                    "Unlocked: " + outcome.unlocked.joinToString(", ") { it.title },
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
+            Text(
+                when {
+                    outcome.becameReady && outcome.next != null ->
+                        "$percent% of your last $recent answers here were right. Next up: ${outcome.next.title}."
+                    outcome.becameReady -> "$percent% of your last $recent answers here were right."
+                    record.ready -> "Come back to it whenever you like; review keeps it fresh."
+                    record.answered < StepRecord.READY_MIN_ANSWERS ->
+                        "Ready once $bar% of your recent answers are right, over at least " +
+                            "${StepRecord.READY_MIN_ANSWERS}. So far: $percent% of $recent."
+                    else -> "$percent% of your last $recent answers were right; ready at $bar%."
+                },
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

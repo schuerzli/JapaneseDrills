@@ -1,8 +1,8 @@
 # JapaneseDrills
 
 Android app (Kotlin, Jetpack Compose, Material 3) that drills Japanese verb and
-adjective conjugation: a guided learn path with spaced review, a grammar reference,
-and a free-practice mode.
+adjective conjugation: a recommended learn path of steps with spaced review, a grammar
+reference, and a free-practice mode.
 
 ## How to use this file
 
@@ -33,13 +33,13 @@ JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug
 ```
 
 Four things are generated rather than written by hand: `words.json` (`tools/wordlist`),
-`lessons.json` (`tools/lessons`), and the palettes in `ui/theme/Theme.kt` and the fonts in
-`res/font` (both `tools/theme`; `--fonts` needs `pip install fonttools`). Edit the generator and re-run it; editing its output means the next run
-silently reverts you. `lessons.json` is the one whose staleness nothing else catches, so
+`steps.json` (`tools/steps`), and the palettes in `ui/theme/Theme.kt` and the fonts in
+`res/font` (both `tools/theme`; `--fonts` needs `pip install fonttools`). Edit the
+generator and re-run it; editing its output means the next run silently reverts you. `steps.json` is the one whose staleness nothing else catches, so
 it has a check of its own:
 
 ```bash
-python tools/lessons/generate.py --check
+python tools/steps/generate.py --check
 ```
 
 A palette is only finished when every foreground/background pair the app puts together
@@ -59,15 +59,15 @@ USB-attached phone instead:
 ## Project layout
 
 ```
-app/src/main/assets/     words.json (words), rules.json (conjugation), lessons.json (learn path)
+app/src/main/assets/     words.json (words), rules.json (conjugation), steps.json (learn path)
 app/src/main/res/        launcher icon, window background, the bundled fonts and their licence
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
     quiz/                engine, question pool, romaji input, furigana, answer explanations,
-                         grammar reference, conjugation primer, curriculum, spaced
+                         grammar reference, conjugation primer, learn path, spaced
                          repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          learn path, lesson intro, grammar, primer, practice, quiz,
+    ui/screens/          learn path, step intro, grammar, primer, practice, quiz,
                          results, settings, about
     ui/components/       furigana-aware rich text and table, shared card
     ui/theme/            the palettes (generated), the type scale and the shapes
@@ -75,7 +75,7 @@ app/src/test/            data-integrity and logic tests; the safety net for data
 tools/wordlist/          words.json, from open datasets (see extract.py)
 tools/theme/             the palettes Settings offers and why each looks as it does (see schemes.py);
                          fonts/ holds the variable masters res/font is cut from
-tools/lessons/           lessons.json; its README holds the curriculum reasoning
+tools/steps/             steps.json; its README holds the reasoning behind the path
 ```
 
 ## Data invariants
@@ -101,18 +101,29 @@ These look like mistakes without their reason. Check here before "fixing" one.
 - **Level tags are `n5`–`n2` only.** The source lists hold no N1 verbs or
   adjectives this app can conjugate. Words outside the lists carry no level tag and
   appear only when no filter is active.
-- **lessons.json stores deltas, not totals.** A lesson lists only the forms and words
-  it adds; its real reach is the union over its transitive prerequisites, resolved in
-  `quiz/Lessons.kt`. Lesson order comes from the explicit `order` field, because JSON
-  key order is preserved by Android's `JSONObject` and not by the `org.json` used in
-  unit tests.
+- **steps.json spells every step out in full** — its forms, focus and word batches — so
+  the app does no bookkeeping; what is known by which point is worked out in the generator.
+  Steps are an array, not an object keyed by id, because JSON key order is preserved by
+  Android's `JSONObject` and not by the `org.json` used in unit tests.
 - **Progress is the only state that cannot be rebuilt from the assets.** Wiping
   `ProgressStore` throws away real work, so it is written through on every answer and
   only cleared behind a confirmation. It can also be copied out as text, so the encoded
   shape is something other people hold copies of, not merely an internal detail.
 
-Why the curriculum is ordered the way it is, and why review schedules skills rather than
-questions, is in `tools/lessons/README.md`.
+Why the path is ordered the way it is, why nothing on it is locked, and why review
+schedules skills rather than questions, is in `tools/steps/README.md`.
+
+## Consistency
+
+- **One name per concept, everywhere.** Consistency is a high priority here: a concept has
+  one name across file and directory names, types, identifiers, assets, comments and UI
+  text. Renaming one means renaming all of them in the same change, then grepping for the
+  old word before calling it done. The old name survives only where it describes history,
+  such as the version-1 backup format of the old lesson path. The whole is the *learn
+  path* (`LearnPath`), its units are *steps*.
+- **The same goes for data: a word has one class everywhere** it is shown or conjugated.
+  A class fix goes into `tools/wordlist/curated-seed.json` as well as `words.json`, since
+  `merge.py` rebuilds the one from the other and would quietly undo it.
 
 ## UI rules
 

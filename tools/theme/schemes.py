@@ -304,7 +304,7 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
             ("onErrorContainer", "errorContainer"),
             ("onCorrectContainer", "correctContainer"),
             ("onSurfaceVariant", "surfaceVariant"),
-            # Subtitles on passed lesson rows, and the quiet labels on the hero cards.
+            # Subtitles on step rows, and the quiet labels on the hero cards.
             ("onSurfaceVariant", "secondaryContainer"),
             ("onSurfaceVariant", "primaryContainer")]
          + [(fg, bg)

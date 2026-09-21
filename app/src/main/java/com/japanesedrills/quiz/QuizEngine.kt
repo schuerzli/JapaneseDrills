@@ -96,7 +96,7 @@ class QuestionPool(
      * (word, form) pair twice while unasked ones remain.
      *
      * Picking independently each time looked fine on the big free-practice pools and was
-     * obviously wrong on a lesson: the first lesson offers sixteen pairs and asks twelve
+     * obviously wrong on a step: a small one offers barely more pairs than it asks
      * questions, which with replacement repeats three or four of them.
      *
      * Repeats are only allowed once the pool is genuinely exhausted, which is what the
@@ -305,9 +305,11 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
          * Godan て-form and ichidan て-form are different skills because one is a table of
          * exceptions and the other is a single rule.
          */
-        fun skillOf(word: Word, t: Transformation): String = "${t.type}|${word.group}"
+        fun skillOf(word: Word, t: Transformation): String = skillKey(t.type, word.group)
 
-        /** The half of a skill key naming the grammar, for the per-form pass floor. */
+        fun skillKey(type: String, group: String): String = "$type|$group"
+
+        /** The half of a skill key naming the grammar. */
         fun typeOfSkill(skill: String): String = skill.substringBefore('|')
 
         /** The half of a skill key naming the word class. */

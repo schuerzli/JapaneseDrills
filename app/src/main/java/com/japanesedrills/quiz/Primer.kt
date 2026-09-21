@@ -48,9 +48,9 @@ object Primer {
                 ),
                 PrimerBlock.Sub("The row-shift system"),
                 PrimerBlock.Line("Modify the last kana, then add an ending depending on the form."),
-                PrimerBlock.Step("書[か]く", "書[か]きます"),
+                PrimerBlock.Step("書[か]く", "書[か]かない"),
                 PrimerBlock.Line(
-                    "The stem 書 stays the same, the last kana く becomes き, and we add the ending ます.",
+                    "The stem 書 stays the same, the last kana く becomes か, and we add the ending ない.",
                 ),
                 PrimerBlock.Sub("The fusion system"),
                 PrimerBlock.Line(
@@ -115,8 +115,8 @@ object Primer {
                     "To change their form, all you do is drop the last kana of the plain form, which " +
                         "is always る, and add the ending.",
                 ),
-                PrimerBlock.Step("食[た]べる", "食[た]べます"),
                 PrimerBlock.Step("食[た]べる", "食[た]べない"),
+                PrimerBlock.Step("食[た]べる", "食[た]べた"),
                 PrimerBlock.Step("食[た]べる", "食[た]べて"),
                 PrimerBlock.Line("The stem 食べ never changes."),
                 PrimerBlock.Line(
@@ -147,14 +147,15 @@ object Primer {
                     "When we change the form of a 五段 verb, we do not drop the last kana of the plain " +
                         "form. Rather, we shift it up or down to a different row in the same column. " +
                         "Which row we shift it to depends on the form we are changing to. For the " +
-                        "polite form, we shift the last kana from the う-row to the い-row and add ます. " +
-                        "In 書く, the う-row く turns into the い-row kana from the same column, き.",
+                        "negative, we shift the last kana from the う-row to the あ-row and add ない. " +
+                        "In 書く, the う-row く turns into the あ-row kana from the same column, か.",
                 ),
-                PrimerBlock.Step("書[か]く", "書[か]きます"),
+                PrimerBlock.Step("書[か]く", "書[か]かない"),
                 PrimerBlock.Line(
-                    "That い-row form has a name worth knowing, because it comes up constantly: the " +
-                        "ます-stem.",
+                    "Other forms use other rows. たい takes the い-row, and so does the polite ます " +
+                        "form, which is why that い-row form is worth knowing as a stem of its own.",
                 ),
+                PrimerBlock.Step("書[か]く", "書[か]きたい"),
                 PrimerBlock.Line(
                     "Five rows, five kana the last kana of the word can be, so: 五段. This also " +
                         "explains why 一段 verbs are called 一段, or \"one row\" verbs. Since they drop " +
@@ -212,9 +213,9 @@ object Primer {
             listOf(
                 PrimerBlock.Line("There are only two verbs in Japanese that are irregular throughout:"),
                 PrimerBlock.Bullet(
-                    "する (to do) — し, さ and すれ all appear: します, しない, して, させる, すれば",
+                    "する (to do) — し, さ and すれ all appear: しない, して, させる, すれば",
                 ),
-                PrimerBlock.Bullet("来る (to come) — the reading itself changes: きます, こない, きて"),
+                PrimerBlock.Bullet("来る (to come) — the reading itself changes: こない, きた, きて"),
                 PrimerBlock.Line("Three more are regular verbs with exceptions worth knowing:"),
                 PrimerBlock.Bullet(
                     "行く — godan in every way, except that its て-form and past are 行って and 行った, " +
@@ -262,8 +263,8 @@ object Primer {
                 PrimerBlock.Step("書[か]く", "書[か]いている", "progressive"),
                 PrimerBlock.Line(
                     "Every one of those ends in -える or -いる, which means each one is now an ichidan " +
-                        "verb. So 書ける goes to 書けない and 書けます exactly the way 食べる goes to " +
-                        "食べない and 食べます. The same is true of the ichidan and irregular versions: " +
+                        "verb. So 書ける goes to 書けない and 書けた exactly the way 食べる goes to " +
+                        "食べない and 食べた. The same is true of the ichidan and irregular versions: " +
                         "食べられる, させる and 来させる are all ichidan verbs too.",
                 ),
                 PrimerBlock.Step("書[か]く", "書[か]きたい", "desire"),

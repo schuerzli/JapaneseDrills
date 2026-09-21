@@ -1,0 +1,1450 @@
+{
+  "batches": {
+    "verbs-1": [
+      "なる",
+      "上げる",
+      "乗る",
+      "入れる",
+      "休む",
+      "出る",
+      "会う",
+      "教える"
+    ],
+    "verbs-2": [
+      "住む",
+      "着る",
+      "作る",
+      "答える",
+      "使う",
+      "見せる",
+      "働く",
+      "見る"
+    ],
+    "irregular": [
+      "する",
+      "来る",
+      "行く"
+    ],
+    "verbs-3": [
+      "入る",
+      "起きる",
+      "出す",
+      "食べる",
+      "分かる",
+      "伝える",
+      "取る",
+      "受ける"
+    ],
+    "existence": [
+      "ある",
+      "いる"
+    ],
+    "verbs-4": [
+      "呼ぶ",
+      "変える",
+      "始まる",
+      "始める",
+      "帰る",
+      "止める",
+      "座る",
+      "決める"
+    ],
+    "i-adjectives": [
+      "うるさい",
+      "つまらない",
+      "ない",
+      "低い",
+      "冷たい",
+      "危ない",
+      "古い",
+      "可愛い"
+    ],
+    "ii": [
+      "いい"
+    ],
+    "adjectives-1": [
+      "多い",
+      "大きい",
+      "太い",
+      "安い",
+      "寒い",
+      "小さい",
+      "少ない",
+      "広い"
+    ],
+    "na-adjectives": [
+      "にぎやか",
+      "りっぱ",
+      "丈夫",
+      "上手な",
+      "便利な",
+      "元気な",
+      "同じ",
+      "大丈夫"
+    ],
+    "adjectives-2": [
+      "弱い",
+      "大切な",
+      "強い",
+      "大変な",
+      "忙しい",
+      "大好き",
+      "悪い",
+      "好きな"
+    ],
+    "suru-1": [
+      "説明する",
+      "理解する",
+      "テストする",
+      "仕事する",
+      "作文する",
+      "意味する",
+      "授業する",
+      "料理する"
+    ],
+    "verbs-5": [
+      "やる",
+      "待つ",
+      "生きる",
+      "持つ",
+      "続ける",
+      "書く",
+      "考える",
+      "歌う"
+    ],
+    "suru-2": [
+      "旅行する",
+      "買い物する",
+      "質問する",
+      "電話する",
+      "ごちそうする",
+      "すりする",
+      "アルバイトする",
+      "ファックスする",
+      "プレゼントする",
+      "下宿する"
+    ],
+    "verbs-6": [
+      "歩く",
+      "聞こえる",
+      "死ぬ",
+      "育てる",
+      "泳ぐ",
+      "見える",
+      "消す",
+      "見つける"
+    ],
+    "adjectives-3": [
+      "新しい",
+      "嫌",
+      "明るい",
+      "嫌い",
+      "暑い",
+      "有名な",
+      "暖かい",
+      "本当",
+      "暗い",
+      "病気な"
+    ],
+    "verbs-7": [
+      "渡す",
+      "調べる",
+      "知る",
+      "逃げる",
+      "立つ",
+      "与える",
+      "置く",
+      "付ける"
+    ],
+    "verbs-8": [
+      "聞く",
+      "信じる",
+      "言う",
+      "出来る",
+      "話す",
+      "助ける",
+      "読む",
+      "感じる",
+      "買う",
+      "閉じる"
+    ],
+    "n3-verbs": [
+      "走る",
+      "使える",
+      "返す",
+      "かける",
+      "遊ぶ",
+      "並べる",
+      "違う",
+      "借りる",
+      "開く",
+      "出かける",
+      "頼む",
+      "勤める"
+    ],
+    "n3-adjectives": [
+      "楽しい",
+      "結構",
+      "欲しい",
+      "綺麗な",
+      "汚い",
+      "緑な",
+      "涼しい",
+      "色々",
+      "温い",
+      "静かな",
+      "狭い",
+      "黄色"
+    ],
+    "n3-suru": [
+      "予定する",
+      "予約する",
+      "予習する",
+      "交通する",
+      "会話する",
+      "会議する",
+      "冷房する",
+      "利用する",
+      "卒業する",
+      "原因する",
+      "失敗する",
+      "復習する"
+    ],
+    "n2-verbs": [
+      "飲む",
+      "寝る",
+      "動く",
+      "居る",
+      "合う",
+      "忘れる",
+      "向かう",
+      "掛ける",
+      "喜ぶ",
+      "晴れる",
+      "変わる",
+      "浴びる"
+    ],
+    "n2-adjectives": [
+      "甘い",
+      "だめ",
+      "痛い",
+      "ソフト",
+      "白い",
+      "丁寧",
+      "短い",
+      "不便",
+      "細い",
+      "久しぶり",
+      "美味しい",
+      "別な"
+    ],
+    "n2-suru": [
+      "急行する",
+      "戦争する",
+      "教育する",
+      "暖房する",
+      "水泳する",
+      "注射する",
+      "注意する",
+      "用意する",
+      "留守する",
+      "発音する",
+      "研究する",
+      "競争する"
+    ]
+  },
+  "steps": [
+    {
+      "id": "negative",
+      "title": "Negative",
+      "subtitle": "Saying something does not happen",
+      "chapter": "Plain verb forms",
+      "forms": [
+        "plain",
+        "negative"
+      ],
+      "focus": "negative",
+      "batches": [
+        "verbs-1"
+      ],
+      "newBatches": [
+        "verbs-1"
+      ],
+      "newForms": [
+        "negative"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "past",
+      "title": "Past",
+      "subtitle": "Saying something already happened",
+      "chapter": "Plain verb forms",
+      "forms": [
+        "plain",
+        "negative",
+        "past"
+      ],
+      "focus": "past",
+      "batches": [
+        "verbs-1"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "past"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "verbs-2",
+      "title": "More verbs",
+      "subtitle": "Eight more everyday verbs",
+      "chapter": "Plain verb forms",
+      "forms": [
+        "plain",
+        "negative",
+        "past"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-2"
+      ],
+      "newBatches": [
+        "verbs-2"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "te-form",
+      "title": "て form",
+      "subtitle": "The connector half the grammar is built on",
+      "chapter": "Plain verb forms",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form"
+      ],
+      "focus": "te-form",
+      "batches": [
+        "verbs-1",
+        "verbs-2"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "te-form"
+      ],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "irregular-negative",
+      "title": "する, 来る, 行く · Negative",
+      "subtitle": "The verbs that break the rules",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative"
+      ],
+      "focus": "negative",
+      "batches": [
+        "irregular"
+      ],
+      "newBatches": [
+        "irregular"
+      ],
+      "newForms": [],
+      "newClasses": [
+        "suru",
+        "kuru",
+        "iku"
+      ],
+      "questions": 6
+    },
+    {
+      "id": "irregular-past",
+      "title": "する, 来る, 行く · Past",
+      "subtitle": "The verbs that break the rules",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative",
+        "past"
+      ],
+      "focus": "past",
+      "batches": [
+        "irregular"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 6
+    },
+    {
+      "id": "irregular-te-form",
+      "title": "する, 来る, 行く · て form",
+      "subtitle": "The verbs that break the rules",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form"
+      ],
+      "focus": "te-form",
+      "batches": [
+        "irregular"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 6
+    },
+    {
+      "id": "verbs-3",
+      "title": "Everyday actions",
+      "subtitle": "Verbs you need every day",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-3"
+      ],
+      "newBatches": [
+        "verbs-3"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "existence",
+      "title": "ある and いる",
+      "subtitle": "To exist — with a negative that comes from nowhere",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form"
+      ],
+      "focus": "none",
+      "batches": [
+        "existence"
+      ],
+      "newBatches": [
+        "existence"
+      ],
+      "newForms": [],
+      "newClasses": [
+        "aru",
+        "iru"
+      ],
+      "questions": 10
+    },
+    {
+      "id": "progressive",
+      "title": "Progressive",
+      "subtitle": "Something happening right now",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive"
+      ],
+      "focus": "progressive",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "progressive"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "verbs-4",
+      "title": "Verbs of motion",
+      "subtitle": "Coming, going and carrying",
+      "chapter": "The irregular verbs",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-4"
+      ],
+      "newBatches": [
+        "verbs-4"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "i-adjectives-negative",
+      "title": "い-adjectives · Negative",
+      "subtitle": "Adjectives that conjugate like verbs",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative"
+      ],
+      "focus": "negative",
+      "batches": [
+        "i-adjectives"
+      ],
+      "newBatches": [
+        "i-adjectives"
+      ],
+      "newForms": [],
+      "newClasses": [
+        "i-adjective"
+      ],
+      "questions": 12
+    },
+    {
+      "id": "i-adjectives-past",
+      "title": "い-adjectives · Past",
+      "subtitle": "Adjectives that conjugate like verbs",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past"
+      ],
+      "focus": "past",
+      "batches": [
+        "i-adjectives"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "i-adjectives-te-form",
+      "title": "い-adjectives · て form",
+      "subtitle": "Adjectives that conjugate like verbs",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form"
+      ],
+      "focus": "te-form",
+      "batches": [
+        "i-adjectives"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "ii",
+      "title": "いい",
+      "subtitle": "The adjective that conjugates as よい",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive"
+      ],
+      "focus": "none",
+      "batches": [
+        "ii"
+      ],
+      "newBatches": [
+        "ii"
+      ],
+      "newForms": [],
+      "newClasses": [
+        "ii"
+      ],
+      "questions": 10
+    },
+    {
+      "id": "adjectives-1",
+      "title": "Describing things",
+      "subtitle": "More い-adjectives",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive"
+      ],
+      "focus": "none",
+      "batches": [
+        "adjectives-1"
+      ],
+      "newBatches": [
+        "adjectives-1"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "na-adjectives-negative",
+      "title": "な-adjectives · Negative",
+      "subtitle": "Adjectives that behave like nouns",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative"
+      ],
+      "focus": "negative",
+      "batches": [
+        "na-adjectives"
+      ],
+      "newBatches": [
+        "na-adjectives"
+      ],
+      "newForms": [],
+      "newClasses": [
+        "na-adjective"
+      ],
+      "questions": 12
+    },
+    {
+      "id": "na-adjectives-past",
+      "title": "な-adjectives · Past",
+      "subtitle": "Adjectives that behave like nouns",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past"
+      ],
+      "focus": "past",
+      "batches": [
+        "na-adjectives"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "na-adjectives-te-form",
+      "title": "な-adjectives · て form",
+      "subtitle": "Adjectives that behave like nouns",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form"
+      ],
+      "focus": "te-form",
+      "batches": [
+        "na-adjectives"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "adjectives-2",
+      "title": "Opinions",
+      "subtitle": "Adjectives for people and things",
+      "chapter": "Adjectives",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive"
+      ],
+      "focus": "none",
+      "batches": [
+        "adjectives-2"
+      ],
+      "newBatches": [
+        "adjectives-2"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "suru-1",
+      "title": "する verbs",
+      "subtitle": "Nouns turned into verbs",
+      "chapter": "Ability, intention and desire",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive"
+      ],
+      "focus": "none",
+      "batches": [
+        "suru-1"
+      ],
+      "newBatches": [
+        "suru-1"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "potential",
+      "title": "Potential",
+      "subtitle": "Being able to do something",
+      "chapter": "Ability, intention and desire",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential"
+      ],
+      "focus": "potential",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "potential"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "verbs-5",
+      "title": "Work and study",
+      "subtitle": "Verbs for getting things done",
+      "chapter": "Ability, intention and desire",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-5"
+      ],
+      "newBatches": [
+        "verbs-5"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "volitional",
+      "title": "Volitional",
+      "subtitle": "Let's do it",
+      "chapter": "Ability, intention and desire",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional"
+      ],
+      "focus": "volitional",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "volitional"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "desire",
+      "title": "Desire",
+      "subtitle": "Wanting to do something",
+      "chapter": "Ability, intention and desire",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire"
+      ],
+      "focus": "desire",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "desire"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "suru-2",
+      "title": "More する verbs",
+      "subtitle": "Compound verbs in daily use",
+      "chapter": "Ability, intention and desire",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire"
+      ],
+      "focus": "none",
+      "batches": [
+        "suru-2"
+      ],
+      "newBatches": [
+        "suru-2"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "conditional",
+      "title": "Conditional (たら)",
+      "subtitle": "If and when",
+      "chapter": "Conditions and commands",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional"
+      ],
+      "focus": "conditional",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5",
+        "suru-2"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "conditional"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "provisional",
+      "title": "Provisional (ば)",
+      "subtitle": "The other conditional",
+      "chapter": "Conditions and commands",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional"
+      ],
+      "focus": "provisional",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5",
+        "suru-2"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "provisional"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "verbs-6",
+      "title": "Around the house",
+      "subtitle": "Daily-life verbs",
+      "chapter": "Conditions and commands",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-6"
+      ],
+      "newBatches": [
+        "verbs-6"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "imperative",
+      "title": "Imperative",
+      "subtitle": "Direct commands",
+      "chapter": "Conditions and commands",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative"
+      ],
+      "focus": "imperative",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5",
+        "suru-2",
+        "verbs-6"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "imperative"
+      ],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "adjectives-3",
+      "title": "More adjectives",
+      "subtitle": "Describing with more precision",
+      "chapter": "Conditions and commands",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative"
+      ],
+      "focus": "none",
+      "batches": [
+        "adjectives-3"
+      ],
+      "newBatches": [
+        "adjectives-3"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "passive",
+      "title": "Passive",
+      "subtitle": "Having something done to you",
+      "chapter": "Passive and causative",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive"
+      ],
+      "focus": "passive",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5",
+        "suru-2",
+        "verbs-6"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "passive"
+      ],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "verbs-7",
+      "title": "Talking and thinking",
+      "subtitle": "Verbs of speech and mind",
+      "chapter": "Passive and causative",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-7"
+      ],
+      "newBatches": [
+        "verbs-7"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12
+    },
+    {
+      "id": "causative",
+      "title": "Causative",
+      "subtitle": "Making or letting someone act",
+      "chapter": "Passive and causative",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative"
+      ],
+      "focus": "causative",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "suru-1",
+        "verbs-5",
+        "suru-2",
+        "verbs-6",
+        "verbs-7"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "causative"
+      ],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "verbs-8",
+      "title": "More verbs",
+      "subtitle": "Stepping beyond the basics",
+      "chapter": "Passive and causative",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative"
+      ],
+      "focus": "none",
+      "batches": [
+        "verbs-8"
+      ],
+      "newBatches": [
+        "verbs-8"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 14
+    },
+    {
+      "id": "polite-basics",
+      "title": "Polite basics",
+      "subtitle": "ます and です on the forms you use most",
+      "chapter": "The polite layer",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "polite"
+      ],
+      "focus": "politeness",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "i-adjectives",
+        "ii",
+        "adjectives-1",
+        "na-adjectives",
+        "adjectives-2",
+        "suru-1",
+        "verbs-5",
+        "suru-2",
+        "verbs-6",
+        "adjectives-3",
+        "verbs-7",
+        "verbs-8"
+      ],
+      "newBatches": [],
+      "newForms": [
+        "polite"
+      ],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "polite-everywhere",
+      "title": "Polite everywhere",
+      "subtitle": "The polite version of every form",
+      "chapter": "The polite layer",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "politeness",
+      "batches": [
+        "verbs-1",
+        "verbs-2",
+        "irregular",
+        "verbs-3",
+        "existence",
+        "verbs-4",
+        "i-adjectives",
+        "ii",
+        "adjectives-1",
+        "na-adjectives",
+        "adjectives-2",
+        "suru-1",
+        "verbs-5",
+        "suru-2",
+        "verbs-6",
+        "adjectives-3",
+        "verbs-7",
+        "verbs-8"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "n3-verbs",
+      "title": "N3 verbs",
+      "subtitle": "Wider everyday vocabulary",
+      "chapter": "Wider vocabulary",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "none",
+      "batches": [
+        "n3-verbs"
+      ],
+      "newBatches": [
+        "n3-verbs"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "n3-adjectives",
+      "title": "N3 adjectives",
+      "subtitle": "Shades of description",
+      "chapter": "Wider vocabulary",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "none",
+      "batches": [
+        "n3-adjectives"
+      ],
+      "newBatches": [
+        "n3-adjectives"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "n3-suru",
+      "title": "N3 する verbs",
+      "subtitle": "Abstract and formal actions",
+      "chapter": "Wider vocabulary",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "none",
+      "batches": [
+        "n3-suru"
+      ],
+      "newBatches": [
+        "n3-suru"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "n2-verbs",
+      "title": "N2 verbs",
+      "subtitle": "Verbs for reading and news",
+      "chapter": "Wider vocabulary",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "none",
+      "batches": [
+        "n2-verbs"
+      ],
+      "newBatches": [
+        "n2-verbs"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "n2-adjectives",
+      "title": "N2 adjectives",
+      "subtitle": "Formal and written description",
+      "chapter": "Wider vocabulary",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "none",
+      "batches": [
+        "n2-adjectives"
+      ],
+      "newBatches": [
+        "n2-adjectives"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    },
+    {
+      "id": "n2-suru",
+      "title": "N2 する verbs",
+      "subtitle": "The formal register",
+      "chapter": "Wider vocabulary",
+      "forms": [
+        "plain",
+        "negative",
+        "past",
+        "te-form",
+        "progressive",
+        "potential",
+        "volitional",
+        "desire",
+        "conditional",
+        "provisional",
+        "imperative",
+        "passive",
+        "causative",
+        "polite"
+      ],
+      "focus": "none",
+      "batches": [
+        "n2-suru"
+      ],
+      "newBatches": [
+        "n2-suru"
+      ],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 16
+    }
+  ]
+}

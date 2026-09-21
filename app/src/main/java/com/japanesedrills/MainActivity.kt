@@ -47,12 +47,12 @@ import com.japanesedrills.ui.screens.AppSettingsScreen
 import com.japanesedrills.ui.screens.GrammarDetailScreen
 import com.japanesedrills.ui.screens.GrammarScreen
 import com.japanesedrills.ui.screens.LearnPathScreen
-import com.japanesedrills.ui.screens.LessonIntroScreen
 import com.japanesedrills.ui.screens.PracticeBar
 import com.japanesedrills.ui.screens.PrimerScreen
 import com.japanesedrills.ui.screens.PracticeScreen
 import com.japanesedrills.ui.screens.QuizScreen
 import com.japanesedrills.ui.screens.ResultsScreen
+import com.japanesedrills.ui.screens.StepIntroScreen
 import com.japanesedrills.ui.theme.JapaneseDrillsTheme
 
 class MainActivity : ComponentActivity() {
@@ -145,7 +145,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
 
     // Bound to locals so the null checks below smart-cast inside the lambdas.
     val quiz = state.quiz
-    val lesson = state.lesson
+    val step = state.step
     val note = state.grammarNote
     when {
         state.screen == Screen.Quiz && quiz != null -> {
@@ -161,16 +161,16 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
             )
         }
 
-        state.screen == Screen.LessonIntro && lesson != null -> {
+        state.screen == Screen.StepIntro && step != null -> {
             BackHandler(onBack = viewModel::backToRoot)
-            LessonIntroScreen(
-                lesson = lesson,
+            StepIntroScreen(
+                step = step,
                 words = state.introWords,
                 forms = state.introForms,
                 classes = state.introClasses,
                 examples = state.grammarExamples,
                 options = state.options,
-                onStart = { viewModel.startLesson(lesson) },
+                onStart = { viewModel.startStep(step) },
                 onPrimer = viewModel::showPrimer,
                 onQuit = viewModel::backToRoot,
                 modifier = contentModifier,
@@ -225,7 +225,8 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 options = state.quizOptions,
                 outcome = state.outcome,
                 onBackToStart = viewModel::backToRoot,
-                onRetry = { state.outcome?.lesson?.let(viewModel::startLesson) },
+                onRetry = { state.outcome?.step?.let(viewModel::startStep) },
+                onNext = { state.outcome?.next?.let(viewModel::openStep) },
                 modifier = contentModifier,
             )
         }
@@ -275,7 +276,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
         when (state.tab) {
             AppTab.Learn -> LearnPathScreen(
                 state = state,
-                onLesson = viewModel::openLesson,
+                onStep = viewModel::openStep,
                 onReview = viewModel::startReview,
                 onPrimer = viewModel::showPrimer,
                 onToggleChapter = viewModel::setChapterOpen,

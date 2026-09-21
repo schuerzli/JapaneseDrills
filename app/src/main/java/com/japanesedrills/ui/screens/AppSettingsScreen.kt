@@ -113,7 +113,7 @@ fun AppSettingsScreen(
     var pendingImport by remember { mutableStateOf<String?>(null) }
     var notice by remember { mutableStateOf<String?>(null) }
     val clipboard = LocalClipboardManager.current
-    val passed = state.progress.passed.size
+    val started = state.path.count { it.started }
 
     Scaffold(
         modifier = modifier,
@@ -153,10 +153,10 @@ fun AppSettingsScreen(
             }
         }
 
-        SectionCard("Progress", "Lessons passed and everything scheduled for review") {
+        SectionCard("Progress", "Steps started and everything scheduled for review") {
             Text(
                 if (state.started) {
-                    "$passed of ${state.path.size} lessons passed. Tracking " +
+                    "$started of ${state.path.size} steps started. Tracking " +
                         plural(state.progress.words.size, "word") + " and " +
                         plural(state.progress.skills.size, "skill") + "."
                 } else {
@@ -245,7 +245,7 @@ fun AppSettingsScreen(
             title = { Text("Reset progress?") },
             text = {
                 Text(
-                    "This clears every passed lesson and the whole review schedule. " +
+                    "This clears every step record and the whole review schedule. " +
                         "It cannot be undone. Your practice settings are not affected."
                 )
             },

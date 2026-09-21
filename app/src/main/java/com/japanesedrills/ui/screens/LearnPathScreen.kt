@@ -19,7 +19,6 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
@@ -32,62 +31,47 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.japanesedrills.quiz.Lesson
+import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
-import com.japanesedrills.ui.LessonCard
+import com.japanesedrills.ui.StepCard
 import com.japanesedrills.ui.theme.DrillTheme
 
 /** One chapter of the path, in path order. */
-private data class Chapter(val title: String, val cards: List<LessonCard>) {
-    val passed: Int get() = cards.count { it.passed }
-
-    /** Nothing in it can be started yet. */
-    val locked: Boolean get() = cards.none { it.unlocked }
-
-    /**
-     * Open unless the learner says otherwise: only a chapter with a lesson to do next. A
-     * finished chapter folds away like a locked one, or the top of the path would fill up
-     * with ticked rows as the learner moves on.
-     */
-    val openByDefault: Boolean get() = cards.any { it.unlocked && !it.passed }
+private data class Chapter(val title: String, val cards: List<StepCard>) {
+    val ready: Int get() = cards.count { it.ready }
 }
 
-/** Consecutive lessons sharing a chapter; the path is already in order. */
-private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
+/** Consecutive steps sharing a chapter; the path is already in order. */
+private fun chaptersOf(path: List<StepCard>): List<Chapter> {
     val chapters = ArrayList<Chapter>()
     for (card in path) {
         val last = chapters.lastOrNull()
-        if (last != null && last.title == card.lesson.chapter) {
+        if (last != null && last.title == card.step.chapter) {
             chapters[chapters.lastIndex] = last.copy(cards = last.cards + card)
         } else {
-            chapters += Chapter(card.lesson.chapter, listOf(card))
+            chapters += Chapter(card.step.chapter, listOf(card))
         }
     }
     return chapters
 }
 
 /**
- * The learn path: what to do next, and what it is worth. Review comes first once there is
- * anything to review, because returning daily is the habit worth building; the lesson list
- * is the slower, weekly sense of progress.
+ * The learn path: a recommended order through the drill, with nothing locked. Review comes
+ * first once there is anything to review, because returning daily is the habit worth
+ * building; the steps are the slower, weekly sense of progress.
  *
- * Lessons are grouped into chapters, and every chapter folds down to its heading; only the
- * ones with a lesson to do next start open. Listed one by one, the locked tail was thirty
- * identical padlocks: it said "a long way to go" and nothing about what lay ahead.
+ * Steps are grouped into chapters, and every chapter folds down to its heading; only the one
+ * holding the next step starts open, so the path reads as where you are rather than as
+ * forty-odd rows.
  */
 @Composable
 fun LearnPathScreen(
     state: DrillUiState,
-    onLesson: (Lesson) -> Unit,
+    onStep: (Step) -> Unit,
     onReview: () -> Unit,
     onPrimer: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
@@ -105,17 +89,22 @@ fun LearnPathScreen(
         } else {
             item {
                 Text(
-                    "${state.progress.passed.size} of ${state.path.size} lessons passed",
+                    "${state.path.count { it.ready }} of ${state.path.size} steps ready",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
-        if (state.progress.passed.isNotEmpty()) {
+        if (state.progress.skills.isNotEmpty()) {
             item { ReviewCard(state.dueCount, onReview) }
         }
+        // Before anything is started the welcome card already says where to begin.
+        val next = state.nextStep
+        if (state.started && next != null) {
+            item { NextUpCard(next, onStart = { onStep(next) }) }
+        }
         chapters.forEachIndexed { index, chapter ->
-            val open = state.chapterOpen[chapter.title] ?: chapter.openByDefault
+            val open = state.chapterOpen[chapter.title] ?: chapter.cards.any { it.step == state.nextStep }
             item(key = "chapter-${chapter.title}") {
                 ChapterHeader(
                     number = index + 1,
@@ -125,8 +114,8 @@ fun LearnPathScreen(
                 )
             }
             if (open) {
-                items(chapter.cards, key = { it.lesson.id }) { card ->
-                    LessonRow(card, onClick = { onLesson(card.lesson) })
+                items(chapter.cards, key = { it.step.id }) { card ->
+                    StepRow(card, recommended = card.step == state.nextStep, onClick = { onStep(card.step) })
                 }
             }
         }
@@ -134,8 +123,8 @@ fun LearnPathScreen(
 }
 
 /**
- * A chapter's name and how far through it the learner is. Tapping it folds or unfolds the
- * lessons; a locked chapter says how many are inside rather than how many are passed.
+ * A chapter's name and how far into it the learner has got. Tapping it folds or unfolds the
+ * steps.
  */
 @Composable
 private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle: () -> Unit) {
@@ -155,19 +144,18 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
             Text(
                 chapter.title,
                 style = MaterialTheme.typography.titleLarge,
-                color = if (chapter.locked) MaterialTheme.colorScheme.onSurfaceVariant else Color.Unspecified,
             )
         }
         Spacer(Modifier.width(12.dp))
         Text(
-            if (chapter.locked) "${chapter.cards.size} lessons" else "${chapter.passed} of ${chapter.cards.size}",
+            "${chapter.ready} of ${chapter.cards.size}",
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.width(4.dp))
         Icon(
             if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-            contentDescription = if (open) "Hide lessons" else "Show lessons",
+            contentDescription = if (open) "Hide steps" else "Show steps",
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
@@ -190,8 +178,8 @@ private fun WelcomeCard(onPrimer: () -> Unit) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("Start here", style = MaterialTheme.typography.titleLarge)
             Text(
-                "Each lesson adds a little grammar or a few new words, and unlocks the next " +
-                    "one when you pass. Anything you have learned comes back for review.",
+                "Each step adds one form or a few new words. Take them in order or jump " +
+                    "ahead — nothing is locked. Anything you practise comes back for review.",
                 style = MaterialTheme.typography.bodyMedium,
             )
             TextButton(
@@ -252,21 +240,51 @@ private fun ReviewCard(due: Int, onReview: () -> Unit) {
     }
 }
 
+/**
+ * What the path recommends, with a way straight in. Readiness decides it, never a lock: the
+ * learner can take any other step from the list below.
+ */
 @Composable
-private fun LessonRow(card: LessonCard, onClick: () -> Unit) {
-    val lesson = card.lesson
-    val enabled = card.unlocked
-    val container = when {
-        !enabled -> MaterialTheme.colorScheme.surfaceContainerLow
-        card.passed -> MaterialTheme.colorScheme.secondaryContainer
-        else -> MaterialTheme.colorScheme.surfaceContainerHigh
+private fun NextUpCard(step: Step, onStart: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+    ) {
+        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("Next up", style = MaterialTheme.typography.labelLarge)
+                Text(step.title, style = MaterialTheme.typography.titleMedium)
+                Text(step.subtitle, style = MaterialTheme.typography.bodyMedium)
+            }
+            Spacer(Modifier.width(12.dp))
+            Button(onClick = onStart) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Text("Start")
+            }
+        }
     }
+}
 
+@Composable
+private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit) {
+    val step = card.step
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier),
-        colors = CardDefaults.cardColors(containerColor = container),
+            .clickable(onClick = onClick),
+        // The recommended row is marked by its fill alone, so nothing around it moves.
+        colors = CardDefaults.cardColors(
+            containerColor = if (recommended) {
+                MaterialTheme.colorScheme.secondaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            },
+        ),
     ) {
         Row(
             Modifier.padding(16.dp),
@@ -275,20 +293,15 @@ private fun LessonRow(card: LessonCard, onClick: () -> Unit) {
             StatusBadge(card)
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(step.title, style = MaterialTheme.typography.titleMedium)
                 Text(
-                    lesson.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = if (card.passed) FontWeight.Normal else FontWeight.Medium,
-                    color = if (enabled) Color.Unspecified else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    lesson.subtitle,
+                    step.subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                if (lesson.newWords.isNotEmpty()) {
+                if (card.newWords > 0) {
                     Text(
-                        if (lesson.newWords.size == 1) "1 new word" else "${lesson.newWords.size} new words",
+                        if (card.newWords == 1) "1 new word" else "${card.newWords} new words",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -299,39 +312,35 @@ private fun LessonRow(card: LessonCard, onClick: () -> Unit) {
 }
 
 /**
- * Locked, ready, or passed with a mastery ring. The ring is the weakest skill in the
- * lesson, so it fades as a form goes stale and gives the review queue a visible purpose.
+ * A tick once the step has been ready, a play mark until then, and once started a ring
+ * around it for how well the step's content is holding up in review, so it fades as a form
+ * goes stale and gives the review queue a visible purpose.
  */
 @Composable
-private fun StatusBadge(card: LessonCard) {
+private fun StatusBadge(card: StepCard) {
     Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
-        when {
-            !card.unlocked -> Icon(
-                Icons.Default.Lock,
-                contentDescription = "Locked",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        if (card.started) {
+            CircularProgressIndicator(
+                progress = { card.strength },
+                modifier = Modifier.size(40.dp),
+                strokeWidth = 3.dp,
+                color = DrillTheme.answerColors.correct,
+                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
             )
-
-            card.passed -> {
-                CircularProgressIndicator(
-                    progress = { card.strength },
-                    modifier = Modifier.size(40.dp),
-                    strokeWidth = 3.dp,
-                    color = DrillTheme.answerColors.correct,
-                    trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                )
-                Icon(
-                    Icons.Default.Check,
-                    contentDescription = "Passed",
-                    tint = DrillTheme.answerColors.correct,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-
-            else -> Icon(
+        }
+        if (card.ready) {
+            Icon(
+                Icons.Default.Check,
+                contentDescription = "Ready",
+                tint = DrillTheme.answerColors.correct,
+                modifier = Modifier.size(20.dp),
+            )
+        } else {
+            Icon(
                 Icons.Default.PlayArrow,
-                contentDescription = "Start",
+                contentDescription = if (card.started) "Started" else "Not started",
                 tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(if (card.started) 20.dp else 24.dp),
             )
         }
     }

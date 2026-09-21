@@ -37,7 +37,7 @@ import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
-import com.japanesedrills.quiz.Lesson
+import com.japanesedrills.quiz.Step
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -45,7 +45,7 @@ import com.japanesedrills.ui.components.JapaneseLocale
 import com.japanesedrills.ui.components.RichText
 
 /**
- * The words a lesson introduces, shown before it starts.
+ * What a step introduces, shown the first time it is opened.
  *
  * The drill grades production, so asking for the て form of a word the learner has never
  * seen would test two things at once and diagnose neither. Everything shown here is
@@ -53,8 +53,8 @@ import com.japanesedrills.ui.components.RichText
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LessonIntroScreen(
-    lesson: Lesson,
+fun StepIntroScreen(
+    step: Step,
     words: List<Word>,
     forms: List<GrammarNote>,
     classes: List<GrammarNote>,
@@ -69,7 +69,7 @@ fun LessonIntroScreen(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text(lesson.title) },
+                title = { Text(step.title) },
                 navigationIcon = {
                     IconButton(onClick = onQuit) {
                         Icon(Icons.Default.Close, contentDescription = "Back to the path")
@@ -86,7 +86,7 @@ fun LessonIntroScreen(
                         .windowInsetsPadding(WindowInsets.navigationBars)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                 ) {
-                    Text("Start the lesson")
+                    Text("Start")
                     Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                     Icon(
                         Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -122,7 +122,7 @@ fun LessonIntroScreen(
                 item(key = "class-${note.key}") { GrammarUsage(note, heading = note.title) }
             }
             // Grammar next: the words are practice material for whatever the form is.
-            // Titled by name, because the first lesson brings two forms at once.
+            // Titled by name, so a note reads the same here as on the Grammar tab.
             for (note in forms) {
                 item(key = "usage-${note.key}") { GrammarUsage(note, heading = note.title) }
                 item(key = "build-${note.key}") {
@@ -132,7 +132,7 @@ fun LessonIntroScreen(
             if (words.isNotEmpty()) {
                 item {
                     Text(
-                        "New words in this lesson",
+                        "New words in this step",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                     )

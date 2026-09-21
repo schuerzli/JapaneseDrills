@@ -78,7 +78,7 @@ fun PracticeScreen(
     modifier: Modifier = Modifier,
 ) {
     val options = state.options
-    val canUseLearned = state.progress.passed.isNotEmpty()
+    val canUsePractised = state.progress.skills.isNotEmpty()
 
     Column(
         modifier = modifier
@@ -88,7 +88,7 @@ fun PracticeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         SectionCard("Start from", "Sets the forms and words below in one tap") {
-            PresetRow(canUseLearned, onPreset)
+            PresetRow(canUsePractised, onPreset)
         }
 
         SectionCard("Quiz") {
@@ -191,14 +191,14 @@ fun PracticeBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PresetRow(canUseLearned: Boolean, onPreset: (PracticePreset) -> Unit) {
+private fun PresetRow(canUsePractised: Boolean, onPreset: (PracticePreset) -> Unit) {
     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         for (preset in PracticePreset.entries) {
             SuggestionChip(
                 onClick = { onPreset(preset) },
                 label = { Text(preset.label) },
-                // Nothing passed means nothing learned, which would select no forms at all.
-                enabled = preset != PracticePreset.Learned || canUseLearned,
+                // Nothing practised on the path yet would select no forms at all.
+                enabled = preset != PracticePreset.Practised || canUsePractised,
             )
         }
     }
