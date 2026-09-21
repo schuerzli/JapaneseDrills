@@ -33,6 +33,17 @@ data class AnswerColors(
 )
 
 /**
+ * Colours for what the primer's worked examples mark: the last kana, the form's ending, and
+ * the two fused. Each is also set apart by weight or underline, so none rests on colour alone.
+ */
+@Immutable
+data class MarkColors(
+    val markKana: Color,
+    val markEnding: Color,
+    val markFused: Color,
+)
+
+/**
  * Where a palette spends its accent beyond the roles every palette shares: on section
  * titles, and on the word-class headings in the grammar reference. It is what makes the
  * palettes different answers rather than one layout recoloured.
@@ -46,6 +57,8 @@ class PaletteSpec(
     val dark: ColorScheme,
     val lightAnswers: AnswerColors,
     val darkAnswers: AnswerColors,
+    val lightMarks: MarkColors,
+    val darkMarks: MarkColors,
     val display: FontFamily,
     val body: FontFamily,
     /** The two faces by name, for the theme picker. */
@@ -170,6 +183,16 @@ private val LatteSpec = PaletteSpec(
         correctContainer = Color(0xFF374E26),
         onCorrectContainer = Color(0xFFD2EAC0),
     ),
+    lightMarks = MarkColors(
+        markKana = Color(0xFF904C1D),
+        markEnding = Color(0xFF1F5C8F),
+        markFused = Color(0xFF7B3A82),
+    ),
+    darkMarks = MarkColors(
+        markKana = Color(0xFFF0A868),
+        markEnding = Color(0xFF8FC2F0),
+        markFused = Color(0xFFE2A6E6),
+    ),
     display = LoraFace,
     body = ManropeFace,
     faces = "Lora · Manrope",
@@ -260,6 +283,16 @@ private val KissatenSpec = PaletteSpec(
         onCorrect = Color(0xFF1B300F),
         correctContainer = Color(0xFF344A24),
         onCorrectContainer = Color(0xFFCDE6BE),
+    ),
+    lightMarks = MarkColors(
+        markKana = Color(0xFF8E4419),
+        markEnding = Color(0xFF1F5C8F),
+        markFused = Color(0xFF7B3A82),
+    ),
+    darkMarks = MarkColors(
+        markKana = Color(0xFFE89B62),
+        markEnding = Color(0xFF8FC2F0),
+        markFused = Color(0xFFE2A6E6),
     ),
     display = LoraFace,
     body = ManropeFace,
@@ -352,6 +385,16 @@ private val WashiSpec = PaletteSpec(
         correctContainer = Color(0xFF364C27),
         onCorrectContainer = Color(0xFFD6EDC6),
     ),
+    lightMarks = MarkColors(
+        markKana = Color(0xFFA34422),
+        markEnding = Color(0xFF1F5C8F),
+        markFused = Color(0xFF7B3A82),
+    ),
+    darkMarks = MarkColors(
+        markKana = Color(0xFFFF9E72),
+        markEnding = Color(0xFF8FC2F0),
+        markFused = Color(0xFFE2A6E6),
+    ),
     display = OutfitFace,
     body = OutfitFace,
     faces = "Outfit",
@@ -442,6 +485,16 @@ private val CaramelSpec = PaletteSpec(
         onCorrect = Color(0xFF1E3410),
         correctContainer = Color(0xFF374E26),
         onCorrectContainer = Color(0xFFD2EAC0),
+    ),
+    lightMarks = MarkColors(
+        markKana = Color(0xFF4A3021),
+        markEnding = Color(0xFF1F5C8F),
+        markFused = Color(0xFF7B3A82),
+    ),
+    darkMarks = MarkColors(
+        markKana = Color(0xFFF4D0A6),
+        markEnding = Color(0xFF8FC2F0),
+        markFused = Color(0xFFE2A6E6),
     ),
     display = FrauncesFace,
     body = NunitosansFace,
@@ -534,6 +587,16 @@ private val MochaSpec = PaletteSpec(
         correctContainer = Color(0xFF374E26),
         onCorrectContainer = Color(0xFFD2EAC0),
     ),
+    lightMarks = MarkColors(
+        markKana = Color(0xFF7E5213),
+        markEnding = Color(0xFF1F5C8F),
+        markFused = Color(0xFF7B3A82),
+    ),
+    darkMarks = MarkColors(
+        markKana = Color(0xFFF0B75E),
+        markEnding = Color(0xFF8FC2F0),
+        markFused = Color(0xFFE2A6E6),
+    ),
     display = ManropeFace,
     body = ManropeFace,
     faces = "Manrope",
@@ -562,11 +625,15 @@ private val AppShapes = Shapes(
 )
 
 private val LocalAnswerColors = staticCompositionLocalOf { specOf(Palette.Latte).lightAnswers }
+private val LocalMarkColors = staticCompositionLocalOf { specOf(Palette.Latte).lightMarks }
 private val LocalAccents = staticCompositionLocalOf { specOf(Palette.Latte).accents }
 
 object DrillTheme {
     val answerColors: AnswerColors
         @Composable get() = LocalAnswerColors.current
+
+    val markColors: MarkColors
+        @Composable get() = LocalMarkColors.current
 
     val accents: Accents
         @Composable get() = LocalAccents.current
@@ -585,6 +652,7 @@ fun JapaneseDrillsTheme(
     val typography = remember(palette) { typographyOf(spec.display, spec.body) }
     CompositionLocalProvider(
         LocalAnswerColors provides if (darkTheme) spec.darkAnswers else spec.lightAnswers,
+        LocalMarkColors provides if (darkTheme) spec.darkMarks else spec.lightMarks,
         LocalAccents provides spec.accents,
     ) {
         MaterialTheme(

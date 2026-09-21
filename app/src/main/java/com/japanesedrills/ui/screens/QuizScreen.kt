@@ -550,7 +550,7 @@ private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) 
         when (it) {
             is RichPart.Jp -> RichPart.Jp(display(it.word))
             is RichPart.Text -> it.copy(text = display(it.text))
-            is RichPart.Tag -> it
+            is RichPart.Tag, is RichPart.Marked -> it
         }
     }
 

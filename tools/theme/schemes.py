@@ -72,6 +72,15 @@ surfaceContainerLowest surfaceContainerLow surfaceContainer
 surfaceContainerHigh surfaceContainerHighest""".split()
 ANSWER_ROLES = ["correct", "onCorrect", "correctContainer", "onCorrectContainer"]
 
+# The primer's worked examples mark what a conjugation touches: the last kana, the form's
+# ending, and the two fused into one. Three hues that read as three different things, none
+# of them the red and green that mean wrong and right everywhere else in the app. The last
+# kana takes the palette's accent; the other two are shared, one set per mode, because they
+# only have to differ from the accent and from each other, not carry a palette's character.
+MARK_ROLES = ["markKana", "markEnding", "markFused"]
+MARKS_LIGHT = dict(markEnding="#1F5C8F", markFused="#7B3A82")
+MARKS_DARK = dict(markEnding="#8FC2F0", markFused="#E2A6E6")
+
 
 # The hero cards — the question, the welcome, the primer link and the score — are a light
 # wash of the accent over the page, with ordinary ink on top. They used to be a slab of
@@ -88,9 +97,17 @@ def mix(fg, bg, t):
     return "#%02X%02X%02X" % tuple(round(t * x + (1 - t) * y) for x, y in zip(f, b))
 
 
+def _dark(colour):
+    r, g, b = (int(colour.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+    return r + g + b < 3 * 128
+
+
 def scheme(**kw):
     """One mode of a palette. Roles the app never touches are filled from ones it does."""
     s = dict(kw)
+    s.setdefault("markKana", s["primary"])
+    for role, colour in (MARKS_DARK if _dark(s["surface"]) else MARKS_LIGHT).items():
+        s.setdefault(role, colour)
     s.setdefault("primaryContainer", mix(s["primary"], s["surface"], HERO_TINT))
     s.setdefault("onPrimaryContainer", s["onSurface"])
     s.setdefault("background", s["surface"])
@@ -105,7 +122,7 @@ def scheme(**kw):
     s.setdefault("surfaceDim", s["surfaceContainerHighest"])
     s.setdefault("surfaceContainerLowest", s["surfaceContainerLow"])
     s.setdefault("inversePrimary", s["primary"])
-    missing = [r for r in ROLES + ANSWER_ROLES if r not in s]
+    missing = [r for r in ROLES + ANSWER_ROLES + MARK_ROLES if r not in s]
     assert not missing, f"missing roles: {missing}"
     return s
 
@@ -310,7 +327,9 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
          + [(fg, bg)
             for fg in ("onSurface", "onSurfaceVariant", "primary", "error")
             for bg in ("surface", "surfaceContainerLow", "surfaceContainer",
-                       "surfaceContainerHigh", "surfaceContainerHighest")])
+                       "surfaceContainerHigh", "surfaceContainerHighest")]
+         # The primer's marked kana: on its cards, and on the tables inside them.
+         + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")])
 
 # 4.5:1 is the floor for ordinary text. onSurfaceVariant is held to 7:1, because it is only
 # ever the smallest type on screen — subtitles, counts, captions — where 4.5:1 leaves too
@@ -389,6 +408,8 @@ def kotlin_palettes():
             f"    dark = darkColorScheme(\n{roles(ROLES, dark, ' ' * 8)}    ),\n"
             f"    lightAnswers = AnswerColors(\n{roles(ANSWER_ROLES, light, ' ' * 8)}    ),\n"
             f"    darkAnswers = AnswerColors(\n{roles(ANSWER_ROLES, dark, ' ' * 8)}    ),\n"
+            f"    lightMarks = MarkColors(\n{roles(MARK_ROLES, light, ' ' * 8)}    ),\n"
+            f"    darkMarks = MarkColors(\n{roles(MARK_ROLES, dark, ' ' * 8)}    ),\n"
             f"    display = {display.capitalize()}Face,\n"
             f"    body = {body.capitalize()}Face,\n"
             f'    faces = "{faces(display, body)}",\n'

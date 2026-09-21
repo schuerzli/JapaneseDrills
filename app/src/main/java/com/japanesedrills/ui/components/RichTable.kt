@@ -28,6 +28,8 @@ fun RichTable(
     rows: List<List<String>>,
     modifier: Modifier = Modifier,
     header: List<String> = emptyList(),
+    /** Cells are worked examples written with marks; see [RichPart.marked]. */
+    marked: Boolean = false,
 ) {
     Surface(
         modifier = modifier,
@@ -56,9 +58,9 @@ fun RichTable(
                     for (cell in row) {
                         // Plain kana needs none of the reading machinery, and the kana grid is
                         // forty-five cells of it.
-                        if (Furigana.hasReading(cell)) {
+                        if (marked || Furigana.hasReading(cell)) {
                             RichText(
-                                listOf(RichPart.Jp(cell)),
+                                if (marked) RichPart.marked(cell) else listOf(RichPart.Jp(cell)),
                                 style = MaterialTheme.typography.bodyMedium,
                                 horizontalArrangement = Arrangement.Center,
                                 modifier = Modifier.weight(1f),

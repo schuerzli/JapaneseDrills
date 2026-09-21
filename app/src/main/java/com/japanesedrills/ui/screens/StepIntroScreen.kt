@@ -38,6 +38,7 @@ import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
+import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -111,7 +112,7 @@ fun StepIntroScreen(
             if (forms.isNotEmpty()) {
                 item(key = "primer") {
                     TextButton(onClick = onPrimer) {
-                        Text("New to verb classes and the kana grid? Read how conjugation works")
+                        Text("New to verb classes and the kana grid? Read the ${Primer.TITLE}")
                         Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                         Icon(
                             Icons.AutoMirrored.Filled.KeyboardArrowRight,

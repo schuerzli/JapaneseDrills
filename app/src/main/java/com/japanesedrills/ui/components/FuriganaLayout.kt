@@ -1,6 +1,7 @@
 package com.japanesedrills.ui.components
 
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.Mark
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RubySegment
 
@@ -17,6 +18,8 @@ internal sealed interface Item {
         val emphasis: Boolean,
         val japanese: Boolean,
         override val gap: Int = 0,
+        /** What a worked example points at here, if anything; see [RichPart.Marked]. */
+        val mark: Mark? = null,
     ) : Item
 
     data class Tag(val text: String, override val gap: Int = 0) : Item
@@ -41,6 +44,9 @@ internal fun layoutItems(parts: List<RichPart>): List<Item> {
         when (part) {
             is RichPart.Jp -> items += Item.Cluster(mergeRuns(Furigana.segments(part.word)), emphasis = false, japanese = true)
             is RichPart.Tag -> items += Item.Tag(part.text)
+            is RichPart.Marked -> items += Item.Cluster(
+                listOf(RubySegment(part.text, null)), emphasis = false, japanese = true, mark = part.mark,
+            )
             is RichPart.Text -> for (token in wordPattern.findAll(part.text).map { it.value }) {
                 if (token.isBlank()) {
                     if (items.isNotEmpty()) {

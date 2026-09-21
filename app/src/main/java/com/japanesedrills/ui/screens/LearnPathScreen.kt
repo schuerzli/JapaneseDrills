@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.StepCard
@@ -202,7 +203,7 @@ private fun WelcomeCard(onPrimer: () -> Unit) {
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ),
             ) {
-                Text("Read first: how conjugation works", style = MaterialTheme.typography.labelLarge)
+                Text("Read first: ${Primer.TITLE}", style = MaterialTheme.typography.labelLarge)
                 Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                 Icon(
                     Icons.AutoMirrored.Filled.KeyboardArrowRight,

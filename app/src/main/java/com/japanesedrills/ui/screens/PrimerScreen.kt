@@ -136,7 +136,7 @@ private fun PrimerBlockView(block: PrimerBlock) {
                 )
             }
             RichText(
-                listOf(RichPart.Jp(block.from), RichPart.Text("  →  "), RichPart.Jp(block.to)),
+                RichPart.marked(block.from) + RichPart.Text("  →  ") + RichPart.marked(block.to),
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
@@ -144,6 +144,9 @@ private fun PrimerBlockView(block: PrimerBlock) {
         is PrimerBlock.Table -> RichTable(
             rows = block.rows,
             header = block.header,
+            marked = block.marked,
         )
+
+        is PrimerBlock.Legend -> RichText(block.parts, style = MaterialTheme.typography.bodyMedium)
     }
 }

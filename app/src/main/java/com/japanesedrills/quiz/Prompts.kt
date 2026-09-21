@@ -5,7 +5,44 @@ sealed interface RichPart {
     data class Text(val text: String, val emphasis: Boolean = false) : RichPart
     data class Jp(val word: String) : RichPart
     data class Tag(val text: String) : RichPart
+
+    /** Kana a worked example points at, such as the last kana or the form's ending. */
+    data class Marked(val text: String, val mark: Mark) : RichPart
+
+    companion object {
+        private val marks = Regex("\\(([^)]*)\\)|〈([^〉]*)〉|\\+([^(〈+]*)")
+
+        /**
+         * A worked example written with marks: `書[か](く)` is the last kana, `+ない` the form's
+         * ending (to the next mark or the end), `〈って〉` the last kana and ending fused. What
+         * is left unmarked is the stem, furigana and all. Only examples are read this way: in
+         * prose, brackets and plus signs are just text.
+         */
+        fun marked(example: String): List<RichPart> {
+            val parts = ArrayList<RichPart>()
+            var last = 0
+            for (match in marks.findAll(example)) {
+                if (match.range.first > last) parts += Jp(example.substring(last, match.range.first))
+                val (kana, fused, ending) = match.destructured
+                parts += when {
+                    match.value.startsWith("(") -> Marked(kana, Mark.LastKana)
+                    match.value.startsWith("〈") -> Marked(fused, Mark.Fused)
+                    else -> Marked(ending, Mark.Ending)
+                }
+                last = match.range.last + 1
+            }
+            if (last < example.length) parts += Jp(example.substring(last))
+            return parts
+        }
+
+        /** The example as it reads, marks removed: `書[か](く)` is `書[か]く`. */
+        fun unmarked(example: String): String =
+            marked(example).joinToString("") { if (it is Marked) it.text else (it as Jp).word }
+    }
 }
+
+/** What a mark in a worked example points at; each has its own colour and style. */
+enum class Mark { LastKana, Ending, Fused }
 
 object Prompts {
 

@@ -141,6 +141,11 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   kanji in furigana notation. Readings are one setting for the whole app (`LocalFurigana`),
   and a bare `Text` can neither show them nor hide them. `everyKanjiShownHasAReading` checks
   the notes, primer, labels, step titles and sentences; it cannot check a call site.
+- **Worked examples mark what a conjugation touches** — the last kana, the form's ending, the
+  two fused — in their own markup (`RichPart.marked`, explained in `quiz/Primer.kt`), read
+  only where a caller asks for it, never in prose. The colours are palette roles
+  (`MarkColors`, from `tools/theme/schemes.py`) with a second cue in weight or underline, so
+  a new mark needs a role there and must pass `--check`.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in

@@ -4,6 +4,7 @@ import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
+import com.japanesedrills.quiz.Mark
 import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.PrimerBlock
 import com.japanesedrills.quiz.QuizEngine
@@ -441,6 +442,7 @@ class DrillLogicTest {
                     is PrimerBlock.Sub -> add(block.title)
                     is PrimerBlock.Step -> { add(block.from); add(block.to); add(block.note) }
                     is PrimerBlock.Table -> { addAll(block.header); block.rows.forEach(::addAll) }
+                    is PrimerBlock.Legend -> Unit
                 }
             }
             addAll(QuizOptions.ALL.map { it.label })
@@ -450,6 +452,31 @@ class DrillLogicTest {
             addAll(data.words.map { it.sentenceJp })
         }
         assertEquals("kanji without a reading", emptyList<String>(), texts.filter(::unread))
+    }
+
+    /**
+     * A primer example whose marks do not close would show its brackets as text. Unmarked,
+     * every example reads as plain Japanese, and each change starts from a marked last kana.
+     */
+    @Test
+    fun primerExamplesAreMarkedUpCleanly() {
+        val examples = Primer.SECTIONS.flatMap { it.blocks }.flatMap { block ->
+            when (block) {
+                is PrimerBlock.Step -> listOf(block.from, block.to)
+                is PrimerBlock.Table -> if (block.marked) block.rows.flatten() else emptyList()
+                else -> emptyList()
+            }
+        }
+        val leftover = examples.filter { RichPart.unmarked(it).any { c -> c in "()〈〉+" } }
+        assertEquals(emptyList<String>(), leftover)
+        assertEquals(
+            listOf(RichPart.Jp("書[か]"), RichPart.Marked("け", Mark.LastKana), RichPart.Marked("る", Mark.Ending)),
+            RichPart.marked("書[か](け)+る"),
+        )
+        assertEquals(
+            listOf(RichPart.Jp("書[か]"), RichPart.Marked("いて", Mark.Fused), RichPart.Marked("いる", Mark.Ending)),
+            RichPart.marked("書[か]〈いて〉+いる"),
+        )
     }
 
     @Test

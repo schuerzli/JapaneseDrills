@@ -38,14 +38,18 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.Mark
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RubySegment
+import com.japanesedrills.ui.theme.DrillTheme
+import com.japanesedrills.ui.theme.MarkColors
 import kotlin.math.roundToInt
 
 /** Japanese locale so kanji use Japanese rather than Chinese glyph variants. */
@@ -105,6 +109,7 @@ fun RichText(
     val spaceWidth = with(LocalDensity.current) { (fontSize * 0.28f).toDp() }
 
     val measurer = rememberTextMeasurer()
+    val markColors = DrillTheme.markColors
 
     // Only cells with a reading get the extra line; items share a baseline, so lines
     // without furigana stay compact and mixed English and Japanese sit level.
@@ -167,7 +172,7 @@ fun RichText(
     if (!hasReading && parts.none { it is RichPart.Tag }) {
         val reserved = if (reserveReadingSpace) with(LocalDensity.current) { rubySize.toDp() } else 0.dp
         Text(
-            remember(parts, emphasisColor) { plainAnnotated(parts, emphasisColor) },
+            remember(parts, emphasisColor, markColors) { plainAnnotated(parts, emphasisColor, markColors) },
             modifier = modifier.padding(top = reserved),
             // The locale picks Japanese glyphs for kanji; phrase breaking keeps よくない whole
             // instead of breaking it after よ, as the reading-aware layout below does too.
@@ -185,7 +190,12 @@ fun RichText(
             contentAlignment = if (horizontalArrangement == Arrangement.Center) Alignment.TopCenter else Alignment.TopStart,
         ) {
             val base = if (only.japanese) jpStyle else style
-            Cell(only.segments[0], if (only.emphasis) base.copy(fontWeight = FontWeight.Bold) else base, if (only.emphasis) emphasisColor else color)
+            val mark = only.mark?.let { markStyle(it, markColors) }
+            Cell(
+                only.segments[0],
+                if (only.emphasis) base.copy(fontWeight = FontWeight.Bold) else base.withMark(mark),
+                if (only.emphasis) emphasisColor else mark?.color ?: color,
+            )
         }
         return
     }
@@ -204,8 +214,9 @@ fun RichText(
             when (item) {
                 is Item.Cluster -> {
                     val base = if (item.japanese) jpStyle else style
-                    val textStyle = if (item.emphasis) base.copy(fontWeight = FontWeight.Bold) else base
-                    val textColor = if (item.emphasis) emphasisColor else color
+                    val mark = item.mark?.let { markStyle(it, markColors) }
+                    val textStyle = if (item.emphasis) base.copy(fontWeight = FontWeight.Bold) else base.withMark(mark)
+                    val textColor = if (item.emphasis) emphasisColor else mark?.color ?: color
                     val segments = item.segments
                     if (segments.size == 1) {
                         Cell(segments[0], textStyle, textColor, itemModifier)
@@ -263,8 +274,21 @@ fun FuriganaText(
     )
 }
 
+/**
+ * How a mark in a worked example looks. Each has a colour, and a second cue for anyone who
+ * cannot tell the colours apart: the last kana is bold, the ending underlined, and the two
+ * fused are both, being both.
+ */
+private fun markStyle(mark: Mark, colors: MarkColors): SpanStyle = when (mark) {
+    Mark.LastKana -> SpanStyle(color = colors.markKana, fontWeight = FontWeight.Bold)
+    Mark.Ending -> SpanStyle(color = colors.markEnding, textDecoration = TextDecoration.Underline)
+    Mark.Fused -> SpanStyle(color = colors.markFused, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline)
+}
+
+private fun TextStyle.withMark(mark: SpanStyle?): TextStyle = if (mark == null) this else merge(mark)
+
 /** The parts as one string, emphasis bold and Japanese in the Japanese locale, for [RichText]'s one-Text path. */
-private fun plainAnnotated(parts: List<RichPart>, emphasisColor: Color): AnnotatedString = buildAnnotatedString {
+private fun plainAnnotated(parts: List<RichPart>, emphasisColor: Color, markColors: MarkColors): AnnotatedString = buildAnnotatedString {
     for (part in parts) {
         when (part) {
             is RichPart.Text -> if (part.emphasis) {
@@ -274,6 +298,9 @@ private fun plainAnnotated(parts: List<RichPart>, emphasisColor: Color): Annotat
             }
             is RichPart.Jp -> withStyle(SpanStyle(localeList = JapaneseLocale)) { append(Furigana.toKanji(part.word)) }
             is RichPart.Tag -> append(part.text)
+            is RichPart.Marked -> withStyle(markStyle(part.mark, markColors).merge(SpanStyle(localeList = JapaneseLocale))) {
+                append(part.text)
+            }
         }
     }
 }
@@ -282,6 +309,7 @@ private fun RichPart.plainText(): String = when (this) {
     is RichPart.Text -> Furigana.toKanji(text)
     is RichPart.Jp -> Furigana.toKanji(word)
     is RichPart.Tag -> text
+    is RichPart.Marked -> text
 }
 
 fun tagParts(tags: List<String>): List<RichPart> =
