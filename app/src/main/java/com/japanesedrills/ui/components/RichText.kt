@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -14,19 +15,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.FirstBaseline
-import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
@@ -92,8 +103,14 @@ fun RichText(
     )
     val spaceWidth = with(LocalDensity.current) { (fontSize * 0.28f).toDp() }
 
+    val measurer = rememberTextMeasurer()
+
     // Only cells with a reading get the extra line; items share a baseline, so lines
     // without furigana stay compact and mixed English and Japanese sit level.
+    //
+    // One text node per cell, which draws its own reading: a layout holding two Material
+    // Texts made each annotated kanji three composables, and a table or a paragraph dense
+    // with readings stuttered as it scrolled in.
     @Composable
     fun Cell(
         segment: RubySegment,
@@ -103,44 +120,73 @@ fun RichText(
         hangStart: Boolean = false,
         hangEnd: Boolean = false,
     ) {
+        val baseStyle = textStyle.copy(color = textColor)
         val reading = segment.reading
         if (reading == null) {
-            Text(segment.text, style = textStyle, color = textColor, softWrap = false, modifier = modifier)
+            BasicText(segment.text, style = baseStyle, softWrap = false, modifier = modifier)
             return
         }
-        Layout(
-            modifier = modifier,
-            content = {
-                Text(
-                    text = reading,
-                    style = rubyStyle,
-                    color = if (furigana) textColor else Color.Transparent,
-                    maxLines = 1,
-                    softWrap = false,
-                )
-                Text(segment.text, style = textStyle, color = textColor, softWrap = false)
-            },
-        ) { measurables, _ ->
-            val ruby = measurables[0].measure(Constraints())
-            val base = measurables[1].measure(Constraints())
-            // A long reading may overhang a neighbour without furigana a little,
-            // instead of spreading the word apart.
-            val extra = maxOf(0, ruby.width - base.width)
-            val maxHang = (fontSize.toPx() * 0.25f).roundToInt()
-            val start = if (hangStart) minOf(extra / 2, maxHang) else 0
-            val end = if (hangEnd) minOf(extra / 2, maxHang) else 0
-            val width = maxOf(base.width, ruby.width - start - end)
-            layout(width, ruby.height + base.height, mapOf(FirstBaseline to ruby.height + base[FirstBaseline])) {
-                ruby.placeRelative(-start + (width + start + end - ruby.width) / 2, 0)
-                base.placeRelative((width - base.width) / 2, ruby.height)
-            }
-        }
+        val ruby = remember(reading, rubyStyle) { measurer.measure(reading, rubyStyle, softWrap = false, maxLines = 1) }
+        val rubyColor = if (furigana) textColor else Color.Transparent
+        // Where layout put the reading, for drawing it: layout always runs before draw.
+        val rubyX = remember { IntArray(1) }
+        BasicText(
+            segment.text,
+            style = baseStyle,
+            softWrap = false,
+            // The drawing sits outside the layout, so it paints in the whole cell's space.
+            modifier = modifier
+                .drawBehind { drawText(ruby, color = rubyColor, topLeft = Offset(rubyX[0].toFloat(), 0f)) }
+                .layout { measurable, _ ->
+                    val base = measurable.measure(Constraints())
+                    // A long reading may overhang a neighbour without furigana a little,
+                    // instead of spreading the word apart.
+                    val extra = maxOf(0, ruby.size.width - base.width)
+                    val maxHang = (fontSize.toPx() * 0.25f).roundToInt()
+                    val start = if (hangStart) minOf(extra / 2, maxHang) else 0
+                    val end = if (hangEnd) minOf(extra / 2, maxHang) else 0
+                    val width = maxOf(base.width, ruby.size.width - start - end)
+                    val top = ruby.size.height
+                    rubyX[0] = -start + (width + start + end - ruby.size.width) / 2
+                    layout(width, top + base.height, mapOf(FirstBaseline to top + base[FirstBaseline])) {
+                        base.placeRelative((width - base.width) / 2, top)
+                    }
+                },
+        )
     }
 
     // One node for a screen reader, not one per word: the pieces are a layout detail.
     val spoken = remember(parts) { AnnotatedString(parts.joinToString("") { it.plainText() }) }
     val items = remember(parts) { layoutItems(parts) }
     val hasReading = items.any { it is Item.Cluster && it.segments.any { s -> s.reading != null } }
+    // Nothing to set above the line: one Text does it, wrapping and all. Laying out every
+    // word as its own piece made a page of prose dozens of layouts where it had been one,
+    // and the primer stuttered as its paragraphs scrolled in.
+    if (!hasReading && parts.none { it is RichPart.Tag }) {
+        val reserved = if (reserveReadingSpace) with(LocalDensity.current) { rubySize.toDp() } else 0.dp
+        Text(
+            remember(parts, emphasisColor) { plainAnnotated(parts, emphasisColor) },
+            modifier = modifier.padding(top = reserved),
+            // The locale picks Japanese glyphs for kanji; phrase breaking keeps よくない whole
+            // instead of breaking it after よ, as the reading-aware layout below does too.
+            style = if (spoken.any(::isJapanese)) style.copy(localeList = JapaneseLocale, lineBreak = JapaneseLineBreak) else style,
+            color = color,
+            textAlign = if (horizontalArrangement == Arrangement.Center) TextAlign.Center else TextAlign.Start,
+        )
+        return
+    }
+    // A single word, as in a table cell or the question card, has nothing to wrap.
+    val only = items.singleOrNull() as? Item.Cluster
+    if (only != null && only.segments.size == 1) {
+        Box(
+            modifier.clearAndSetSemantics { text = spoken },
+            contentAlignment = if (horizontalArrangement == Arrangement.Center) Alignment.TopCenter else Alignment.TopStart,
+        ) {
+            val base = if (only.japanese) jpStyle else style
+            Cell(only.segments[0], if (only.emphasis) base.copy(fontWeight = FontWeight.Bold) else base, if (only.emphasis) emphasisColor else color)
+        }
+        return
+    }
     // The reading line is trimmed to exactly its font size, so that is the space to keep.
     val reserved = if (reserveReadingSpace && !hasReading) with(LocalDensity.current) { rubySize.toDp() } else 0.dp
     FlowRow(
@@ -215,6 +261,21 @@ fun FuriganaText(
     )
 }
 
+/** The parts as one string, emphasis bold and Japanese in the Japanese locale, for [RichText]'s one-Text path. */
+private fun plainAnnotated(parts: List<RichPart>, emphasisColor: Color): AnnotatedString = buildAnnotatedString {
+    for (part in parts) {
+        when (part) {
+            is RichPart.Text -> if (part.emphasis) {
+                withStyle(SpanStyle(fontWeight = FontWeight.Bold, color = emphasisColor)) { append(Furigana.toKanji(part.text)) }
+            } else {
+                append(Furigana.toKanji(part.text))
+            }
+            is RichPart.Jp -> withStyle(SpanStyle(localeList = JapaneseLocale)) { append(Furigana.toKanji(part.word)) }
+            is RichPart.Tag -> append(part.text)
+        }
+    }
+}
+
 private fun RichPart.plainText(): String = when (this) {
     is RichPart.Text -> Furigana.toKanji(text)
     is RichPart.Jp -> Furigana.toKanji(word)
@@ -273,6 +334,9 @@ private fun layoutItems(parts: List<RichPart>): List<Item> {
     }
     return items
 }
+
+/** Breaks Japanese between phrases, not between any two kana (Android 13 and later; ignored before). */
+private val JapaneseLineBreak = LineBreak(LineBreak.Strategy.HighQuality, LineBreak.Strictness.Strict, LineBreak.WordBreak.Phrase)
 
 /** Kana a cluster may run to before a line is allowed to break inside a kana run. */
 private const val KANA_RUN = 6

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.RichPart
 
 /**
@@ -53,12 +54,23 @@ fun RichTable(
             for (row in rows) {
                 Row(Modifier.fillMaxWidth()) {
                     for (cell in row) {
-                        RichText(
-                            listOf(RichPart.Jp(cell)),
-                            style = MaterialTheme.typography.bodyMedium,
-                            horizontalArrangement = Arrangement.Center,
-                            modifier = Modifier.weight(1f),
-                        )
+                        // Plain kana needs none of the reading machinery, and the kana grid is
+                        // forty-five cells of it.
+                        if (Furigana.hasReading(cell)) {
+                            RichText(
+                                listOf(RichPart.Jp(cell)),
+                                style = MaterialTheme.typography.bodyMedium,
+                                horizontalArrangement = Arrangement.Center,
+                                modifier = Modifier.weight(1f),
+                            )
+                        } else {
+                            Text(
+                                cell,
+                                style = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
             }

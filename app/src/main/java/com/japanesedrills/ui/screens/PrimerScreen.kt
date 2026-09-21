@@ -1,12 +1,16 @@
 package com.japanesedrills.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,6 +18,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -22,12 +27,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Primer
 import com.japanesedrills.quiz.PrimerBlock
-import com.japanesedrills.quiz.PrimerSection
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.SectionHeading
+import com.japanesedrills.ui.components.SectionPadding
+import com.japanesedrills.ui.components.SectionSpacing
+import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
  * The conjugation primer: one page, read top to bottom. It is the only screen in the app
@@ -50,57 +57,92 @@ fun PrimerScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             )
         },
     ) { padding ->
+        // Each block is its own list item, drawn so a section still reads as one card. As one
+        // item per section, a section with two tables and forty readings was built in a
+        // single frame as it scrolled in, and a fast fling stuttered on it.
+        val list = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.padding(padding),
+            state = list,
+            modifier = Modifier.padding(padding).verticalScrollbar(list),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            items(Primer.SECTIONS, key = { it.title }) { section ->
-                PrimerCard(section)
+            for (section in Primer.SECTIONS) {
+                val last = section.blocks.lastIndex
+                item(key = section.title) { Piece(first = true, last = false) { SectionHeading(section.title) } }
+                itemsIndexed(section.blocks, key = { i, _ -> "${section.title}/$i" }) { i, block ->
+                    Piece(first = false, last = i == last) { PrimerBlockView(block) }
+                }
             }
         }
     }
 }
 
+/**
+ * One slice of a section card: rounded at the top for the heading, at the bottom for the
+ * last block, and square between, with the card's padding split so the slices join up.
+ */
 @Composable
-private fun PrimerCard(section: PrimerSection) {
-    SectionCard(section.title) {
-        for (block in section.blocks) {
-            when (block) {
-                is PrimerBlock.Line -> FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium)
+private fun Piece(first: Boolean, last: Boolean, content: @Composable () -> Unit) {
+    val corner = 12.dp
+    val shape = RoundedCornerShape(
+        topStart = if (first) corner else 0.dp,
+        topEnd = if (first) corner else 0.dp,
+        bottomStart = if (last) corner else 0.dp,
+        bottomEnd = if (last) corner else 0.dp,
+    )
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = shape,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = if (last) 12.dp else 0.dp),
+    ) {
+        Box(
+            Modifier.padding(
+                start = SectionPadding,
+                end = SectionPadding,
+                top = if (first) SectionPadding else SectionSpacing / 2,
+                bottom = if (last) SectionPadding else SectionSpacing / 2,
+            ),
+        ) { content() }
+    }
+}
 
-                // On the text's baseline, or a reading over the first line lifts the bullet above it.
-                is PrimerBlock.Bullet -> Row {
-                    Text("•  ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
-                    FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
-                }
+@Composable
+private fun PrimerBlockView(block: PrimerBlock) {
+    when (block) {
+        is PrimerBlock.Line -> FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium)
 
-                is PrimerBlock.Sub -> FuriganaText(
-                    block.title,
-                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(top = 4.dp),
-                )
+        // On the text's baseline, or a reading over the first line lifts the bullet above it.
+        is PrimerBlock.Bullet -> Row {
+            Text("•  ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
+            FuriganaText(block.text, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
+        }
 
-                is PrimerBlock.Step -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    if (block.note.isNotEmpty()) {
-                        Text(
-                            block.note,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    RichText(
-                        listOf(RichPart.Jp(block.from), RichPart.Text("  →  "), RichPart.Jp(block.to)),
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                }
+        is PrimerBlock.Sub -> FuriganaText(
+            block.title,
+            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.padding(top = 4.dp),
+        )
 
-                is PrimerBlock.Table -> RichTable(
-                    rows = block.rows,
-                    header = block.header,
+        is PrimerBlock.Step -> Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            if (block.note.isNotEmpty()) {
+                Text(
+                    block.note,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            RichText(
+                listOf(RichPart.Jp(block.from), RichPart.Text("  →  "), RichPart.Jp(block.to)),
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
+
+        is PrimerBlock.Table -> RichTable(
+            rows = block.rows,
+            header = block.header,
+        )
     }
 }

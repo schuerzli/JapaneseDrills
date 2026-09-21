@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
@@ -33,6 +31,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 
 /**
  * One open dataset the word list was built from. The EDRDG licence asks that apps using
@@ -164,7 +163,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 .fillMaxSize()
                 .padding(padding)
                 .consumeWindowInsets(padding)
-                .verticalScroll(rememberScrollState())
+                .verticalScrollWithScrollbar()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

@@ -16,9 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -59,6 +57,7 @@ import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.SwitchRow
+import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 
 /**
  * The free-practice tab: one-tap presets above the full option grid. Content only — the tab
@@ -79,7 +78,7 @@ fun PracticeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScrollWithScrollbar()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {

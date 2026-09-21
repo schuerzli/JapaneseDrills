@@ -70,7 +70,8 @@ app/src/main/java/com/japanesedrills/
     ui/                  ViewModel and state
     ui/screens/          learn path, step intro, grammar, primer, practice, quiz,
                          results, settings, about
-    ui/components/       furigana-aware rich text and table, shared card and switch row
+    ui/components/       furigana-aware rich text and table, shared card and switch row,
+                         scrollbars
     ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
@@ -133,6 +134,11 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   kanji in furigana notation. Readings are one setting for the whole app (`LocalFurigana`),
   and a bare `Text` can neither show them nor hide them. `everyKanjiShownHasAReading` checks
   the notes, primer, labels, step titles and sentences; it cannot check a call site.
+- **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
+  `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
+- **A long lazy list is many small items, not a few big ones.** An item is composed whole in
+  the frame it scrolls in, so a card of paragraphs and tables in one item stutters a fling;
+  the primer is one item per block for that reason (`ui/screens/PrimerScreen.kt`).
 
 - **A state change must not make the screen around it jump.** An element may change size,
   but not if that reshuffles a list or pushes its neighbours somewhere unpredictable. A tick

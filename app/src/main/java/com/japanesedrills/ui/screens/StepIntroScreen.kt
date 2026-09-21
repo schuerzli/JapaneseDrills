@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
@@ -27,8 +28,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -37,12 +38,13 @@ import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
-import com.japanesedrills.quiz.Step
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
+import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
  * What a step introduces, shown the first time it is opened.
@@ -97,8 +99,10 @@ fun StepIntroScreen(
             }
         },
     ) { padding ->
+        val list = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.padding(padding),
+            state = list,
+            modifier = Modifier.padding(padding).verticalScrollbar(list),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

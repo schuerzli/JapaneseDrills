@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
@@ -20,7 +21,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import com.japanesedrills.ui.theme.DrillTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,12 +43,16 @@ import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.verticalScrollbar
+import com.japanesedrills.ui.theme.DrillTheme
 
 /** Every form the drill can ask about. Tapping one opens what it means and how it is built. */
 @Composable
 fun GrammarScreen(onPrimer: () -> Unit, onForm: (String) -> Unit, modifier: Modifier = Modifier) {
+    val list = rememberLazyListState()
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        state = list,
+        modifier = modifier.fillMaxSize().verticalScrollbar(list),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
@@ -130,8 +134,10 @@ fun GrammarDetailScreen(
             )
         },
     ) { padding ->
+        val list = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.padding(padding),
+            state = list,
+            modifier = Modifier.padding(padding).verticalScrollbar(list),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {

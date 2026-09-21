@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
@@ -37,8 +38,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
-import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.StepCard
+import com.japanesedrills.ui.components.FuriganaText
+import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 
 /** One chapter of the path, in path order. */
@@ -80,8 +82,10 @@ fun LearnPathScreen(
 ) {
     val chapters = remember(state.path) { chaptersOf(state.path) }
 
+    val list = rememberLazyListState()
     LazyColumn(
-        modifier = modifier.fillMaxSize(),
+        state = list,
+        modifier = modifier.fillMaxSize().verticalScrollbar(list),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {

@@ -1,7 +1,6 @@
 package com.japanesedrills.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +15,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
@@ -49,6 +50,7 @@ import com.japanesedrills.ui.HistoryEntry
 import com.japanesedrills.ui.StepOutcome
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 import kotlin.math.roundToInt
 
@@ -122,8 +124,10 @@ fun ResultsScreen(
             }
         },
     ) { padding ->
+        val list = rememberLazyListState()
         LazyColumn(
-            modifier = Modifier.padding(padding),
+            state = list,
+            modifier = Modifier.padding(padding).verticalScrollbar(list),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {

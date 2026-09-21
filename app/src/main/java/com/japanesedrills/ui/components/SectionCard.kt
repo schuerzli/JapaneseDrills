@@ -26,26 +26,36 @@ fun SectionCard(title: String, subtitle: String? = null, content: @Composable ()
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Column {
-                FuriganaText(
-                    title,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (DrillTheme.accents.titles) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    },
-                )
-                if (subtitle != null) {
-                    Text(
-                        subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+        Column(Modifier.padding(SectionPadding), verticalArrangement = Arrangement.spacedBy(SectionSpacing)) {
+            SectionHeading(title, subtitle)
             content()
+        }
+    }
+}
+
+/** The inside padding of a [SectionCard], and the space between the things in it. */
+val SectionPadding = 20.dp
+val SectionSpacing = 12.dp
+
+/** A [SectionCard]'s title and subtitle, for a card assembled from list items instead. */
+@Composable
+fun SectionHeading(title: String, subtitle: String? = null) {
+    Column {
+        FuriganaText(
+            title,
+            style = MaterialTheme.typography.titleMedium,
+            color = if (DrillTheme.accents.titles) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+        )
+        if (subtitle != null) {
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
