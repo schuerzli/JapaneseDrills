@@ -65,7 +65,11 @@ data class QuizState(
     /** The answer to [question] once it has been given; it is also the last [history] entry. */
     val answer: HistoryEntry? = null,
     val showExplanation: Boolean = false,
-    /** Incremented on every rejected submission to trigger the shake animation. */
+    /**
+     * Incremented on every rejected submission to trigger the shake animation. Per question:
+     * the answer field is rebuilt for each one and replays its shake for any count above
+     * zero, so a count carried over made every later question shake as it appeared.
+     */
     val shakes: Int = 0,
 )
 
@@ -587,7 +591,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
         _state.update {
-            it.copy(quiz = quiz.copy(question = question, answer = null, showExplanation = false))
+            it.copy(quiz = quiz.copy(question = question, answer = null, showExplanation = false, shakes = 0))
         }
     }
 
