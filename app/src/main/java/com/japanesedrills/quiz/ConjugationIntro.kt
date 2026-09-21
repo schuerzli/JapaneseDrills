@@ -132,8 +132,8 @@ object ConjugationIntro {
                 ConjugationIntroBlock.Line("The stem 食[た]べ never changes."),
                 ConjugationIntroBlock.Line(
                     "A few forms have an ending of their own for 一[いち]段[だん] verbs: the potential and " +
-                        "the passive take られる, the causative させる, the volitional よう and the " +
-                        "imperative ろ.",
+                        "the passive take られる, the causative させる, the volitional よう, the " +
+                        "imperative ろ and the provisional れば.",
                 ),
                 ConjugationIntroBlock.Step("食[た]べ(る)", "食[た]べ+られる"),
                 ConjugationIntroBlock.Line("Each form's page in the Grammar tab shows its ending for every class."),

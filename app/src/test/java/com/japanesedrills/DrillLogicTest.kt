@@ -1,6 +1,7 @@
 package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
+import com.japanesedrills.quiz.ChangeShape
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.ConjugationIntroBlock
 import com.japanesedrills.quiz.Explanations
@@ -96,7 +97,7 @@ class DrillLogicTest {
         assertEquals(listOf("高くない"), forms("高い", "negative"))
     }
 
-    /** Adjectives join the て form: the step on the connector is about them too. */
+    /** Adjectives join the て-form: the step on the connector is about them too. */
     @Test
     fun adjectivesHaveATeForm() {
         assertEquals(listOf("高くて"), forms("高い", "te-form"))
@@ -235,16 +236,16 @@ class DrillLogicTest {
         assertEquals(listOf("Causative", "Causative passive", "Past negative"), steps.map { it.label })
         assertEquals(listOf("聞[き]かせる"), steps[0].to)
         assertEquals(
-            "Change the final kana from the う-row to the あ-row and add せる.",
+            "Change the last kana from the う-row to the あ-row and add せる.",
             (steps[0].rule.single() as RichPart.Text).text,
         )
         assertEquals(RichPart.Text(" conjugates like an ichidan verb: "), steps[2].rule[1])
-        assertEquals(RichPart.Text("drop the final る and add なかった."), steps[2].rule[2])
+        assertEquals(RichPart.Text("drop the last る and add なかった."), steps[2].rule[2])
 
         val kau = data.words.first { it.key == "買う" }
         val negative = Explanations.solution(kau, "negative").steps.single()
         assertEquals(
-            "Change the final kana from the う-row to the あ-row and add ない. う becomes わ, not あ.",
+            "Change the last kana from the う-row to the あ-row and add ない. う becomes わ, not あ.",
             (negative.rule.single() as RichPart.Text).text,
         )
     }
@@ -477,6 +478,57 @@ class DrillLogicTest {
             listOf(RichPart.Jp("書[か]"), RichPart.Marked("いて", Mark.Fused), RichPart.Marked("いる", Mark.Ending)),
             RichPart.marked("書[か]〈いて〉+いる"),
         )
+    }
+
+    /**
+     * The Conjugation Intro is written by hand, so nothing else stops it teaching a form the
+     * drill would mark wrong: every example that starts from a word in the list has to end
+     * on one of that word's real conjugations. It is what would catch 食べば for 食べれば.
+     */
+    @Test
+    fun conjugationIntroExamplesAreRealConjugations() {
+        val changes = ConjugationIntro.SECTIONS.flatMap { it.blocks }.flatMap { block ->
+            when (block) {
+                is ConjugationIntroBlock.Step -> listOf(block.from to block.to)
+                is ConjugationIntroBlock.Table ->
+                    if (block.marked) block.rows.flatMap { row -> row.drop(1).map { row.first() to it } } else emptyList()
+                else -> emptyList()
+            }
+        }
+        var checked = 0
+        val wrong = changes.filter { (from, to) ->
+            val start = RichPart.unmarked(from)
+            val candidates = data.words.filter { it.dictionary == start }
+                .ifEmpty { data.words.filter { Furigana.toKana(it.dictionary) == Furigana.toKana(start) } }
+            if (candidates.isEmpty()) return@filter false // a form built on a form, such as 書ける
+            checked++
+            val result = Furigana.toKana(RichPart.unmarked(to))
+            candidates.none { word -> word.conjugations.values.any { c -> c.forms.any { Furigana.toKana(it) == result } } }
+        }
+        assertEquals(emptyList<Pair<String, String>>(), wrong)
+        assertTrue("only $checked examples checked", checked >= 30)
+    }
+
+    /** Marks derived from a change agree with the ones the Conjugation Intro writes by hand. */
+    @Test
+    fun marksAChangeByWhatItDoesToTheLastKana() {
+        fun marked(from: String, to: String, shape: ChangeShape) = ChangeShape.marked(from, to, shape).toList()
+        assertEquals(
+            listOf(RichPart.marked("書[か](く)"), RichPart.marked("書[か](か)+ない")),
+            marked("書[か]く", "書[か]かない", ChangeShape.Shift),
+        )
+        assertEquals(
+            listOf(RichPart.marked("食[た]べ(る)"), RichPart.marked("食[た]べ+れば")),
+            marked("食[た]べる", "食[た]べれば", ChangeShape.Drop),
+        )
+        assertEquals(
+            listOf(RichPart.marked("書[か](く)"), RichPart.marked("書[か]〈いて〉+いる")),
+            marked("書[か]く", "書[か]いている", ChangeShape.Fuse(tail = "いる")),
+        )
+        // Nothing taken off, only an ending added.
+        assertEquals(RichPart.marked("書[か]く+な"), marked("書[か]く", "書[か]くな", ChangeShape.Shift)[1])
+        // Irregular: no last kana to point at.
+        assertEquals(listOf(RichPart.Jp("来[く]る")), marked("来[く]る", "来[こ]ない", ChangeShape.None)[0])
     }
 
     @Test

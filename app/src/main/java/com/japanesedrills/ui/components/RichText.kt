@@ -66,9 +66,11 @@ val LocalFurigana = staticCompositionLocalOf { true }
  * from the furigana notation (see [Furigana]) wherever it appears: in a [RichPart.Jp]
  * word, or inline in a [RichPart.Text] such as a note or an example sentence.
  *
- * Hidden readings still take their space, so switching them on or off never moves the
- * text around them. [reserveReadingSpace] takes it even with no reading at all, for text set
- * beside text that has one, such as a row of chips, so they share a height and a baseline.
+ * Readings switched off take no space: the lines close up as though there had never been
+ * any, rather than keeping gaps where they were. Text whose size must not change when they
+ * are switched, the question card, asks for [reserveReadingSpace], which keeps a reading's
+ * height above the line whether or not one is drawn. It also serves text set beside text
+ * that has a reading, such as a row of chips, so they share a height and a baseline.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -109,6 +111,11 @@ fun RichText(
     val spaceWidth = with(LocalDensity.current) { (fontSize * 0.28f).toDp() }
 
     val measurer = rememberTextMeasurer()
+    // The height a drawn reading actually takes, which is what hidden or absent readings
+    // keep when asked to: the font size alone fell short, and a word moved as they appeared.
+    val readingLine = with(LocalDensity.current) {
+        remember(rubyStyle) { measurer.measure("あ", rubyStyle, softWrap = false, maxLines = 1).size.height }.toDp()
+    }
     val markColors = DrillTheme.markColors
 
     // Only cells with a reading get the extra line; items share a baseline, so lines
@@ -127,13 +134,12 @@ fun RichText(
         hangEnd: Boolean = false,
     ) {
         val baseStyle = textStyle.copy(color = textColor)
-        val reading = segment.reading
+        val reading = segment.reading.takeIf { furigana }
         if (reading == null) {
             BasicText(segment.text, style = baseStyle, softWrap = false, modifier = modifier)
             return
         }
         val ruby = remember(reading, rubyStyle) { measurer.measure(reading, rubyStyle, softWrap = false, maxLines = 1) }
-        val rubyColor = if (furigana) textColor else Color.Transparent
         // Where layout put the reading, for drawing it. State, so a layout that moves the
         // reading without changing the cell's size still redraws it.
         val rubyX = remember { mutableIntStateOf(0) }
@@ -143,7 +149,7 @@ fun RichText(
             softWrap = false,
             // The drawing sits outside the layout, so it paints in the whole cell's space.
             modifier = modifier
-                .drawBehind { drawText(ruby, color = rubyColor, topLeft = Offset(rubyX.intValue.toFloat(), 0f)) }
+                .drawBehind { drawText(ruby, color = textColor, topLeft = Offset(rubyX.intValue.toFloat(), 0f)) }
                 .layout { measurable, _ ->
                     val base = measurable.measure(Constraints())
                     // A long reading may overhang a neighbour without furigana a little,
@@ -162,15 +168,23 @@ fun RichText(
         )
     }
 
+    /** The style and colour a piece of [cluster] is drawn in: emphasis, or [mark]'s look. */
+    fun look(cluster: Item.Cluster, mark: Mark?): Pair<TextStyle, Color> {
+        val base = if (cluster.japanese) jpStyle else style
+        if (cluster.emphasis) return base.copy(fontWeight = FontWeight.Bold) to emphasisColor
+        val marked = mark?.let { markStyle(it, markColors) } ?: return base to color
+        return base.merge(marked) to marked.color
+    }
+
     // One node for a screen reader, not one per word: the pieces are a layout detail.
     val spoken = remember(parts) { AnnotatedString(parts.joinToString("") { it.plainText() }) }
     val items = remember(parts) { layoutItems(parts) }
-    val hasReading = items.any { it is Item.Cluster && it.segments.any { s -> s.reading != null } }
+    val hasReading = furigana && items.any { it is Item.Cluster && it.segments.any { s -> s.reading != null } }
     // Nothing to set above the line: one Text does it, wrapping and all. Laying out every
     // word as its own piece made a page of prose dozens of layouts where it had been one,
     // and the Conjugation Intro stuttered as its paragraphs scrolled in.
     if (!hasReading && parts.none { it is RichPart.Tag }) {
-        val reserved = if (reserveReadingSpace) with(LocalDensity.current) { rubySize.toDp() } else 0.dp
+        val reserved = if (reserveReadingSpace) readingLine else 0.dp
         Text(
             remember(parts, emphasisColor, markColors) { plainAnnotated(parts, emphasisColor, markColors) },
             modifier = modifier.padding(top = reserved),
@@ -189,18 +203,12 @@ fun RichText(
             modifier.clearAndSetSemantics { text = spoken },
             contentAlignment = if (horizontalArrangement == Arrangement.Center) Alignment.TopCenter else Alignment.TopStart,
         ) {
-            val base = if (only.japanese) jpStyle else style
-            val mark = only.mark?.let { markStyle(it, markColors) }
-            Cell(
-                only.segments[0],
-                if (only.emphasis) base.copy(fontWeight = FontWeight.Bold) else base.withMark(mark),
-                if (only.emphasis) emphasisColor else mark?.color ?: color,
-            )
+            val (textStyle, textColor) = look(only, only.markAt(0))
+            Cell(only.segments[0], textStyle, textColor)
         }
         return
     }
-    // The reading line is trimmed to exactly its font size, so that is the space to keep.
-    val reserved = if (reserveReadingSpace && !hasReading) with(LocalDensity.current) { rubySize.toDp() } else 0.dp
+    val reserved = if (reserveReadingSpace && !hasReading) readingLine else 0.dp
     FlowRow(
         modifier = modifier
             .clearAndSetSemantics { text = spoken }
@@ -213,16 +221,14 @@ fun RichText(
                 .padding(end = spaceWidth * item.gap)
             when (item) {
                 is Item.Cluster -> {
-                    val base = if (item.japanese) jpStyle else style
-                    val mark = item.mark?.let { markStyle(it, markColors) }
-                    val textStyle = if (item.emphasis) base.copy(fontWeight = FontWeight.Bold) else base.withMark(mark)
-                    val textColor = if (item.emphasis) emphasisColor else mark?.color ?: color
                     val segments = item.segments
                     if (segments.size == 1) {
+                        val (textStyle, textColor) = look(item, item.markAt(0))
                         Cell(segments[0], textStyle, textColor, itemModifier)
                     } else {
                         Row(itemModifier) {
                             segments.forEachIndexed { i, segment ->
+                                val (textStyle, textColor) = look(item, item.markAt(i))
                                 Cell(
                                     segment,
                                     textStyle,
@@ -284,8 +290,6 @@ private fun markStyle(mark: Mark, colors: MarkColors): SpanStyle = when (mark) {
     Mark.Ending -> SpanStyle(color = colors.markEnding, textDecoration = TextDecoration.Underline)
     Mark.Fused -> SpanStyle(color = colors.markFused, fontWeight = FontWeight.Bold, textDecoration = TextDecoration.Underline)
 }
-
-private fun TextStyle.withMark(mark: SpanStyle?): TextStyle = if (mark == null) this else merge(mark)
 
 /** The parts as one string, emphasis bold and Japanese in the Japanese locale, for [RichText]'s one-Text path. */
 private fun plainAnnotated(parts: List<RichPart>, emphasisColor: Color, markColors: MarkColors): AnnotatedString = buildAnnotatedString {

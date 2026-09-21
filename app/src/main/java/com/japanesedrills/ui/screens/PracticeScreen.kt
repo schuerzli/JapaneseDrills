@@ -55,6 +55,7 @@ import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.FuriganaText
+import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.SwitchRow
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
@@ -105,6 +106,7 @@ fun PracticeScreen(
 
         SectionCard("Words") {
             ChipGroup(QuizOptions.REGULAR_VERBS, options, onFlag, "Regular verbs")
+            ChipGroup(QuizOptions.EXCEPTION_VERBS, options, onFlag, "Regular, with exceptions")
             ChipGroup(QuizOptions.IRREGULAR_VERBS, options, onFlag, "Irregular verbs")
             ChipGroup(QuizOptions.ADJECTIVES, options, onFlag, "Adjectives")
             ChipGroup(QuizOptions.IRREGULAR_ADJECTIVES, options, onFlag, "Irregular adjectives")
@@ -246,7 +248,7 @@ private fun ChipGroup(
         }
         // One chip with a reading makes the whole row keep room for one, so the labels sit
         // on a shared baseline instead of the annotated ones dropping below the rest.
-        val readings = items.any { Furigana.hasReading(it.label) }
+        val readings = LocalFurigana.current && items.any { Furigana.hasReading(it.label) }
         FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             for (item in items) {
                 val selected = options.isOn(item.key)

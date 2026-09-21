@@ -320,7 +320,7 @@
     },
     {
       "id": "te-form",
-      "title": "て form",
+      "title": "て-form",
       "subtitle": "The connector half the grammar is built on",
       "chapter": "Plain verb forms",
       "forms": [
@@ -386,7 +386,7 @@
     },
     {
       "id": "irregular-te-form",
-      "title": "する, 来[く]る, 行[い]く · て form",
+      "title": "する, 来[く]る, 行[い]く · て-form",
       "subtitle": "The verbs that break the rules",
       "chapter": "The irregular verbs",
       "forms": [
@@ -543,7 +543,7 @@
     },
     {
       "id": "i-adjectives-te-form",
-      "title": "い-adjectives · て form",
+      "title": "い-adjectives · て-form",
       "subtitle": "Adjectives that conjugate like verbs",
       "chapter": "Adjectives",
       "forms": [
@@ -652,7 +652,7 @@
     },
     {
       "id": "na-adjectives-te-form",
-      "title": "な-adjectives · て form",
+      "title": "な-adjectives · て-form",
       "subtitle": "Adjectives that behave like nouns",
       "chapter": "Adjectives",
       "forms": [

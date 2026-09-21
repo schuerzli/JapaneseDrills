@@ -95,7 +95,7 @@ fun GrammarScreen(
         item(key = "forms") { ListHeading("Forms") }
         items(Grammar.NOTES, key = { it.key }) { note -> NoteRow(note) { onForm(note.key) } }
         // A step shows these once, when it is first opened; this is where they are found again.
-        item(key = "classes") { ListHeading("Word types") }
+        item(key = "classes") { ListHeading("Word classes") }
         items(Grammar.CLASS_NOTES, key = { "class-${it.key}" }) { note -> NoteRow(note) { onForm(note.key) } }
     }
 }
@@ -223,7 +223,7 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
     // the forms built on its て-form and ordinary everywhere else, and the section is for
     // verbs that are irregular *here*.
     val shown = derived.filter { (word, _) ->
-        word.group !in Grammar.IRREGULAR_GROUPS || examples.declaresOwnRule(word, target)
+        word.group !in Grammar.IRREGULAR_GROUPS + Grammar.EXCEPTION_GROUPS || examples.declaresOwnRule(word, target)
     }
 
     // A sound change is a closed list, not a rule, so godan gets the table itself instead
@@ -253,7 +253,7 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
                         rows = table.map { fusion ->
                             listOf(fusion.endings.joinToString(" · "), fusion.te, fusion.past)
                         },
-                        header = listOf("plain", "て-form", "past"),
+                        header = listOf("dictionary", "て-form", "past"),
                     )
                 }
                 // Examples after the first state only what their rule adds to the first
@@ -312,7 +312,7 @@ private fun StepLine(step: SolutionStep, rule: List<RichPart>) {
         // renders it, so it shares the baseline. An icon beside the text cannot: furigana
         // makes the Japanese taller at the top, and centring floats the arrow above the words.
         RichText(
-            listOf(RichPart.Jp(step.from), RichPart.Text("  →  ")) + Prompts.wordList(step.to),
+            Prompts.change(step.from, step.to, step.shape),
             style = MaterialTheme.typography.bodyLarge,
         )
     }

@@ -35,7 +35,7 @@ FOCUS_NONE = "none"
 FORM_LABELS = {
     "negative": "Negative",
     "past": "Past",
-    "te-form": "て form",
+    "te-form": "て-form",
 }
 
 
@@ -156,7 +156,7 @@ SPINE = [
     form("negative", "Negative", "Saying something does not happen"),
     form("past", "Past", "Saying something already happened"),
     words("verbs-2", "More verbs", "Eight more everyday verbs", VERBS, 8),
-    form("te-form", "て form", "The connector half the grammar is built on", questions=16),
+    form("te-form", "て-form", "The connector half the grammar is built on", questions=16),
 
     chapter("The irregular verbs"),
     # Three words in one form both ways is six questions, so six it asks rather than repeat.

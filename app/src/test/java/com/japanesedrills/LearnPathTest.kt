@@ -465,7 +465,6 @@ class LearnPathTest {
         assertEquals(1, progress.dueCount(10))
         assertEquals(2, progress.dueCount(50))
         assertEquals(0, progress.dueCount(4))
-        assertEquals("only what review can reach", 1, progress.dueCount(50) { it.startsWith("past|") })
     }
 
     // Backup. The stored document and the one the user copies out are the same text, so

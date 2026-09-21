@@ -55,8 +55,14 @@ object Grammar {
         "causative" to A_ROW,
     )
 
-    /** Shown under one heading, because "irregular" is the useful fact about all of them. */
-    val IRREGULAR_GROUPS = setOf("suru", "kuru", "iku")
+    /** Shown under one heading, because "irregular" is the useful fact about both of them. */
+    val IRREGULAR_GROUPS = setOf("suru", "kuru")
+
+    /**
+     * Regular verbs with an exception or two, which the reference shows only where they are
+     * the exception: 行く in the forms built on its て-form, and nowhere else.
+     */
+    val EXCEPTION_GROUPS = setOf("iku", "aru", "iru")
 
     /** The example words to build [formKey] with, in the order they should be shown. */
     fun examplesFor(formKey: String): List<String> =
@@ -110,14 +116,14 @@ object Grammar {
             summary = "Something already happened, or a state that held before now.",
             notes = listOf(
                 "Japanese has no separate perfect tense: 食[た]べた covers \"ate\" and \"have eaten\".",
-                "The plain past uses the same sound changes as the て form, so learning one " +
+                "The plain past uses the same sound changes as the て-form, so learning one " +
                     "gives you the other.",
                 "In front of a noun the plain past describes it: 買[か]った本[ほん] — the book I bought.",
             ),
         ),
         GrammarNote(
             key = "te-form",
-            title = "て form",
+            title = "て-form",
             summary = "Not a tense at all — the connector most later grammar is built on.",
             notes = listOf(
                 "Joins clauses: \"do this, and then that\", with the tense set by the final verb.",
@@ -158,7 +164,7 @@ object Grammar {
             notes = listOf(
                 "Polite ましょう is the everyday \"let's\"; plain よう/おう is casual.",
                 "With と思[おも]う it becomes an intention: \"I think I'll…\".",
-                "Not a request — for that, use the て form with ください.",
+                "Not a request — for that, use the て-form with ください.",
             ),
         ),
         GrammarNote(
@@ -202,7 +208,7 @@ object Grammar {
                 "Heard in anger, in sports and military speech, and on signs: 止[と]まれ.",
                 "Common when quoting an order indirectly, where the rudeness does not land.",
                 "The negative is the plain form plus な: 行[い]くな, don't go.",
-                "For an ordinary request use the て form with ください instead.",
+                "For an ordinary request use the て-form with ください instead.",
             ),
         ),
         GrammarNote(
@@ -212,8 +218,8 @@ object Grammar {
             notes = listOf(
                 "Also the \"suffering passive\": it happened to me and I am worse off for it — " +
                     "a use with no direct English equivalent.",
-                "Doubles as an honorific: the same form can raise the listener rather than " +
-                    "passivise the verb.",
+                "Doubles as an honorific: the same form can raise the person doing the action " +
+                    "rather than passivise the verb.",
                 "Identical in shape to the ichidan potential.",
             ),
         ),
@@ -241,7 +247,7 @@ object Grammar {
             title = "い-adjectives",
             summary = "Adjectives ending in い that conjugate on their own, much like verbs.",
             notes = listOf(
-                "The final い is replaced by the ending: 高[たか]い → 高[たか]くない, 高[たか]かった, 高[たか]くて.",
+                "The last い is replaced by the ending: 高[たか]い → 高[たか]くない, 高[たか]かった, 高[たか]くて.",
                 "The polite forms add です to the plain ones: 高[たか]いです, 高[たか]かったです.",
                 "In front of a noun they need nothing extra: 高[たか]い山[やま], a tall mountain.",
                 "Not every adjective ending in い is one: きれい and 嫌[きら]い are な-adjectives.",
@@ -283,7 +289,7 @@ object Grammar {
             title = "行[い]く",
             summary = "To go — an ordinary godan verb with one exception.",
             notes = listOf(
-                "Its past and て form are 行[い]った and 行[い]って, not 行[い]いた and 行[い]いて.",
+                "Its past and て-form are 行[い]った and 行[い]って, not 行[い]いた and 行[い]いて.",
                 "Everything else follows the godan rules: 行[い]かない, 行[い]ける, 行[い]こう.",
             ),
         ),

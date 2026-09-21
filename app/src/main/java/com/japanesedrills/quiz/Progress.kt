@@ -75,11 +75,10 @@ data class Progress(
     val isEmpty: Boolean get() = steps.isEmpty() && skills.isEmpty() && words.isEmpty()
 
     /**
-     * How many skills are ready to be reviewed, of those [reachable] accepts. The one
-     * definition of "due" for the UI.
+     * How many skills are ready to be reviewed: the one definition of "due" for the UI.
+     * Every skill here was practised, so a review can reach every one of them.
      */
-    fun dueCount(today: Long, reachable: (skill: String) -> Boolean = { true }): Int =
-        skills.count { (skill, state) -> Scheduler.isDue(state, today) && reachable(skill) }
+    fun dueCount(today: Long): Int = skills.values.count { Scheduler.isDue(it, today) }
 
     companion object {
         /** A pairing missed this often is a leech: it gets picked first in review. */

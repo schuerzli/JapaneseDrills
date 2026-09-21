@@ -3,12 +3,17 @@ package com.japanesedrills.quiz
 import com.japanesedrills.data.DrillData.Companion.DICTIONARY
 import com.japanesedrills.data.Word
 
-/** One step of a solution: apply [rule] to [from] to get [to] (one or more accepted forms). */
+/**
+ * One step of a solution: apply [rule] to [from] to get [to] (one or more accepted forms).
+ * [shape] is what the step does to the last kana, for marking the change the way the
+ * Conjugation Intro marks its examples.
+ */
 data class SolutionStep(
     val label: String,
     val rule: List<RichPart>,
     val from: String,
     val to: List<String>,
+    val shape: ChangeShape = ChangeShape.None,
 )
 
 /**
@@ -56,7 +61,6 @@ object Explanations {
         setOf("volitional") to Op.VOL,
     )
 
-    // Kana rows used by godan verbs: あ, い, え and お rows for each dictionary ending.
     // The て-form ending that replaces each godan dictionary ending, in the order the
     // fusions are usually taught. Its keys double as the set of kana a godan verb can end
     // in: the row shifts are described in words, so the rows need no table of their own.
@@ -120,6 +124,7 @@ object Explanations {
                 rule = rule ?: FALLBACK,
                 from = from,
                 to = if (key == chain.last() && finalTags.isEmpty()) word.forms(target) else forms,
+                shape = if (rule == null) ChangeShape.None else derivationShape(previousClass, key),
             )
             previous = key
             previousClass = if (key == "desire") WordClass.I_ADJ else WordClass.ICHIDAN
@@ -130,6 +135,7 @@ object Explanations {
             val base = word.forms(previous).firstOrNull() ?: return Solution(steps, usedFallback = true)
             val answers = word.forms(target)
             var rule = op?.let { finalRule(previousClass, it, base, alternatives = answers.size > 1) }
+            val shape = if (rule == null || op == null) ChangeShape.None else finalShape(previousClass, op)
             if (rule == null) {
                 fallback = true
                 rule = FALLBACK
@@ -144,6 +150,7 @@ object Explanations {
                 rule = rule,
                 from = base,
                 to = answers,
+                shape = shape,
             )
         }
 
@@ -207,10 +214,10 @@ object Explanations {
         return when (key) {
             "causative" -> when (cls) {
                 WordClass.GODAN, WordClass.IKU ->
-                    rule("Change the final kana from the う-row to the あ-row and add せる.$wa")
+                    rule("Change the last kana from the う-row to the あ-row and add せる.$wa")
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
-                WordClass.ARU -> rule("Change the final る to ら and add せる. This form of ある is rare.")
-                WordClass.ICHIDAN, WordClass.IRU -> rule("Drop the final る and add させる.")
+                WordClass.ARU -> rule("Change the last る to ら and add せる. This form of ある is rare.")
+                WordClass.ICHIDAN, WordClass.IRU -> rule("Drop the last る and add させる.")
                 WordClass.SURU -> rule("する becomes させる.")
                 WordClass.KURU -> rule(jp("来[く]る"), " is irregular: it becomes ", jp("来[こ]させる"), ".")
                 else -> null
@@ -228,23 +235,23 @@ object Explanations {
             }
             "passive" -> when (cls) {
                 WordClass.GODAN, WordClass.IKU ->
-                    rule("Change the final kana from the う-row to the あ-row and add れる.$wa")
+                    rule("Change the last kana from the う-row to the あ-row and add れる.$wa")
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
-                WordClass.ARU -> rule("Change the final る to ら and add れる. This form of ある is rare.")
+                WordClass.ARU -> rule("Change the last る to ら and add れる. This form of ある is rare.")
                 WordClass.ICHIDAN, WordClass.IRU ->
-                    rule("Drop the final る and add られる. (The potential form looks the same.)")
+                    rule("Drop the last る and add られる. (The potential form looks the same.)")
                 WordClass.SURU -> rule("する becomes される.")
                 WordClass.KURU -> rule(jp("来[く]る"), " is irregular: it becomes ", jp("来[こ]られる"), ".")
                 else -> null
             }
             "potential" -> when (cls) {
                 WordClass.GODAN, WordClass.IKU ->
-                    rule("Change the final kana from the う-row to the え-row and add る.")
+                    rule("Change the last kana from the う-row to the え-row and add る.")
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
                 // ある has no common potential form; あり得る is used instead.
-                WordClass.ARU -> rule("Change the final る to れ and add る. ある is hardly ever used this way.")
+                WordClass.ARU -> rule("Change the last る to れ and add る. ある is hardly ever used this way.")
                 WordClass.ICHIDAN, WordClass.IRU ->
-                    rule("Drop the final る and add られる. In casual speech just れる is common too.")
+                    rule("Drop the last る and add られる. In casual speech just れる is common too.")
                 WordClass.SURU -> rule("する is replaced by できる.")
                 WordClass.KURU -> rule(jp("来[く]る"), " is irregular: it becomes ", jp("来[こ]られる"), ".")
                 else -> null
@@ -261,6 +268,34 @@ object Explanations {
         }
     }
 
+    /**
+     * What a derivation does to the last kana. The causative passive is left unmarked: its
+     * shorter godan form (書かされる) and its full one do not share a split to mark.
+     */
+    private fun derivationShape(cls: WordClass, key: String): ChangeShape {
+        val godan = cls == WordClass.GODAN || cls == WordClass.IKU || cls == WordClass.ARU
+        val ichidan = cls == WordClass.ICHIDAN || cls == WordClass.IRU
+        return when {
+            key == "progressive" && (cls == WordClass.GODAN || cls == WordClass.IKU) -> ChangeShape.Fuse(tail = "いる")
+            key == "causative passive" -> ChangeShape.None
+            godan && key in derivationTags -> ChangeShape.Shift
+            ichidan -> ChangeShape.Drop
+            else -> ChangeShape.None
+        }
+    }
+
+    /** What a final inflection does to the last kana; irregular changes mark nothing. */
+    private fun finalShape(cls: WordClass, op: Op): ChangeShape = when (cls) {
+        WordClass.GODAN, WordClass.IKU, WordClass.ARU -> when {
+            cls == WordClass.ARU && aruRule(op) != null -> ChangeShape.None
+            op == Op.TE || op == Op.PAST -> ChangeShape.Fuse()
+            op == Op.COND -> ChangeShape.Fuse(tail = "ら")
+            else -> ChangeShape.Shift
+        }
+        WordClass.ICHIDAN, WordClass.IRU, WordClass.I_ADJ, WordClass.NA_ADJ -> ChangeShape.Drop
+        WordClass.SURU, WordClass.KURU, WordClass.II -> ChangeShape.None
+    }
+
     // Final inflections.
 
     private fun finalRule(cls: WordClass, op: Op, base: String, alternatives: Boolean): List<RichPart>? = when (cls) {
@@ -269,7 +304,7 @@ object Explanations {
         WordClass.ARU -> aruRule(op) ?: godanRule(op, 'る')
         WordClass.ICHIDAN -> ichidanRule(op)
         WordClass.IRU -> ichidanRule(op)?.let {
-            if (op == Op.IMP) rule("Drop the final る and add ろ (or よ in writing).") else it
+            if (op == Op.IMP) rule("Drop the last る and add ろ (or よ in writing).") else it
         }
         WordClass.SURU -> suruRule(op)
         WordClass.KURU -> kuruRule(op)
@@ -285,7 +320,7 @@ object Explanations {
 
     /**
      * A row shift is stated as the rule, not as the one substitution this word happens to
-     * need: "the final kana" rather than "the final く". Naming the kana made the reference
+     * need: "the last kana" rather than "the last く". Naming the kana made the reference
      * read as though く were the only ending a godan verb has, and the worked example
      * underneath already shows what the shift does to this particular word.
      *
@@ -295,7 +330,7 @@ object Explanations {
     private fun godanRule(op: Op, u: Char): List<RichPart>? {
         val te = godanTe[u] ?: return null
         val ta = pastOf(te)
-        val aRow = "Change the final kana from the う-row to the あ-row"
+        val aRow = "Change the last kana from the う-row to the あ-row"
         val wa = if (u == 'う') " う becomes わ, not あ." else ""
         return when (op) {
             Op.NEG -> rule("$aRow and add ない.$wa")
@@ -305,16 +340,16 @@ object Explanations {
             Op.PROV_NEG -> rule("$aRow and add なければ.$wa")
             Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
                 rule(
-                    "Change the final kana from the う-row to the い-row and add " +
+                    "Change the last kana from the う-row to the い-row and add " +
                         "${masuEndings.getValue(op)}.",
                 )
             Op.TE -> rule("Godan verbs ending in $u replace it with $te.")
             Op.PAST -> rule("Godan verbs ending in $u replace it with $ta (the same sound change as the て-form $te).")
             Op.COND -> rule("Make the past form (ending in $ta) and add ら.")
-            Op.PROV -> rule("Change the final kana from the う-row to the え-row and add ば.")
-            Op.IMP -> rule("Change the final kana from the う-row to the え-row.")
+            Op.PROV -> rule("Change the last kana from the う-row to the え-row and add ば.")
+            Op.IMP -> rule("Change the last kana from the う-row to the え-row.")
             Op.IMP_NEG -> rule("Add な to the dictionary form.")
-            Op.VOL -> rule("Change the final kana from the う-row to the お-row and add う (a long お sound).")
+            Op.VOL -> rule("Change the last kana from the う-row to the お-row and add う (a long お sound).")
         }
     }
 
@@ -332,25 +367,25 @@ object Explanations {
         Op.COND_NEG -> rule("ある is irregular: its negative is ない, so this is なかったら.")
         Op.PROV_NEG -> rule("ある is irregular: its negative is ない, so this is なければ.")
         // Only reachable if the disabled ある imperative is re-enabled in rules.json.
-        Op.IMP -> rule("Change the final る to its え-row kana れ. This form of ある is rare.")
+        Op.IMP -> rule("Change the last る to its え-row kana れ. This form of ある is rare.")
         else -> null
     }
 
     private fun ichidanRule(op: Op): List<RichPart>? = when (op) {
-        Op.NEG -> rule("Drop the final る and add ない.")
-        Op.PAST_NEG -> rule("Drop the final る and add なかった.")
+        Op.NEG -> rule("Drop the last る and add ない.")
+        Op.PAST_NEG -> rule("Drop the last る and add なかった.")
         Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-            rule("Drop the final る and add ${masuEndings.getValue(op)}.")
-        Op.PAST -> rule("Drop the final る and add た.")
-        Op.TE -> rule("Drop the final る and add て.")
-        Op.TE_NEG -> rule("Drop the final る and add なくて or ないで.")
-        Op.COND -> rule("Drop the final る and add たら (the past form plus ら).")
-        Op.COND_NEG -> rule("Drop the final る and add なかったら.")
-        Op.PROV -> rule("Change the final る to れ and add ば.")
-        Op.PROV_NEG -> rule("Drop the final る and add なければ.")
-        Op.IMP -> rule("Drop the final る and add ろ.")
+            rule("Drop the last る and add ${masuEndings.getValue(op)}.")
+        Op.PAST -> rule("Drop the last る and add た.")
+        Op.TE -> rule("Drop the last る and add て.")
+        Op.TE_NEG -> rule("Drop the last る and add なくて or ないで.")
+        Op.COND -> rule("Drop the last る and add たら (the past form plus ら).")
+        Op.COND_NEG -> rule("Drop the last る and add なかったら.")
+        Op.PROV -> rule("Change the last る to れ and add ば.")
+        Op.PROV_NEG -> rule("Drop the last る and add なければ.")
+        Op.IMP -> rule("Drop the last る and add ろ.")
         Op.IMP_NEG -> rule("Add な to the dictionary form.")
-        Op.VOL -> rule("Drop the final る and add よう.")
+        Op.VOL -> rule("Drop the last る and add よう.")
     }
 
     private fun suruRule(op: Op): List<RichPart> = when (op) {
@@ -395,23 +430,23 @@ object Explanations {
 
     /** [alternatives]: whether the formal ありません variants are accepted as well. */
     private fun iAdjectiveRule(op: Op, alternatives: Boolean): List<RichPart>? = when (op) {
-        Op.NEG -> rule("Replace the final い with く and add ない.")
-        Op.PAST_NEG -> rule("Replace the final い with く and add なかった.")
-        Op.PAST -> rule("Replace the final い with かった.")
+        Op.NEG -> rule("Replace the last い with く and add ない.")
+        Op.PAST_NEG -> rule("Replace the last い with く and add なかった.")
+        Op.PAST -> rule("Replace the last い with かった.")
         Op.POLITE -> rule("Add です.")
         Op.POLITE_NEG -> if (alternatives) {
-            rule("Replace the final い with くないです, or with くありません (more formal).")
+            rule("Replace the last い with くないです, or with くありません (more formal).")
         } else {
-            rule("Replace the final い with くない and add です.")
+            rule("Replace the last い with くない and add です.")
         }
-        Op.POLITE_PAST -> rule("Replace the final い with かった and add です.")
+        Op.POLITE_PAST -> rule("Replace the last い with かった and add です.")
         Op.POLITE_PAST_NEG -> if (alternatives) {
-            rule("Replace the final い with くなかったです, or with くありませんでした (more formal).")
+            rule("Replace the last い with くなかったです, or with くありませんでした (more formal).")
         } else {
-            rule("Replace the final い with くなかった and add です.")
+            rule("Replace the last い with くなかった and add です.")
         }
-        Op.TE -> rule("Replace the final い with くて.")
-        Op.TE_NEG -> rule("Replace the final い with く and add なくて.")
+        Op.TE -> rule("Replace the last い with くて.")
+        Op.TE_NEG -> rule("Replace the last い with く and add なくて.")
         else -> null
     }
 

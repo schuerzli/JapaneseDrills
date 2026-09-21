@@ -18,9 +18,14 @@ internal sealed interface Item {
         val emphasis: Boolean,
         val japanese: Boolean,
         override val gap: Int = 0,
-        /** What a worked example points at here, if anything; see [RichPart.Marked]. */
-        val mark: Mark? = null,
-    ) : Item
+        /**
+         * What a worked example points at in each segment, by index; empty when nothing is
+         * marked. See [RichPart.Marked].
+         */
+        val marks: List<Mark?> = emptyList(),
+    ) : Item {
+        fun markAt(index: Int): Mark? = marks.getOrNull(index)
+    }
 
     data class Tag(val text: String, override val gap: Int = 0) : Item
 }
@@ -35,18 +40,39 @@ private val wordPattern = Regex("[^ ]+| +")
 /**
  * Splits the parts into the pieces a line may break between. English breaks at spaces;
  * Japanese has none, so a run of it breaks before each kanji and every few kana instead.
- * A [RichPart.Jp] word is never broken: it is the thing being drilled. Each item carries the
- * number of spaces that follow it, so a gap can only end a line, never start one.
+ * A [RichPart.Jp] word is never broken: it is the thing being drilled. Nor is a marked word,
+ * whose stem and marked kana arrive as neighbouring parts. Each item carries the number of
+ * spaces that follow it, so a gap can only end a line, never start one.
  */
 internal fun layoutItems(parts: List<RichPart>): List<Item> {
     val items = ArrayList<Item>()
+    // Whether the previous part was a word, and whether it was a marked one: a marked part
+    // and the word parts touching it are one word, 書 and く of 書く, and must not wrap apart.
+    var afterWord = false
+    var afterMark = false
     for (part in parts) {
         when (part) {
-            is RichPart.Jp -> items += Item.Cluster(mergeRuns(Furigana.segments(part.word)), emphasis = false, japanese = true)
+            is RichPart.Jp, is RichPart.Marked -> {
+                val marked = part is RichPart.Marked
+                val cluster = if (part is RichPart.Marked) {
+                    Item.Cluster(listOf(RubySegment(part.text, null)), emphasis = false, japanese = true, marks = listOf(part.mark))
+                } else {
+                    Item.Cluster(mergeRuns(Furigana.segments((part as RichPart.Jp).word)), emphasis = false, japanese = true)
+                }
+                val last = items.lastOrNull() as? Item.Cluster
+                if (last != null && afterWord && last.gap == 0 && (marked || afterMark)) {
+                    items[items.lastIndex] = last.copy(
+                        segments = last.segments + cluster.segments,
+                        marks = last.segments.indices.map(last::markAt) + cluster.segments.indices.map(cluster::markAt),
+                    )
+                } else {
+                    items += cluster
+                }
+                afterWord = true
+                afterMark = marked
+                continue
+            }
             is RichPart.Tag -> items += Item.Tag(part.text)
-            is RichPart.Marked -> items += Item.Cluster(
-                listOf(RubySegment(part.text, null)), emphasis = false, japanese = true, mark = part.mark,
-            )
             is RichPart.Text -> for (token in wordPattern.findAll(part.text).map { it.value }) {
                 if (token.isBlank()) {
                     if (items.isNotEmpty()) {
@@ -60,6 +86,8 @@ internal fun layoutItems(parts: List<RichPart>): List<Item> {
                 }
             }
         }
+        afterWord = false
+        afterMark = false
     }
     return items
 }

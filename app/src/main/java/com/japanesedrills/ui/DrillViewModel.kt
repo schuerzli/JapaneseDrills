@@ -5,11 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
-import com.japanesedrills.quiz.LearnPath
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
+import com.japanesedrills.quiz.LearnPath
 import com.japanesedrills.quiz.OptionsStore
 import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.PracticePreset

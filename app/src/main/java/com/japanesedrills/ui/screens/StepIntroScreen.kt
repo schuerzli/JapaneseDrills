@@ -50,7 +50,7 @@ import com.japanesedrills.ui.components.verticalScrollbar
 /**
  * What a step introduces, shown the first time it is opened.
  *
- * The drill grades production, so asking for the て form of a word the learner has never
+ * The drill grades production, so asking for the て-form of a word the learner has never
  * seen would test two things at once and diagnose neither. Everything shown here is
  * already in words.json — this screen is presentation, not new content.
  */

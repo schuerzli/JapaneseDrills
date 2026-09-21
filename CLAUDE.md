@@ -144,8 +144,10 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   the notes, the Conjugation Intro, labels, step titles and sentences; it cannot check a call
   site.
 - **Worked examples mark what a conjugation touches** — the last kana, the form's ending, the
-  two fused — in their own markup (`RichPart.marked`, explained in
-  `quiz/ConjugationIntro.kt`), read only where a caller asks for it, never in prose. The colours are palette roles
+  two fused. The Conjugation Intro writes its marks by hand in their own markup
+  (`RichPart.marked`, explained in `quiz/ConjugationIntro.kt`), read only where a caller asks
+  for it, never in prose; every derived example, on the Grammar tab and in explanations, gets
+  them from the shape the explanation engine gives each step (`ChangeShape`). The colours are palette roles
   (`MarkColors`, from `tools/theme/schemes.py`) with a second cue in weight or underline, so
   a new mark needs a role there and must pass `--check`.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,

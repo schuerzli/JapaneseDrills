@@ -44,6 +44,71 @@ sealed interface RichPart {
 /** What a mark in a worked example points at; each has its own colour and style. */
 enum class Mark { LastKana, Ending, Fused }
 
+/**
+ * How a change treats the last kana, which is what decides the marks on a derived example:
+ * [Drop] replaces it with the ending (一段 verbs, adjectives), [Shift] moves it to another
+ * row and adds the ending (五段 row shifts), [Fuse] melts it into the ending, followed by
+ * [Fuse.tail] where more is added after the fused part (いる in 書いている, ら in 書いたら).
+ * [None] marks nothing: an irregular change has no last kana to point at.
+ */
+sealed interface ChangeShape {
+    data object None : ChangeShape
+    data object Drop : ChangeShape
+    data object Shift : ChangeShape
+    data class Fuse(val tail: String = "") : ChangeShape
+
+    companion object {
+        /**
+         * [from] and [to], marked by what the change did. What they share is the stem; the
+         * rest of [from] is its last kana, and the rest of [to] is split by [shape]. A change
+         * that touches kanji rather than kana is left unmarked.
+         */
+        fun marked(from: String, to: String, shape: ChangeShape): Pair<List<RichPart>, List<RichPart>> {
+            val unmarked = listOf<RichPart>(RichPart.Jp(from)) to listOf<RichPart>(RichPart.Jp(to))
+            if (shape == None) return unmarked
+            val a = units(from)
+            val b = units(to)
+            var shared = 0
+            while (shared < a.size && shared < b.size && a[shared] == b[shared]) shared++
+            val kana = a.drop(shared)
+            val rest = b.drop(shared)
+            if (rest.isEmpty() || (kana + rest).any { it.contains('[') }) return unmarked
+
+            val stem = a.take(shared).joinToString("")
+            val stemPart = listOfNotNull(stem.takeIf { it.isNotEmpty() }?.let(RichPart::Jp))
+            val restText = rest.joinToString("")
+            val fromParts = stemPart + listOfNotNull(
+                kana.joinToString("").takeIf { it.isNotEmpty() }?.let { RichPart.Marked(it, Mark.LastKana) },
+            )
+            val toRest: List<RichPart> = when {
+                // Nothing was taken off, so all that happened is an ending added: 書くな.
+                kana.isEmpty() || shape == Drop -> listOf(RichPart.Marked(restText, Mark.Ending))
+                shape == Shift -> listOfNotNull(
+                    RichPart.Marked(rest.first(), Mark.LastKana),
+                    rest.drop(1).joinToString("").takeIf { it.isNotEmpty() }?.let { RichPart.Marked(it, Mark.Ending) },
+                )
+                else -> {
+                    val tail = (shape as Fuse).tail
+                    if (tail.isNotEmpty() && restText.endsWith(tail) && restText.length > tail.length) {
+                        listOf(
+                            RichPart.Marked(restText.dropLast(tail.length), Mark.Fused),
+                            RichPart.Marked(tail, Mark.Ending),
+                        )
+                    } else {
+                        listOf(RichPart.Marked(restText, Mark.Fused))
+                    }
+                }
+            }
+            return fromParts to stemPart + toRest
+        }
+
+        /** Furigana notation cut into kanji-with-reading and single kana, the units a change works in. */
+        private fun units(text: String): List<String> = Furigana.segments(text).flatMap { segment ->
+            if (segment.reading != null) listOf("${segment.text}[${segment.reading}]") else segment.text.map(Char::toString)
+        }
+    }
+}
+
 object Prompts {
 
     /** The name of the form a question asks for, as shown after "change to". */
@@ -51,8 +116,8 @@ object Prompts {
         "present" to "present tense",
         "past" to "past tense",
         "plain" to "informal",
-        "て" to "て form",
-        "non-て" to "non-て form",
+        "て" to "て-form",
+        "non-て" to "non-て-form",
         "'desire'" to "'desire' form",
         "'non-desire'" to "'non-desire' form",
     )
@@ -71,14 +136,27 @@ object Prompts {
     fun question(phrase: String, word: String): List<RichPart> =
         instruction(phrase) + RichPart.Text(": ") + RichPart.Jp(word)
 
+    /**
+     * A worked change, "from → to", marked by [shape] the way the Conjugation Intro marks its
+     * examples. Several accepted results are listed as [wordList] lists them.
+     */
+    fun change(from: String, to: List<String>, shape: ChangeShape): List<RichPart> {
+        if (to.isEmpty()) return listOf(RichPart.Jp(from))
+        val marked = to.map { ChangeShape.marked(from, it, shape) }
+        return marked.first().first + RichPart.Text("  →  ") + joined(marked.map { it.second })
+    }
+
     /** "A", "A or B", "A, B or C" with each item as a Japanese word. */
-    fun wordList(words: List<String>, conjunction: String = "or"): List<RichPart> {
+    fun wordList(words: List<String>, conjunction: String = "or"): List<RichPart> =
+        joined(words.map { listOf(RichPart.Jp(it)) }, conjunction)
+
+    private fun joined(items: List<List<RichPart>>, conjunction: String = "or"): List<RichPart> {
         val parts = ArrayList<RichPart>()
-        words.forEachIndexed { i, w ->
-            parts += RichPart.Jp(w)
+        items.forEachIndexed { i, item ->
+            parts += item
             when {
-                i < words.size - 2 -> parts += RichPart.Text(", ")
-                i == words.size - 2 -> parts += RichPart.Text(" $conjunction ")
+                i < items.size - 2 -> parts += RichPart.Text(", ")
+                i == items.size - 2 -> parts += RichPart.Text(" $conjunction ")
             }
         }
         return parts

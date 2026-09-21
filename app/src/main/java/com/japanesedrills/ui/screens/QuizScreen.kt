@@ -123,7 +123,7 @@ fun QuizScreen(
                     title = { Text("Question $number of ${quiz.total}") },
                     navigationIcon = {
                         IconButton(onClick = onQuit) {
-                            Icon(Icons.Default.Close, contentDescription = "Back to start")
+                            Icon(Icons.Default.Close, contentDescription = "Quit")
                         }
                     },
                     actions = {
@@ -244,6 +244,8 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions, onToggleFurigana
                 style = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Medium),
                 color = onContainer,
                 horizontalArrangement = Arrangement.Center,
+                // Tapping the card switches readings; the word must not jump when it does.
+                reserveReadingSpace = true,
             )
             // The line is kept, empty, for a word with nothing to read, so the card does not
             // change height from one question to the next.
@@ -582,8 +584,7 @@ private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) 
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
             ) {
                 RichText(
-                    listOf(RichPart.Jp(display(step.from)), RichPart.Text("  →  ")) +
-                        Prompts.wordList(step.to.map(display)),
+                    Prompts.change(display(step.from), step.to.map(display), step.shape),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                 )

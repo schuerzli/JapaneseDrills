@@ -114,7 +114,7 @@ data class QuizOptions(
         const val FOCUS_NONE = "none"
         const val FOCUS_TETAKEI = "tetakei"
         const val KANA = "kana"
-            const val AUTO_NEXT = "go_to_next_question"
+        const val AUTO_NEXT = "go_to_next_question"
         const val AUTO_EXPLAIN = "auto_show_explanation"
         const val MAX_QUESTIONS = 999
 
@@ -123,13 +123,13 @@ data class QuizOptions(
             OptionItem("polite", "Polite"),
             OptionItem("negative", "Negative"),
             OptionItem("past", "Past"),
-            OptionItem("te-form", "て form"),
+            OptionItem("te-form", "て-form"),
             OptionItem("progressive", "Progressive"),
             OptionItem("desire", "Desire"),
             OptionItem("volitional", "Volitional"),
             OptionItem("potential", "Potential"),
             OptionItem("conditional", "Conditional (たら)"),
-            OptionItem("provisional", "Provisional conditional (ば)"),
+            OptionItem("provisional", "Provisional (ば)"),
             OptionItem("imperative", "Imperative"),
             OptionItem("passive", "Passive"),
             OptionItem("causative", "Causative"),
@@ -140,17 +140,22 @@ data class QuizOptions(
             OptionItem("ichidan", "Ichidan verbs"),
         )
 
+        /** The only two verbs irregular throughout, as the Conjugation Intro teaches them. */
         val IRREGULAR_VERBS = listOf(
             OptionItem("suru", "する verbs"),
             OptionItem("kuru", "来[く]る verb"),
+        )
+
+        /** Regular verbs with an exception worth knowing: 行く's て-form, ある's negative, いる's missing progressive. */
+        val EXCEPTION_VERBS = listOf(
             OptionItem("iku", "行[い]く verb"),
             OptionItem("aru", "ある verb"),
-            OptionItem("iru", "いる verbs"),
+            OptionItem("iru", "いる verb"),
         )
 
         val ADJECTIVES = listOf(
-            OptionItem("i-adjective", "い adjectives"),
-            OptionItem("na-adjective", "な adjectives"),
+            OptionItem("i-adjective", "い-adjectives"),
+            OptionItem("na-adjective", "な-adjectives"),
         )
 
         val IRREGULAR_ADJECTIVES = listOf(
@@ -180,17 +185,17 @@ data class QuizOptions(
             OptionItem("politeness", "Politeness"),
             OptionItem("negative", "Negative"),
             OptionItem("past", "Past"),
-            OptionItem("te-form", "て form"),
+            OptionItem("te-form", "て-form"),
             OptionItem("progressive", "Progressive"),
             OptionItem("desire", "Desire"),
             OptionItem("volitional", "Volitional"),
             OptionItem("potential", "Potential"),
             OptionItem("conditional", "Conditional (たら)"),
-            OptionItem("provisional", "Provisional conditional (ば)"),
+            OptionItem("provisional", "Provisional (ば)"),
             OptionItem("imperative", "Imperative"),
             OptionItem("passive", "Passive"),
             OptionItem("causative", "Causative"),
-            OptionItem(FOCUS_TETAKEI, "Godan て / た form"),
+            OptionItem(FOCUS_TETAKEI, "Godan て-form / past"),
         )
 
         /**
@@ -202,7 +207,7 @@ data class QuizOptions(
 
         /** Every option the start screen offers, in the order it shows them. */
         val ALL: List<OptionItem> =
-            FORMS + REGULAR_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES +
+            FORMS + REGULAR_VERBS + EXCEPTION_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES +
                 LEVEL_FILTERS + GENERAL
 
         /** The options that start switched on; every other option in [ALL] starts off. */
@@ -222,7 +227,8 @@ data class QuizOptions(
         // display lists at every call site.
         val FORM_KEYS: Set<String> = FORMS.map { it.key }.toSet()
         val GROUP_KEYS: Set<String> =
-            (REGULAR_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES).map { it.key }.toSet()
+            (REGULAR_VERBS + EXCEPTION_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES)
+                .map { it.key }.toSet()
         val LEVEL_KEYS: Set<String> = LEVEL_FILTERS.map { it.key }.toSet()
     }
 }
@@ -231,7 +237,7 @@ data class QuizOptions(
 enum class PracticePreset(val label: String) {
     /** Whatever the path has drilled so far; only offered once something has been answered there. */
     Practised("What I've practised"),
-    TeTa("て and た forms"),
+    TeTa("て-form and past"),
     Everything("Everything"),
 }
 

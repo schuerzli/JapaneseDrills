@@ -74,7 +74,7 @@ fun ResultsScreen(
                 title = { Text("Results") },
                 navigationIcon = {
                     IconButton(onClick = onBackToStart) {
-                        Icon(Icons.Default.Close, contentDescription = "Back to start")
+                        Icon(Icons.Default.Close, contentDescription = "Done")
                     }
                 },
             )
@@ -106,7 +106,7 @@ fun ResultsScreen(
                         }
                     } else if (outcome != null) {
                         OutlinedButton(onClick = onBackToStart, modifier = Modifier.weight(1f)) {
-                            Text("Back to Start")
+                            Text("Done")
                         }
                         Button(onClick = onRetry, modifier = Modifier.weight(1f)) {
                             Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
@@ -117,7 +117,7 @@ fun ResultsScreen(
                         Button(onClick = onBackToStart, modifier = Modifier.fillMaxWidth()) {
                             Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                            Text("Back to Start")
+                            Text("Done")
                         }
                     }
                 }
