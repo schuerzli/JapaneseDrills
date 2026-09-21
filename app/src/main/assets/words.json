@@ -16,7 +16,7 @@
   "group": "suru",
   "dictionary": "あくびする",
   "reading": "あくびする",
-  "meaning": "yawn, yawning (as a verb)",
+  "meaning": "to yawn",
   "sentences": [
    "あの先[せん]生[せい]の講[こう]義[ぎ]はあくびが出[で]る。",
    "His lectures are terribly boring."
@@ -97,7 +97,7 @@
   "group": "suru",
   "dictionary": "いたずらする",
   "reading": "いたずらする",
-  "meaning": "mischief, prank (as a verb)",
+  "meaning": "to play a prank, to get up to mischief",
   "sentences": [
    "{少年}[しょうねん]たちは{時々}[ときどき]先[せん]生[せい]にいたずらしたものだった。",
    "Sometimes the boys would play a trick on their teacher."
@@ -125,7 +125,7 @@
   "group": "suru",
   "dictionary": "うがいする",
   "reading": "うがいする",
-  "meaning": "gargling, rinsing one's mouth (as a verb)",
+  "meaning": "to gargle",
   "sentences": [
    "",
    ""
@@ -220,7 +220,7 @@
   "group": "suru",
   "dictionary": "お代[か]わりする",
   "reading": "おかわりする",
-  "meaning": "another helping, second helping (as a verb)",
+  "meaning": "to have a second helping",
   "sentences": [
    "コーヒーのおかわりはいかがですか。",
    "Would you like another cup of coffee?"
@@ -234,7 +234,7 @@
   "group": "suru",
   "dictionary": "お参[まい]りする",
   "reading": "おまいりする",
-  "meaning": "visit (to a shrine, grave, etc.), worship (as a verb)",
+  "meaning": "to visit a shrine or grave, to pay one's respects",
   "sentences": [
    "{元旦}[がんたん]には{近所}[きんじょ]の{神社}[じんじゃ]にお参[まい]りする人[ひと]が多[おお]い。",
    "On New Year's Day, many people visit neighborhood shrines."
@@ -248,7 +248,7 @@
   "group": "suru",
   "dictionary": "お喋[しゃべ]りする",
   "reading": "おしゃべりする",
-  "meaning": "chattering, talk (as a verb)",
+  "meaning": "to chat, to chatter",
   "sentences": [
    "彼[かれ]らは{天気}[てんき]についておしゃべりした。",
    "They chatted about the weather."
@@ -262,7 +262,7 @@
   "group": "suru",
   "dictionary": "お辞[じ]儀[ぎ]する",
   "reading": "おじぎする",
-  "meaning": "bow, bowing (as a verb)",
+  "meaning": "to bow",
   "sentences": [
    "どの子[こ]も先[せん]生[せい]にお辞[じ]儀[ぎ]した。",
    "Every child bowed to the teacher."
@@ -359,7 +359,7 @@
   "group": "suru",
   "dictionary": "くしゃみする",
   "reading": "くしゃみする",
-  "meaning": "sneeze, sneezing (as a verb)",
+  "meaning": "to sneeze",
   "sentences": [
    "咳[せき]、くしゃみ、あくびをする時[とき]は口[くち]を手[て]で隠[かく]しなさい。",
    "Cover your mouth when you cough, sneeze, or yawn."
@@ -497,7 +497,7 @@
   "group": "suru",
   "dictionary": "ごちそうする",
   "reading": "ごちそうする",
-  "meaning": "treat (esp. food and drink), entertainment (as a verb)",
+  "meaning": "to treat (someone to food or drink)",
   "sentences": [
    "{手伝}[てつだ]ってくれたお礼[れい]に、お昼[ひる]をごちそうしたいのですが。",
    "I'd like to treat you to lunch to thank you for all your help."
@@ -579,7 +579,7 @@
   "group": "suru",
   "dictionary": "しゃっくりする",
   "reading": "しゃっくりする",
-  "meaning": "hiccup, hiccough (as a verb)",
+  "meaning": "to hiccup",
   "sentences": [
    "しゃっくりがよく出[で]ます。",
    "I hiccup a lot."
@@ -608,7 +608,7 @@
   "group": "suru",
   "dictionary": "じゃんけんする",
   "reading": "じゃんけんする",
-  "meaning": "rock-paper-scissors (game), janken (as a verb)",
+  "meaning": "to play rock-paper-scissors",
   "sentences": [
    "「じゃんけんね」「ぐー」「ちょ・・パー」「{後出}[あとだ]しかよ！」",
    "\"Rock-paper-scissors, OK?\" \"Rock.\" \"Sciss... paper.\" \"You cheated!\""
@@ -757,7 +757,7 @@
   "group": "suru",
   "dictionary": "ちょうだいする",
   "reading": "ちょうだいする",
-  "meaning": "receiving, getting (as a verb)",
+  "meaning": "to receive (humble)",
   "sentences": [
    "{市民}[しみん]の皆[みな]様[さま]の御[ご]意[い]見[けん]をちょうだいする予[よ]定[てい]です。",
    "We plan to elicit opinions from the public."
@@ -1261,7 +1261,7 @@
   "group": "suru",
   "dictionary": "アップする",
   "reading": "アップする",
-  "meaning": "rise, increase (as a verb)",
+  "meaning": "to rise, to go up; to upload",
   "sentences": [
    "トムは{勤務}[きんむ]{終了時間}[しゅうりょうじかん]を超[こ]えて働[はたら]くと、{５割}[ごわり]アップの{時給}[じきゅう]をもらっていた。",
    "Tom got time and a half when he worked beyond his usual quitting time."
@@ -1276,7 +1276,7 @@
   "group": "suru",
   "dictionary": "アルバイトする",
   "reading": "アルバイトする",
-  "meaning": "part-time job, side job (as a verb)",
+  "meaning": "to work part-time",
   "sentences": [
    "あなたはアルバイトをしているの。",
    "Do you have a part-time job?"
@@ -1290,7 +1290,7 @@
   "group": "suru",
   "dictionary": "イメージする",
   "reading": "イメージする",
-  "meaning": "image (in one's mind), impression (as a verb)",
+  "meaning": "to imagine, to picture",
   "sentences": [
    "あの人[ひと]はどうもイメージが悪[わる]い。",
    "He makes a bad impression."
@@ -1304,7 +1304,7 @@
   "group": "suru",
   "dictionary": "インタビューする",
   "reading": "インタビューする",
-  "meaning": "interview (on television, in a newspaper, etc.) (as a verb)",
+  "meaning": "to interview",
   "sentences": [
    "彼[かれ]がインタビューで言[い]ったことは理[り]にかなっている。",
    "What he said in his interview makes sense."
@@ -1319,7 +1319,7 @@
   "group": "suru",
   "dictionary": "カーブする",
   "reading": "カーブする",
-  "meaning": "curve, turn (as a verb)",
+  "meaning": "to curve, to bend",
   "sentences": [
    "彼[かれ]は右[みぎ]に急[きゅう]カーブした。",
    "He made a sharp turn to the right."
@@ -1333,7 +1333,7 @@
   "group": "suru",
   "dictionary": "キャンプする",
   "reading": "キャンプする",
-  "meaning": "camp, camping (as a verb)",
+  "meaning": "to camp",
   "sentences": [
    "私[わたし]は{家族}[かぞく]と{一緒}[いっしょ]にキャンプに行[い]った。",
    "I went camping with my family."
@@ -1347,7 +1347,7 @@
   "group": "suru",
   "dictionary": "クリーニングする",
   "reading": "クリーニングする",
-  "meaning": "cleaning, dry cleaning (as a verb)",
+  "meaning": "to dry-clean",
   "sentences": [
    "クリーニング取[と]ってきておいて。",
    "Please pick up my dry cleaning."
@@ -1361,7 +1361,7 @@
   "group": "suru",
   "dictionary": "コレクションする",
   "reading": "コレクションする",
-  "meaning": "collection (of art, stamps, etc.), collecting (as a verb)",
+  "meaning": "to collect (as a hobby)",
   "sentences": [
    "{世界中}[せかいじゅう]の銀[ぎん]のティースプーンのコレクションがある。",
    "I have a collection of silver tea spoons from all over the world."
@@ -1375,7 +1375,7 @@
   "group": "suru",
   "dictionary": "コーチする",
   "reading": "コーチする",
-  "meaning": "coach (as a verb)",
+  "meaning": "to coach",
   "sentences": [
    "コーチが{助言}[じょげん]をしてくれた。",
    "The coach gave me some advice."
@@ -1389,7 +1389,7 @@
   "group": "suru",
   "dictionary": "ゴールする",
   "reading": "ゴールする",
-  "meaning": "goal (in soccer, hockey, etc.), basket (in basketball) (as a verb)",
+  "meaning": "to reach the finish line, to score a goal",
   "sentences": [
    "彼[かれ]はボールをゴールに蹴[け]り入[い]れた。",
    "He kicked the ball into the goal."
@@ -1403,7 +1403,7 @@
   "group": "suru",
   "dictionary": "サインする",
   "reading": "サインする",
-  "meaning": "autograph, signature (as a verb)",
+  "meaning": "to sign, to autograph",
   "sentences": [
    "もし{彼女}[かのじょ]に気[き]付[づ]いていたら、私[わたし]はサインをもらっていただろう。",
    "If I had noticed her, I would have got her autograph."
@@ -1418,7 +1418,7 @@
   "group": "suru",
   "dictionary": "サービスする",
   "reading": "サービスする",
-  "meaning": "service, help (as a verb)",
+  "meaning": "to serve, to give for free",
   "sentences": [
    "あの店[みせ]はサービスが良[よ]い。",
    "That store gives good service."
@@ -1433,7 +1433,7 @@
   "group": "suru",
   "dictionary": "スケートする",
   "reading": "スケートする",
-  "meaning": "skating (esp. ice), skate (as a verb)",
+  "meaning": "to skate",
   "sentences": [
    "とても寒[さむ]いからスケートが出[で]来[き]るよ。",
    "It's cold enough to skate."
@@ -1446,7 +1446,7 @@
   "group": "suru",
   "dictionary": "スタートする",
   "reading": "スタートする",
-  "meaning": "start, beginning (as a verb)",
+  "meaning": "to start",
   "sentences": [
    "{子供}[こども]らは{二人}[ふたり]一[いち]組[くみ]になったスタートした。",
    "The children started in pairs."
@@ -1461,7 +1461,7 @@
   "group": "suru",
   "dictionary": "ストップする",
   "reading": "ストップする",
-  "meaning": "stop (as a verb)",
+  "meaning": "to stop",
   "sentences": [
    "厳[きび]しい{資金}[しきん]不[ふ]足[そく]で{計画}[けいかく]はストップしている。",
    "An acute lack of funds is holding up the plan."
@@ -1502,7 +1502,7 @@
   "group": "suru",
   "dictionary": "ダイヤルする",
   "reading": "ダイヤルする",
-  "meaning": "dial (e.g. telephone, radio, clock, gauge) (as a verb)",
+  "meaning": "to dial",
   "sentences": [
    "ダイヤル式[しき]の電[でん]話[わ]って、ほとんど見[み]なくなったな。",
    "You don't see many dial phones around anymore."
@@ -1515,7 +1515,7 @@
   "group": "suru",
   "dictionary": "ダウンする",
   "reading": "ダウンする",
-  "meaning": "fall, decrease (as a verb)",
+  "meaning": "to go down, to fall; to be knocked out",
   "sentences": [
    "{彼女}[かのじょ]は{風邪}[かぜ]でダウンした。",
    "She came down with a cold."
@@ -1530,7 +1530,7 @@
   "group": "suru",
   "dictionary": "ダンスする",
   "reading": "ダンスする",
-  "meaning": "dance, dancing (as a verb)",
+  "meaning": "to dance",
   "sentences": [
    "ダンスはスタイルをよくするのにいい。",
    "Dancing is good for the figure."
@@ -1544,7 +1544,7 @@
   "group": "suru",
   "dictionary": "テストする",
   "reading": "テストする",
-  "meaning": "test (of ability, knowledge, etc.), exam (as a verb)",
+  "meaning": "to test",
   "sentences": [
    "私[わたし]は{数学}[すうがく]のテストの{結果}[けっか]に{満足}[まんぞく]しています。",
    "I am satisfied with the result of my math test."
@@ -1558,7 +1558,7 @@
   "group": "suru",
   "dictionary": "デザインする",
   "reading": "デザインする",
-  "meaning": "design (as a verb)",
+  "meaning": "to design",
   "sentences": [
    "彼[かれ]のデザインは大[たい]変[へん]{独創的}[どくそうてき]だ。",
    "His designs are highly original."
@@ -1572,7 +1572,7 @@
   "group": "suru",
   "dictionary": "デートする",
   "reading": "デートする",
-  "meaning": "date (with someone), (social) outing (for two) (as a verb)",
+  "meaning": "to go on a date",
   "sentences": [
    "アンディはけっしてデートにおくれたことはない。",
    "Andy is never late for a date."
@@ -1586,7 +1586,7 @@
   "group": "suru",
   "dictionary": "トレーニングする",
   "reading": "トレーニングする",
-  "meaning": "training (for a skill, job, sport, etc.), practice (as a verb)",
+  "meaning": "to train, to work out",
   "sentences": [
    "私[わたし]は{懸命}[けんめい]にトレーニングして試[し]合[あい]に備[そな]えた。",
    "I prepared for the game by training hard."
@@ -1600,7 +1600,7 @@
   "group": "suru",
   "dictionary": "ノックする",
   "reading": "ノックする",
-  "meaning": "knock, knocking (as a verb)",
+  "meaning": "to knock",
   "sentences": [
    "誰[だれ]かがドアをノックした。",
    "Someone knocked on the door."
@@ -1614,7 +1614,7 @@
   "group": "suru",
   "dictionary": "ハイキングする",
   "reading": "ハイキングする",
-  "meaning": "hiking (as a verb)",
+  "meaning": "to go hiking",
   "sentences": [
    "ハイキングは中[ちゅう]止[し]にしたほうがいいわね。",
    "We had better cancel the hike."
@@ -1638,25 +1638,11 @@
    "n3"
   ]
  },
- "バランスする": {
-  "group": "suru",
-  "dictionary": "バランスする",
-  "reading": "バランスする",
-  "meaning": "balance (as a verb)",
-  "sentences": [
-   "{鞍馬}[あんば]は、力[ちから]よりもバランス{感覚}[かんかく]が必[ひつ]要[よう]です。",
-   "The pommel horse requires more balance than strength."
-  ],
-  "tags": [
-   "intransitive",
-   "n3"
-  ]
- },
  "パスする": {
   "group": "suru",
   "dictionary": "パスする",
   "reading": "パスする",
-  "meaning": "passing (an examination, inspection, etc.) (as a verb)",
+  "meaning": "to pass (an exam, a turn)",
   "sentences": [
    "彼[かれ]が試[し]験[けん]にパスしたのは不[ふ]思[し]議[ぎ]ではない。",
    "It is no wonder that he passed the examination."
@@ -1671,7 +1657,7 @@
   "group": "suru",
   "dictionary": "ファックスする",
   "reading": "ファックスする",
-  "meaning": "fax, facsimile (as a verb)",
+  "meaning": "to fax",
   "sentences": [
    "この{手紙}[てがみ]を{日本}[にほん]までファックスしてください。",
    "I'd like to fax this to Japan."
@@ -1698,7 +1684,7 @@
   "group": "suru",
   "dictionary": "プリントする",
   "reading": "プリントする",
-  "meaning": "print, printing (as a verb)",
+  "meaning": "to print",
   "sentences": [
    "整[ととの]えられた{長机}[ながづくえ]、いくつかのパイプ{椅子}[いす]、壁[かべ]の{掲示板}[けいじばん]にはカレンダーとプリント数[すう]枚[まい]が張[は]られている。",
    "There were long desks lined up, several pipe chairs, and stuck on the bulletin board were a calendar and several printouts."
@@ -1712,7 +1698,7 @@
   "group": "suru",
   "dictionary": "プレゼントする",
   "reading": "プレゼントする",
-  "meaning": "present, gift (as a verb)",
+  "meaning": "to give (as a present)",
   "sentences": [
    "ハーモニカはお父[とう]さんからのプレゼントですか。",
    "Is the harmonica a present from his father?"
@@ -1726,7 +1712,7 @@
   "group": "suru",
   "dictionary": "マイナスする",
   "reading": "マイナスする",
-  "meaning": "minus, subtraction (as a verb)",
+  "meaning": "to subtract, to take away",
   "sentences": [
    "{昨夜}[さくや]、{温度計}[おんどけい]はマイナス{１０度}[じゅうど]を示[しめ]した。",
    "The thermometer registered minus ten last night."
@@ -1754,7 +1740,7 @@
   "group": "suru",
   "dictionary": "マッサージする",
   "reading": "マッサージする",
-  "meaning": "massage (as a verb)",
+  "meaning": "to massage",
   "sentences": [
    "",
    ""
@@ -1768,7 +1754,7 @@
   "group": "suru",
   "dictionary": "ミスする",
   "reading": "ミスする",
-  "meaning": "mistake, error (as a verb)",
+  "meaning": "to make a mistake",
   "sentences": [
    "印[いん]刷[さつ]ミスはすぐに{指摘}[してき]されなければならない。",
    "Mistakes in the printing should be pointed out at once."
@@ -1783,7 +1769,7 @@
   "group": "suru",
   "dictionary": "メモする",
   "reading": "メモする",
-  "meaning": "note, memo (as a verb)",
+  "meaning": "to jot down, to take a note",
   "sentences": [
    "私[わたし]の{電話番号}[でんわばんごう]をメモしましたか。",
    "Did you note down my phone number?"
@@ -1810,7 +1796,7 @@
   "group": "suru",
   "dictionary": "リポートする",
   "reading": "リポートする",
-  "meaning": "report, paper (as a verb)",
+  "meaning": "to report",
   "sentences": [
    "いつレポートを提[てい]出[しゅつ]するのですか。",
    "When do we hand in the report?"
@@ -1824,7 +1810,7 @@
   "group": "suru",
   "dictionary": "一[ひと]休[やす]みする",
   "reading": "ひとやすみする",
-  "meaning": "(short) rest, breather (as a verb)",
+  "meaning": "to take a short rest",
   "sentences": [
    "{日陰}[ひかげ]で一[ひと]休[やす]みしよう。",
    "Let's take a rest in the shade."
@@ -1872,21 +1858,6 @@
    "We agreed on the opinion."
   ],
   "tags": [
-   "n3"
-  ]
- },
- "一言する": {
-  "group": "suru",
-  "dictionary": "一[ひと]言[こと]する",
-  "reading": "ひとことする",
-  "meaning": "single word, a few words (as a verb)",
-  "sentences": [
-   "一[ひと]言[こと]で言[い]えば、彼[かれ]は{馬鹿}[ばか]だと思[おも]います。",
-   "In a word, I think he's a fool."
-  ],
-  "tags": [
-   "intransitive",
-   "transitive",
    "n3"
   ]
  },
@@ -1977,7 +1948,7 @@
   "group": "suru",
   "dictionary": "上[じょう]京[きょう]する",
   "reading": "じょうきょうする",
-  "meaning": "going (up) to the capital, going to Tokyo (as a verb)",
+  "meaning": "to go up to Tokyo",
   "sentences": [
    "彼[かれ]は{商用}[しょうよう]で上[じょう]京[きょう]した。",
    "He came up to Tokyo on business."
@@ -2030,7 +2001,7 @@
   "group": "suru",
   "dictionary": "上[じょう]達[たつ]する",
   "reading": "じょうたつする",
-  "meaning": "improvement (e.g. in skill, ability), advance (as a verb)",
+  "meaning": "to improve, to get better at",
   "sentences": [
    "君[きみ]の{英語}[えいご]は上[じょう]達[たつ]している。",
    "Your English is improving."
@@ -2100,7 +2071,7 @@
   "group": "suru",
   "dictionary": "下[げ]宿[しゅく]する",
   "reading": "げしゅくする",
-  "meaning": "boarding, lodging (as a verb)",
+  "meaning": "to board, to lodge",
   "sentences": [
    "{彼女}[かのじょ]は{学生}[がくせい]を下[げ]宿[しゅく]させている。",
    "She boards students."
@@ -2114,7 +2085,7 @@
   "group": "suru",
   "dictionary": "下[した]書[が]きする",
   "reading": "したがきする",
-  "meaning": "draft, rough copy (as a verb)",
+  "meaning": "to draft, to write a rough copy",
   "sentences": [
    "私[わたし]はスピーチの下[した]書[が]きを書[か]いています。",
    "I am writing a draft of the speech."
@@ -2127,7 +2098,7 @@
   "group": "suru",
   "dictionary": "下[げ]車[しゃ]する",
   "reading": "げしゃする",
-  "meaning": "alighting (from a train, bus, etc.), getting off (as a verb)",
+  "meaning": "to get off (a train or bus)",
   "sentences": [
    "私[わたし]は駅[えき]を間[ま]違[ちが]えて下[げ]車[しゃ]しました。",
    "I got off at the wrong station."
@@ -2141,7 +2112,7 @@
   "group": "suru",
   "dictionary": "下[か]降[こう]する",
   "reading": "かこうする",
-  "meaning": "descent, fall (as a verb)",
+  "meaning": "to descend, to fall",
   "sentences": [
    "",
    ""
@@ -2365,7 +2336,7 @@
   "group": "suru",
   "dictionary": "両[りょう]替[がえ]する",
   "reading": "りょうがえする",
-  "meaning": "change, money exchange (as a verb)",
+  "meaning": "to change money, to exchange currency",
   "sentences": [
    "これをドルに両[りょう]替[がえ]してください。",
    "Please change this to dollars."
@@ -2407,7 +2378,7 @@
   "group": "suru",
   "dictionary": "並[へい]行[こう]する",
   "reading": "へいこうする",
-  "meaning": "going side-by-side, going abreast (as a verb)",
+  "meaning": "to run parallel, to happen at the same time",
   "sentences": [
    "",
    ""
@@ -2421,7 +2392,7 @@
   "group": "suru",
   "dictionary": "中[ちゅう]止[し]する",
   "reading": "ちゅうしする",
-  "meaning": "interruption, discontinuance (as a verb)",
+  "meaning": "to call off, to cancel",
   "sentences": [
    "{暴風}[ぼうふう]雨[う]のため{道路}[どうろ]{工事}[こうじ]が中[ちゅう]止[し]された。",
    "Work on the road was suspended because of the storm."
@@ -2448,7 +2419,7 @@
   "group": "suru",
   "dictionary": "主[しゅ]張[ちょう]する",
   "reading": "しゅちょうする",
-  "meaning": "claim, insistence (as a verb)",
+  "meaning": "to claim, to insist",
   "sentences": [
    "私[わたし]たちはその{重要性}[じゅうようせい]を主[しゅ]張[ちょう]した。",
    "We insisted on its importance."
@@ -2502,7 +2473,7 @@
   "group": "suru",
   "dictionary": "乗[の]り換[か]えする",
   "reading": "のりかえする",
-  "meaning": "transfer (trains, buses, etc.), change (as a verb)",
+  "meaning": "to change (trains, buses)",
   "sentences": [
    "{途中}[とちゅう]で乗[の]り換[か]えが必[ひつ]要[よう]ですか。",
    "Is it necessary to change trains along the way?"
@@ -2545,7 +2516,7 @@
   "group": "suru",
   "dictionary": "乗[じょう]車[しゃ]する",
   "reading": "じょうしゃする",
-  "meaning": "boarding (a train, bus, etc.), getting into (e.g. a taxi) (as a verb)",
+  "meaning": "to get on (a train, bus or taxi)",
   "sentences": [
    "{列車}[れっしゃ]に乗[じょう]車[しゃ]した後[あと]で、私[わたし]は{財布}[さいふ]を家[いえ]に置[お]き忘[わす]れてきたことに気[き]が付[つ]いた。",
    "After I got on board a train, I found I had left my wallet behind at home."
@@ -2601,7 +2572,7 @@
   "group": "suru",
   "dictionary": "乾[かん]燥[そう]する",
   "reading": "かんそうする",
-  "meaning": "dryness, aridity (as a verb)",
+  "meaning": "to dry, to dry out",
   "sentences": [
    "{椎茸}[しいたけ]を乾[かん]燥[そう]させて保[ほ]存[ぞん]します。",
    "We keep shiitake mushrooms dry."
@@ -2616,7 +2587,7 @@
   "group": "suru",
   "dictionary": "予[よ]報[ほう]する",
   "reading": "よほうする",
-  "meaning": "forecast, prediction (as a verb)",
+  "meaning": "to forecast",
   "sentences": [
    "{今夜}[こんや]の予[よ]報[ほう]は雨[あめ]である。",
    "Rain is forecast for this evening."
@@ -2630,7 +2601,7 @@
   "group": "suru",
   "dictionary": "予[よ]定[てい]する",
   "reading": "よていする",
-  "meaning": "plans, arrangement (as a verb)",
+  "meaning": "to plan, to schedule",
   "sentences": [
    "ご{搭乗}[とうじょう]は{６時}[ろくじ]{４０分}[よんじゅっぷん]になる予[よ]定[てい]です。",
    "Boarding will be at six-forty."
@@ -2644,7 +2615,7 @@
   "group": "suru",
   "dictionary": "予[よ]想[そう]する",
   "reading": "よそうする",
-  "meaning": "expectation, anticipation (as a verb)",
+  "meaning": "to expect, to predict",
   "sentences": [
    "あなたはどんな{結果}[けっか]を予[よ]想[そう]していますか。",
    "What results do you anticipate?"
@@ -2658,7 +2629,7 @@
   "group": "suru",
   "dictionary": "予[よ]期[き]する",
   "reading": "よきする",
-  "meaning": "expectation, anticipation (as a verb)",
+  "meaning": "to anticipate, to expect",
   "sentences": [
    "ここでお目[め]に掛[か]かれるとは全[ぜん]然[ぜん]予[よ]期[き]しませんでした。",
    "I little expected to see you here."
@@ -2672,7 +2643,7 @@
   "group": "suru",
   "dictionary": "予[よ]測[そく]する",
   "reading": "よそくする",
-  "meaning": "prediction, estimation (as a verb)",
+  "meaning": "to predict, to estimate",
   "sentences": [
    "何[なん]が起[お]こるか予[よ]測[そく]できない。",
    "We cannot predict what will happen."
@@ -2682,24 +2653,11 @@
    "n3"
   ]
  },
- "予算する": {
-  "group": "suru",
-  "dictionary": "予[よ]算[さん]する",
-  "reading": "よさんする",
-  "meaning": "estimate (of costs), budget (as a verb)",
-  "sentences": [
-   "{委員会}[いいんかい]は予[よ]算[さん]を{承認}[しょうにん]した。",
-   "The committee approved the budget."
-  ],
-  "tags": [
-   "n3"
-  ]
- },
  "予約する": {
   "group": "suru",
   "dictionary": "予[よ]約[やく]する",
   "reading": "よやくする",
-  "meaning": "reservation, appointment (as a verb)",
+  "meaning": "to reserve, to book",
   "sentences": [
    "「ホテルの予[よ]約[やく]はしてありますか」「すみませんが、まだなんです」",
    "\"Have you reserved a hotel room?\" \"Sorry, not yet.\""
@@ -2713,7 +2671,7 @@
   "group": "suru",
   "dictionary": "予[よ]習[しゅう]する",
   "reading": "よしゅうする",
-  "meaning": "preparation for a lesson (as a verb)",
+  "meaning": "to prepare for a lesson",
   "sentences": [
    "トムは{明日}[あした]の授[じゅ]業[ぎょう]の予[よ]習[しゅう]をしているらしい。",
    "Tom seems to be preparing for tomorrow's lessons."
@@ -2727,7 +2685,7 @@
   "group": "suru",
   "dictionary": "予[よ]防[ぼう]する",
   "reading": "よぼうする",
-  "meaning": "prevention, protection (against) (as a verb)",
+  "meaning": "to prevent, to protect against",
   "sentences": [
    "{治療}[ちりょう]よりも予[よ]防[ぼう]。",
    "Prevention is better than cure."
@@ -2783,7 +2741,7 @@
   "group": "suru",
   "dictionary": "交[こう]代[たい]する",
   "reading": "こうたいする",
-  "meaning": "change, alternation (as a verb)",
+  "meaning": "to take turns, to take over from",
   "sentences": [
    "{我々}[われわれ]は{交替}[こうたい]で車[くるま]を運[うん]転[てん]した。",
    "We took turns driving the car."
@@ -2798,7 +2756,7 @@
   "group": "suru",
   "dictionary": "交[こう]差[さ]する",
   "reading": "こうさする",
-  "meaning": "crossing, intersection (as a verb)",
+  "meaning": "to cross, to intersect",
   "sentences": [
    "{２本}[にほん]の道[みち]が十[じゅう]{文字}[もじ]に交[こう]差[さ]している。",
    "The two roads cut across the street from us."
@@ -2812,7 +2770,7 @@
   "group": "suru",
   "dictionary": "交[こう]換[かん]する",
   "reading": "こうかんする",
-  "meaning": "exchange, interchange (as a verb)",
+  "meaning": "to exchange, to swap",
   "sentences": [
    "あなたと席[せき]を交[こう]換[かん]しよう。",
    "Let me exchange seats with you."
@@ -2826,7 +2784,7 @@
   "group": "suru",
   "dictionary": "交[こう]流[りゅう]する",
   "reading": "こうりゅうする",
-  "meaning": "exchange (e.g. cultural), interchange (as a verb)",
+  "meaning": "to interact, to exchange (ideas, culture)",
   "sentences": [
    "さらに、お{年寄}[としよ]りが互[たが]いに交[こう]流[りゅう]し、アメリカの{生活}[せいかつ]の中[なか]で{何時}[なんどき]までも{積極的}[せっきょくてき]に参[さん]加[か]していられるように、多[おお]くの{団体}[だんたい]が結[けっ]成[せい]されている。",
    "In addition many groups have been formed so that the elderly can socialize with one another and remain active participants in American life."
@@ -2840,7 +2798,7 @@
   "group": "suru",
   "dictionary": "交[こう]際[さい]する",
   "reading": "こうさいする",
-  "meaning": "company, friendship (as a verb)",
+  "meaning": "to associate with, to go out with",
   "sentences": [
    "その男[おとこ]は妻[つま]と交[こう]際[さい]し始[はじ]めた。",
    "The man took up with his wife."
@@ -2854,7 +2812,7 @@
   "group": "suru",
   "dictionary": "享[きょう]受[じゅ]する",
   "reading": "きょうじゅする",
-  "meaning": "enjoyment (of freedom, beauty, etc.), reception (of a right, privilege, rank, etc.) (as a verb)",
+  "meaning": "to enjoy (a right, a benefit)",
   "sentences": [
    "だれでも自[じ]由[ゆう]を享[きょう]受[じゅ]する{権利}[けんり]を持[も]つ。まして人[じん]生[せい]を享[きょう]受[じゅ]する{権利}[けんり]はなおさらだ。",
    "Everyone has a right to enjoy his liberty, and all the more, his life."
@@ -2868,7 +2826,7 @@
   "group": "suru",
   "dictionary": "仕[し]事[ごと]する",
   "reading": "しごとする",
-  "meaning": "work, job (as a verb)",
+  "meaning": "to work",
   "sentences": [
    "「あなたは仕[し]事[ごと]が気[き]に入[はい]っていると思[おも]います」「いやそれどころか、嫌[きら]いです」",
    "\"I think you like your job.\" \"On the contrary, I hate it.\""
@@ -2911,7 +2869,7 @@
   "group": "suru",
   "dictionary": "付[ふ]属[ぞく]する",
   "reading": "ふぞくする",
-  "meaning": "being attached (to), being affiliated (to) (as a verb)",
+  "meaning": "to be attached to, to belong to",
   "sentences": [
    "そのカレッジは{大学}[だいがく]に付[ふ]属[ぞく]している。",
    "The college is affiliated with the university."
@@ -2925,7 +2883,7 @@
   "group": "suru",
   "dictionary": "代[だい]理[り]する",
   "reading": "だいりする",
-  "meaning": "representation, agency (as a verb)",
+  "meaning": "to act for, to stand in for",
   "sentences": [
    "{明日}[あした]私[わたし]は忙[いそが]しいです。だから、私[わたし]の代[だい]理[り]をする人[ひと]を手[て]配[はい]しました。",
    "I'm engaged tomorrow, so I've arranged for someone else to take my place."
@@ -2939,7 +2897,7 @@
   "group": "suru",
   "dictionary": "代[だい]表[ひょう]する",
   "reading": "だいひょうする",
-  "meaning": "representation, representative (as a verb)",
+  "meaning": "to represent",
   "sentences": [
    "{級友}[きゅうゆう]を代[だい]表[ひょう]してお礼[れい]の{言葉}[ことば]を述[の]べさしていただきます。",
    "On behalf of my classmates, let me say a few words of thanks to you."
@@ -2953,7 +2911,7 @@
   "group": "suru",
   "dictionary": "仮[か]定[てい]する",
   "reading": "かていする",
-  "meaning": "assumption, supposition (as a verb)",
+  "meaning": "to assume, to suppose",
   "sentences": [
    "{彼女}[かのじょ]がここにいると仮[か]定[てい]してみよう。",
    "Let's suppose that she is here."
@@ -2967,7 +2925,7 @@
   "group": "suru",
   "dictionary": "仲[なか]直[なお]りする",
   "reading": "なかなおりする",
-  "meaning": "reconciliation, making up (with) (as a verb)",
+  "meaning": "to make up, to be reconciled",
   "sentences": [
    "彼[かれ]と仲[なか]直[なお]りしたい。",
    "I want to come to terms with him."
@@ -3010,7 +2968,7 @@
   "group": "suru",
   "dictionary": "休[きゅう]息[そく]する",
   "reading": "きゅうそくする",
-  "meaning": "rest, relief (as a verb)",
+  "meaning": "to rest",
   "sentences": [
    "私[わたし]たちは昼[ひる]は働[はたら]き、夜[よる]は休[きゅう]息[そく]する。",
    "We work by day and rest by night."
@@ -3024,7 +2982,7 @@
   "group": "suru",
   "dictionary": "休[きゅう]憩[けい]する",
   "reading": "きゅうけいする",
-  "meaning": "rest, break (as a verb)",
+  "meaning": "to take a break",
   "sentences": [
    "休[きゅう]憩[けい]してコーヒーを飲[の]もう。",
    "Let's take a break for coffee."
@@ -3038,7 +2996,7 @@
   "group": "suru",
   "dictionary": "休[きゅう]業[ぎょう]する",
   "reading": "きゅうぎょうする",
-  "meaning": "suspension of business, temporary closure (of a store, school, etc.) (as a verb)",
+  "meaning": "to be closed (for business)",
   "sentences": [
    "移[い]転[てん]にともない{５月}[ごがつ]{３０日}[さんじゅうにち]、{３１日}[さんじゅういちにち]は休[きゅう]業[ぎょう]いたします。",
    "Due to our office moving, we will be closed from May 30 to 31."
@@ -3066,7 +3024,7 @@
   "group": "suru",
   "dictionary": "会[かい]合[ごう]する",
   "reading": "かいごうする",
-  "meaning": "meeting, assembly (as a verb)",
+  "meaning": "to meet, to assemble",
   "sentences": [
    "これはとても大[たい]切[せつ]な会[かい]合[ごう]だ。",
    "This is a very important meeting."
@@ -3080,7 +3038,7 @@
   "group": "suru",
   "dictionary": "会[かい]計[けい]する",
   "reading": "かいけいする",
-  "meaning": "accounting, finance (as a verb)",
+  "meaning": "to pay the bill, to do the accounts",
   "sentences": [
    "会[かい]計[けい]係[かかり]は会[かい]計[けい]が不[ふ]足[そく]しているのがわかった。",
    "The treasurer was short in his accounts."
@@ -3093,7 +3051,7 @@
   "group": "suru",
   "dictionary": "会[かい]話[わ]する",
   "reading": "かいわする",
-  "meaning": "conversation, talk (as a verb)",
+  "meaning": "to converse, to talk",
   "sentences": [
    "{機知}[きち]は会[かい]話[わ]に趣[おもむき]を添[そ]える。",
    "Wit gives zest to conversation."
@@ -3107,7 +3065,7 @@
   "group": "suru",
   "dictionary": "会[かい]議[ぎ]する",
   "reading": "かいぎする",
-  "meaning": "meeting, conference (as a verb)",
+  "meaning": "to hold a meeting, to confer",
   "sentences": [
    "会[かい]議[ぎ]に彼[かれ]は現[あらわ]れましたか。",
    "Did he show up at the meeting?"
@@ -3151,7 +3109,7 @@
   "group": "suru",
   "dictionary": "伝[でん]言[ごん]する",
   "reading": "でんごんする",
-  "meaning": "(verbal) message, word (from someone) (as a verb)",
+  "meaning": "to leave a message",
   "sentences": [
    "私[わたし]宛[あて]に何[なん]か伝[でん]言[ごん]がとどいていませんか。",
    "Are there any messages for me?"
@@ -3244,7 +3202,7 @@
   "group": "suru",
   "dictionary": "位[い]置[ち]する",
   "reading": "いちする",
-  "meaning": "place, position (as a verb)",
+  "meaning": "to be located, to be situated",
   "sentences": [
    "彼[かれ]の{事務所}[じむしょ]は町[まち]の中[ちゅう]心[しん]部[ぶ]に位[い]置[ち]している。",
    "His office is located in the center of the town."
@@ -3354,7 +3312,7 @@
   "group": "suru",
   "dictionary": "作[さく]文[ぶん]する",
   "reading": "さくぶんする",
-  "meaning": "writing (an essay, prose, etc.), composition (as a verb)",
+  "meaning": "to write a composition",
   "sentences": [
    "「{友情}[ゆうじょう]」という題[だい]で作[さく]文[ぶん]を書[か]きなさい。",
    "Write an essay on \"Friendship\"."
@@ -3368,7 +3326,7 @@
   "group": "suru",
   "dictionary": "作[さっ]曲[きょく]する",
   "reading": "さっきょくする",
-  "meaning": "composition (of music), setting (as a verb)",
+  "meaning": "to compose (music)",
   "sentences": [
    "この{音楽}[おんがく]はバッハによって作[さっ]曲[きょく]された。",
    "This music was composed by Bach."
@@ -3383,7 +3341,7 @@
   "group": "suru",
   "dictionary": "作[さ]業[ぎょう]する",
   "reading": "さぎょうする",
-  "meaning": "work, operation (as a verb)",
+  "meaning": "to work, to operate",
   "sentences": [
    "私[わたし]がいない間[ま]も作[さ]業[ぎょう]を続[つづ]けなさい。",
    "Carry on working while I'm away."
@@ -3459,20 +3417,6 @@
    "n2"
   ]
  },
- "供する": {
-  "group": "suru",
-  "dictionary": "供[とも]する",
-  "reading": "ともする",
-  "meaning": "companion, follower (as a verb)",
-  "sentences": [
-   "{空港}[くうこう]までお伴[ともなえ]しましょう。",
-   "I'll accompany you to the airport."
-  ],
-  "tags": [
-   "transitive",
-   "n3"
-  ]
- },
  "供給する": {
   "group": "suru",
   "dictionary": "供[きょう]給[きゅう]する",
@@ -3490,27 +3434,13 @@
   "group": "suru",
   "dictionary": "依[い]頼[らい]する",
   "reading": "いらいする",
-  "meaning": "request, commission (as a verb)",
+  "meaning": "to request, to commission",
   "sentences": [
    "{事務}[じむ]{弁護士}[べんごし]に{遺言状}[ゆいごんじょう]の作[さく]成[せい]を依[い]頼[らい]した。",
    "I asked the solicitor to make out my will."
   ],
   "tags": [
    "intransitive",
-   "transitive",
-   "n3"
-  ]
- },
- "便りする": {
-  "group": "suru",
-  "dictionary": "便[たよ]りする",
-  "reading": "たよりする",
-  "meaning": "news, tidings (as a verb)",
-  "sentences": [
-   "それ{以来}[いらい]、彼[かれ]からは何[なん]の便[たよ]りもありません。",
-   "I have never heard from him since."
-  ],
-  "tags": [
    "transitive",
    "n3"
   ]
@@ -3596,7 +3526,7 @@
   "group": "suru",
   "dictionary": "保[ほ]証[しょう]する",
   "reading": "ほしょうする",
-  "meaning": "guarantee, security (as a verb)",
+  "meaning": "to guarantee",
   "sentences": [
    "{彼女}[かのじょ]の{誠実}[せいじつ]さは私[わたし]が保[ほ]証[しょう]します。",
    "You have my word on her sincerity."
@@ -3638,7 +3568,7 @@
   "group": "suru",
   "dictionary": "信[しん]仰[こう]する",
   "reading": "しんこうする",
-  "meaning": "(religious) faith, belief (as a verb)",
+  "meaning": "to believe in (a religion), to worship",
   "sentences": [
    "キリスト教[きょう]を信[しん]仰[こう]していますか。",
    "Do you believe in Christianity?"
@@ -3648,25 +3578,11 @@
    "n3"
   ]
  },
- "信号する": {
-  "group": "suru",
-  "dictionary": "信[しん]号[ごう]する",
-  "reading": "しんごうする",
-  "meaning": "signal, signalling (as a verb)",
-  "sentences": [
-   "信[しん]号[ごう]が青[あお]に変[か]わったわよ。",
-   "The traffic light turned green."
-  ],
-  "tags": [
-   "intransitive",
-   "n3"
-  ]
- },
  "信用する": {
   "group": "suru",
   "dictionary": "信[しん]用[よう]する",
   "reading": "しんようする",
-  "meaning": "confidence, trust (as a verb)",
+  "meaning": "to trust, to believe",
   "sentences": [
    "私[わたし]はもう彼[かれ]を信[しん]用[よう]しない。",
    "I do not trust him any longer."
@@ -3680,7 +3596,7 @@
   "group": "suru",
   "dictionary": "信[しん]頼[らい]する",
   "reading": "しんらいする",
-  "meaning": "trust (in), confidence (as a verb)",
+  "meaning": "to trust, to rely on",
   "sentences": [
    "確[たし]かに彼[かれ]は信[しん]頼[らい]できます。",
    "You can certainly rely on him."
@@ -3707,7 +3623,7 @@
   "group": "suru",
   "dictionary": "修[しゅう]理[り]する",
   "reading": "しゅうりする",
-  "meaning": "repair, mending (as a verb)",
+  "meaning": "to repair, to fix",
   "sentences": [
    "その車[くるま]は修[しゅう]理[り]する{価値}[かち]がない。",
    "The car isn't worth repairing."
@@ -3760,7 +3676,7 @@
   "group": "suru",
   "dictionary": "倒[とう]産[さん]する",
   "reading": "とうさんする",
-  "meaning": "(corporate) bankruptcy, insolvency (as a verb)",
+  "meaning": "to go bankrupt",
   "sentences": [
    "その{会社}[かいしゃ]はまもなく倒[とう]産[さん]するだろう。",
    "The company will soon go bankrupt."
@@ -3788,7 +3704,7 @@
   "group": "suru",
   "dictionary": "借[しゃっ]金[きん]する",
   "reading": "しゃっきんする",
-  "meaning": "debt, loan (as a verb)",
+  "meaning": "to borrow money, to go into debt",
   "sentences": [
    "君[きみ]は借[しゃっ]金[きん]を払[はら]うべきだ。",
    "You should pay your debts."
@@ -3855,7 +3771,7 @@
   "group": "suru",
   "dictionary": "停[てい]電[でん]する",
   "reading": "ていでんする",
-  "meaning": "power outage, power failure (as a verb)",
+  "meaning": "to have a power cut",
   "sentences": [
    "{台風}[たいふう]の{余波}[よは]で{２日間}[ふつかかん]停[てい]電[でん]した。",
    "There was no electricity for two days in the aftermath of the typhoon."
@@ -3992,7 +3908,7 @@
   "group": "suru",
   "dictionary": "優[ゆう]勝[しょう]する",
   "reading": "ゆうしょうする",
-  "meaning": "overall victory, championship (as a verb)",
+  "meaning": "to win (a championship)",
   "sentences": [
    "トムが優[ゆう]勝[しょう]したんでしょう。",
    "Tom got first prize, didn't he?"
@@ -4060,7 +3976,7 @@
   "group": "suru",
   "dictionary": "先[せん]行[こう]する",
   "reading": "せんこうする",
-  "meaning": "going ahead, going first (as a verb)",
+  "meaning": "to go ahead, to precede",
   "sentences": [
    "{稲光}[いなびかり]は雷[かみなり]の音[おと]に先[せん]行[こう]する。",
    "The flash of lightning precedes the sound of thunder."
@@ -4088,24 +4004,10 @@
   "group": "suru",
   "dictionary": "克[こく]服[ふく]する",
   "reading": "こくふくする",
-  "meaning": "conquest (of a difficulty, illness, crisis, etc.), overcoming (as a verb)",
+  "meaning": "to overcome",
   "sentences": [
    "彼[かれ]は多[おお]くの困[こん]難[なん]を克[こく]服[ふく]した。",
    "He has overcome many obstacles."
-  ],
-  "tags": [
-   "transitive",
-   "n3"
-  ]
- },
- "免許する": {
-  "group": "suru",
-  "dictionary": "免[めん]許[きょ]する",
-  "reading": "めんきょする",
-  "meaning": "license, licence (as a verb)",
-  "sentences": [
-   "やっと免[めん]許[きょ]が取[と]れました。",
-   "I got a driver's license at last."
   ],
   "tags": [
    "transitive",
@@ -4157,7 +4059,7 @@
   "group": "suru",
   "dictionary": "入[にゅう]場[じょう]する",
   "reading": "にゅうじょうする",
-  "meaning": "entrance, entering (as a verb)",
+  "meaning": "to enter, to be admitted",
   "sentences": [
    "この{切符}[きっぷ]で{２名}[にめい]入[にゅう]場[じょう]できます。",
    "This ticket admits two persons."
@@ -4197,7 +4099,7 @@
   "group": "suru",
   "dictionary": "公[こう]演[えん]する",
   "reading": "こうえんする",
-  "meaning": "public performance (as a verb)",
+  "meaning": "to perform (in public)",
   "sentences": [
    "ロイヤル・シアターの夜[よる]の部[ぶ]の公[こう]演[えん]が終[お]わり、{観客}[かんきゃく]たちは帰[かえ]って行[い]った。",
    "The evening performance at the Royal Theater had ended, and the audience had gone home."
@@ -4211,7 +4113,7 @@
   "group": "suru",
   "dictionary": "共[きょう]同[どう]する",
   "reading": "きょうどうする",
-  "meaning": "cooperation, collaboration (as a verb)",
+  "meaning": "to cooperate, to do together",
   "sentences": [
    "私[わたし]たちはその店[みせ]を共[きょう]同[どう]で{経営}[けいえい]している。",
    "We run the store jointly."
@@ -4261,7 +4163,7 @@
   "group": "suru",
   "dictionary": "冒[ぼう]険[けん]する",
   "reading": "ぼうけんする",
-  "meaning": "adventure, venture (as a verb)",
+  "meaning": "to venture, to take a risk",
   "sentences": [
    "何[なん]の冒[ぼう]険[けん]もしないなら、何[なん]も得[え]られない。",
    "Nothing ventured, nothing gained."
@@ -4547,7 +4449,7 @@
   "group": "suru",
   "dictionary": "出[しゅつ]場[じょう]する",
   "reading": "しゅつじょうする",
-  "meaning": "participation (in a tournament, match, race, etc.), entry (as a verb)",
+  "meaning": "to take part (in a match or race)",
   "sentences": [
    "２０チームがトーナメントに出[しゅつ]場[じょう]した。",
    "Twenty teams entered the tournament."
@@ -4589,7 +4491,7 @@
   "group": "suru",
   "dictionary": "出[しゅっ]版[ぱん]する",
   "reading": "しゅっぱんする",
-  "meaning": "publication (as a verb)",
+  "meaning": "to publish",
   "sentences": [
    "ついにその本[ほん]を出[しゅっ]版[ぱん]した。",
    "We finally published the book."
@@ -4671,7 +4573,7 @@
   "group": "suru",
   "dictionary": "分[ぶん]析[せき]する",
   "reading": "ぶんせきする",
-  "meaning": "analysis (as a verb)",
+  "meaning": "to analyse",
   "sentences": [
    "彼[かれ]は{金融}[きんゆう]アナリストで{経済}[けいざい]動[どう]向[こう]の分[ぶん]析[せき]には定[てい]評[ひょう]がある。",
    "He's a financial analyst with a pretty good reputation for his analysis of economic trends."
@@ -4748,7 +4650,7 @@
   "group": "suru",
   "dictionary": "刊[かん]行[こう]する",
   "reading": "かんこうする",
-  "meaning": "publication, issue (as a verb)",
+  "meaning": "to publish, to issue",
   "sentences": [
    "",
    ""
@@ -4852,7 +4754,7 @@
   "group": "suru",
   "dictionary": "到[とう]着[ちゃく]する",
   "reading": "とうちゃくする",
-  "meaning": "arrival (as a verb)",
+  "meaning": "to arrive",
   "sentences": [
    "その{列車}[れっしゃ]は予[よ]定[てい]どおりに到[とう]着[ちゃく]した。",
    "The train arrived on schedule."
@@ -4918,7 +4820,7 @@
   "group": "suru",
   "dictionary": "刺[し]激[げき]する",
   "reading": "しげきする",
-  "meaning": "stimulus, stimulation (as a verb)",
+  "meaning": "to stimulate",
   "sentences": [
    "光[ひかり]が刺[し]激[げき]となって花[はな]が咲[さ]く。",
    "Light is the stimulus that causes a flower to open."
@@ -4987,7 +4889,7 @@
   "group": "suru",
   "dictionary": "前[ぜん]進[しん]する",
   "reading": "ぜんしんする",
-  "meaning": "advance, moving forward (as a verb)",
+  "meaning": "to advance, to move forward",
   "sentences": [
    "{軍隊}[ぐんたい]は丘[おか]の上[うえ]へ前[ぜん]進[しん]した。",
    "The army advanced up the hill."
@@ -5070,7 +4972,7 @@
   "group": "suru",
   "dictionary": "創[そう]造[ぞう]する",
   "reading": "そうぞうする",
-  "meaning": "creation (as a verb)",
+  "meaning": "to create",
   "sentences": [
    "神[かみ]は自[じ]分[ぶん]の形[かたち]に人[ひと]を創[そう]造[ぞう]された。",
    "God created man in his own image."
@@ -5125,7 +5027,7 @@
   "group": "suru",
   "dictionary": "加[か]味[み]する",
   "reading": "かみする",
-  "meaning": "seasoning, flavoring (as a verb)",
+  "meaning": "to season; to take into account",
   "sentences": [
    "",
    ""
@@ -5209,7 +5111,7 @@
   "group": "suru",
   "dictionary": "努[ど]力[りょく]する",
   "reading": "どりょくする",
-  "meaning": "effort, exertion (as a verb)",
+  "meaning": "to make an effort, to try hard",
   "sentences": [
    "俺[おれ]はベストを尽[つ]くそうと努[ど]力[りょく]している。",
    "I gotta try to do my best."
@@ -5223,7 +5125,7 @@
   "group": "suru",
   "dictionary": "労[ろう]働[どう]する",
   "reading": "ろうどうする",
-  "meaning": "labor, labour (as a verb)",
+  "meaning": "to labour, to work",
   "sentences": [
    "むかしのような激[はげ]しい{日雇}[ひやと]い労[ろう]働[どう]はできやしない。",
    "I can't work as hard as I used to."
@@ -5292,7 +5194,7 @@
   "group": "suru",
   "dictionary": "動[どう]揺[よう]する",
   "reading": "どうようする",
-  "meaning": "shaking, trembling (as a verb)",
+  "meaning": "to be shaken, to be upset",
   "sentences": [
    "このニュースを聞[き]いて{非常}[ひじょう]に動[どう]揺[よう]した。",
    "I was profoundly disturbed by this news."
@@ -5306,7 +5208,7 @@
   "group": "suru",
   "dictionary": "勘[かん]定[じょう]する",
   "reading": "かんじょうする",
-  "meaning": "calculation, computation (as a verb)",
+  "meaning": "to count, to calculate",
   "sentences": [
    "勘[かん]定[じょう]は合[ごう]計[けい]５００ドルになる。",
    "The bill amounts to 500 dollars."
@@ -5416,7 +5318,7 @@
   "group": "suru",
   "dictionary": "包[ほう]装[そう]する",
   "reading": "ほうそうする",
-  "meaning": "packing, wrapping (as a verb)",
+  "meaning": "to wrap, to pack",
   "sentences": [
    "{食品}[しょくひん]包[ほう]装[そう]は{腐敗}[ふはい]を減[へ]らす。",
    "Food packaging reduces spoilage."
@@ -5441,7 +5343,7 @@
   "group": "suru",
   "dictionary": "化[け]粧[しょう]する",
   "reading": "けしょうする",
-  "meaning": "make-up, makeup (as a verb)",
+  "meaning": "to put on make-up",
   "sentences": [
    "こってり化[け]粧[しょう]した顔[かお]は{異様}[いよう]である。",
    "A face with too much make up looks strange."
@@ -5470,7 +5372,7 @@
   "group": "suru",
   "dictionary": "区[く]別[べつ]する",
   "reading": "くべつする",
-  "meaning": "distinction, differentiation (as a verb)",
+  "meaning": "to distinguish, to tell apart",
   "sentences": [
    "私[わたし]は{彼女}[かのじょ]と妹[いもうと]を区[く]別[べつ]できなかった。",
    "I couldn't tell her from her sister."
@@ -5511,7 +5413,7 @@
   "group": "suru",
   "dictionary": "卒[そつ]業[ぎょう]する",
   "reading": "そつぎょうする",
-  "meaning": "graduation, completion (of a course) (as a verb)",
+  "meaning": "to graduate",
   "sentences": [
    "彼[かれ]は{学校}[がっこう]を卒[そつ]業[ぎょう]したあと、ロンドンへ行[い]った。",
    "After he left school, he went to London."
@@ -5538,7 +5440,7 @@
   "group": "suru",
   "dictionary": "協[きょう]力[りょく]する",
   "reading": "きょうりょくする",
-  "meaning": "cooperation, collaboration (as a verb)",
+  "meaning": "to cooperate, to work together",
   "sentences": [
    "ご協[きょう]力[りょく]に{感謝}[かんしゃ]します。",
    "I appreciate your cooperation."
@@ -5552,7 +5454,7 @@
   "group": "suru",
   "dictionary": "協[きょう]調[ちょう]する",
   "reading": "きょうちょうする",
-  "meaning": "cooperation, conciliation (as a verb)",
+  "meaning": "to cooperate, to act in harmony",
   "sentences": [
    "{企業}[きぎょう]{経営}[けいえい]で{活躍}[かつやく]するために必[ひつ]要[よう]となるのが多[おお]くの仲[なか]間[ま]と仕[し]事[ごと]を{遂行}[すいこう]するための協[きょう]調[ちょう]{精神}[せいしん]です。",
    "What you need to take part in business management is the team spirit to work with many colleagues."
@@ -5566,7 +5468,7 @@
   "group": "suru",
   "dictionary": "協[きょう]議[ぎ]する",
   "reading": "きょうぎする",
-  "meaning": "conference, consultation (as a verb)",
+  "meaning": "to discuss, to confer",
   "sentences": [
    "私[わたし]たちはその{問題}[もんだい]を彼[かれ]らと協[きょう]議[ぎ]した。",
    "We consulted them about the problem."
@@ -5768,7 +5670,7 @@
   "group": "suru",
   "dictionary": "参[さん]加[か]する",
   "reading": "さんかする",
-  "meaning": "participation, joining (as a verb)",
+  "meaning": "to take part, to join",
   "sentences": [
    "あなたは{競技}[きょうぎ]に参[さん]加[か]しましたか。",
    "Did you take part in the game?"
@@ -5810,7 +5712,7 @@
   "group": "suru",
   "dictionary": "反[はん]抗[こう]する",
   "reading": "はんこうする",
-  "meaning": "opposition, resistance (as a verb)",
+  "meaning": "to rebel, to resist",
   "sentences": [
    "彼[かれ]らは{王様}[おうさま]の作[つく]った{法律}[ほうりつ]に反[はん]抗[こう]した。",
    "They defied the laws of the king."
@@ -5824,7 +5726,7 @@
   "group": "suru",
   "dictionary": "反[はん]省[せい]する",
   "reading": "はんせいする",
-  "meaning": "reflection, reconsideration (as a verb)",
+  "meaning": "to reflect on, to regret",
   "sentences": [
    "彼[かれ]は{自分自身}[じぶんじしん]の考[かんが]えを反[はん]省[せい]した。",
    "He reflected on his own thoughts."
@@ -5852,7 +5754,7 @@
   "group": "suru",
   "dictionary": "収[しゅう]穫[かく]する",
   "reading": "しゅうかくする",
-  "meaning": "harvest, crop (as a verb)",
+  "meaning": "to harvest",
   "sentences": [
    "私[わたし]たちはみな収[しゅう]穫[かく]の{手伝}[てつだ]いをした。",
    "We all helped with the harvest."
@@ -7994,7 +7896,7 @@
   "group": "suru",
   "dictionary": "復[ふく]習[しゅう]する",
   "reading": "ふくしゅうする",
-  "meaning": "review (of learned material), revision (as a verb)",
+  "meaning": "to review (what was learned)",
   "sentences": [
    "その課[か]の復[ふく]習[しゅう]をしましたか。",
    "Have you gone over the lesson?"
@@ -8187,7 +8089,7 @@
   "group": "suru",
   "dictionary": "急[きゅう]行[こう]する",
   "reading": "きゅうこうする",
-  "meaning": "hurrying (to somewhere), rushing (as a verb)",
+  "meaning": "to hurry (to a place), to rush",
   "sentences": [
    "彼[かれ]らは{事故}[じこ]の{現場}[げんば]へ急[きゅう]行[こう]した。",
    "They made for the scene of the accident."
@@ -8321,7 +8223,7 @@
   "group": "suru",
   "dictionary": "意[い]味[み]する",
   "reading": "いみする",
-  "meaning": "meaning, significance (as a verb)",
+  "meaning": "to mean",
   "sentences": [
    "その語[ご]にはいくつかの意[い]味[み]がある。",
    "The word has several meanings."
@@ -8445,7 +8347,7 @@
   "group": "suru",
   "dictionary": "戦[せん]争[そう]する",
   "reading": "せんそうする",
-  "meaning": "war (as a verb)",
+  "meaning": "to wage war",
   "sentences": [
    "その国[くに]は戦[せん]争[そう]で{荒廃}[こうはい]してしまった。",
    "The country was wasted by war."
@@ -8703,7 +8605,7 @@
   "group": "suru",
   "dictionary": "授[じゅ]業[ぎょう]する",
   "reading": "じゅぎょうする",
-  "meaning": "lesson, class (as a verb)",
+  "meaning": "to teach a class",
   "sentences": [
    "それは授[じゅ]業[ぎょう]の終[お]わりだった。",
    "That was the end of the class."
@@ -8873,7 +8775,7 @@
   "group": "suru",
   "dictionary": "教[きょう]育[いく]する",
   "reading": "きょういくする",
-  "meaning": "education, schooling (as a verb)",
+  "meaning": "to educate",
   "sentences": [
    "教[きょう]育[いく]は重[じゅう]大[だい]な{要素}[ようそ]である。",
    "Education is a critical element."
@@ -8887,7 +8789,7 @@
   "group": "suru",
   "dictionary": "料[りょう]理[り]する",
   "reading": "りょうりする",
-  "meaning": "cooking, cookery (as a verb)",
+  "meaning": "to cook",
   "sentences": [
    "これらのりんごは料[りょう]理[り]用[よう]にもってこいだ。",
    "These apples are good cookers."
@@ -8914,7 +8816,7 @@
   "group": "suru",
   "dictionary": "旅[りょ]行[こう]する",
   "reading": "りょこうする",
-  "meaning": "travel, trip (as a verb)",
+  "meaning": "to travel",
   "sentences": [
    "いつ旅[りょ]行[こう]においでになりますか。",
    "When will you go on a journey?"
@@ -9452,7 +9354,7 @@
   "group": "suru",
   "dictionary": "水[すい]泳[えい]する",
   "reading": "すいえいする",
-  "meaning": "swimming (as a verb)",
+  "meaning": "to swim",
   "sentences": [
    "水[すい]泳[えい]が私[わたし]の楽[たの]しみの１つです。",
    "Swimming is one thing I enjoy."
@@ -9634,7 +9536,7 @@
   "group": "suru",
   "dictionary": "注[ちゅう]射[しゃ]する",
   "reading": "ちゅうしゃする",
-  "meaning": "injection, jab (as a verb)",
+  "meaning": "to inject, to give a shot",
   "sentences": [
    "流[りゅう]感[かん]の予[よ]防[ぼう]ワクチンの注[ちゅう]射[しゃ]をした。",
    "I was vaccinated against the flu."
@@ -9648,7 +9550,7 @@
   "group": "suru",
   "dictionary": "注[ちゅう]意[い]する",
   "reading": "ちゅういする",
-  "meaning": "attention, notice (as a verb)",
+  "meaning": "to pay attention, to be careful; to warn",
   "sentences": [
    "健[けん]康[こう]にもっと注[ちゅう]意[い]を払[はら]うべきだ。",
    "You should pay more attention to your health."
@@ -10159,7 +10061,7 @@
   "group": "suru",
   "dictionary": "用[よう]意[い]する",
   "reading": "よういする",
-  "meaning": "preparation, arrangements (as a verb)",
+  "meaning": "to prepare, to get ready",
   "sentences": [
    "その{部屋}[へや]はあなたが使[つか]えるよう用[よう]意[い]ができています。",
    "The room is now ready for you."
@@ -10193,21 +10095,6 @@
    "This is Mr Smith speaking. Is Mr Johnson in?"
   ],
   "tags": [
-   "transitive",
-   "n4"
-  ]
- },
- "留守する": {
-  "group": "suru",
-  "dictionary": "留[る]守[す]する",
-  "reading": "るすする",
-  "meaning": "absence, being away from home (as a verb)",
-  "sentences": [
-   "{彼女}[かのじょ]に留[る]守[す]を頼[たの]んで{外出}[がいしゅつ]しました。",
-   "I went on the trip, leaving the house in her care."
-  ],
-  "tags": [
-   "intransitive",
    "transitive",
    "n4"
   ]
@@ -10308,7 +10195,7 @@
   "group": "suru",
   "dictionary": "発[はつ]音[おん]する",
   "reading": "はつおんする",
-  "meaning": "pronunciation (as a verb)",
+  "meaning": "to pronounce",
   "sentences": [
    "あなたのお{名前}[なまえ]はどのように発[はつ]音[おん]するのですか。",
    "How do you pronounce your name?"
@@ -10522,7 +10409,7 @@
   "group": "suru",
   "dictionary": "研[けん]究[きゅう]する",
   "reading": "けんきゅうする",
-  "meaning": "research, study (as a verb)",
+  "meaning": "to research, to study",
   "sentences": [
    "私[わたし]はエイズの研[けん]究[きゅう]に{従事}[じゅうじ]している。",
    "I am engaged in AIDS research."
@@ -10671,7 +10558,7 @@
   "group": "suru",
   "dictionary": "競[きょう]争[そう]する",
   "reading": "きょうそうする",
-  "meaning": "competition, contest (as a verb)",
+  "meaning": "to compete",
   "sentences": [
    "十[じゅう]中[ちゅう]{八九}[はちきゅう]、彼[かれ]が競[きょう]争[そう]に勝[か]つでしょう。",
    "In nine cases out of ten, he will win the race."
@@ -10742,7 +10629,7 @@
   "group": "suru",
   "dictionary": "約[やく]束[そく]する",
   "reading": "やくそくする",
-  "meaning": "promise, agreement (as a verb)",
+  "meaning": "to promise",
   "sentences": [
    "自[じ]分[ぶん]が約[やく]束[そく]したことはちゃんと実[じっ]行[こう]するように{最善}[さいぜん]を尽[つ]くすべきだ。",
    "You should do your best to carry out your promises."
@@ -10806,7 +10693,7 @@
   "group": "suru",
   "dictionary": "紹[しょう]介[かい]する",
   "reading": "しょうかいする",
-  "meaning": "introduction, presentation (as a verb)",
+  "meaning": "to introduce",
   "sentences": [
    "あなたを私[わたし]の両[りょう]親[しん]に紹[しょう]介[かい]したい。",
    "I want you to meet my parents."
@@ -11049,7 +10936,7 @@
   "group": "suru",
   "dictionary": "翻[ほん]訳[やく]する",
   "reading": "ほんやくする",
-  "meaning": "translation (as a verb)",
+  "meaning": "to translate",
   "sentences": [
    "{彼女}[かのじょ]はそれを一[いち]語[ご]一[いち]語[ご]翻[ほん]訳[やく]した。",
    "She translated it word for word."
@@ -11200,7 +11087,7 @@
   "group": "suru",
   "dictionary": "花[はな]見[み]する",
   "reading": "はなみする",
-  "meaning": "cherry blossom viewing, flower viewing (as a verb)",
+  "meaning": "to view the cherry blossoms",
   "sentences": [
    "花[はな]見[み]ができる春[はる]が待[ま]ち遠[どお]しい。",
    "I can't wait for spring to come so we can sit under the cherry trees."
@@ -11505,7 +11392,7 @@
   "group": "suru",
   "dictionary": "見[けん]物[ぶつ]する",
   "reading": "けんぶつする",
-  "meaning": "sightseeing, watching (as a verb)",
+  "meaning": "to see the sights, to watch",
   "sentences": [
    "{私達}[わたしたち]は{横浜}[よこはま]を見[けん]物[ぶつ]した。",
    "We did the sights of Yokohama."
@@ -11685,7 +11572,7 @@
   "group": "suru",
   "dictionary": "試[し]合[あい]する",
   "reading": "しあいする",
-  "meaning": "match, game (as a verb)",
+  "meaning": "to play a match",
   "sentences": [
    "その試[し]合[あい]は{何時}[いつ]に始[はじ]まりますか。",
    "What time does the game start?"
@@ -11699,7 +11586,7 @@
   "group": "suru",
   "dictionary": "試[し]験[けん]する",
   "reading": "しけんする",
-  "meaning": "examination, exam (as a verb)",
+  "meaning": "to test, to examine",
   "sentences": [
    "とにかく、試[し]験[けん]が終[お]わってほっとしたよ。",
    "Anyhow, I'm relieved the test is over."
@@ -11818,7 +11705,7 @@
   "group": "suru",
   "dictionary": "講[こう]義[ぎ]する",
   "reading": "こうぎする",
-  "meaning": "lecture (as a verb)",
+  "meaning": "to lecture",
   "sentences": [
    "その講[こう]義[ぎ]へ来[き]た人[ひと]はほとんどいなかった。",
    "Few people came to the lecture."
@@ -11912,7 +11799,7 @@
   "group": "suru",
   "dictionary": "買[か]い物[もの]する",
   "reading": "かいものする",
-  "meaning": "shopping, purchased goods (as a verb)",
+  "meaning": "to shop, to go shopping",
   "sentences": [
    "{１日}[いちにち]おきに買[か]い物[もの]に行[い]く。",
    "I go shopping every other day."
@@ -11969,7 +11856,7 @@
   "group": "suru",
   "dictionary": "貿[ぼう]易[えき]する",
   "reading": "ぼうえきする",
-  "meaning": "(foreign) trade, (international) commerce (as a verb)",
+  "meaning": "to trade (with another country)",
   "sentences": [
    "{日本}[にほん]は貿[ぼう]易[えき]に頼[たよ]っている。",
    "Japan depends on foreign trade."
@@ -11983,7 +11870,7 @@
   "group": "suru",
   "dictionary": "質[しつ]問[もん]する",
   "reading": "しつもんする",
-  "meaning": "question, inquiry (as a verb)",
+  "meaning": "to ask a question",
   "sentences": [
    "その{事故}[じこ]について彼[かれ]に質[しつ]問[もん]した。",
    "I asked him about the accident."
@@ -12159,7 +12046,7 @@
   "group": "suru",
   "dictionary": "輸[ゆ]入[にゅう]する",
   "reading": "ゆにゅうする",
-  "meaning": "import, importation (as a verb)",
+  "meaning": "to import",
   "sentences": [
    "{１９９８年}[せんきゅうひゃくきゅうじゅうはちねん]{日本}[にほん]の輸[ゆ]出[しゅつ]が輸[ゆ]入[にゅう]を{７７８億}[ななひゃくななじゅうはちおく]ドル{上回}[うわまわ]った。",
    "Japan's exports exceeded imports by $77.8 billion in 1998."
@@ -12241,7 +12128,7 @@
   "group": "suru",
   "dictionary": "返[へん]事[じ]する",
   "reading": "へんじする",
-  "meaning": "reply, answer (as a verb)",
+  "meaning": "to reply, to answer",
   "sentences": [
    "すぐ返[へん]事[じ]をしてもらいたいと思[おも]っています。",
    "I hope you will answer me soon."
@@ -12413,7 +12300,7 @@
   "group": "suru",
   "dictionary": "連[れん]絡[らく]する",
   "reading": "れんらくする",
-  "meaning": "contacting, (making) contact (as a verb)",
+  "meaning": "to contact, to get in touch",
   "sentences": [
    "ここに来[き]た時[とき]は、必[かなら]ず連[れん]絡[らく]してね。",
    "Please get in touch with me when you are here."
@@ -12797,7 +12684,7 @@
   "group": "suru",
   "dictionary": "関[かん]係[けい]する",
   "reading": "かんけいする",
-  "meaning": "relation, relationship (as a verb)",
+  "meaning": "to be related to, to be involved in",
   "sentences": [
    "これとあれはどういう関[かん]係[けい]があるの。",
    "How is this connected to that?"
@@ -12928,7 +12815,7 @@
   "group": "suru",
   "dictionary": "電[でん]話[わ]する",
   "reading": "でんわする",
-  "meaning": "telephone call, phone call (as a verb)",
+  "meaning": "to phone, to call",
   "sentences": [
    "電[でん]話[わ]は繰[く]り返[かえ]し鳴[な]っていた。",
    "The telephone rang repeatedly."

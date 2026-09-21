@@ -391,11 +391,14 @@ class DrillLogicTest {
         assertEquals(emptyList<String>(), twice)
     }
 
-    /** JMdict glosses a する verb's noun; beside "to eat", "travel, trip" did not read as a verb. */
+    /**
+     * JMdict glosses a する verb's noun; beside "to eat", "travel, trip" did not read as a verb.
+     * A new one needs its meaning in merge.py's SURU_GLOSSES.
+     */
     @Test
     fun everySuruVerbIsGlossedAsAVerb() {
         val nouny = data.words
-            .filter { it.group == "suru" && !it.meaning.startsWith("to ") && !it.meaning.endsWith("(as a verb)") }
+            .filter { it.group == "suru" && !it.meaning.startsWith("to ") }
             .map { it.key }
         assertEquals(emptyList<String>(), nouny)
     }
