@@ -46,6 +46,7 @@ import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.verticalScrollbar
+import com.japanesedrills.ui.theme.heading
 
 /**
  * What a step introduces, shown the first time it is opened.
@@ -138,7 +139,7 @@ fun StepIntroScreen(
                 item {
                     Text(
                         "New words in this step",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.heading,
                         modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
                     )
                 }

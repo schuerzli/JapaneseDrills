@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.ConjugationIntroBlock
@@ -35,6 +34,7 @@ import com.japanesedrills.ui.components.SectionHeading
 import com.japanesedrills.ui.components.SectionPadding
 import com.japanesedrills.ui.components.SectionSpacing
 import com.japanesedrills.ui.components.verticalScrollbar
+import com.japanesedrills.ui.theme.subheading
 
 /**
  * The Conjugation Intro: one page, read top to bottom. It is the only screen in the app
@@ -122,7 +122,7 @@ private fun ConjugationIntroBlockView(block: ConjugationIntroBlock) {
 
         is ConjugationIntroBlock.Sub -> FuriganaText(
             block.title,
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Medium),
+            style = MaterialTheme.typography.subheading,
             color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 4.dp),
         )

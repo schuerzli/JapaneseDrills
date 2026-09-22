@@ -327,19 +327,19 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
 
         /**
          * A word's class as the learner is taught it, in the Conjugation Intro's terms: "aru
-         * verb" said nothing a learner could use, where "godan, irregular negative" says both
+         * verb" said nothing a learner could use, where "Godan verb, irregular negative" says both
          * what ある is and what to watch for.
          */
         val groupLabels = mapOf(
-            "godan" to "godan verb",
-            "ichidan" to "ichidan verb",
-            "iku" to "godan verb, irregular て-form",
+            "godan" to "Godan verb",
+            "ichidan" to "Ichidan verb",
+            "iku" to "Godan verb, irregular て-form",
             "suru" to "する verb",
-            "kuru" to "irregular verb",
-            "aru" to "godan verb, irregular negative",
-            "iru" to "ichidan verb",
+            "kuru" to "Irregular verb",
+            "aru" to "Godan verb, irregular negative",
+            "iru" to "Ichidan verb",
             "i-adjective" to "い-adjective",
-            "ii" to "irregular い-adjective",
+            "ii" to "Irregular い-adjective",
             "na-adjective" to "な-adjective",
         )
     }

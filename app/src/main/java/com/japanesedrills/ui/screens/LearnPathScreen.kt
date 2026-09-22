@@ -45,6 +45,7 @@ import com.japanesedrills.ui.StepCard
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
+import com.japanesedrills.ui.theme.heading
 
 /** One chapter of the path, in path order. */
 private data class Chapter(val title: String, val cards: List<StepCard>) {
@@ -240,7 +241,7 @@ private fun ReviewCard(due: Int, onReview: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Review", style = MaterialTheme.typography.titleMedium)
+                Text("Review", style = MaterialTheme.typography.heading)
                 Text(
                     if (nothingDue) "Nothing due — everything is fresh" else "$due due today",
                     style = MaterialTheme.typography.bodyMedium,
@@ -272,7 +273,7 @@ private fun NextUpCard(step: Step, onStart: () -> Unit) {
         Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text("Next up", style = MaterialTheme.typography.labelLarge)
-                FuriganaText(step.title, style = MaterialTheme.typography.titleMedium)
+                FuriganaText(step.title, style = MaterialTheme.typography.heading)
                 FuriganaText(step.subtitle, style = MaterialTheme.typography.bodyMedium)
             }
             Spacer(Modifier.width(12.dp))
@@ -308,7 +309,7 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
             StatusBadge(card)
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                FuriganaText(step.title, style = MaterialTheme.typography.titleMedium)
+                FuriganaText(step.title, style = MaterialTheme.typography.heading)
                 FuriganaText(
                     step.subtitle,
                     style = MaterialTheme.typography.bodySmall,

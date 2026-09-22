@@ -16,7 +16,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.dp
+import com.japanesedrills.ui.theme.heading
 
 /** The titled card the settings, practice and about screens are built from. */
 @Composable
@@ -43,7 +44,7 @@ fun SectionHeading(title: String, subtitle: String? = null) {
     Column {
         FuriganaText(
             title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.heading,
             color = if (DrillTheme.accents.titles) {
                 MaterialTheme.colorScheme.primary
             } else {

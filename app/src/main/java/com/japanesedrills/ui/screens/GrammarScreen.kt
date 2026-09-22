@@ -27,7 +27,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.ConjugationIntro
@@ -45,6 +44,8 @@ import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
+import com.japanesedrills.ui.theme.heading
+import com.japanesedrills.ui.theme.subheading
 
 /**
  * Every form the drill can ask about, then every word type a step introduces. Tapping one
@@ -85,7 +86,7 @@ fun GrammarScreen(
             ) {
                 Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(ConjugationIntro.TITLE, style = MaterialTheme.typography.titleMedium)
+                        Text(ConjugationIntro.TITLE, style = MaterialTheme.typography.heading)
                         Text(ConjugationIntro.SUMMARY, style = MaterialTheme.typography.bodySmall)
                     }
                     Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
@@ -120,7 +121,7 @@ private fun NoteRow(note: GrammarNote, onClick: () -> Unit) {
     ) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                FuriganaText(note.title, style = MaterialTheme.typography.titleMedium)
+                FuriganaText(note.title, style = MaterialTheme.typography.heading)
                 FuriganaText(
                     note.summary,
                     style = MaterialTheme.typography.bodySmall,
@@ -240,13 +241,12 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
                     heading,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.subheading,
                     color = if (DrillTheme.accents.headings) {
                         MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.onSurface
                     },
-                    fontWeight = FontWeight.Medium,
                 )
                 if (table != null) {
                     RichTable(
@@ -294,7 +294,7 @@ private fun extensionOf(shown: List<RichPart>, rule: List<RichPart>): List<RichP
 }
 
 private fun headingFor(word: Word): String =
-    if (word.group in Grammar.IRREGULAR_GROUPS) "irregular verbs"
+    if (word.group in Grammar.IRREGULAR_GROUPS) "Irregular verbs"
     else QuizEngine.groupLabels[word.group] ?: word.group
 
 /** [rule] is what to say above the change; empty says nothing and shows the change alone. */

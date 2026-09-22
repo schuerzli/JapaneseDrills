@@ -2,6 +2,7 @@ package com.japanesedrills.ui.theme
 
 import androidx.annotation.FontRes
 import androidx.compose.material3.Typography
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -55,3 +56,13 @@ fun typographyOf(display: FontFamily, body: FontFamily) = Typography(
     labelMedium = base.labelMedium.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
     labelSmall = base.labelSmall.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
 )
+
+/**
+ * A card's title, and a heading over a run of cards. Material has no slot for it, and its
+ * titleMedium at 16sp barely stood out from the 14sp body text beneath.
+ */
+val Typography.heading: TextStyle get() = titleMedium.copy(fontSize = 20.sp, lineHeight = 28.sp)
+
+/** A heading inside a card, under its [heading]: a word class on the Grammar tab, say. */
+val Typography.subheading: TextStyle
+    get() = labelLarge.copy(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp)
