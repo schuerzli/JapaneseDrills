@@ -277,6 +277,23 @@ class DrillLogicTest {
     }
 
     @Test
+    fun labelsIrregularChangesInsteadOfExplainingThem() {
+        fun rules(key: String, target: String) =
+            Explanations.solution(data.words.first { it.key == key }, target).steps.map { it.rule }
+        val irregular = listOf(RichPart.Tag("Irregular"))
+        val here = listOf(RichPart.Tag("Irregular in this case"))
+        assertEquals(listOf(irregular), rules("来る", "negative"))
+        assertEquals(listOf(irregular), rules("する", "causative"))
+        assertEquals(listOf(here), rules("行く", "te-form"))
+        assertEquals(listOf(here), rules("ある", "negative"))
+        // What follows the irregular form is ordinary again, and explained.
+        val (_, past) = rules("来る", "past negative")
+        assertTrue((past.single() as RichPart.Text).text.startsWith("The negative ends in ない"))
+        // 行く is irregular only in the forms built on its て-form.
+        assertTrue(rules("行く", "negative").single().single() is RichPart.Text)
+    }
+
+    @Test
     fun carriesEachSpellingThroughItsOwnSteps() {
         val word = data.words.first { it.key == "有名な" }
         val (negative, past) = Explanations.solution(word, "past negative").steps

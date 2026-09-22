@@ -302,6 +302,9 @@ private fun extensionOf(shown: List<RichPart>, rule: List<RichPart>): List<RichP
     return listOfNotNull(same.copy(text = rest).takeIf { rest.isNotEmpty() }) + rule.drop(shown.size)
 }
 
+/** 行く and ある: godan verbs, each irregular in a few forms. */
+private val GODAN_EXCEPTIONS = setOf("iku", "aru")
+
 /**
  * [shown] under its headings, in example order except that the godan verbs with an exception,
  * 行く and ある, follow the godan verbs: they are godan verbs, not irregular ones.
@@ -309,7 +312,7 @@ private fun extensionOf(shown: List<RichPart>, rule: List<RichPart>): List<RichP
 private fun grouped(shown: List<Pair<Word, List<SolutionStep>>>): List<Pair<String, List<Pair<Word, List<SolutionStep>>>>> {
     val groups = shown.groupBy { (word, _) -> headingFor(word) }.toList()
     fun classOf(group: Pair<String, List<Pair<Word, List<SolutionStep>>>>) = group.second.first().first.group
-    val exceptions = groups.filter { classOf(it) in setOf("iku", "aru") }
+    val exceptions = groups.filter { classOf(it) in GODAN_EXCEPTIONS }
     if (groups.none { classOf(it) == "godan" }) return groups
     return (groups - exceptions.toSet()).flatMap { if (classOf(it) == "godan") listOf(it) + exceptions else listOf(it) }
 }

@@ -122,7 +122,7 @@ object Explanations {
 
     /**
      * The sound change a step from a word of [cls] applies, if any. 行く is left out: its
-     * て-form and past are the one exception to the table, and its rule says so.
+     * て-form and past are the one exception to the table, labelled irregular instead.
      */
     private fun soundChangeOf(cls: WordClass, op: Op?): SoundChange? {
         if (cls != WordClass.GODAN && !(cls == WordClass.ARU && op != null && aruRule(op) == null)) return null
@@ -257,6 +257,14 @@ object Explanations {
 
     private val FALLBACK = listOf(RichPart.Text("Change the ending as shown."))
 
+    /**
+     * The whole rule for an irregular change: a label, not an explanation. There is nothing
+     * to derive, only a form to learn, and the change shown under it is that form. する and
+     * 来る are irregular throughout; 行く and ある are godan verbs irregular in a few forms.
+     */
+    private val IRREGULAR = listOf(RichPart.Tag("Irregular"))
+    private val IRREGULAR_HERE = listOf(RichPart.Tag("Irregular in this case"))
+
     private fun Word.forms(key: String): List<String> = conjugations[key]?.forms.orEmpty()
 
     private fun classOf(group: String) = when (group) {
@@ -316,8 +324,7 @@ object Explanations {
                 // Only reachable if the disabled ある forms are re-enabled in rules.json.
                 WordClass.ARU -> rule("Change the last る to ら and add せる. This form of ある is rare.")
                 WordClass.ICHIDAN, WordClass.IRU -> rule("Drop the last る and add させる.")
-                WordClass.SURU -> rule("する becomes させる.")
-                WordClass.KURU -> rule(jp("来[く]る"), " is irregular: it becomes ", jp("来[こ]させる"), ".")
+                WordClass.SURU, WordClass.KURU -> IRREGULAR
                 else -> null
             }
             "causative passive" -> {
@@ -338,8 +345,7 @@ object Explanations {
                 WordClass.ARU -> rule("Change the last る to ら and add れる. This form of ある is rare.")
                 WordClass.ICHIDAN, WordClass.IRU ->
                     rule("Drop the last る and add られる. (The potential form looks the same.)")
-                WordClass.SURU -> rule("する becomes される.")
-                WordClass.KURU -> rule(jp("来[く]る"), " is irregular: it becomes ", jp("来[こ]られる"), ".")
+                WordClass.SURU, WordClass.KURU -> IRREGULAR
                 else -> null
             }
             "potential" -> when (cls) {
@@ -350,8 +356,7 @@ object Explanations {
                 WordClass.ARU -> rule("Change the last る to れ and add る. ある is hardly ever used this way.")
                 WordClass.ICHIDAN, WordClass.IRU ->
                     rule("Drop the last る and add られる. In casual speech just れる is common too.")
-                WordClass.SURU -> rule("する is replaced by できる.")
-                WordClass.KURU -> rule(jp("来[く]る"), " is irregular: it becomes ", jp("来[こ]られる"), ".")
+                WordClass.SURU, WordClass.KURU -> IRREGULAR
                 else -> null
             }
             "progressive" -> {
@@ -436,15 +441,12 @@ object Explanations {
     }
 
     private fun ikuRule(op: Op): List<RichPart>? = when (op) {
-        Op.TE -> rule(jp("行[い]く"), " is the one exception to the く → いて rule: its て-form is ", jp("行[い]って"), ".")
-        Op.PAST -> rule(jp("行[い]く"), " is the one exception to the く → いた rule: its past is ", jp("行[い]った"), ".")
+        Op.TE, Op.PAST -> IRREGULAR_HERE
         else -> null
     }
 
     private fun aruRule(op: Op): List<RichPart>? = when (op) {
-        Op.NEG -> rule("ある is irregular: its negative is simply ない (never あらない).")
-        // Only reachable if the disabled ある imperative is re-enabled in rules.json.
-        Op.IMP -> rule("Change the last る to its え-row kana れ. This form of ある is rare.")
+        Op.NEG -> IRREGULAR_HERE
         else -> null
     }
 
@@ -460,31 +462,13 @@ object Explanations {
     }
 
     private fun suruRule(op: Op): List<RichPart> = when (op) {
-        Op.NEG -> rule("する becomes し, then add ない.")
-        Op.POLITE -> rule("する becomes し, then add ます.")
-        Op.PAST -> rule("する becomes し, then add た.")
-        Op.TE -> rule("する becomes し, then add て.")
-        Op.PROV -> rule("する becomes すれ, then add ば.")
-        Op.IMP -> rule("する becomes しろ, or せよ in formal writing.")
         Op.IMP_NEG -> rule("Add な to the dictionary form: するな.")
-        Op.VOL -> rule("する becomes し, then add よう.")
+        else -> IRREGULAR
     }
 
-    private fun kuruRule(op: Op): List<RichPart> {
-        val ko = jp("来[こ]")
-        val ki = jp("来[き]")
-        val ku = jp("来[く]")
-        val irregular = "来[く]る is irregular. "
-        return when (op) {
-            Op.NEG -> rule(irregular, "Before ない it becomes ", ko, ": add ない.")
-            Op.POLITE -> rule(irregular, "Before ます it becomes ", ki, ": add ます.")
-            Op.PAST -> rule(irregular, "Before た it becomes ", ki, ": add た.")
-            Op.TE -> rule(irregular, "Before て it becomes ", ki, ": add て.")
-            Op.PROV -> rule(irregular, "Before ば it keeps the reading ", ku, ": add れば.")
-            Op.IMP -> rule(irregular, "Its imperative is ", jp("来[こ]い"), ".")
-            Op.IMP_NEG -> rule("Add な to the dictionary form: ", jp("来[く]るな"), ".")
-            Op.VOL -> rule(irregular, "Before よう it becomes ", ko, ": add よう.")
-        }
+    private fun kuruRule(op: Op): List<RichPart> = when (op) {
+        Op.IMP_NEG -> rule("Add な to the dictionary form: ", jp("来[く]るな"), ".")
+        else -> IRREGULAR
     }
 
     private fun iAdjectiveRule(op: Op): List<RichPart>? = when (op) {
