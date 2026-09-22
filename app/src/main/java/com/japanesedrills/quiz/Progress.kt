@@ -57,7 +57,7 @@ data class StepRecord(
 }
 
 /**
- * Everything the learner has earned. This is the first state in the app that cannot be
+ * Everything the learner has earned. This is the one state in the app that cannot be
  * recomputed from the assets, so it is written through on every change and never held
  * only in memory.
  *

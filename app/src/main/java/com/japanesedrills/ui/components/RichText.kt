@@ -201,7 +201,11 @@ fun RichText(
     if (only != null && only.segments.size == 1) {
         Box(
             modifier.clearAndSetSemantics { text = spoken },
-            contentAlignment = if (horizontalArrangement == Arrangement.Center) Alignment.TopCenter else Alignment.TopStart,
+            contentAlignment = when (horizontalArrangement) {
+                Arrangement.Center -> Alignment.TopCenter
+                Arrangement.End -> Alignment.TopEnd
+                else -> Alignment.TopStart
+            },
         ) {
             val (textStyle, textColor) = look(only, only.markAt(0))
             Cell(only.segments[0], textStyle, textColor)
@@ -315,9 +319,6 @@ private fun RichPart.plainText(): String = when (this) {
     is RichPart.Tag -> text
     is RichPart.Marked -> text
 }
-
-fun tagParts(tags: List<String>): List<RichPart> =
-    tags.flatMap { listOf(RichPart.Tag(it), RichPart.Text(" ")) }.dropLast(1)
 
 /** Breaks Japanese between phrases, not between any two kana (Android 13 and later; ignored before). */
 private val JapaneseLineBreak = LineBreak(LineBreak.Strategy.HighQuality, LineBreak.Strictness.Strict, LineBreak.WordBreak.Phrase)

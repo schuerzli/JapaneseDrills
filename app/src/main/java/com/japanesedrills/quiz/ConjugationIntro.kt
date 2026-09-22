@@ -24,11 +24,17 @@ sealed interface ConjugationIntroBlock {
     /** One worked change, [from] and [to] written with marks. [note] names the form, if given. */
     data class Step(val from: String, val to: String, val note: String = "") : ConjugationIntroBlock
 
-    /** [header] may be empty, in which case no header row is drawn. [marked] cells are worked examples. */
+    /**
+     * [header] may be empty, in which case no header row is drawn, and a table with neither a
+     * header nor marks is a grid of equal cells. [marked] cells are worked examples.
+     * [firstColumnEnd] right-aligns the first column against the next, as endings are set
+     * against what they become; a column of names reads better left-aligned.
+     */
     data class Table(
         val header: List<String>,
         val rows: List<List<String>>,
         val marked: Boolean = false,
+        val firstColumnEnd: Boolean = true,
     ) : ConjugationIntroBlock
 
     /** Says what the marks in the examples mean, shown in the marks themselves. */
@@ -203,16 +209,26 @@ object ConjugationIntro {
                         "あ-row kana is わ, not あ.",
                 ),
                 ConjugationIntroBlock.Step("買[か](う)", "買[か](わ)+ない"),
-                ConjugationIntroBlock.Line("The following forms all use the row-shift system, each with its row and ending:"),
-                ConjugationIntroBlock.Bullet("the negative and all its compounds: あ-row + ない"),
-                ConjugationIntroBlock.Bullet("the passive: あ-row + れる"),
-                ConjugationIntroBlock.Bullet("the causative: あ-row + せる"),
-                ConjugationIntroBlock.Bullet("every polite form: い-row + ます"),
-                ConjugationIntroBlock.Bullet("the desire form: い-row + たい"),
-                ConjugationIntroBlock.Bullet("the provisional: え-row + ば"),
-                ConjugationIntroBlock.Bullet("the potential: え-row + る"),
-                ConjugationIntroBlock.Bullet("the imperative: え-row, with no ending at all"),
-                ConjugationIntroBlock.Bullet("the volitional: お-row + う"),
+                ConjugationIntroBlock.Line(
+                    "The following forms all use the row-shift system, each with its row and ending. So " +
+                        "does everything built on them: the negative's compounds, and every polite form. " +
+                        "The imperative is the one with no ending at all.",
+                ),
+                ConjugationIntroBlock.Table(
+                    header = listOf("form", "row", "ending"),
+                    rows = listOf(
+                        listOf("negative", "あ", "ない"),
+                        listOf("passive", "あ", "れる"),
+                        listOf("causative", "あ", "せる"),
+                        listOf("polite", "い", "ます"),
+                        listOf("desire", "い", "たい"),
+                        listOf("provisional", "え", "ば"),
+                        listOf("potential", "え", "る"),
+                        listOf("imperative", "え", "—"),
+                        listOf("volitional", "お", "う"),
+                    ),
+                    firstColumnEnd = false,
+                ),
                 ConjugationIntroBlock.Sub("The fusion system"),
                 ConjugationIntroBlock.Line(
                     "In this system, rather than modifying the last kana and adding an ending, the " +

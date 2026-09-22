@@ -91,9 +91,8 @@ data class QuizOptions(
     fun withFocus(focus: String): QuizOptions {
         val needed = when (focus) {
             FOCUS_NONE -> emptyList()
-            "politeness" -> listOf("plain", "polite")
             FOCUS_TETAKEI -> listOf("te-form", "past")
-            else -> listOf(focus)
+            else -> TransformationBuilder.formsOfType(focus)
         }
         return needed.filter { it in FORM_KEYS }
             .fold(copy(questionFocus = focus)) { options, key -> options.with(key, true) }
@@ -197,13 +196,6 @@ data class QuizOptions(
             OptionItem("causative", "Causative"),
             OptionItem(FOCUS_TETAKEI, "Godan て-form / past"),
         )
-
-        /**
-         * A transformation type as the learner sees it. Types are the form keys except that
-         * plain and polite share "politeness", a word no screen otherwise uses, so anything
-         * that shows a type has to come through here rather than print the key.
-         */
-        fun typeLabel(type: String): String = FOCUS.firstOrNull { it.key == type }?.label ?: type
 
         /** Every option the start screen offers, in the order it shows them. */
         val ALL: List<OptionItem> =

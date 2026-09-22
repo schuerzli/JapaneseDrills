@@ -16,10 +16,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
@@ -28,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -40,6 +39,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Prompts
@@ -48,8 +49,12 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.ui.HistoryEntry
 import com.japanesedrills.ui.StepOutcome
+import com.japanesedrills.ui.components.AlignedChanges
+import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaText
-import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.SectionCardPiece
+import com.japanesedrills.ui.components.SectionHeading
+import com.japanesedrills.ui.components.StepBlock
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 import kotlin.math.roundToInt
@@ -129,12 +134,18 @@ fun ResultsScreen(
             state = list,
             modifier = Modifier.padding(padding).verticalScrollbar(list),
             contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            if (outcome != null) item { ReadinessCard(outcome) }
-            item { ScoreCard(history) }
+            if (outcome != null) item { Box(Modifier.padding(bottom = 12.dp)) { ReadinessCard(outcome) } }
+            item { Box(Modifier.padding(bottom = 12.dp)) { ScoreCard(history) } }
+            // One card of answers, a slice per answer: a long session is hundreds of them,
+            // too many to compose as one item.
+            if (history.isNotEmpty()) {
+                item { SectionCardPiece(first = true, last = false) { SectionHeading("Your answers") } }
+            }
             itemsIndexed(history) { index, entry ->
-                HistoryRow(index + 1, entry, options)
+                SectionCardPiece(first = false, last = index == history.lastIndex) {
+                    HistoryRow(index + 1, entry, options)
+                }
             }
         }
     }
@@ -231,47 +242,37 @@ private fun ScoreCard(history: List<HistoryEntry>) {
     }
 }
 
+/**
+ * One answer, as a numbered change from the form given to the answer typed, and for a
+ * wrong one, the accepted answers under it in the same column.
+ */
 @Composable
 private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
     val question = entry.question
     val answerColors = DrillTheme.answerColors
-    val scheme = MaterialTheme.colorScheme
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
-    ) {
-        Row(Modifier.padding(16.dp)) {
-            Surface(
-                shape = CircleShape,
-                color = if (entry.correct) answerColors.correctContainer else scheme.errorContainer,
-                contentColor = if (entry.correct) answerColors.onCorrectContainer else scheme.onErrorContainer,
-            ) {
-                Icon(
-                    if (entry.correct) Icons.Default.Check else Icons.Default.Close,
-                    contentDescription = if (entry.correct) "Correct" else "Incorrect",
-                    modifier = Modifier
-                        .padding(6.dp)
-                        .size(18.dp),
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                RichText(
-                    listOf(RichPart.Text("$number. ")) +
-                        Prompts.question(question.transformation.phrase, question.givenDisplay(options.kana)),
-                    style = MaterialTheme.typography.bodyLarge,
-                    emphasisColor = scheme.primary,
-                )
-                RichText(
-                    listOf(RichPart.Text("Your answer: "), RichPart.Jp(entry.responseDisplay)),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (entry.correct) answerColors.correct else scheme.error,
-                )
-                if (!entry.correct) {
-                    for (line in Prompts.alternatives(question.answersDisplay(options.kana), lead = "Correct: ")) {
-                        RichText(line, style = MaterialTheme.typography.bodyMedium, color = answerColors.correct)
+    val given = listOf(RichPart.Jp(question.givenDisplay(options.kana)))
+    Column {
+        // Between answers rather than above the first, which sits under the card's heading.
+        if (number > 1) {
+            HorizontalDivider(Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
+        }
+        StepBlock(number = number, rule = Prompts.instruction(question.transformation.phrase)) {
+            AlignedChanges(listOf(given)) {
+                Column(
+                    Modifier.semantics(mergeDescendants = true) {
+                        stateDescription = if (entry.correct) "Correct" else "Incorrect"
+                    },
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    ChangeRow(
+                        given,
+                        listOf(RichPart.Jp(entry.responseDisplay)),
+                        toColor = if (entry.correct) answerColors.correct else MaterialTheme.colorScheme.error,
+                    )
+                    if (!entry.correct) {
+                        for (answer in question.answersDisplay(options.kana)) {
+                            ChangeRow(null, listOf(RichPart.Jp(answer)), toColor = answerColors.correct)
+                        }
                     }
                 }
             }

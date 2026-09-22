@@ -6,5 +6,6 @@ local.properties
 *.iml
 captures/
 __pycache__/
+tools/wordlist/data/
 install_on_phone.txt
 tools/theme/preview.html

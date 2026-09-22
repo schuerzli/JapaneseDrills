@@ -37,13 +37,14 @@ object Grammar {
 
     /**
      * Example words for the construction section. Ichidan leads because it is the class
-     * with no table and no exceptions; godan follows, then the irregulars, then the
-     * adjectives. A class is skipped for a form it does not have, which is how adjectives
-     * quietly drop out of the verb-only forms.
+     * with no table and no exceptions; godan follows, then 行く, a godan verb with an
+     * exception, then the irregulars, then the adjectives. A class is skipped for a form it
+     * does not have, which is how adjectives quietly drop out of the verb-only forms.
      */
     private const val ICHIDAN = "食べる"
     private val GODAN = listOf("書く")
-    private val IRREGULAR = listOf("する", "来る", "行く")
+    private const val GODAN_EXCEPTION = "行く"
+    private val IRREGULAR = listOf("する", "来る")
     private val ADJECTIVES = listOf("高い", "便利な")
 
     /** 書く is the ordinary shift; 買う is the one exception, う to わ rather than あ. */
@@ -66,11 +67,11 @@ object Grammar {
 
     /** The example words to build [formKey] with, in the order they should be shown. */
     fun examplesFor(formKey: String): List<String> =
-        listOf(ICHIDAN) + (GODAN_BY_FORM[formKey] ?: GODAN) + IRREGULAR + ADJECTIVES
+        listOf(ICHIDAN) + (GODAN_BY_FORM[formKey] ?: GODAN) + GODAN_EXCEPTION + IRREGULAR + ADJECTIVES
 
     /** Every word any form might need, for loading them once. */
     val EXAMPLE_KEYS: List<String> =
-        (listOf(ICHIDAN) + GODAN + A_ROW + IRREGULAR + ADJECTIVES).distinct()
+        (listOf(ICHIDAN) + GODAN + A_ROW + GODAN_EXCEPTION + IRREGULAR + ADJECTIVES).distinct()
 
     val NOTES: List<GrammarNote> = listOf(
         GrammarNote(
@@ -129,7 +130,7 @@ object Grammar {
                 "Joins clauses: \"do this, and then that\", with the tense set by the final verb.",
                 "Makes a request with ください.",
                 "Carries ている (ongoing), てもいい (permission), てから (after) and much more.",
-                "Godan verbs change sound here in ways that have to be learned as a set.",
+                "Godan verbs fuse their last kana with て here, in ways that have to be learned as a set.",
             ),
         ),
         GrammarNote(

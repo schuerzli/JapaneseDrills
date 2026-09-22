@@ -3,6 +3,7 @@ package com.japanesedrills.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,15 +13,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -45,8 +43,9 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.StepInset
 import com.japanesedrills.ui.components.verticalScrollbar
-import com.japanesedrills.ui.theme.heading
 
 /**
  * What a step introduces, shown the first time it is opened.
@@ -135,40 +134,54 @@ fun StepIntroScreen(
                     GrammarConstruction(note, examples)
                 }
             }
+            // One card, a word to a row: a step deals a handful, well within one item.
             if (words.isNotEmpty()) {
-                item {
-                    Text(
-                        "New words in this step",
-                        style = MaterialTheme.typography.heading,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
-                    )
+                item(key = "words") {
+                    SectionCard("New words in this step") {
+                        words.forEachIndexed { i, word ->
+                            if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            WordRow(word, options)
+                        }
+                    }
                 }
             }
-            items(words, key = { it.key }) { word -> WordCard(word, options) }
         }
     }
 }
 
+/**
+ * A new word: the word and its meaning on one line, its class under them, and its example
+ * sentence inset the way a grammar card insets its steps.
+ */
 @Composable
-private fun WordCard(word: Word, options: QuizOptions) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-    ) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+private fun WordRow(word: Word, options: QuizOptions) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Row {
             val dictionary = if (options.kana) Furigana.toKana(word.dictionary) else word.dictionary
             RichText(
                 listOf(RichPart.Jp(dictionary)),
                 style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.alignByBaseline(),
             )
-            Text(word.meaning, style = MaterialTheme.typography.bodyLarge)
             Text(
-                QuizEngine.groupLabels[word.group] ?: word.group,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                word.meaning,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier
+                    .padding(start = 14.dp)
+                    .weight(1f)
+                    .alignByBaseline(),
             )
-            if (word.sentenceJp.isNotEmpty()) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        }
+        Text(
+            QuizEngine.groupLabels[word.group] ?: word.group,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (word.sentenceJp.isNotEmpty()) {
+            Column(
+                Modifier.padding(start = StepInset, top = 6.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
                 FuriganaText(
                     if (options.kana) Furigana.toKana(word.sentenceJp) else word.sentenceJp,
                     style = MaterialTheme.typography.bodyMedium,

@@ -33,11 +33,11 @@ JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug
 ```
 
 Four things are generated rather than written by hand: `words.json` (`tools/wordlist`;
-curation and sentence readings re-run alone as `merge.py --finish`), `steps.json` (`tools/steps`), and the
-palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both `tools/theme`; `--fonts`
-needs `pip install fonttools`). Edit the generator and re-run it; editing its output means
-the next run silently reverts you. `steps.json` is the one whose staleness nothing else
-catches, so it has a check of its own:
+curation and sentence readings re-run alone as `merge.py --finish`), `steps.json`
+(`tools/steps`), and the palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both
+`tools/theme`; `--fonts` needs `pip install fonttools`). Edit the generator and re-run it;
+editing its output means the next run silently reverts you. `steps.json` is the one whose
+staleness nothing else catches, so it has a check of its own:
 
 ```bash
 python tools/steps/generate.py --check
@@ -76,8 +76,8 @@ app/src/main/java/com/japanesedrills/
     ui/                  ViewModel and state
     ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice, quiz,
                          results, settings, about
-    ui/components/       furigana-aware rich text and table, shared card and switch row,
-                         scrollbars
+    ui/components/       furigana-aware rich text and table, worked changes, shared card
+                         and switch row, scrollbars
     ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
@@ -130,7 +130,8 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   old word before calling it done. The old name survives only where it describes history,
   such as the version-1 backup format of the old lesson path. The whole is the *learn
   path* (`LearnPath`), its units are *steps*; the page that explains conjugation is the
-  *Conjugation Intro* (`ConjugationIntro`).
+  *Conjugation Intro* (`ConjugationIntro`); a godan ending melting into て or た is a
+  *fusion* (`FusionColumn`, the "fusion system"), never a "sound change".
 - **The same goes for data: a word has one class everywhere** it is shown or conjugated,
   and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
   it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone
@@ -147,16 +148,18 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   two fused. The Conjugation Intro writes its marks by hand in their own markup
   (`RichPart.marked`, explained in `quiz/ConjugationIntro.kt`), read only where a caller asks
   for it, never in prose; every derived example, on the Grammar tab and in explanations, gets
-  them from the shape the explanation engine gives each step (`ChangeShape`). The colours are palette roles
-  (`MarkColors`, from `tools/theme/schemes.py`) with a second cue in weight or underline, so
-  a new mark needs a role there and must pass `--check`.
+  them from the shape the explanation engine gives each step (`ChangeShape`). The colours are
+  palette roles (`MarkColors`, from `tools/theme/schemes.py`) with a second cue in weight or
+  underline, so a new mark needs a role there and must pass `--check`.
+- **A worked change is drawn with `ui/components/Changes.kt`, never by hand**: `StepBlock`,
+  `AlignedChanges` and `ChangeRow` on the Grammar tab, in explanations, in results and in the
+  Conjugation Intro. They drifted apart once, as four different looks for one thing.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in
   the frame it scrolls in, so a card of paragraphs and tables in one item stutters a fling;
   the Conjugation Intro is one item per block for that reason
   (`ui/screens/ConjugationIntroScreen.kt`).
-
 - **A state change must not make the screen around it jump.** An element may change size,
   but not if that reshuffles a list or pushes its neighbours somewhere unpredictable. A tick
   appearing on a selected chip did exactly that: the chip widened and every chip after it
@@ -171,7 +174,6 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   honours, so type can look right here and hairline on the phone. `res/font` therefore holds
   static weights (why, in `ui/theme/Type.kt`). Never point a `Font()` at a variable file, and
   check type changes on the phone.
-
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at
   a time with a short pause.

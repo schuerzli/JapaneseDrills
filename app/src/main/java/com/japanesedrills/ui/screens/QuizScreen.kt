@@ -6,7 +6,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -81,13 +80,15 @@ import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RomajiConverter
-import com.japanesedrills.quiz.SolutionStep
 import com.japanesedrills.ui.QuizState
+import com.japanesedrills.ui.components.AlignedChanges
+import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.JapaneseLocale
 import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.tagParts
+import com.japanesedrills.ui.components.StepBlock
+import com.japanesedrills.ui.components.Subheading
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 
@@ -443,10 +444,11 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
         shape = MaterialTheme.shapes.extraLarge,
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            SectionTitle("Goal")
-            // The given word is already shown in the question card, so only the tags are compared here.
-            FormRow("from", tagParts(t.fromTags))
-            FormRow("to", tagParts(t.toTags))
+            Subheading("Goal")
+            // The given word is already shown in the question card, so only the forms are
+            // compared here, as a change like any other, with what the question changes marked.
+            val goalFrom = formParts(t.fromTags, t.toTags)
+            AlignedChanges(listOf(goalFrom)) { ChangeRow(goalFrom, formParts(t.toTags, t.fromTags)) }
             if (t.isTrick) {
                 Text(
                     "It is already in that form — this was a trick question.",
@@ -456,7 +458,7 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            SectionTitle("Root word")
+            Subheading("Root word")
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -506,7 +508,7 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            SectionTitle("Solution")
+            Subheading("Solution")
             // Asked for the dictionary form, there is nothing to build: the answer is where the
             // building starts. So show how the given form was built from it, to be undone.
             // Every focused step asks both ways, which made this half of all explanations.
@@ -525,8 +527,24 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
             } else if (solution.steps.isEmpty()) {
                 Text("This is the dictionary form itself, so nothing needs to be added.", style = body)
             }
-            solution.steps.forEachIndexed { i, step ->
-                SolutionStepView(i + 1, step, display)
+            val changes = solution.steps.map { step -> Prompts.changes(step.from.map(display), step.to.map(display), step.shape) }
+            AlignedChanges(changes.flatten().map { it.first }) {
+                Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    solution.steps.forEachIndexed { i, step ->
+                        StepBlock(
+                            number = (i + 1).takeIf { solution.steps.size > 1 },
+                            title = step.label,
+                            rule = step.rule.map {
+                                when (it) {
+                                    is RichPart.Jp -> RichPart.Jp(display(it.word))
+                                    is RichPart.Text -> it.copy(text = display(it.text))
+                                    is RichPart.Tag, is RichPart.Marked -> it
+                                }
+                            },
+                            changes = changes[i],
+                        )
+                    }
+                }
             }
 
             val proceedFocus = remember { FocusRequester() }
@@ -543,78 +561,14 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
     }
 }
 
-@Composable
-private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) -> String) {
-    // The rule is supporting text; the forms it produces are the part worth looking at.
-    val ruleStyle = MaterialTheme.typography.bodyMedium.copy(localeList = JapaneseLocale)
-    val rule = step.rule.map {
-        when (it) {
-            is RichPart.Jp -> RichPart.Jp(display(it.word))
-            is RichPart.Text -> it.copy(text = display(it.text))
-            is RichPart.Tag, is RichPart.Marked -> it
-        }
-    }
-
-    Row {
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.size(24.dp),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text("$number", style = MaterialTheme.typography.labelMedium)
-            }
-        }
-        Spacer(Modifier.width(12.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(
-                step.label,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            RichText(
-                rule,
-                style = ruleStyle,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Surface(
-                shape = MaterialTheme.shapes.medium,
-                color = MaterialTheme.colorScheme.surfaceContainerHighest,
-            ) {
-                Column(
-                    Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    for (line in Prompts.change(step.from.map(display), step.to.map(display), step.shape)) {
-                        RichText(line, style = MaterialTheme.typography.titleMedium)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionTitle(text: String) {
-    Text(
-        text.uppercase(),
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.primary,
-        letterSpacing = 1.sp,
-    )
-}
-
-/** One line of the goal: a "from"/"to" label followed by the form's tags. */
-@Composable
-private fun FormRow(label: String, parts: List<RichPart>) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            label,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(44.dp),
+/**
+ * A form's tags as the goal shows them, in words, with those not in [other] marked: the part
+ * of the form the question asks to change.
+ */
+private fun formParts(tags: List<String>, other: List<String>): List<RichPart> =
+    tags.flatMapIndexed { i, tag ->
+        listOfNotNull(
+            RichPart.Text(" ").takeIf { i > 0 },
+            RichPart.Text(if (tag == "te-form") "て-form" else tag, emphasis = tag !in other),
         )
-        RichText(parts, style = MaterialTheme.typography.bodyLarge)
     }
-}

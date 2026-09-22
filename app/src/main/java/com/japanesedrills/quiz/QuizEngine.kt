@@ -312,12 +312,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         /** The half of a skill key naming the grammar. */
         fun typeOfSkill(skill: String): String = skill.substringBefore('|')
 
-        /** The half of a skill key naming the word class. */
-        fun groupOfSkill(skill: String): String = skill.substringAfter('|')
-
         private val japaneseText = Regex(
-            // From 　, so the iteration mark 々 (々) counts as Japanese; without it
-            // words like 華々しい could not be answered in kanji at all.
+            // From U+3000 rather than the kana blocks, so the iteration mark 々 (U+3005)
+            // counts as Japanese; without it words like 華々しい could not be answered in kanji.
             "^[\\u3000-\\u30ff\\u3190-\\u319f\\u31f0-\\u31ff\\u3400-\\u4dbf\\u4e00-\\u9ffc" +
                 "\\uf900-\\ufaff\\uff00-\\uffef\\x{1b000}-\\x{1b16f}\\x{20000}-\\x{2a6dd}" +
                 "\\x{2a700}-\\x{2ebe0}\\x{2f800}-\\x{2fa1f}\\x{30000}-\\x{3134a}]+$"
