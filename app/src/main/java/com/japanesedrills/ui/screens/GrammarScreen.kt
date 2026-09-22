@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.ChangeShape
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
@@ -38,6 +39,7 @@ import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.SolutionStep
+import com.japanesedrills.quiz.SoundChange
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
@@ -227,17 +229,11 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
         word.group !in Grammar.IRREGULAR_GROUPS + Grammar.EXCEPTION_GROUPS || examples.declaresOwnRule(word, target)
     }
 
-    // A sound change is a closed list, not a rule, so godan gets the table itself instead
-    // of one sentence per example word. The rule text would only repeat a row of it, so
-    // the example shows the change happening and nothing else.
-    val fusions = Explanations.godanFusions(target)
-
     SectionCard("How it is built", "Starting from the dictionary form") {
         // Grouped by heading rather than one heading per word: する, 来る and 行く are worth
         // meeting as "the irregulars" rather than as three unrelated classes.
         shown.groupBy { (word, _) -> headingFor(word) }.entries.forEachIndexed { index, (heading, group) ->
             if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            val table = fusions?.takeIf { group.any { (word, _) -> word.group == "godan" } }
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
                     heading,
@@ -248,14 +244,6 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
                         MaterialTheme.colorScheme.onSurface
                     },
                 )
-                if (table != null) {
-                    RichTable(
-                        rows = table.map { fusion ->
-                            listOf(fusion.endings.joinToString(" · "), fusion.te, fusion.past)
-                        },
-                        header = listOf("dictionary", "て-form", "past"),
-                    )
-                }
                 // Examples after the first state only what each step's rule adds to the first
                 // one's, so 買う shows "う becomes わ" instead of the whole sentence again, and
                 // a step every word takes the same way shows just its change.
@@ -263,8 +251,14 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
                 group.forEachIndexed { i, (_, steps) ->
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         steps.forEachIndexed { j, step ->
+                            // A sound change is a closed list, not a rule, so it gets the table
+                            // itself, once, above the first step that uses it.
+                            val change = step.soundChange
+                            if (change != null && i == 0) SoundChangeTable(change)
                             val rule = when {
-                                table != null -> emptyList()
+                                // A step that is nothing but the sound change would only repeat
+                                // a row of the table, so it shows the change happening alone.
+                                change != null && step.shape == ChangeShape.Fuse() -> emptyList()
                                 i > 0 && steps.size == lead.size -> extensionOf(lead[j].rule, step.rule) ?: step.rule
                                 else -> step.rule
                             }
@@ -275,6 +269,20 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
             }
         }
     }
+}
+
+/** The godan sound changes, with only the column [change] uses beside the dictionary endings. */
+@Composable
+private fun SoundChangeTable(change: SoundChange) {
+    RichTable(
+        rows = Explanations.GODAN_FUSIONS.map { fusion ->
+            listOf(
+                fusion.endings.joinToString(" · "),
+                if (change == SoundChange.TE_FORM) fusion.te else fusion.past,
+            )
+        },
+        header = listOf("dictionary", if (change == SoundChange.TE_FORM) "て-form" else "past"),
+    )
 }
 
 /**

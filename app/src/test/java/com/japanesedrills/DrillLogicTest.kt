@@ -16,6 +16,7 @@ import com.japanesedrills.quiz.Question
 import com.japanesedrills.quiz.QuestionPool
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.RubySegment
+import com.japanesedrills.quiz.SoundChange
 import java.io.File
 import kotlin.random.Random
 import org.json.JSONObject
@@ -260,6 +261,19 @@ class DrillLogicTest {
             "Change the last kana from the う-row to the あ-row and add ない. う becomes わ, not あ.",
             (negative.rule.single() as RichPart.Text).text,
         )
+    }
+
+    @Test
+    fun marksTheStepsThatUseAGodanSoundChange() {
+        fun changes(key: String, target: String) =
+            Explanations.solution(data.words.first { it.key == key }, target).steps.map { it.soundChange }
+        assertEquals(listOf(SoundChange.TE_FORM), changes("書く", "te-form"))
+        assertEquals(listOf(SoundChange.PAST, null), changes("書く", "conditional"))
+        assertEquals(listOf(SoundChange.TE_FORM), changes("書く", "progressive"))
+        assertEquals(listOf(null), changes("書く", "negative"))
+        // 行く is the exception to the table, and 食べる never uses it.
+        assertEquals(listOf(null), changes("行く", "te-form"))
+        assertEquals(listOf(null, null), changes("食べる", "conditional"))
     }
 
     @Test

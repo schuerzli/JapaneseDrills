@@ -8,6 +8,8 @@ import com.japanesedrills.data.Word
  * at that point, so a form with two spellings is carried through each step as two, 便利では
  * ない and 便利じゃない each becoming their own past. [shape] is what the step does to the
  * last kana, for marking the change the way the Conjugation Intro marks its examples.
+ * [soundChange] is the column of the godan sound changes ([Explanations.GODAN_FUSIONS]) the
+ * step applies, when it applies one.
  */
 data class SolutionStep(
     val label: String,
@@ -15,7 +17,11 @@ data class SolutionStep(
     val from: List<String>,
     val to: List<String>,
     val shape: ChangeShape = ChangeShape.None,
+    val soundChange: SoundChange? = null,
 )
+
+/** A column of the godan sound changes: the て-form endings or the past ones. */
+enum class SoundChange { TE_FORM, PAST }
 
 /**
  * How a target form is built from the dictionary form. [steps] is empty when the target
@@ -114,9 +120,18 @@ object Explanations {
         .groupBy({ it.value }, { it.key })
         .map { (te, endings) -> Fusion(endings, te, pastOf(te)) }
 
-    /** The fusion table when [target] is built with one, or null when a row shift builds it. */
-    fun godanFusions(target: String): List<Fusion>? =
-        GODAN_FUSIONS.takeIf { target == "te-form" || target == "past" }
+    /**
+     * The sound change a step from a word of [cls] applies, if any. 行く is left out: its
+     * て-form and past are the one exception to the table, and its rule says so.
+     */
+    private fun soundChangeOf(cls: WordClass, op: Op?): SoundChange? {
+        if (cls != WordClass.GODAN && !(cls == WordClass.ARU && op != null && aruRule(op) == null)) return null
+        return when (op) {
+            Op.TE -> SoundChange.TE_FORM
+            Op.PAST -> SoundChange.PAST
+            else -> null
+        }
+    }
 
     fun solution(word: Word, target: String): Solution {
         if (target == DICTIONARY) return Solution(emptyList())
@@ -151,6 +166,8 @@ object Explanations {
                 from = from,
                 to = if (key == chain.last() && finalTags.isEmpty()) word.forms(target) else word.forms(key),
                 shape = if (rule == null) ChangeShape.None else derivationShape(previousClass, key),
+                // The progressive is built on the て-form, sound change and all.
+                soundChange = if (key == "progressive") soundChangeOf(previousClass, Op.TE) else null,
             )
             previous = key
             previousClass = if (key == "desire") WordClass.I_ADJ else WordClass.ICHIDAN
@@ -191,6 +208,7 @@ object Explanations {
                 from = from,
                 to = to,
                 shape = if (rule == null) ChangeShape.None else shape,
+                soundChange = if (built == null) soundChangeOf(previousClass, ops[stepTags]) else null,
             )
             previous = key!!
             built = stepTags
