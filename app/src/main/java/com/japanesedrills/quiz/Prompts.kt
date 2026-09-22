@@ -102,6 +102,12 @@ sealed interface ChangeShape {
             return fromParts to stemPart + toRest
         }
 
+        /** Which of [sources] [result] was built from: the one it shares the longest start with. */
+        fun sourceOf(sources: List<String>, result: String): String {
+            val target = units(result)
+            return sources.maxBy { source -> units(source).zip(target).takeWhile { (a, b) -> a == b }.size }
+        }
+
         /** Furigana notation cut into kanji-with-reading and single kana, the units a change works in. */
         private fun units(text: String): List<String> = Furigana.segments(text).flatMap { segment ->
             if (segment.reading != null) listOf("${segment.text}[${segment.reading}]") else segment.text.map(Char::toString)
@@ -138,27 +144,21 @@ object Prompts {
 
     /**
      * A worked change, "from → to", marked by [shape] the way the Conjugation Intro marks its
-     * examples. Several accepted results are listed as [wordList] lists them.
+     * examples: one line per accepted result, never several forms on one line, each starting
+     * from the one of [from] it was built from.
      */
-    fun change(from: String, to: List<String>, shape: ChangeShape): List<RichPart> {
-        if (to.isEmpty()) return listOf(RichPart.Jp(from))
-        val marked = to.map { ChangeShape.marked(from, it, shape) }
-        return marked.first().first + RichPart.Text("  →  ") + joined(marked.map { it.second })
-    }
-
-    /** "A", "A or B", "A, B or C" with each item as a Japanese word. */
-    fun wordList(words: List<String>, conjunction: String = "or"): List<RichPart> =
-        joined(words.map { listOf(RichPart.Jp(it)) }, conjunction)
-
-    private fun joined(items: List<List<RichPart>>, conjunction: String = "or"): List<RichPart> {
-        val parts = ArrayList<RichPart>()
-        items.forEachIndexed { i, item ->
-            parts += item
-            when {
-                i < items.size - 2 -> parts += RichPart.Text(", ")
-                i == items.size - 2 -> parts += RichPart.Text(" $conjunction ")
-            }
+    fun change(from: List<String>, to: List<String>, shape: ChangeShape): List<List<RichPart>> {
+        if (to.isEmpty()) return from.take(1).map { listOf(RichPart.Jp(it)) }
+        return to.map { result ->
+            val (a, b) = ChangeShape.marked(ChangeShape.sourceOf(from, result), result, shape)
+            a + RichPart.Text("  →  ") + b
         }
-        return parts
     }
+
+    /** Accepted answers, one line each: the first as it is, the others after "or". */
+    fun alternatives(words: List<String>, lead: String = ""): List<List<RichPart>> =
+        words.mapIndexed { i, word ->
+            val prefix = if (i == 0) lead else "or "
+            listOfNotNull(prefix.takeIf { it.isNotEmpty() }?.let(RichPart::Text), RichPart.Jp(word))
+        }
 }

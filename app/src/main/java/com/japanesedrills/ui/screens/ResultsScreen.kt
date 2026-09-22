@@ -270,11 +270,9 @@ private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
                     color = if (entry.correct) answerColors.correct else scheme.error,
                 )
                 if (!entry.correct) {
-                    RichText(
-                        listOf(RichPart.Text("Correct: ")) + Prompts.wordList(question.answersDisplay(options.kana)),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = answerColors.correct,
-                    )
+                    for (line in Prompts.alternatives(question.answersDisplay(options.kana), lead = "Correct: ")) {
+                        RichText(line, style = MaterialTheme.typography.bodyMedium, color = answerColors.correct)
+                    }
                 }
             }
         }

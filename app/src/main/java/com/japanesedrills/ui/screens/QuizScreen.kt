@@ -385,10 +385,9 @@ private fun ResultCard(
                 if (!correct) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("The correct answer was", style = MaterialTheme.typography.bodyLarge)
-                        RichText(
-                            parts = Prompts.wordList(quiz.question.answersDisplay(options.kana)),
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
+                        for (line in Prompts.alternatives(quiz.question.answersDisplay(options.kana))) {
+                            RichText(parts = line, style = MaterialTheme.typography.headlineSmall)
+                        }
                     }
                 }
 
@@ -583,11 +582,14 @@ private fun SolutionStepView(number: Int, step: SolutionStep, display: (String) 
                 shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.surfaceContainerHighest,
             ) {
-                RichText(
-                    Prompts.change(display(step.from), step.to.map(display), step.shape),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                )
+                Column(
+                    Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    for (line in Prompts.change(step.from.map(display), step.to.map(display), step.shape)) {
+                        RichText(line, style = MaterialTheme.typography.titleMedium)
+                    }
+                }
             }
         }
     }

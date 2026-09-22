@@ -222,9 +222,10 @@ class DrillLogicTest {
                     continue
                 }
                 assertTrue(where, solution.steps.isNotEmpty())
-                assertEquals(where, word.dictionary, solution.steps.first().from)
+                assertEquals(where, listOf(word.dictionary), solution.steps.first().from)
                 assertEquals(where, conjugation.forms, solution.steps.last().to)
-                solution.steps.zipWithNext { a, b -> assertTrue(where, b.from in a.to) }
+                // Each step builds on everything the one before produced.
+                solution.steps.zipWithNext { a, b -> assertEquals(where, a.to, b.from) }
             }
         }
     }
@@ -233,20 +234,56 @@ class DrillLogicTest {
     fun explainsStepsInOrder() {
         val word = data.words.first { it.key == "聞く" }
         val steps = Explanations.solution(word, "causative passive past negative").steps
-        assertEquals(listOf("Causative", "Causative passive", "Past negative"), steps.map { it.label })
+        assertEquals(listOf("Causative", "Causative passive", "Negative", "Past negative"), steps.map { it.label })
         assertEquals(listOf("聞[き]かせる"), steps[0].to)
         assertEquals(
             "Change the last kana from the う-row to the あ-row and add せる.",
             (steps[0].rule.single() as RichPart.Text).text,
         )
         assertEquals(RichPart.Text(" conjugates like an ichidan verb: "), steps[2].rule[1])
-        assertEquals(RichPart.Text("drop the last る and add なかった."), steps[2].rule[2])
+        assertEquals(RichPart.Text("drop the last る and add ない."), steps[2].rule[2])
+        assertEquals(
+            "The negative ends in ない, which conjugates like an い-adjective: replace the last い with かった.",
+            (steps[3].rule.single() as RichPart.Text).text,
+        )
+
+        // A verb's polite forms are built from ます, one change at a time.
+        val kaku = data.words.first { it.key == "書く" }
+        val polite = Explanations.solution(kaku, "polite past negative").steps
+        assertEquals(listOf("Polite", "Polite negative", "Polite past negative"), polite.map { it.label })
+        assertEquals(listOf("書[か]きます", "書[か]きません", "書[か]きませんでした"), polite.map { it.to.single() })
+        assertEquals(listOf("Replace ます with ません.", "Add でした."), polite.drop(1).map { (it.rule.single() as RichPart.Text).text })
 
         val kau = data.words.first { it.key == "買う" }
         val negative = Explanations.solution(kau, "negative").steps.single()
         assertEquals(
             "Change the last kana from the う-row to the あ-row and add ない. う becomes わ, not あ.",
             (negative.rule.single() as RichPart.Text).text,
+        )
+    }
+
+    @Test
+    fun carriesEachSpellingThroughItsOwnSteps() {
+        val word = data.words.first { it.key == "有名な" }
+        val (negative, past) = Explanations.solution(word, "past negative").steps
+        assertEquals(listOf("有[ゆう]名[めい]ではない", "有[ゆう]名[めい]じゃない"), negative.to)
+        // Each past negative starts from its own negative, not from the first one listed.
+        val lines = Prompts.change(past.from, past.to, past.shape).map { line ->
+            line.joinToString("") {
+                when (it) {
+                    is RichPart.Jp -> it.word
+                    is RichPart.Marked -> it.text
+                    is RichPart.Text -> it.text
+                    is RichPart.Tag -> it.text
+                }
+            }
+        }
+        assertEquals(
+            listOf(
+                "有[ゆう]名[めい]ではない  →  有[ゆう]名[めい]ではなかった",
+                "有[ゆう]名[めい]じゃない  →  有[ゆう]名[めい]じゃなかった",
+            ),
+            lines,
         )
     }
 
@@ -551,8 +588,12 @@ class DrillLogicTest {
             Prompts.question("negative", "食べる"),
         )
         assertEquals(
-            listOf(RichPart.Jp("a"), RichPart.Text(", "), RichPart.Jp("b"), RichPart.Text(" or "), RichPart.Jp("c")),
-            Prompts.wordList(listOf("a", "b", "c")),
+            listOf(
+                listOf(RichPart.Text("Correct: "), RichPart.Jp("a")),
+                listOf(RichPart.Text("or "), RichPart.Jp("b")),
+                listOf(RichPart.Text("or "), RichPart.Jp("c")),
+            ),
+            Prompts.alternatives(listOf("a", "b", "c"), lead = "Correct: "),
         )
     }
 

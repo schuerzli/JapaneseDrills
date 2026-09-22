@@ -4,14 +4,15 @@ import com.japanesedrills.data.DrillData.Companion.DICTIONARY
 import com.japanesedrills.data.Word
 
 /**
- * One step of a solution: apply [rule] to [from] to get [to] (one or more accepted forms).
- * [shape] is what the step does to the last kana, for marking the change the way the
- * Conjugation Intro marks its examples.
+ * One step of a solution: apply [rule] to [from] to get [to]. Both are every accepted form
+ * at that point, so a form with two spellings is carried through each step as two, 便利では
+ * ない and 便利じゃない each becoming their own past. [shape] is what the step does to the
+ * last kana, for marking the change the way the Conjugation Intro marks its examples.
  */
 data class SolutionStep(
     val label: String,
     val rule: List<RichPart>,
-    val from: String,
+    val from: List<String>,
     val to: List<String>,
     val shape: ChangeShape = ChangeShape.None,
 )
@@ -25,41 +26,67 @@ data class Solution(val steps: List<SolutionStep>, val usedFallback: Boolean = f
 /**
  * Builds the "Solution" part of an explanation from the dictionary form.
  *
- * A form is split into derivation steps that produce a new verb or adjective
- * (causative, passive, potential, progressive, desire) and one final inflection
- * (negative, polite, past, …). Intermediate forms come from the conjugation data,
- * so the steps always agree with the accepted answers; only the rule text is written here.
+ * Every form is built up from the dictionary form one form at a time: first the derivations
+ * that produce a new verb or adjective (causative, passive, potential, progressive, desire),
+ * then the inflections, a compound one through the simpler forms it is made of — the past
+ * negative through the negative, the polite past negative through the polite and polite
+ * negative. Only the first inflection depends on the word's class; after it the form ends
+ * in ない, ます or です, which conjugate the same whatever the word was. Every form along
+ * the way comes from the conjugation data, so the steps always agree with the accepted
+ * answers; only the rule text is written here.
  */
 object Explanations {
 
     private enum class WordClass { GODAN, ICHIDAN, SURU, KURU, IKU, ARU, IRU, I_ADJ, II, NA_ADJ }
 
-    private enum class Op {
-        NEG, PAST, PAST_NEG, POLITE, POLITE_NEG, POLITE_PAST, POLITE_PAST_NEG, POLITE_VOL,
-        TE, TE_NEG, COND, COND_NEG, PROV, PROV_NEG, IMP, IMP_NEG, VOL,
-    }
+    /** What a word conjugates as once its class stops mattering: which path an inflection takes. */
+    private enum class Kind { VERB, I_ADJ, NA_ADJ }
+
+    /** The inflections a word's class has its own rule for; the rest are built from these. */
+    private enum class Op { NEG, PAST, POLITE, TE, PROV, IMP, IMP_NEG, VOL }
 
     private val derivationTags = setOf("causative", "passive", "potential", "progressive", "desire")
 
+    private val NEGATIVE = setOf("negative")
+    private val PAST = setOf("past")
+    private val POLITE = setOf("polite")
+    private val PAST_NEGATIVE = setOf("past", "negative")
+    private val POLITE_NEGATIVE = setOf("polite", "negative")
+    private val POLITE_PAST = setOf("polite", "past")
+    private val POLITE_PAST_NEGATIVE = setOf("polite", "past", "negative")
+    private val POLITE_VOLITIONAL = setOf("polite", "volitional")
+    private val TE_NEGATIVE = setOf("te-form", "negative")
+    private val PROVISIONAL_NEGATIVE = setOf("provisional", "negative")
+    private val CONDITIONAL = setOf("conditional")
+    private val CONDITIONAL_NEGATIVE = setOf("conditional", "negative")
+
     private val ops = mapOf(
-        setOf("negative") to Op.NEG,
-        setOf("past") to Op.PAST,
-        setOf("past", "negative") to Op.PAST_NEG,
-        setOf("polite") to Op.POLITE,
-        setOf("polite", "negative") to Op.POLITE_NEG,
-        setOf("polite", "past") to Op.POLITE_PAST,
-        setOf("polite", "past", "negative") to Op.POLITE_PAST_NEG,
-        setOf("polite", "volitional") to Op.POLITE_VOL,
+        NEGATIVE to Op.NEG,
+        PAST to Op.PAST,
+        POLITE to Op.POLITE,
         setOf("te-form") to Op.TE,
-        setOf("te-form", "negative") to Op.TE_NEG,
-        setOf("conditional") to Op.COND,
-        setOf("conditional", "negative") to Op.COND_NEG,
         setOf("provisional") to Op.PROV,
-        setOf("provisional", "negative") to Op.PROV_NEG,
         setOf("imperative") to Op.IMP,
         setOf("imperative", "negative") to Op.IMP_NEG,
         setOf("volitional") to Op.VOL,
     )
+
+    /**
+     * The inflections [tags] is built through, first to last. Verbs make their polite forms
+     * from ます; adjectives add です to the plain form instead, except that a な-adjective's
+     * です is itself the polite form and has its own past, でした.
+     */
+    private fun pathOf(kind: Kind, tags: Set<String>): List<Set<String>> = when (tags) {
+        PAST_NEGATIVE, TE_NEGATIVE, PROVISIONAL_NEGATIVE -> listOf(NEGATIVE, tags)
+        CONDITIONAL -> listOf(PAST, tags)
+        CONDITIONAL_NEGATIVE -> listOf(NEGATIVE, PAST_NEGATIVE, tags)
+        POLITE_VOLITIONAL -> listOf(POLITE, tags)
+        POLITE_NEGATIVE -> if (kind == Kind.VERB) listOf(POLITE, tags) else listOf(NEGATIVE, tags)
+        POLITE_PAST -> if (kind == Kind.I_ADJ) listOf(PAST, tags) else listOf(POLITE, tags)
+        POLITE_PAST_NEGATIVE ->
+            if (kind == Kind.VERB) listOf(POLITE, POLITE_NEGATIVE, tags) else listOf(NEGATIVE, PAST_NEGATIVE, tags)
+        else -> listOf(tags)
+    }
 
     // The て-form ending that replaces each godan dictionary ending, in the order the
     // fusions are usually taught. Its keys double as the set of kana a godan verb can end
@@ -114,47 +141,100 @@ object Explanations {
         var previousClass = classOf(word.group)
 
         for (key in chain) {
-            val forms = word.forms(key)
             // A form missing from rules.json would leave the chain with nothing to build on.
-            val from = word.forms(previous).firstOrNull() ?: return Solution(steps, usedFallback = true)
+            val from = word.forms(previous).ifEmpty { return Solution(steps, usedFallback = true) }
             val rule = derivationRule(word, previousClass, previous, key)
             if (rule == null) fallback = true
             steps += SolutionStep(
                 label = key.replaceFirstChar(Char::uppercase),
                 rule = rule ?: FALLBACK,
                 from = from,
-                to = if (key == chain.last() && finalTags.isEmpty()) word.forms(target) else forms,
+                to = if (key == chain.last() && finalTags.isEmpty()) word.forms(target) else word.forms(key),
                 shape = if (rule == null) ChangeShape.None else derivationShape(previousClass, key),
             )
             previous = key
             previousClass = if (key == "desire") WordClass.I_ADJ else WordClass.ICHIDAN
         }
+        if (finalTags.isEmpty()) return Solution(steps, fallback)
 
-        if (finalTags.isNotEmpty()) {
-            val op = ops[finalTags]
-            val base = word.forms(previous).firstOrNull() ?: return Solution(steps, usedFallback = true)
-            val answers = word.forms(target)
-            var rule = op?.let { finalRule(previousClass, it, base, alternatives = answers.size > 1) }
-            val shape = if (rule == null || op == null) ChangeShape.None else finalShape(previousClass, op)
-            if (rule == null) {
-                fallback = true
-                rule = FALLBACK
-            } else if (previous != DICTIONARY) {
-                rule = derivedClassNote(previous, base) + lowercaseStart(rule)
-                if (previous == "potential" && answers.size > 1) {
-                    rule = rule + RichPart.Text(" The casual れる form takes the same ending.")
+        val kind = kindOf(previousClass)
+        val derived = tags - finalTags
+        var built: Set<String>? = null
+        for (stepTags in pathOf(kind, finalTags)) {
+            // rules.json names a derived form by its tags in no fixed order: "polite passive
+            // past negative", but "desire polite past".
+            val key = if (stepTags == finalTags) target else keyOf(word, derived + stepTags)
+            val from = word.forms(previous)
+            val to = key?.let { word.forms(it) }.orEmpty()
+            if (from.isEmpty() || to.isEmpty()) return Solution(steps, usedFallback = true)
+
+            var rule: List<RichPart>?
+            // After the first inflection a step always swaps or adds an ending, like 一段 verbs.
+            var shape: ChangeShape = ChangeShape.Drop
+            if (built == null) {
+                val op = ops[stepTags]
+                rule = op?.let { finalRule(previousClass, it, from.first()) }
+                if (op != null) shape = finalShape(previousClass, op)
+                if (rule != null && previous != DICTIONARY) {
+                    rule = derivedClassNote(previous, from.first()) + lowercaseStart(rule)
+                    if (previous == "potential" && from.size > 1) {
+                        rule = rule + RichPart.Text(" The casual れる form takes the same ending.")
+                    }
                 }
+            } else {
+                rule = continuationRule(kind, built, stepTags, alternatives = to.size > from.size)
             }
+            if (rule == null) fallback = true
             steps += SolutionStep(
-                label = orderedFinalLabel(finalTags),
-                rule = rule,
-                from = base,
-                to = answers,
-                shape = shape,
+                label = orderedFinalLabel(stepTags),
+                rule = rule ?: FALLBACK,
+                from = from,
+                to = to,
+                shape = if (rule == null) ChangeShape.None else shape,
             )
+            previous = key!!
+            built = stepTags
         }
-
         return Solution(steps, fallback)
+    }
+
+    private fun keyOf(word: Word, tags: Set<String>): String? =
+        word.conjugations.keys.firstOrNull { it.split(" ").toSet() == tags }
+
+    private fun kindOf(cls: WordClass) = when (cls) {
+        WordClass.I_ADJ, WordClass.II -> Kind.I_ADJ
+        WordClass.NA_ADJ -> Kind.NA_ADJ
+        else -> Kind.VERB
+    }
+
+    private const val NAI = "The negative ends in ない, which conjugates like an い-adjective: "
+
+    /**
+     * An inflection built on another: the rule for what [built] became, which no longer
+     * depends on the word's class. [alternatives]: whether the step adds a second, more
+     * formal spelling, as くありません does beside くないです.
+     */
+    private fun continuationRule(kind: Kind, built: Set<String>, tags: Set<String>, alternatives: Boolean): List<RichPart>? {
+        val verb = kind == Kind.VERB
+        val text = when {
+            built == NEGATIVE && tags == PAST_NEGATIVE -> NAI + "replace the last い with かった."
+            built == NEGATIVE && tags == PROVISIONAL_NEGATIVE -> NAI + "replace the last い with ければ."
+            built == NEGATIVE && tags == TE_NEGATIVE ->
+                NAI + "replace the last い with くて." + if (verb) " A verb can also keep ない and add で." else ""
+            tags == CONDITIONAL || tags == CONDITIONAL_NEGATIVE -> "Add ら to the past."
+            verb && built == POLITE && tags == POLITE_NEGATIVE -> "Replace ます with ません."
+            verb && built == POLITE && tags == POLITE_PAST -> "Replace ます with ました."
+            verb && built == POLITE && tags == POLITE_VOLITIONAL -> "Replace ます with ましょう."
+            verb && built == POLITE_NEGATIVE && tags == POLITE_PAST_NEGATIVE -> "Add でした."
+            !verb && built == NEGATIVE && tags == POLITE_NEGATIVE ->
+                if (alternatives) "Add です, or replace ない with ありません (more formal)." else "Add です."
+            !verb && built == PAST_NEGATIVE && tags == POLITE_PAST_NEGATIVE ->
+                if (alternatives) "Add です, or replace なかった with ありませんでした (more formal)." else "Add です."
+            kind == Kind.I_ADJ && built == PAST && tags == POLITE_PAST -> "Add です."
+            kind == Kind.NA_ADJ && built == POLITE && tags == POLITE_PAST -> "Replace です with でした."
+            else -> return null
+        }
+        return rule(text)
     }
 
     private val FALLBACK = listOf(RichPart.Text("Change the ending as shown."))
@@ -289,7 +369,6 @@ object Explanations {
         WordClass.GODAN, WordClass.IKU, WordClass.ARU -> when {
             cls == WordClass.ARU && aruRule(op) != null -> ChangeShape.None
             op == Op.TE || op == Op.PAST -> ChangeShape.Fuse()
-            op == Op.COND -> ChangeShape.Fuse(tail = "ら")
             else -> ChangeShape.Shift
         }
         WordClass.ICHIDAN, WordClass.IRU, WordClass.I_ADJ, WordClass.NA_ADJ -> ChangeShape.Drop
@@ -298,7 +377,7 @@ object Explanations {
 
     // Final inflections.
 
-    private fun finalRule(cls: WordClass, op: Op, base: String, alternatives: Boolean): List<RichPart>? = when (cls) {
+    private fun finalRule(cls: WordClass, op: Op, base: String): List<RichPart>? = when (cls) {
         WordClass.GODAN -> godanRule(op, lastKana(base))
         WordClass.IKU -> ikuRule(op) ?: godanRule(op, 'く')
         WordClass.ARU -> aruRule(op) ?: godanRule(op, 'る')
@@ -308,15 +387,10 @@ object Explanations {
         }
         WordClass.SURU -> suruRule(op)
         WordClass.KURU -> kuruRule(op)
-        WordClass.I_ADJ -> iAdjectiveRule(op, alternatives)
-        WordClass.II -> iiRule(op, alternatives)
+        WordClass.I_ADJ -> iAdjectiveRule(op)
+        WordClass.II -> iiRule(op)
         WordClass.NA_ADJ -> naAdjectiveRule(op)
     }
-
-    private val masuEndings = mapOf(
-        Op.POLITE to "ます", Op.POLITE_NEG to "ません", Op.POLITE_PAST to "ました",
-        Op.POLITE_PAST_NEG to "ませんでした", Op.POLITE_VOL to "ましょう",
-    )
 
     /**
      * A row shift is stated as the rule, not as the one substitution this word happens to
@@ -330,22 +404,12 @@ object Explanations {
     private fun godanRule(op: Op, u: Char): List<RichPart>? {
         val te = godanTe[u] ?: return null
         val ta = pastOf(te)
-        val aRow = "Change the last kana from the う-row to the あ-row"
         val wa = if (u == 'う') " う becomes わ, not あ." else ""
         return when (op) {
-            Op.NEG -> rule("$aRow and add ない.$wa")
-            Op.PAST_NEG -> rule("$aRow and add なかった.$wa")
-            Op.TE_NEG -> rule("$aRow and add なくて or ないで.$wa")
-            Op.COND_NEG -> rule("$aRow and add なかったら.$wa")
-            Op.PROV_NEG -> rule("$aRow and add なければ.$wa")
-            Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-                rule(
-                    "Change the last kana from the う-row to the い-row and add " +
-                        "${masuEndings.getValue(op)}.",
-                )
+            Op.NEG -> rule("Change the last kana from the う-row to the あ-row and add ない.$wa")
+            Op.POLITE -> rule("Change the last kana from the う-row to the い-row and add ます.")
             Op.TE -> rule("Godan verbs ending in $u replace it with $te.")
             Op.PAST -> rule("Godan verbs ending in $u replace it with $ta (the same sound change as the て-form $te).")
-            Op.COND -> rule("Make the past form (ending in $ta) and add ら.")
             Op.PROV -> rule("Change the last kana from the う-row to the え-row and add ば.")
             Op.IMP -> rule("Change the last kana from the う-row to the え-row.")
             Op.IMP_NEG -> rule("Add な to the dictionary form.")
@@ -356,33 +420,22 @@ object Explanations {
     private fun ikuRule(op: Op): List<RichPart>? = when (op) {
         Op.TE -> rule(jp("行[い]く"), " is the one exception to the く → いて rule: its て-form is ", jp("行[い]って"), ".")
         Op.PAST -> rule(jp("行[い]く"), " is the one exception to the く → いた rule: its past is ", jp("行[い]った"), ".")
-        Op.COND -> rule("Make the past form ", jp("行[い]った"), " (an exception to the く → いた rule) and add ら.")
         else -> null
     }
 
     private fun aruRule(op: Op): List<RichPart>? = when (op) {
         Op.NEG -> rule("ある is irregular: its negative is simply ない (never あらない).")
-        Op.PAST_NEG -> rule("ある is irregular: its negative is ない, so the past negative is なかった.")
-        Op.TE_NEG -> rule("ある is irregular: its negative is ない, so this is なくて or ないで.")
-        Op.COND_NEG -> rule("ある is irregular: its negative is ない, so this is なかったら.")
-        Op.PROV_NEG -> rule("ある is irregular: its negative is ない, so this is なければ.")
         // Only reachable if the disabled ある imperative is re-enabled in rules.json.
         Op.IMP -> rule("Change the last る to its え-row kana れ. This form of ある is rare.")
         else -> null
     }
 
-    private fun ichidanRule(op: Op): List<RichPart>? = when (op) {
+    private fun ichidanRule(op: Op): List<RichPart> = when (op) {
         Op.NEG -> rule("Drop the last る and add ない.")
-        Op.PAST_NEG -> rule("Drop the last る and add なかった.")
-        Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-            rule("Drop the last る and add ${masuEndings.getValue(op)}.")
+        Op.POLITE -> rule("Drop the last る and add ます.")
         Op.PAST -> rule("Drop the last る and add た.")
         Op.TE -> rule("Drop the last る and add て.")
-        Op.TE_NEG -> rule("Drop the last る and add なくて or ないで.")
-        Op.COND -> rule("Drop the last る and add たら (the past form plus ら).")
-        Op.COND_NEG -> rule("Drop the last る and add なかったら.")
         Op.PROV -> rule("Change the last る to れ and add ば.")
-        Op.PROV_NEG -> rule("Drop the last る and add なければ.")
         Op.IMP -> rule("Drop the last る and add ろ.")
         Op.IMP_NEG -> rule("Add な to the dictionary form.")
         Op.VOL -> rule("Drop the last る and add よう.")
@@ -390,16 +443,10 @@ object Explanations {
 
     private fun suruRule(op: Op): List<RichPart> = when (op) {
         Op.NEG -> rule("する becomes し, then add ない.")
-        Op.PAST_NEG -> rule("する becomes し, then add なかった.")
-        Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-            rule("する becomes し, then add ${masuEndings.getValue(op)}.")
+        Op.POLITE -> rule("する becomes し, then add ます.")
         Op.PAST -> rule("する becomes し, then add た.")
         Op.TE -> rule("する becomes し, then add て.")
-        Op.TE_NEG -> rule("する becomes し, then add なくて or ないで.")
-        Op.COND -> rule("する becomes し, then add たら.")
-        Op.COND_NEG -> rule("する becomes し, then add なかったら.")
         Op.PROV -> rule("する becomes すれ, then add ば.")
-        Op.PROV_NEG -> rule("する becomes し, then add なければ.")
         Op.IMP -> rule("する becomes しろ, or せよ in formal writing.")
         Op.IMP_NEG -> rule("Add な to the dictionary form: するな.")
         Op.VOL -> rule("する becomes し, then add よう.")
@@ -412,15 +459,9 @@ object Explanations {
         val irregular = "来[く]る is irregular. "
         return when (op) {
             Op.NEG -> rule(irregular, "Before ない it becomes ", ko, ": add ない.")
-            Op.PAST_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なかった.")
-            Op.TE_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なくて or ないで.")
-            Op.COND_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なかったら.")
-            Op.PROV_NEG -> rule(irregular, "Before ない it becomes ", ko, ": add なければ.")
-            Op.POLITE, Op.POLITE_NEG, Op.POLITE_PAST, Op.POLITE_PAST_NEG, Op.POLITE_VOL ->
-                rule(irregular, "Before ${masuEndings.getValue(op)} it becomes ", ki, ": add ${masuEndings.getValue(op)}.")
+            Op.POLITE -> rule(irregular, "Before ます it becomes ", ki, ": add ます.")
             Op.PAST -> rule(irregular, "Before た it becomes ", ki, ": add た.")
             Op.TE -> rule(irregular, "Before て it becomes ", ki, ": add て.")
-            Op.COND -> rule(irregular, "Before たら it becomes ", ki, ": add たら.")
             Op.PROV -> rule(irregular, "Before ば it keeps the reading ", ku, ": add れば.")
             Op.IMP -> rule(irregular, "Its imperative is ", jp("来[こ]い"), ".")
             Op.IMP_NEG -> rule("Add な to the dictionary form: ", jp("来[く]るな"), ".")
@@ -428,31 +469,17 @@ object Explanations {
         }
     }
 
-    /** [alternatives]: whether the formal ありません variants are accepted as well. */
-    private fun iAdjectiveRule(op: Op, alternatives: Boolean): List<RichPart>? = when (op) {
+    private fun iAdjectiveRule(op: Op): List<RichPart>? = when (op) {
         Op.NEG -> rule("Replace the last い with く and add ない.")
-        Op.PAST_NEG -> rule("Replace the last い with く and add なかった.")
         Op.PAST -> rule("Replace the last い with かった.")
         Op.POLITE -> rule("Add です.")
-        Op.POLITE_NEG -> if (alternatives) {
-            rule("Replace the last い with くないです, or with くありません (more formal).")
-        } else {
-            rule("Replace the last い with くない and add です.")
-        }
-        Op.POLITE_PAST -> rule("Replace the last い with かった and add です.")
-        Op.POLITE_PAST_NEG -> if (alternatives) {
-            rule("Replace the last い with くなかったです, or with くありませんでした (more formal).")
-        } else {
-            rule("Replace the last い with くなかった and add です.")
-        }
         Op.TE -> rule("Replace the last い with くて.")
-        Op.TE_NEG -> rule("Replace the last い with く and add なくて.")
         else -> null
     }
 
-    private fun iiRule(op: Op, alternatives: Boolean): List<RichPart>? {
+    private fun iiRule(op: Op): List<RichPart>? {
         if (op == Op.POLITE) return rule("Add です: いいです.")
-        val base = iAdjectiveRule(op, alternatives) ?: return null
+        val base = iAdjectiveRule(op) ?: return null
         return rule("いい conjugates from its older form ", jp("良[よ]い"), ". ") + base
     }
 
@@ -460,19 +487,9 @@ object Explanations {
         val intro = rule("な-adjectives are listed here with だ. ")
         val body = when (op) {
             Op.NEG -> rule("Replace だ with ではない, or with the more casual じゃない.")
-            Op.PAST_NEG -> rule("Replace だ with ではなかった, or with the more casual じゃなかった.")
             Op.PAST -> rule("Replace だ with だった.")
             Op.POLITE -> rule("Replace だ with です.")
-            Op.POLITE_NEG ->
-                rule("Replace だ with ではありません or じゃありません, or with ではないです or じゃないです.")
             Op.TE -> rule("Replace だ with で.")
-            Op.TE_NEG -> rule("Replace だ with ではなくて, or with the more casual じゃなくて.")
-            Op.POLITE_PAST -> rule("Replace だ with でした.")
-            Op.POLITE_PAST_NEG ->
-                rule(
-                    "Replace だ with ではありませんでした or じゃありませんでした, " +
-                        "or with ではなかったです or じゃなかったです.",
-                )
             else -> return null
         }
         return intro + body

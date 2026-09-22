@@ -256,15 +256,16 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
                         header = listOf("dictionary", "て-form", "past"),
                     )
                 }
-                // Examples after the first state only what their rule adds to the first
-                // one's, so 買う shows "う becomes わ" instead of the whole sentence again.
-                val lead = group.first().second.singleOrNull()?.rule
+                // Examples after the first state only what each step's rule adds to the first
+                // one's, so 買う shows "う becomes わ" instead of the whole sentence again, and
+                // a step every word takes the same way shows just its change.
+                val lead = group.first().second
                 group.forEachIndexed { i, (_, steps) ->
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        for (step in steps) {
+                        steps.forEachIndexed { j, step ->
                             val rule = when {
                                 table != null -> emptyList()
-                                i > 0 && lead != null && steps.size == 1 -> extensionOf(lead, step.rule) ?: step.rule
+                                i > 0 && steps.size == lead.size -> extensionOf(lead[j].rule, step.rule) ?: step.rule
                                 else -> step.rule
                             }
                             StepLine(step, rule)
@@ -311,9 +312,8 @@ private fun StepLine(step: SolutionStep, rule: List<RichPart>) {
         // The arrow is a character in the same run of text, the way the quiz's solution
         // renders it, so it shares the baseline. An icon beside the text cannot: furigana
         // makes the Japanese taller at the top, and centring floats the arrow above the words.
-        RichText(
-            Prompts.change(step.from, step.to, step.shape),
-            style = MaterialTheme.typography.bodyLarge,
-        )
+        for (line in Prompts.change(step.from, step.to, step.shape)) {
+            RichText(line, style = MaterialTheme.typography.bodyLarge)
+        }
     }
 }
