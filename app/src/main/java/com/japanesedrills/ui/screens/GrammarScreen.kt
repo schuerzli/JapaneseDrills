@@ -232,7 +232,7 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
     SectionCard("How it is built", "Starting from the dictionary form") {
         // Grouped by heading rather than one heading per word: する, 来る and 行く are worth
         // meeting as "the irregulars" rather than as three unrelated classes.
-        shown.groupBy { (word, _) -> headingFor(word) }.entries.forEachIndexed { index, (heading, group) ->
+        grouped(shown).forEachIndexed { index, (heading, group) ->
             if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Text(
@@ -300,6 +300,18 @@ private fun extensionOf(shown: List<RichPart>, rule: List<RichPart>): List<RichP
     if (!head.text.endsWith(".") || !same.text.startsWith(head.text)) return null
     val rest = same.text.removePrefix(head.text).trimStart()
     return listOfNotNull(same.copy(text = rest).takeIf { rest.isNotEmpty() }) + rule.drop(shown.size)
+}
+
+/**
+ * [shown] under its headings, in example order except that the godan verbs with an exception,
+ * 行く and ある, follow the godan verbs: they are godan verbs, not irregular ones.
+ */
+private fun grouped(shown: List<Pair<Word, List<SolutionStep>>>): List<Pair<String, List<Pair<Word, List<SolutionStep>>>>> {
+    val groups = shown.groupBy { (word, _) -> headingFor(word) }.toList()
+    fun classOf(group: Pair<String, List<Pair<Word, List<SolutionStep>>>>) = group.second.first().first.group
+    val exceptions = groups.filter { classOf(it) in setOf("iku", "aru") }
+    if (groups.none { classOf(it) == "godan" }) return groups
+    return (groups - exceptions.toSet()).flatMap { if (classOf(it) == "godan") listOf(it) + exceptions else listOf(it) }
 }
 
 private fun headingFor(word: Word): String =
