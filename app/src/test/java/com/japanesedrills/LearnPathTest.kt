@@ -281,12 +281,12 @@ class LearnPathTest {
     }
 
     /**
-     * The sound changes are shown as a table rather than derived per example word, so the
+     * The fusions are shown as a table rather than derived per example word, so the
      * table has to be the whole story: every change a godan verb in the word list can
      * undergo must be a row in it.
      */
     @Test
-    fun theFusionTableCoversEverySoundChange() {
+    fun theFusionTableCoversEveryFusion() {
         fun ending(word: Word): String? = word.conjugations["te-form"]?.forms?.firstOrNull()?.takeLast(2)
 
         val everyChange = data.words.filter { it.group == "godan" }.mapNotNull(::ending).toSet()

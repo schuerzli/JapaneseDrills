@@ -116,7 +116,7 @@ object Grammar {
             summary = "Something already happened, or a state that held before now.",
             notes = listOf(
                 "Japanese has no separate perfect tense: 食[た]べた covers \"ate\" and \"have eaten\".",
-                "The plain past uses the same sound changes as the て-form, so learning one " +
+                "The plain past uses the same fusions as the て-form, so learning one " +
                     "gives you the other.",
                 "In front of a noun the plain past describes it: 買[か]った本[ほん] — the book I bought.",
             ),
@@ -187,7 +187,7 @@ object Grammar {
                 "Works for one-off and hypothetical conditions alike.",
                 "In the past it can mean \"when I did X, it turned out that…\" — a discovery " +
                     "rather than a condition.",
-                "Built straight from the past form, so the sound changes are ones you know.",
+                "Built straight from the past form, so the fusions are ones you know.",
             ),
         ),
         GrammarNote(

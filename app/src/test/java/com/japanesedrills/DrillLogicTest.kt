@@ -6,6 +6,7 @@ import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.ConjugationIntroBlock
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.Mark
 import com.japanesedrills.quiz.QuizEngine
@@ -16,7 +17,6 @@ import com.japanesedrills.quiz.Question
 import com.japanesedrills.quiz.QuestionPool
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.RubySegment
-import com.japanesedrills.quiz.SoundChange
 import java.io.File
 import kotlin.random.Random
 import org.json.JSONObject
@@ -264,12 +264,12 @@ class DrillLogicTest {
     }
 
     @Test
-    fun marksTheStepsThatUseAGodanSoundChange() {
+    fun marksTheStepsThatUseAGodanFusion() {
         fun changes(key: String, target: String) =
-            Explanations.solution(data.words.first { it.key == key }, target).steps.map { it.soundChange }
-        assertEquals(listOf(SoundChange.TE_FORM), changes("書く", "te-form"))
-        assertEquals(listOf(SoundChange.PAST, null), changes("書く", "conditional"))
-        assertEquals(listOf(SoundChange.TE_FORM), changes("書く", "progressive"))
+            Explanations.solution(data.words.first { it.key == key }, target).steps.map { it.fusion }
+        assertEquals(listOf(FusionColumn.TE_FORM), changes("書く", "te-form"))
+        assertEquals(listOf(FusionColumn.PAST, null), changes("書く", "conditional"))
+        assertEquals(listOf(FusionColumn.TE_FORM), changes("書く", "progressive"))
         assertEquals(listOf(null), changes("書く", "negative"))
         // 行く is the exception to the table, and 食べる never uses it.
         assertEquals(listOf(null), changes("行く", "te-form"))

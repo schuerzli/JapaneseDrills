@@ -62,7 +62,7 @@ rather than three steps of two questions.
 
 - **negative first**, because it is where the godan/ichidan split shows: 書かない against
   食べない. Everything after it is built on that split.
-- **past, then て**, which share one set of sound changes: the past first, so the て-form
+- **past, then て**, which share one fusion table: the past first, so the て-form
   arrives as "the same change, a different ending".
 - **the irregular verbs after those three**, so there are forms for them to be irregular in.
   In the first step they would be the rule and three exceptions at once.

@@ -16,9 +16,9 @@ import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.RichPart
 
 /**
- * A small table of Japanese cells: the kana grid and the sound changes in the Conjugation
+ * A small table of Japanese cells: the kana grid and the fusion table in the Conjugation
  * Intro, and
- * the same sound changes in the grammar reference.
+ * the same fusions in the grammar reference.
  *
  * Cells share the width evenly, which caps a readable table at about nine columns on a
  * phone — the reason the kana grid has no row-label column. Cells go through [RichText],

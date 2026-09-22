@@ -77,8 +77,8 @@ data class QuizOptions(
     fun withPreset(preset: PracticePreset, practisedForms: Set<String>, practisedGroups: Set<String>): QuizOptions =
         when (preset) {
             PracticePreset.Practised -> select(practisedForms, practisedGroups)
-            // て and た are one sound change, so the focus is the switch between them and the
-            // forms without it. Godan is where the change is; 行く is its exception.
+            // て and た share one fusion table, so the focus is the switch between them and the
+            // forms without it. Godan is where the fusions are; 行く is its exception.
             PracticePreset.TeTa -> select(setOf("plain", "past", "te-form"), setOf("godan", "iku"), FOCUS_TETAKEI)
             PracticePreset.Everything -> select(FORM_KEYS, GROUP_KEYS)
         }

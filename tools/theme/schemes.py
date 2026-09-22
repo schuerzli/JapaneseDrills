@@ -141,7 +141,7 @@ LATTE_LIGHT = scheme(
     error="#9C3B2E", onError="#FFFFFF", errorContainer="#FBD9D0", onErrorContainer="#40120B",
     surface="#FCF7F1", onSurface="#2B1D16",
     surfaceVariant="#EFE2D5", onSurfaceVariant="#544337",
-    outline="#8D7767", outlineVariant="#DECBB9",
+    outline="#867162", outlineVariant="#DECBB9",
     inverseSurface="#33241C", inverseOnSurface="#F7EDE3",
     surfaceContainerLow="#FFFFFF", surfaceContainer="#F8EFE6",
     surfaceContainerHigh="#F3E8DC", surfaceContainerHighest="#EDE0D2",
@@ -175,7 +175,7 @@ KISSATEN_LIGHT = scheme(
     error="#96342A", onError="#FFFFFF", errorContainer="#F6D3CB", onErrorContainer="#3A0F09",
     surface="#F4EDE4", onSurface="#241A14",
     surfaceVariant="#E3D6C5", onSurfaceVariant="#4B3D31",
-    outline="#8A7461", outlineVariant="#CDBCA6",
+    outline="#816C5B", outlineVariant="#CDBCA6",
     inverseSurface="#241A14", inverseOnSurface="#F2E6D8",
     surfaceContainerLow="#FBF6EE", surfaceContainer="#EFE6DA",
     surfaceContainerHigh="#E9DED0", surfaceContainerHighest="#E2D5C4",
@@ -203,7 +203,7 @@ WASHI_LIGHT = scheme(
     error="#A03225", onError="#FFFFFF", errorContainer="#FAD6CD", onErrorContainer="#3B0E07",
     surface="#F7F3EC", onSurface="#241C17",
     surfaceVariant="#EAE3D8", onSurfaceVariant="#4C423A",
-    outline="#9A8E80", outlineVariant="#D9D0C3",
+    outline="#7F7365", outlineVariant="#D9D0C3",
     inverseSurface="#2E2620", inverseOnSurface="#F7F3EC",
     surfaceContainerLow="#FFFFFF", surfaceContainer="#FCF9F4",
     surfaceContainerHigh="#F2EDE5", surfaceContainerHighest="#EBE5DB",
@@ -230,7 +230,7 @@ CARAMEL_LIGHT = scheme(
     error="#9B3526", onError="#FFFFFF", errorContainer="#FBD7CD", onErrorContainer="#3C0F07",
     surface="#FDF8F2", onSurface="#2E2118",
     surfaceVariant="#EFE1D0", onSurfaceVariant="#504033",
-    outline="#907B67", outlineVariant="#DFCDB8",
+    outline="#867260", outlineVariant="#DFCDB8",
     inverseSurface="#2E2118", inverseOnSurface="#FDF8F2",
     surfaceContainerLow="#FFFFFF", surfaceContainer="#F9F0E5",
     surfaceContainerHigh="#F4E9DB", surfaceContainerHighest="#EEE1D0",
@@ -257,7 +257,7 @@ MOCHA_LIGHT = scheme(
     error="#98362A", onError="#FFFFFF", errorContainer="#F8D6CD", onErrorContainer="#3A1009",
     surface="#FAF4EA", onSurface="#271E14",
     surfaceVariant="#EBE0CE", onSurfaceVariant="#4F4232",
-    outline="#8C7D67", outlineVariant="#D4C6AE",
+    outline="#7F715D", outlineVariant="#D4C6AE",
     inverseSurface="#271E14", inverseOnSurface="#FAF4EA",
     surfaceContainerLow="#FFFCF6", surfaceContainer="#F5EDE1",
     surfaceContainerHigh="#EFE6D8", surfaceContainerHighest="#E8DECE",
@@ -330,7 +330,10 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
             for bg in ("surface", "surfaceContainerLow", "surfaceContainer",
                        "surfaceContainerHigh", "surfaceContainerHighest")]
          # The Conjugation Intro's marked kana: on its cards, and on the tables inside them.
-         + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")])
+         + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")]
+         # The step numbers on the grammar cards, set in the outline colour so they stay quieter
+         # than the text they number.
+         + [("outline", "surfaceContainerLow")])
 
 # 4.5:1 is the floor for ordinary text. onSurfaceVariant is held to 7:1, because it is only
 # ever the smallest type on screen — subtitles, counts, captions — where 4.5:1 leaves too

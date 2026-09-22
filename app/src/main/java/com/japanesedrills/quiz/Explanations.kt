@@ -8,8 +8,8 @@ import com.japanesedrills.data.Word
  * at that point, so a form with two spellings is carried through each step as two, 便利では
  * ない and 便利じゃない each becoming their own past. [shape] is what the step does to the
  * last kana, for marking the change the way the Conjugation Intro marks its examples.
- * [soundChange] is the column of the godan sound changes ([Explanations.GODAN_FUSIONS]) the
- * step applies, when it applies one.
+ * [fusion] is the column of the godan fusion table ([Explanations.GODAN_FUSIONS]) the step
+ * applies, when it applies one.
  */
 data class SolutionStep(
     val label: String,
@@ -17,11 +17,11 @@ data class SolutionStep(
     val from: List<String>,
     val to: List<String>,
     val shape: ChangeShape = ChangeShape.None,
-    val soundChange: SoundChange? = null,
+    val fusion: FusionColumn? = null,
 )
 
-/** A column of the godan sound changes: the て-form endings or the past ones. */
-enum class SoundChange { TE_FORM, PAST }
+/** A column of the godan fusion table: the て-form endings or the past ones. */
+enum class FusionColumn { TE_FORM, PAST }
 
 /**
  * How a target form is built from the dictionary form. [steps] is empty when the target
@@ -105,11 +105,11 @@ object Explanations {
     /** The past ending for a て ending: the same fusion with a different tail. */
     private fun pastOf(te: String) = te.dropLast(1) + if (te.last() == 'て') "た" else "だ"
 
-    /** One row of the godan sound changes: the endings that fuse the same way. */
+    /** One row of the godan fusion table: the endings that fuse the same way. */
     data class Fusion(val endings: List<Char>, val te: String, val past: String)
 
     /**
-     * The godan sound changes as a closed table, grouped by the ending they share.
+     * The godan fusions as a closed table, grouped by the ending they share.
      *
      * This is the one part of a conjugation that no rule can summarise — it has to be
      * learned as a list — so the reference shows the list rather than a rule per example
@@ -121,14 +121,14 @@ object Explanations {
         .map { (te, endings) -> Fusion(endings, te, pastOf(te)) }
 
     /**
-     * The sound change a step from a word of [cls] applies, if any. 行く is left out: its
+     * The fusion a step from a word of [cls] applies, if any. 行く is left out: its
      * て-form and past are the one exception to the table, labelled irregular instead.
      */
-    private fun soundChangeOf(cls: WordClass, op: Op?): SoundChange? {
+    private fun fusionOf(cls: WordClass, op: Op?): FusionColumn? {
         if (cls != WordClass.GODAN && !(cls == WordClass.ARU && op != null && aruRule(op) == null)) return null
         return when (op) {
-            Op.TE -> SoundChange.TE_FORM
-            Op.PAST -> SoundChange.PAST
+            Op.TE -> FusionColumn.TE_FORM
+            Op.PAST -> FusionColumn.PAST
             else -> null
         }
     }
@@ -166,8 +166,8 @@ object Explanations {
                 from = from,
                 to = if (key == chain.last() && finalTags.isEmpty()) word.forms(target) else word.forms(key),
                 shape = if (rule == null) ChangeShape.None else derivationShape(previousClass, key),
-                // The progressive is built on the て-form, sound change and all.
-                soundChange = if (key == "progressive") soundChangeOf(previousClass, Op.TE) else null,
+                // The progressive is built on the て-form, fusion and all.
+                fusion = if (key == "progressive") fusionOf(previousClass, Op.TE) else null,
             )
             previous = key
             previousClass = if (key == "desire") WordClass.I_ADJ else WordClass.ICHIDAN
@@ -208,7 +208,7 @@ object Explanations {
                 from = from,
                 to = to,
                 shape = if (rule == null) ChangeShape.None else shape,
-                soundChange = if (built == null) soundChangeOf(previousClass, ops[stepTags]) else null,
+                fusion = if (built == null) fusionOf(previousClass, ops[stepTags]) else null,
             )
             previous = key!!
             built = stepTags
@@ -432,7 +432,7 @@ object Explanations {
             Op.NEG -> rule("Change the last kana from the う-row to the あ-row and add ない.$wa")
             Op.POLITE -> rule("Change the last kana from the う-row to the い-row and add ます.")
             Op.TE -> rule("Godan verbs ending in $u replace it with $te.")
-            Op.PAST -> rule("Godan verbs ending in $u replace it with $ta (the same sound change as the て-form $te).")
+            Op.PAST -> rule("Godan verbs ending in $u replace it with $ta (the same fusion as the て-form $te).")
             Op.PROV -> rule("Change the last kana from the う-row to the え-row and add ば.")
             Op.IMP -> rule("Change the last kana from the う-row to the え-row.")
             Op.IMP_NEG -> rule("Add な to the dictionary form.")

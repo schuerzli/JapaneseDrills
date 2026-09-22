@@ -149,11 +149,12 @@ object Prompts {
      */
     fun change(from: List<String>, to: List<String>, shape: ChangeShape): List<List<RichPart>> {
         if (to.isEmpty()) return from.take(1).map { listOf(RichPart.Jp(it)) }
-        return to.map { result ->
-            val (a, b) = ChangeShape.marked(ChangeShape.sourceOf(from, result), result, shape)
-            a + RichPart.Text("  →  ") + b
-        }
+        return changes(from, to, shape).map { (a, b) -> a + RichPart.Text("  →  ") + b }
     }
+
+    /** [change] as its two halves, for a layout that lines the arrows up. */
+    fun changes(from: List<String>, to: List<String>, shape: ChangeShape): List<Pair<List<RichPart>, List<RichPart>>> =
+        to.map { result -> ChangeShape.marked(ChangeShape.sourceOf(from, result), result, shape) }
 
     /** Accepted answers, one line each: the first as it is, the others after "or". */
     fun alternatives(words: List<String>, lead: String = ""): List<List<RichPart>> =
