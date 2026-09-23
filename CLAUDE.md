@@ -74,8 +74,8 @@ app/src/main/java/com/japanesedrills/
                          grammar reference, Conjugation Intro, learn path, spaced
                          repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice, quiz,
-                         results, settings, about
+    ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice,
+                         word sets, quiz, results, settings, about
     ui/components/       furigana-aware rich text and table, worked changes, shared card
                          and switch row, scrollbars
     ui/theme/            the palettes (generated), the type scale and the shapes
@@ -114,10 +114,13 @@ These look like mistakes without their reason. Check here before "fixing" one.
   the app does no bookkeeping; what is known by which point is worked out in the generator.
   Steps are an array, not an object keyed by id, because JSON key order is preserved by
   Android's `JSONObject` and not by the `org.json` used in unit tests.
-- **Progress is the only state that cannot be rebuilt from the assets.** Wiping
+- **Progress is the only state that cannot be rebuilt from the assets**, and the word sets
+  the learner puts together ride in the same document for that reason. Wiping
   `ProgressStore` throws away real work, so it is written through on every answer and
   only cleared behind a confirmation. It can also be copied out as text, so the encoded
-  shape is something other people hold copies of, not merely an internal detail.
+  shape is something other people hold copies of, not merely an internal detail. A set
+  names word keys, and regenerating `words.json` can retire one, so a set drops keys it no
+  longer knows rather than refusing to open.
 
 Why the path is ordered the way it is, why nothing on it is locked, and why review
 schedules skills rather than questions, is in `tools/steps/README.md`.

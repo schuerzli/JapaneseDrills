@@ -133,12 +133,18 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     private var nextId = 0
 
     /**
+     * The sets the learner has made, which only their progress knows; the built-in ones come
+     * from the word list itself. Kept in step by the ViewModel as progress changes.
+     */
+    var customSets: Map<String, CustomSet> = emptyMap()
+
+    /**
      * Whether the word is one of those being drawn on, before the grid has its say: it is in
      * one of the chosen sets, and in the vocabulary a step or a review pins.
      */
     private fun sourcesWord(word: Word, options: QuizOptions): Boolean =
         (options.wordKeys?.contains(word.key) ?: true) &&
-            (options.allWords || options.sets.any { WordSets.holds(it, word) })
+            (options.allWords || options.sets.any { WordSets.holds(it, word, customSets) })
 
     /** Whether the options allow this word at all, whatever the transformation. */
     private fun allowsWord(word: Word, options: QuizOptions): Boolean =
@@ -146,7 +152,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
 
     /** How many words each set holds, for the practice screen to show beside its name. */
     fun setSizes(): Map<String, Int> =
-        WordSets.IDS.associateWith { id -> data.words.count { WordSets.holds(id, it) } }
+        (WordSets.IDS + customSets.keys).associateWith { id ->
+            data.words.count { WordSets.holds(id, it, customSets) }
+        }
 
     /**
      * The grid columns the chosen words fall into, switched on or not: what the grid has

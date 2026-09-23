@@ -1,6 +1,7 @@
 package com.japanesedrills.quiz
 
 import android.content.Context
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -71,8 +72,14 @@ data class Progress(
     val skills: Map<String, SrsState> = emptyMap(),
     val words: Map<String, SrsState> = emptyMap(),
     val leeches: Map<String, Int> = emptyMap(),
+    /**
+     * The word sets the learner has put together, by id. Not earned like the rest of this,
+     * but their work all the same, and as impossible to rebuild from the assets — so it is
+     * stored and backed up in the same document.
+     */
+    val sets: Map<String, CustomSet> = emptyMap(),
 ) {
-    val isEmpty: Boolean get() = steps.isEmpty() && skills.isEmpty() && words.isEmpty()
+    val isEmpty: Boolean get() = steps.isEmpty() && skills.isEmpty() && words.isEmpty() && sets.isEmpty()
 
     /**
      * How many skills are ready to be reviewed: the one definition of "due" for the UI.
@@ -99,9 +106,10 @@ object ProgressCodec {
 
     /**
      * Bumped only when the shape changes; [decode] refuses any other version. Version 1 was
-     * the gated lesson path, whose records mean nothing on the step path.
+     * the gated lesson path, whose records mean nothing on the step path; version 2 was
+     * before the learner could put word sets together.
      */
-    const val VERSION = 2
+    const val VERSION = 3
 
     /** [indent] > 0 pretty-prints, which is what makes an exported backup readable. */
     fun encode(progress: Progress, indent: Int = 0): String {
@@ -140,6 +148,17 @@ object ProgressCodec {
             leeches = root.optJSONObject("leeches")?.let { obj ->
                 obj.keys().asSequence().associateWith { obj.getInt(it) }
             }.orEmpty(),
+            sets = root.optJSONObject("sets")?.let { obj ->
+                obj.keys().asSequence().associateWith { id ->
+                    val set = obj.getJSONObject(id)
+                    val words = set.getJSONArray("words")
+                    CustomSet(
+                        id = id,
+                        name = set.getString("name"),
+                        words = (0 until words.length()).mapTo(LinkedHashSet()) { words.getString(it) },
+                    )
+                }
+            }.orEmpty(),
         )
     }
 
@@ -157,6 +176,14 @@ object ProgressCodec {
         put("skills", progress.skills.toJson())
         put("words", progress.words.toJson())
         put("leeches", JSONObject().apply { progress.leeches.forEach { (k, v) -> put(k, v) } })
+        put("sets", JSONObject().apply {
+            progress.sets.forEach { (id, set) ->
+                put(id, JSONObject().apply {
+                    put("name", set.name)
+                    put("words", JSONArray(set.words.toList()))
+                })
+            }
+        })
     }
 
     private fun Map<String, SrsState>.toJson() = JSONObject().apply {

@@ -2,6 +2,7 @@ package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.LearnPath
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
@@ -15,6 +16,7 @@ import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
 import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.quiz.TransformationBuilder
+import com.japanesedrills.quiz.WordSets
 import java.io.File
 import kotlin.random.Random
 import org.junit.Assert.assertEquals
@@ -477,6 +479,7 @@ class LearnPathTest {
             skills = mapOf("past|godan" to SrsState(step = 2, ease = 1.1, due = 20715, reps = 5, lapses = 1)),
             words = mapOf("教える" to SrsState(step = 0, ease = 0.85, due = 20700, reps = 2, lapses = 2)),
             leeches = mapOf("教える|politeness" to 3),
+            sets = mapOf("set1" to CustomSet("set1", "Tricky godan", setOf("帰る", "使える"))),
         )
         assertEquals(original, ProgressCodec.decode(ProgressCodec.encode(original)))
         // Pretty-printing is only whitespace; it must decode to exactly the same thing.
@@ -499,6 +502,48 @@ class LearnPathTest {
         assertNull(ProgressCodec.decodeOrNull("{}"))
         assertNull(ProgressCodec.decodeOrNull("""{"lessons":{},"skills":{}}"""))
         assertNull(ProgressCodec.decodeOrNull("""{"version":999,"skills":{}}"""))
+    }
+
+    /**
+     * A set is the learner's own work and cannot be rebuilt from the assets, so it travels
+     * with the progress rather than living only on the device it was made on.
+     */
+    @Test
+    fun aBackupCarriesTheWordSets() {
+        val text = ProgressCodec.encode(
+            Progress(sets = mapOf("set1" to CustomSet("set1", "Kanji I keep missing", setOf("教える")))),
+            indent = 2,
+        )
+        assertTrue(text.contains("Kanji I keep missing"))
+        val back = ProgressCodec.decode(text).sets.getValue("set1")
+        assertEquals("Kanji I keep missing", back.name)
+        assertEquals(setOf("教える"), back.words)
+    }
+
+    /** A set draws exactly its own words, and stacks with the built-in ones like any other. */
+    @Test
+    fun aCustomSetDrawsItsOwnWords() {
+        val words = data.words.take(5).map { it.key }.toSet()
+        val engine = QuizEngine(data)
+        engine.customSets = mapOf("set1" to CustomSet("set1", "Mine", words))
+        val options = QuizOptions()
+            .select(QuizOptions.FORM_KEYS, QuizOptions.GROUP_KEYS)
+            .copy(allWords = false, sets = setOf("set1"))
+
+        val pool = engine.buildPool(options)
+        assertTrue(pool.size > 0)
+        assertEquals(words.size, pool.words)
+        val partial = engine.buildPool(options.withSet(WordSets.PARTIAL, true))
+        assertEquals(words.size + WordSets.PARTIAL_GROUPS.size, partial.words)
+    }
+
+    /** Two sets never share an id, or switching one on would draw the other's words. */
+    @Test
+    fun aNewSetGetsAnIdOfItsOwn() {
+        val taken = HashSet<String>()
+        repeat(3) { taken += WordSets.newId(taken) }
+        assertEquals(3, taken.size)
+        assertTrue(taken.none { it in WordSets.IDS })
     }
 
     /** Version 1 was the gated lesson path; its records mean nothing here, so it is dropped. */

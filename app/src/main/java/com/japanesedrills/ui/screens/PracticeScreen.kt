@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
@@ -36,6 +38,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
@@ -90,6 +93,8 @@ fun PracticeScreen(
     onFlag: (String, Boolean) -> Unit,
     onWordSet: (String, Boolean) -> Unit,
     onAllWords: (Boolean) -> Unit,
+    onNewSet: () -> Unit,
+    onEditSet: (String) -> Unit,
     onForm: (String, Boolean) -> Unit,
     onColumn: (WordColumn, Boolean) -> Unit,
     onSquare: (String, WordColumn, Boolean) -> Unit,
@@ -146,7 +151,7 @@ fun PracticeScreen(
         }
 
         SectionCard("Word sets", "Every set you switch on is added to the pool") {
-            WordSetList(state, onWordSet, onAllWords)
+            WordSetList(state, onWordSet, onAllWords, onNewSet, onEditSet)
         }
 
         SectionCard("Options") {
@@ -426,12 +431,18 @@ private val CellGap = 3.dp
  * live, so a tap on one records a choice for when it goes off again rather than fighting it.
  */
 @Composable
-private fun WordSetList(state: DrillUiState, onWordSet: (String, Boolean) -> Unit, onAllWords: (Boolean) -> Unit) {
+private fun WordSetList(
+    state: DrillUiState,
+    onWordSet: (String, Boolean) -> Unit,
+    onAllWords: (Boolean) -> Unit,
+    onNewSet: () -> Unit,
+    onEditSet: (String) -> Unit,
+) {
     val options = state.options
     Column {
         SetRow(
             label = "All words",
-            count = state.wordCount.takeIf { it > 0 },
+            count = state.words.size.takeIf { it > 0 },
             checked = options.allWords,
             dimmed = false,
             first = true,
@@ -444,6 +455,23 @@ private fun WordSetList(state: DrillUiState, onWordSet: (String, Boolean) -> Uni
                 dimmed = options.allWords,
                 first = false,
             ) { onWordSet(set.id, !options.isSetOn(set.id)) }
+        }
+        // The learner's own sets carry a pencil, which opens the editor; the built-in ones
+        // have none, which is the whole of how a set says whether it can be changed.
+        for (set in state.progress.sets.values) {
+            SetRow(
+                label = set.name,
+                count = set.words.size,
+                checked = options.isSetOn(set.id),
+                dimmed = options.allWords,
+                first = false,
+                onEdit = { onEditSet(set.id) },
+            ) { onWordSet(set.id, !options.isSetOn(set.id)) }
+        }
+        OutlinedButton(onClick = onNewSet, modifier = Modifier.padding(top = 12.dp)) {
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+            Text("New set")
         }
         Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -468,6 +496,7 @@ private fun SetRow(
     checked: Boolean,
     dimmed: Boolean,
     first: Boolean,
+    onEdit: (() -> Unit)? = null,
     onToggle: () -> Unit,
 ) {
     val faded = MaterialTheme.colorScheme.outline
@@ -479,6 +508,17 @@ private fun SetRow(
                 .padding(vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (onEdit != null) {
+                IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Edit $label",
+                        tint = if (dimmed) faded else MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp),
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+            }
             Text(
                 label,
                 style = MaterialTheme.typography.bodyLarge,

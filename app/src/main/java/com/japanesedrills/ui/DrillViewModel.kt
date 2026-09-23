@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
@@ -27,6 +28,7 @@ import com.japanesedrills.quiz.Step
 import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.quiz.WordColumn
+import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.quiz.TransformationBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,7 +55,7 @@ enum class Tab(val label: String) {
     Grammar("Grammar"),
 }
 
-enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, ConjugationIntro, GrammarDetail }
+enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, ConjugationIntro, GrammarDetail, WordSet }
 
 /** Which of the three things the running quiz is. */
 enum class SessionKind { Practice, Step, Review }
@@ -155,8 +157,10 @@ data class DrillUiState(
     val conjugationIntroFrom: Screen = Screen.Root,
     /** The form being read about on the Grammar tab. */
     val grammarNote: GrammarNote? = null,
-    /** How many words the app holds at all, for the "all words" row. */
-    val wordCount: Int = 0,
+    /** The word set being put together, if the editor is open. */
+    val editingSet: String? = null,
+    /** Every word there is, for the word-set editor to pick from. */
+    val words: List<Word> = emptyList(),
     /** How many words each word set holds, beside its name on the practice screen. */
     val setSizes: Map<String, Int> = emptyMap(),
     /** Representative words for showing how a form is built. */
@@ -178,6 +182,14 @@ data class DrillUiState(
      * told nothing has begun.
      */
     val started: Boolean get() = !progress.isEmpty
+
+    /**
+     * The set a wrong word can be dropped from while drilling: the one set the session is
+     * drawing on, when that set is the learner's own. Two sets at once and the question does
+     * not say which one to drop it from.
+     */
+    val droppableSet: CustomSet?
+        get() = if (kind == SessionKind.Practice) progress.sets[quizOptions.sets.singleOrNull()] else null
 }
 
 class DrillViewModel(application: Application) : AndroidViewModel(application) {
@@ -219,6 +231,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             val loaded = withContext(Dispatchers.IO) { DrillData.load(getApplication()) }
             data = loaded
             val loadedEngine = QuizEngine(loaded)
+            loadedEngine.customSets = _state.value.progress.sets
             engine = loadedEngine
             val examples = GrammarExamples(
                 Grammar.EXAMPLE_KEYS.mapNotNull(loaded.wordsByKey::get).associateBy { it.key },
@@ -235,7 +248,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                     grammarExamples = examples,
                     columnForms = columnForms,
                     setSizes = loadedEngine.setSizes(),
-                    wordCount = loaded.words.size,
+                    words = loaded.words,
                 )
             }
             refreshPath()
@@ -300,6 +313,56 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     // Settings
 
     fun setFlag(key: String, value: Boolean) = updateOptions { it.with(key, value) }
+
+    // Word sets the learner makes
+
+    /** A new set, switched on and opened for picking words. */
+    fun newWordSet() {
+        val progress = _state.value.progress
+        val set = CustomSet(WordSets.newId(progress.sets.keys), "My words")
+        persist(progress.copy(sets = progress.sets + (set.id to set)))
+        _state.update { it.copy(screen = Screen.WordSet, editingSet = set.id) }
+        updateOptions { it.withSet(set.id, true).copy(allWords = false) }
+    }
+
+    fun editWordSet(id: String) = _state.update { it.copy(screen = Screen.WordSet, editingSet = id) }
+
+    fun closeWordSet() = _state.update { it.copy(screen = Screen.Root, editingSet = null) }
+
+    fun renameWordSet(id: String, name: String) = editSet(id) { it.copy(name = name) }
+
+    /** One word added to or taken out of the set being edited. */
+    fun setWordInSet(id: String, word: String, value: Boolean) =
+        editSet(id) { it.copy(words = if (value) it.words + word else it.words - word) }
+
+    fun deleteWordSet(id: String) {
+        val progress = _state.value.progress
+        persist(progress.copy(sets = progress.sets - id))
+        _state.update { it.copy(screen = Screen.Root, editingSet = null) }
+        updateOptions { it.withSet(id, false) }
+    }
+
+    /**
+     * The word the current question asks about, dropped from the set the session is drawing
+     * on, with its remaining questions dropped from the queue: having said the word does not
+     * belong here, being asked it three more times is the wrong answer.
+     */
+    fun dropCurrentWord() {
+        val state = _state.value
+        val set = state.droppableSet ?: return
+        val word = state.quiz?.question?.word?.key ?: return
+        editSet(set.id) { it.copy(words = it.words - word) }
+        queue.removeAll { engine?.wordOf(it)?.key == word }
+    }
+
+    private fun editSet(id: String, change: (CustomSet) -> CustomSet) {
+        val progress = _state.value.progress
+        val set = progress.sets[id] ?: return
+        persist(progress.copy(sets = progress.sets + (id to change(set))))
+        // The pool is built from the set's words, and its options did not change, so
+        // nothing else would notice that it now holds different ones.
+        refreshPool()
+    }
 
     /** One word set switched on or off; several stack, and a word in two counts once. */
     fun setWordSet(id: String, value: Boolean) = updateOptions { it.withSet(id, value) }
@@ -641,6 +704,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Publishes new progress; the collector in [init] is what writes it to disk. */
     private fun persist(progress: Progress) {
+        // The engine draws on the sets, which only progress knows.
+        engine?.customSets = progress.sets
         _state.update { it.copy(progress = progress) }
     }
 

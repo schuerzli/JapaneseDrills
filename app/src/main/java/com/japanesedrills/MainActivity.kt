@@ -55,6 +55,7 @@ import com.japanesedrills.ui.screens.PracticeScreen
 import com.japanesedrills.ui.screens.QuizScreen
 import com.japanesedrills.ui.screens.ResultsScreen
 import com.japanesedrills.ui.screens.StepIntroScreen
+import com.japanesedrills.ui.screens.WordSetScreen
 import com.japanesedrills.ui.theme.JapaneseDrillsTheme
 
 class MainActivity : ComponentActivity() {
@@ -152,16 +153,19 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
     val quiz = state.quiz
     val step = state.step
     val note = state.grammarNote
+    val set = state.editingSet?.let(state.progress.sets::get)
     when {
         state.screen == Screen.Quiz && quiz != null -> {
             BackHandler(onBack = viewModel::backToRoot)
             QuizScreen(
                 quiz = quiz,
                 options = state.quizOptions,
+                droppableSet = state.droppableSet,
                 onSubmit = viewModel::submit,
                 onProceed = viewModel::proceed,
                 onExplain = viewModel::explain,
                 onToggleFurigana = viewModel::toggleFurigana,
+                onDropWord = viewModel::dropCurrentWord,
                 onQuit = viewModel::backToRoot,
                 modifier = contentModifier,
             )
@@ -189,6 +193,19 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 note = note,
                 examples = state.grammarExamples,
                 onBack = viewModel::backToRoot,
+                modifier = contentModifier,
+            )
+        }
+
+        state.screen == Screen.WordSet && set != null -> {
+            BackHandler(onBack = viewModel::closeWordSet)
+            WordSetScreen(
+                set = set,
+                words = state.words,
+                onName = { viewModel.renameWordSet(set.id, it) },
+                onWord = { word, inSet -> viewModel.setWordInSet(set.id, word, inSet) },
+                onDelete = { viewModel.deleteWordSet(set.id) },
+                onBack = viewModel::closeWordSet,
                 modifier = contentModifier,
             )
         }
@@ -300,6 +317,8 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onFlag = viewModel::setFlag,
                 onWordSet = viewModel::setWordSet,
                 onAllWords = viewModel::setAllWords,
+                onNewSet = viewModel::newWordSet,
+                onEditSet = viewModel::editWordSet,
                 onForm = viewModel::setForm,
                 onColumn = viewModel::setColumn,
                 onSquare = viewModel::setSquare,

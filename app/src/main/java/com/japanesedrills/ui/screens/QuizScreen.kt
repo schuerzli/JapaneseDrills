@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.japanesedrills.data.DrillData
+import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Prompts
@@ -97,10 +98,13 @@ import com.japanesedrills.ui.theme.DrillTheme
 fun QuizScreen(
     quiz: QuizState,
     options: QuizOptions,
+    /** The set this session draws on, when it is one the learner can take a word out of. */
+    droppableSet: CustomSet?,
     onSubmit: (String) -> Unit,
     onProceed: () -> Unit,
     onExplain: () -> Unit,
     onToggleFurigana: () -> Unit,
+    onDropWord: () -> Unit,
     onQuit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -164,8 +168,10 @@ fun QuizScreen(
                 ResultCard(
                     quiz = quiz,
                     options = options,
+                    droppableSet = droppableSet,
                     focusNext = !quiz.showExplanation,
                     onExplain = onExplain,
+                    onDropWord = onDropWord,
                     onProceed = onProceed,
                 )
                 if (quiz.showExplanation) {
@@ -335,8 +341,10 @@ private const val ROMAJI_HINT_QUESTIONS = 2
 private fun ResultCard(
     quiz: QuizState,
     options: QuizOptions,
+    droppableSet: CustomSet?,
     focusNext: Boolean,
     onExplain: () -> Unit,
+    onDropWord: () -> Unit,
     onProceed: () -> Unit,
 ) {
     val answer = quiz.answer ?: return
@@ -389,6 +397,31 @@ private fun ResultCard(
                         for (line in Prompts.alternatives(quiz.question.answersDisplay(options.kana))) {
                             RichText(parts = line, style = MaterialTheme.typography.headlineSmall)
                         }
+                    }
+                }
+
+                // Only where the session draws on one set of the learner's own: a word
+                // dropped here leaves that set, and the rest of this session with it.
+                if (droppableSet != null) {
+                    var dropped by remember(quiz.question.id) { mutableStateOf(false) }
+                    TextButton(
+                        onClick = {
+                            dropped = true
+                            onDropWord()
+                        },
+                        enabled = !dropped,
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
+                    ) {
+                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        RichText(
+                            listOfNotNull(
+                                RichPart.Text(if (dropped) "Dropped " else "Drop "),
+                                RichPart.Jp(quiz.question.dictionaryDisplay(options.kana)),
+                                RichPart.Text(" from ${droppableSet.name}"),
+                            ),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     }
                 }
 
