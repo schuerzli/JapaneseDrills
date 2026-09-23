@@ -30,6 +30,8 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -76,7 +78,9 @@ import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.Prompts
+import com.japanesedrills.quiz.Solution
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -85,6 +89,7 @@ import com.japanesedrills.ui.QuizState
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaText
+import com.japanesedrills.ui.components.FusionTable
 import com.japanesedrills.ui.components.JapaneseLocale
 import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.RichText
@@ -522,38 +527,20 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            // Supporting material: a quiet example of the word in use.
-            if (word.sentenceJp.isNotEmpty()) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(2.dp),
-                    modifier = Modifier.padding(start = 12.dp),
-                ) {
-                    FuriganaText(
-                        if (options.kana) Furigana.toKana(word.sentenceJp) else word.sentenceJp,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        word.sentenceEn,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Subheading("Solution")
-            // Asked for the dictionary form, there is nothing to build: the answer is where the
-            // building starts. So show how the given form was built from it, to be undone.
-            // Every focused step asks both ways, which made this half of all explanations.
-            val reverse = t.to == DrillData.DICTIONARY && t.from != DrillData.DICTIONARY
-            val solution = remember(question.id) { Explanations.solution(word, if (reverse) t.from else t.to) }
             val display: (String) -> String = { if (options.kana) Furigana.toKana(it) else it }
+            // Asked for the dictionary form, there is nothing to build: the answer is where
+            // the building starts, and it is the word this card is already about.
+            val reverse = t.to == DrillData.DICTIONARY && t.from != DrillData.DICTIONARY
+            val solution = remember(question.id) {
+                if (reverse) Solution(emptyList()) else Explanations.solution(word, t.to)
+            }
             if (reverse) {
                 RichText(
                     listOf(
-                        RichPart.Text("The answer is the dictionary form. This is how "),
+                        RichPart.Text("The answer is the dictionary form: "),
                         RichPart.Jp(display(word.dictionary)),
-                        RichPart.Text(" becomes the form you were given; undo the steps to get back to it."),
                     ),
                     style = body,
                 )
@@ -575,6 +562,10 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
                                 }
                             },
                             changes = changes[i],
+                            // A fusion is a closed list rather than a rule, and the one row
+                            // this step uses is the part of it worth having to hand; the rest
+                            // is a tap away for whoever wants to see the pattern.
+                            extra = { step.fusion?.let { FusionTableDisclosure(it) } },
                         )
                     }
                 }
@@ -591,6 +582,30 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
                 Text("OK, next question")
             }
         }
+    }
+}
+
+/** The fusion table for this step's column, folded away until asked for. */
+@Composable
+private fun FusionTableDisclosure(column: FusionColumn) {
+    var open by remember { mutableStateOf(false) }
+    Column {
+        TextButton(
+            onClick = { open = !open },
+            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+            modifier = Modifier.offset(x = (-8).dp),
+        ) {
+            Text(
+                if (open) "Hide the fusion table" else "Show the fusion table",
+                style = MaterialTheme.typography.labelMedium,
+            )
+            Icon(
+                if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        if (open) FusionTable(column)
     }
 }
 

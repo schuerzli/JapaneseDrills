@@ -291,7 +291,7 @@ data class WordColumn(val key: String, val label: String, val groups: Set<String
 /** One-tap starting points for free practice, so the option grid is optional. */
 enum class PracticePreset(val label: String) {
     /** Whatever the path has drilled so far; only offered once something has been answered there. */
-    Practised("What I've practised"),
+    Practised("What I've learned"),
     TeTa("て-form and past"),
     Everything("Everything"),
 }

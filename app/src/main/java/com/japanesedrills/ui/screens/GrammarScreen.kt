@@ -32,7 +32,6 @@ import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.ChangeShape
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Explanations
-import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
@@ -42,11 +41,10 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.RichTable
+import com.japanesedrills.ui.components.FusionTable
 import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.StepBlock
 import com.japanesedrills.ui.components.Subheading
-import com.japanesedrills.ui.components.TableLayout
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.heading
 
@@ -275,21 +273,6 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
             }
         }
     }
-}
-
-/**
- * The godan fusions, with only the column [column] uses: the dictionary endings right-aligned
- * against what they fuse into.
- */
-@Composable
-private fun FusionTable(column: FusionColumn) {
-    RichTable(
-        rows = Explanations.GODAN_FUSIONS.map { fusion ->
-            listOf(fusion.endings.joinToString(" · "), if (column == FusionColumn.TE_FORM) fusion.te else fusion.past)
-        },
-        layout = TableLayout.Columns,
-        firstColumnEnd = true,
-    )
 }
 
 /**

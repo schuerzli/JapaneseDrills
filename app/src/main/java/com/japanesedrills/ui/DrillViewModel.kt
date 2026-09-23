@@ -185,11 +185,15 @@ data class DrillUiState(
 
     /**
      * The set a wrong word can be dropped from while drilling: the one set the session is
-     * drawing on, when that set is the learner's own. Two sets at once and the question does
-     * not say which one to drop it from.
+     * drawing on, when that set is the learner's own. Two sets at once, or every word there
+     * is, and the question does not say which set to drop it from.
      */
     val droppableSet: CustomSet?
-        get() = if (kind == SessionKind.Practice) progress.sets[quizOptions.sets.singleOrNull()] else null
+        get() = if (kind == SessionKind.Practice && !quizOptions.allWords) {
+            progress.sets[quizOptions.sets.singleOrNull()]
+        } else {
+            null
+        }
 }
 
 class DrillViewModel(application: Application) : AndroidViewModel(application) {

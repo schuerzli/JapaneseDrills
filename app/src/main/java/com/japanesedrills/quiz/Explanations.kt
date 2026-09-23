@@ -432,7 +432,7 @@ object Explanations {
             Op.NEG -> rule("Change the last kana from the う-row to the あ-row and add ない.$wa")
             Op.POLITE -> rule("Change the last kana from the う-row to the い-row and add ます.")
             Op.TE -> rule("Godan verbs ending in $u replace it with $te.")
-            Op.PAST -> rule("Godan verbs ending in $u replace it with $ta (the same fusion as the て-form $te).")
+            Op.PAST -> rule("Godan verbs ending in $u replace it with $ta.")
             Op.PROV -> rule("Change the last kana from the う-row to the え-row and add ば.")
             Op.IMP -> rule("Change the last kana from the う-row to the え-row.")
             Op.IMP_NEG -> rule("Add な to the dictionary form.")

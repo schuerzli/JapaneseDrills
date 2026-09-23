@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.sp
+import com.japanesedrills.quiz.Explanations
+import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.subheading
@@ -86,6 +88,22 @@ fun StepBlock(
             for ((from, to) in changes) ChangeRow(from, to)
         }
     }
+}
+
+/**
+ * The godan fusions, with only the column [column] uses: the dictionary endings right-aligned
+ * against what they fuse into. Shown wherever a step applies one, on a grammar card and
+ * behind a tap in an explanation.
+ */
+@Composable
+fun FusionTable(column: FusionColumn) {
+    RichTable(
+        rows = Explanations.GODAN_FUSIONS.map { fusion ->
+            listOf(fusion.endings.joinToString(" · "), if (column == FusionColumn.TE_FORM) fusion.te else fusion.past)
+        },
+        layout = TableLayout.Columns,
+        firstColumnEnd = true,
+    )
 }
 
 /** How wide the "from" column of [ChangeRow]s is, so their arrows line up. */
