@@ -132,6 +132,10 @@ fun PracticeScreen(
             FocusDropdown(selected = options.questionFocus, onSelected = onFocus)
         }
 
+        SectionCard("Word sets", "Every set you switch on is added to the pool") {
+            WordSetList(state, onWordSet, onAllWords, onNewSet, onEditSet)
+        }
+
         SectionCard("What to practise", "A form of a word class; tap a name for its whole line") {
             // Two readings of one grid: what a session would ask, and how those pairings are
             // holding up. The second is the same shape, so the eye keeps its place.
@@ -150,10 +154,6 @@ fun PracticeScreen(
                 }
             }
             PracticeGrid(state, strength, onForm, onColumn, onSquare)
-        }
-
-        SectionCard("Word sets", "Every set you switch on is added to the pool") {
-            WordSetList(state, onWordSet, onAllWords, onNewSet, onEditSet)
         }
 
         SectionCard("Options") {
@@ -288,8 +288,7 @@ private fun PracticeGrid(
     onSquare: (String, WordColumn, Boolean) -> Unit,
 ) {
     val options = state.options
-    val present = state.pool?.columns
-    val columns = QuizOptions.COLUMNS.filter { present == null || it.key in present }
+    val columns = QuizOptions.COLUMNS.filter { it.key in state.columns }
     if (columns.isEmpty()) {
         Text(
             "No words to practise. Switch on a word set below.",

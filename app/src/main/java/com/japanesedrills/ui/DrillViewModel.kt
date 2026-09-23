@@ -86,11 +86,8 @@ data class QuizState(
     val shakes: Int = 0,
 )
 
-/**
- * What the current settings add up to: how many words, how many questions from them, and
- * which class columns those words fall into, which is what the grid draws.
- */
-data class PoolCounts(val words: Int, val questions: Int, val columns: Set<String> = emptySet())
+/** What the current settings add up to: how many words, and how many questions from them. */
+data class PoolCounts(val words: Int, val questions: Int)
 
 /** One row on the learn path. */
 data class StepCard(
@@ -170,6 +167,12 @@ data class DrillUiState(
      * adjective has no passive, and no square is drawn for one.
      */
     val columnForms: Map<String, Set<String>> = emptyMap(),
+    /**
+     * The class columns the chosen words fall into, which is what the grid draws. It keeps
+     * the last answer while a new count runs: counting again would otherwise put every
+     * column back for a moment, and the grid grew and shrank under the finger that tapped it.
+     */
+    val columns: Set<String> = QuizOptions.COLUMNS.mapTo(LinkedHashSet()) { it.key },
     val outcome: StepOutcome? = null,
     /** Set when stored progress could not be read and was put aside rather than overwritten. */
     val salvagedProgress: Boolean = false,
@@ -475,7 +478,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             val newPool = withContext(Dispatchers.Default) { engine.buildPool(options) { ensureActive() } }
             val columns = withContext(Dispatchers.Default) { engine.columnsFor(options) }
             pool = newPool
-            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size, columns)) }
+            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size), columns = columns) }
         }
     }
 
