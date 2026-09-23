@@ -9,6 +9,7 @@ import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.Mark
+import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
@@ -393,6 +394,62 @@ class DrillLogicTest {
             assertTrue(q.answers.isNotEmpty())
             assertTrue(q.isCorrect(Furigana.toKana(q.answers.first())))
             assertTrue(q.isCorrect(Furigana.toKanji(q.answers.first())))
+        }
+    }
+
+    /**
+     * The grid's squares: a form of one word class, switched off on its own. The rest of
+     * that form, and the rest of that class, carry on being asked.
+     */
+    @Test
+    fun aSwitchedOffSquareOnlyRemovesItsOwnPairing() {
+        val engine = QuizEngine(data, Random(11))
+        val on = QuizOptions()
+        val off = on.withSquare("past", "ichidan", false)
+        assertTrue(engine.buildPool(off).size < engine.buildPool(on).size)
+
+        val pool = engine.buildPool(off)
+        var godanPast = 0
+        var ichidanOther = 0
+        repeat(400) {
+            val q = engine.nextQuestion(pool)!!
+            val column = QuizOptions.columnOf(q.word.group)
+            assertFalse("past of an ichidan verb", column == "ichidan" && "past" in q.transformation.tags)
+            if (column == "godan" && "past" in q.transformation.tags) godanPast++
+            if (column == "ichidan") ichidanOther++
+        }
+        assertTrue("the rest of the past is still asked", godanPast > 0)
+        assertTrue("the rest of the ichidan verbs are still asked", ichidanOther > 0)
+    }
+
+    /** A preset states a whole selection, so it cannot inherit yesterday's holes. */
+    @Test
+    fun aPresetFillsTheGridIn() {
+        val punched = QuizOptions().withSquare("past", "godan", false)
+        val preset = punched.withPreset(PracticePreset.Everything, emptySet(), emptySet())
+        assertTrue(preset.offSquares.isEmpty())
+        assertTrue(preset.asksSquare("past", "godan"))
+    }
+
+    /** The grid draws a column for every class its words fall into, and no others. */
+    @Test
+    fun theGridHasAColumnForEveryClassInThePool() {
+        val engine = QuizEngine(data, Random(12))
+        assertEquals(
+            data.words.mapTo(HashSet()) { QuizOptions.columnOf(it.group) },
+            engine.columnsFor(QuizOptions()),
+        )
+        val adjectives = data.words.filter { it.group == "na-adjective" }.mapTo(HashSet()) { it.key }
+        assertEquals(setOf("na-adjective"), engine.columnsFor(QuizOptions(wordKeys = adjectives)))
+    }
+
+    /** A word class the grid has no column for could never be practised. */
+    @Test
+    fun everyWordClassBelongsToAColumn() {
+        val columns = QuizOptions.COLUMNS.flatMap { it.groups }
+        assertEquals("a group in two columns", columns.size, columns.toSet().size)
+        for (group in data.words.mapTo(HashSet()) { it.group }) {
+            assertTrue("no column holds $group", group in columns)
         }
     }
 

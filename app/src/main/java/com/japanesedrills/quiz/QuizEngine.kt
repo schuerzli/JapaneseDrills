@@ -133,17 +133,35 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     private val levelFilters = QuizOptions.LEVEL_FILTERS.map { it.key }
     private var nextId = 0
 
+    /** Whether the word is one of those being drawn on, before the grid has its say. */
+    private fun sourcesWord(word: Word, options: QuizOptions, activeLevels: List<String>): Boolean =
+        (options.wordKeys?.contains(word.key) ?: true) &&
+            (activeLevels.isEmpty() || activeLevels.any { it in word.tags })
+
     /** Whether the options allow this word at all, whatever the transformation. */
     private fun allowsWord(word: Word, options: QuizOptions, activeLevels: List<String>): Boolean =
-        options.isOn(word.group) &&
-            (options.wordKeys?.contains(word.key) ?: true) &&
-            (activeLevels.isEmpty() || activeLevels.any { it in word.tags })
+        options.isOn(word.group) && sourcesWord(word, options, activeLevels)
+
+    /**
+     * The grid columns the chosen words fall into, switched on or not: what the grid has
+     * rows and columns for at all. A column no word belongs to is not drawn, the same way a
+     * square is not drawn for a form its class does not have.
+     */
+    fun columnsFor(options: QuizOptions): Set<String> {
+        val activeLevels = levelFilters.filter(options::isOn)
+        return data.words.filterTo(HashSet()) { sourcesWord(it, options, activeLevels) }
+            .mapTo(LinkedHashSet()) { QuizOptions.columnOf(it.group) }
+    }
 
     /** Whether this word actually has both forms, and they match the question focus. */
     private fun allowsPair(word: Word, t: Transformation, options: QuizOptions): Boolean {
         val from = word.conjugations[t.from] ?: return false
         val to = word.conjugations[t.to] ?: return false
         if (from.forms.isEmpty() || to.forms.isEmpty()) return false
+
+        // A square of the grid switched off on its own: this form, for this word's class.
+        val column = QuizOptions.columnOf(word.group)
+        if (t.tags.any { QuizOptions.squareKey(it, column) in options.offSquares }) return false
 
         return when (options.questionFocus) {
             QuizOptions.FOCUS_NONE -> true

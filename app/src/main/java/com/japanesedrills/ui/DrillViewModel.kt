@@ -26,6 +26,7 @@ import com.japanesedrills.quiz.SrsState
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.quiz.ThemeChoice
+import com.japanesedrills.quiz.WordColumn
 import com.japanesedrills.quiz.TransformationBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -83,8 +84,11 @@ data class QuizState(
     val shakes: Int = 0,
 )
 
-/** What the current settings add up to: how many words, and how many questions from them. */
-data class PoolCounts(val words: Int, val questions: Int)
+/**
+ * What the current settings add up to: how many words, how many questions from them, and
+ * which class columns those words fall into, which is what the grid draws.
+ */
+data class PoolCounts(val words: Int, val questions: Int, val columns: Set<String> = emptySet())
 
 /** One row on the learn path. */
 data class StepCard(
@@ -153,6 +157,11 @@ data class DrillUiState(
     val grammarNote: GrammarNote? = null,
     /** Representative words for showing how a form is built. */
     val grammarExamples: GrammarExamples = GrammarExamples(),
+    /**
+     * The forms each grid column has at all, so the grid leaves out what cannot exist: an
+     * adjective has no passive, and no square is drawn for one.
+     */
+    val columnForms: Map<String, Set<String>> = emptyMap(),
     val outcome: StepOutcome? = null,
     /** Set when stored progress could not be read and was put aside rather than overwritten. */
     val salvagedProgress: Boolean = false,
@@ -210,7 +219,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 Grammar.EXAMPLE_KEYS.mapNotNull(loaded.wordsByKey::get).associateBy { it.key },
                 loaded.ownForms,
             )
-            _state.update { it.copy(loading = false, grammarExamples = examples) }
+            val columnForms = QuizOptions.COLUMNS.associate { column ->
+                // "plain" is implied by every conjugation rather than named by one, so every
+                // column has it; the rest come from the forms the groups actually define.
+                column.key to column.groups.flatMapTo(hashSetOf("plain")) { loaded.groupForms[it].orEmpty() }
+            }
+            _state.update { it.copy(loading = false, grammarExamples = examples, columnForms = columnForms) }
             refreshPath()
             refreshPool()
         }
@@ -274,6 +288,46 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFlag(key: String, value: Boolean) = updateOptions { it.with(key, value) }
 
+    /** A whole row of the grid: the form, for every class that has it. */
+    fun setForm(form: String, value: Boolean) = updateOptions { options ->
+        // Switching a row back on clears the holes punched in it, or a row can read as on
+        // and ask nothing.
+        val cleared = if (value) options.copy(offSquares = options.offSquares.filterNotTo(HashSet()) {
+            it.substringBefore('|') == form
+        }) else options
+        cleared.with(form, value)
+    }
+
+    /** A whole column of the grid: every form, for one class. */
+    fun setColumn(column: WordColumn, value: Boolean) = updateOptions { options ->
+        val cleared = if (value) options.copy(offSquares = options.offSquares.filterNotTo(HashSet()) {
+            it.substringAfter('|') == column.key
+        }) else options
+        cleared.withColumn(column, value)
+    }
+
+    /**
+     * One square. Switching on a square whose row or column is off switches those on too and
+     * leaves the rest of them off, so a tap always asks exactly what it points at.
+     */
+    fun setSquare(form: String, column: WordColumn, value: Boolean) = updateOptions { options ->
+        if (!value) return@updateOptions options.withSquare(form, column.key, false)
+        var next = options.withSquare(form, column.key, true)
+        if (!options.isOn(form)) {
+            next = next.with(form, true)
+            for (other in QuizOptions.COLUMNS) {
+                if (other.key != column.key) next = next.withSquare(form, other.key, false)
+            }
+        }
+        if (!options.isColumnOn(column)) {
+            next = next.withColumn(column, true)
+            for (other in QuizOptions.FORMS) {
+                if (other.key != form) next = next.withSquare(other.key, column.key, false)
+            }
+        }
+        next
+    }
+
     fun setFocus(focus: String) = updateOptions { it.withFocus(focus) }
 
     fun applyPreset(preset: PracticePreset) {
@@ -333,8 +387,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(pool = null) }
         poolJob = viewModelScope.launch {
             val newPool = withContext(Dispatchers.Default) { engine.buildPool(options) { ensureActive() } }
+            val columns = withContext(Dispatchers.Default) { engine.columnsFor(options) }
             pool = newPool
-            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size)) }
+            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size, columns)) }
         }
     }
 

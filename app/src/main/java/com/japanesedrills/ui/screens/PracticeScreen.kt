@@ -1,6 +1,9 @@
 package com.japanesedrills.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -45,14 +48,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.OptionItem
 import com.japanesedrills.quiz.PracticePreset
+import com.japanesedrills.quiz.Progress
+import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
+import com.japanesedrills.quiz.Scheduler
+import com.japanesedrills.quiz.TransformationBuilder
+import com.japanesedrills.quiz.WordColumn
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.LocalFurigana
@@ -68,6 +83,9 @@ import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 fun PracticeScreen(
     state: DrillUiState,
     onFlag: (String, Boolean) -> Unit,
+    onForm: (String, Boolean) -> Unit,
+    onColumn: (WordColumn, Boolean) -> Unit,
+    onSquare: (String, WordColumn, Boolean) -> Unit,
     onFocus: (String) -> Unit,
     onNumQuestions: (String) -> Unit,
     onPreset: (PracticePreset) -> Unit,
@@ -100,20 +118,28 @@ fun PracticeScreen(
             FocusDropdown(selected = options.questionFocus, onSelected = onFocus)
         }
 
-        SectionCard("Forms", "Which conjugations the questions may use") {
-            ChipGroup(QuizOptions.FORMS, options, onFlag)
-        }
-
-        SectionCard("Words") {
-            ChipGroup(QuizOptions.REGULAR_VERBS, options, onFlag, "Regular verbs")
-            ChipGroup(QuizOptions.EXCEPTION_VERBS, options, onFlag, "Regular, with exceptions")
-            ChipGroup(QuizOptions.IRREGULAR_VERBS, options, onFlag, "Irregular verbs")
-            ChipGroup(QuizOptions.ADJECTIVES, options, onFlag, "Adjectives")
-            ChipGroup(QuizOptions.IRREGULAR_ADJECTIVES, options, onFlag, "Irregular adjectives")
+        SectionCard("What to practise", "A form of a word class; tap a name for its whole line") {
+            // Two readings of one grid: what a session would ask, and how those pairings are
+            // holding up. The second is the same shape, so the eye keeps its place.
+            var strength by remember { mutableStateOf(false) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (showing in listOf(false, true)) {
+                    FilterChip(
+                        selected = strength == showing,
+                        onClick = { strength = showing },
+                        label = { Text(if (showing) "Strength" else "Choose") },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                    )
+                }
+            }
+            PracticeGrid(state, strength, onForm, onColumn, onSquare)
         }
 
         SectionCard("Filters", "Only ask about words in the selected lists") {
-            ChipGroup(QuizOptions.LEVEL_FILTERS, options, onFlag)
+            LevelChips(options, onFlag)
         }
 
         SectionCard("Options") {
@@ -230,55 +256,181 @@ private fun CountRow(label: String, value: Int?) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * What a session will ask, as a square per form and word class: the pairing the drill
+ * itself is built on (`QuizEngine.skillOf`). Tapping a form or a class switches its whole
+ * line; tapping a square switches that one pairing.
+ *
+ * Only what can exist is drawn. A class no chosen word belongs to has no column, and a form
+ * a class does not have has no square — an adjective has no passive.
+ */
 @Composable
-private fun ChipGroup(
-    items: List<OptionItem>,
-    options: QuizOptions,
-    onFlag: (String, Boolean) -> Unit,
-    label: String? = null,
+private fun PracticeGrid(
+    state: DrillUiState,
+    strength: Boolean,
+    onForm: (String, Boolean) -> Unit,
+    onColumn: (WordColumn, Boolean) -> Unit,
+    onSquare: (String, WordColumn, Boolean) -> Unit,
 ) {
-    Column {
-        if (label != null) {
+    val options = state.options
+    val present = state.pool?.columns
+    val columns = QuizOptions.COLUMNS.filter { present == null || it.key in present }
+    if (columns.isEmpty()) {
+        Text(
+            "No words to practise. Switch on a list below.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        return
+    }
+    val has = { column: WordColumn, form: String -> form in state.columnForms[column.key].orEmpty() }
+
+    Column(verticalArrangement = Arrangement.spacedBy(CellGap)) {
+        if (strength) {
             Text(
-                label,
-                style = MaterialTheme.typography.labelLarge,
+                "How well each pairing is holding up in review",
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 2.dp),
             )
         }
-        // One chip with a reading makes the whole row keep room for one, so the labels sit
-        // on a shared baseline instead of the annotated ones dropping below the rest.
-        val readings = LocalFurigana.current && items.any { Furigana.hasReading(it.label) }
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            for (item in items) {
-                val selected = options.isOn(item.key)
-                FilterChip(
-                    selected = selected,
-                    onClick = { onFlag(item.key, !selected) },
-                    label = { FuriganaText(item.label, reserveReadingSpace = readings) },
-                    // A chip is a fixed 32dp, which leaves a reading pressed against its edge.
-                    // The padding stands in for the touch margin the fixed height takes away,
-                    // so the rows keep the spacing every other group has.
-                    modifier = if (readings) {
-                        Modifier.padding(vertical = 8.dp).height(READING_CHIP_HEIGHT)
-                    } else {
-                        Modifier
-                    },
-                    // The fill alone carries the state. A tick widened the chip on selection
-                    // and reflowed every chip after it, which read as the grid jumping.
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary,
-                        selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
-                        selectedLeadingIconColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
+        Row(verticalAlignment = Alignment.Bottom) {
+            Spacer(Modifier.width(RowLabelWidth))
+            for (column in columns) {
+                val on = options.isColumnOn(column)
+                Text(
+                    column.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { onColumn(column, !on) }
+                        .padding(horizontal = 2.dp, vertical = 6.dp),
                 )
             }
         }
+        for (form in QuizOptions.FORMS) {
+            if (columns.none { has(it, form.key) }) continue
+            val on = options.isOn(form.key)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    // The chips' labels name the ending as well, "Conditional (たら)", which
+                    // is more than a row heading has room for.
+                    form.label.substringBefore(" ("),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (on) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .width(RowLabelWidth)
+                        .clickable { onForm(form.key, !on) }
+                        .padding(vertical = 7.dp, horizontal = 2.dp),
+                )
+                for (column in columns) {
+                    if (!has(column, form.key)) {
+                        Spacer(Modifier.weight(1f))
+                        continue
+                    }
+                    val asked = options.asksSquare(form.key, column.key)
+                    val held = strengthOf(form.key, column, state.progress)
+                    Box(
+                        Modifier
+                            .weight(1f)
+                            .padding(horizontal = CellGap / 2)
+                            .height(CellHeight)
+                            .clip(MaterialTheme.shapes.small)
+                            .background(
+                                when {
+                                    strength -> ink(held)
+                                    asked -> MaterialTheme.colorScheme.primary
+                                    else -> MaterialTheme.colorScheme.surfaceContainerHighest
+                                }
+                            )
+                            .clickable(enabled = !strength) { onSquare(form.key, column, !asked) }
+                            .semantics {
+                                contentDescription = "${form.label}, ${column.label}"
+                                stateDescription = when {
+                                    strength -> "${(held * 100).roundToInt()} percent"
+                                    asked -> "Asked"
+                                    else -> "Not asked"
+                                }
+                            },
+                    )
+                }
+            }
+        }
+        if (strength) StrengthLegend()
     }
 }
 
-/** Room for a label with a reading over it: the standard chip height plus the reading's line. */
-private val READING_CHIP_HEIGHT = 40.dp
+/**
+ * How well a square is holding up, 0f..1f: the review strength of that form on that class,
+ * averaged over the classes a column covers. Never asked counts as nothing, which is what
+ * the palest square means.
+ */
+private fun strengthOf(form: String, column: WordColumn, progress: Progress): Float {
+    val type = TransformationBuilder.typeOfForm(form)
+    val states = column.groups.map { progress.skills[QuizEngine.skillKey(type, it)] }
+    return states.sumOf { state -> state?.let(Scheduler::strength)?.toDouble() ?: 0.0 }.toFloat() / states.size
+}
+
+/**
+ * A square's shade in the strength view: the card's own ink, from an empty square to full
+ * text colour. Ink rather than a colour of its own, because every colour in the app already
+ * says something — the accent says "this does something when you tap it".
+ */
+@Composable
+private fun ink(strength: Float): Color =
+    lerp(
+        MaterialTheme.colorScheme.surfaceContainerHighest,
+        MaterialTheme.colorScheme.onSurface,
+        strength.coerceIn(0f, 1f),
+    )
+
+/** The strength view's scale, for reading the squares. */
+@Composable
+private fun StrengthLegend() {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
+        val caption = MaterialTheme.typography.bodySmall
+        val muted = MaterialTheme.colorScheme.onSurfaceVariant
+        Text("never asked", style = caption, color = muted)
+        for (step in 0..Scheduler.LADDER.size) {
+            Box(
+                Modifier
+                    .padding(horizontal = 2.dp)
+                    .size(width = 18.dp, height = 12.dp)
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(ink(step.toFloat() / Scheduler.LADDER.size)),
+            )
+        }
+        Text("solid", style = caption, color = muted)
+    }
+}
+
+private val RowLabelWidth = 88.dp
+private val CellHeight = 26.dp
+private val CellGap = 3.dp
+
+/** The word lists, which narrow the words the grid then asks about. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LevelChips(options: QuizOptions, onFlag: (String, Boolean) -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        for (item in QuizOptions.LEVEL_FILTERS) {
+            val selected = options.isOn(item.key)
+            FilterChip(
+                selected = selected,
+                onClick = { onFlag(item.key, !selected) },
+                label = { Text(item.label) },
+                // The fill alone carries the state. A tick widened the chip on selection
+                // and reflowed every chip after it, which read as the grid jumping.
+                colors = FilterChipDefaults.filterChipColors(
+                    selectedContainerColor = MaterialTheme.colorScheme.primary,
+                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+                ),
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

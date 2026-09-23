@@ -39,6 +39,12 @@ data class QuizOptions(
      */
     val furigana: Boolean = true,
     /**
+     * The squares of the practice grid switched off one at a time, as `form|column` (see
+     * [squareKey]). A square is off anyway when its form or its column is, so this holds
+     * only the holes: the past of every class but い-adjectives, say.
+     */
+    val offSquares: Set<String> = emptySet(),
+    /**
      * Restricts the pool to these word keys. Null means "no restriction" and is what
      * free practice always uses; steps and review set it to pin their vocabulary.
      * Never persisted — it is derived from the learn path, not chosen by the user.
@@ -51,6 +57,22 @@ data class QuizOptions(
     fun allows(tag: String): Boolean = flags[tag] != false
 
     fun with(key: String, value: Boolean): QuizOptions = copy(flags = flags + (key to value))
+
+    /** Whether the grid asks [form] of the class column [column]. */
+    fun asksSquare(form: String, column: String): Boolean =
+        isOn(form) && COLUMNS_BY_KEY[column]?.groups?.any(::isOn) == true && squareKey(form, column) !in offSquares
+
+    /** [form] of [column] switched on or off on its own, leaving the row and the column alone. */
+    fun withSquare(form: String, column: String, value: Boolean): QuizOptions {
+        val key = squareKey(form, column)
+        return copy(offSquares = if (value) offSquares - key else offSquares + key)
+    }
+
+    /** Every group a column covers, switched together: a column is on when any of them is. */
+    fun withColumn(column: WordColumn, value: Boolean): QuizOptions =
+        copy(flags = flags + column.groups.associateWith { value })
+
+    fun isColumnOn(column: WordColumn): Boolean = column.groups.any(::isOn)
 
     /**
      * Exactly these forms and word groups, no level filter, and [focus]. The general
@@ -68,6 +90,9 @@ data class QuizOptions(
                 }
             },
             questionFocus = focus,
+            // A preset states a whole selection, so it fills the grid in rather than
+            // leaving yesterday's holes punched in it.
+            offSquares = emptySet(),
         )
 
     /**
@@ -78,8 +103,9 @@ data class QuizOptions(
         when (preset) {
             PracticePreset.Practised -> select(practisedForms, practisedGroups)
             // て and た share one fusion table, so the focus is the switch between them and the
-            // forms without it. Godan is where the fusions are; 行く is its exception.
-            PracticePreset.TeTa -> select(setOf("plain", "past", "te-form"), setOf("godan", "iku"), FOCUS_TETAKEI)
+            // forms without it. The godan column is where the fusions are, 行く included.
+            PracticePreset.TeTa ->
+                select(setOf("plain", "past", "te-form"), columnGroups("godan"), FOCUS_TETAKEI)
             PracticePreset.Everything -> select(FORM_KEYS, GROUP_KEYS)
         }
 
@@ -100,7 +126,8 @@ data class QuizOptions(
 
     /** True when both option sets produce the same question pool. */
     fun sameQuestions(other: QuizOptions): Boolean =
-        flags == other.flags && questionFocus == other.questionFocus && wordKeys == other.wordKeys
+        flags == other.flags && questionFocus == other.questionFocus &&
+            offSquares == other.offSquares && wordKeys == other.wordKeys
 
     val questionCount: Int? get() = numQuestions.toIntOrNull()?.takeIf { it in 1..MAX_QUESTIONS }
 
@@ -197,6 +224,31 @@ data class QuizOptions(
             OptionItem(FOCUS_TETAKEI, "Godan て-form / past"),
         )
 
+        /**
+         * A column of the practice grid: a word class as the Grammar tab teaches it, over the
+         * groups it covers. 行く and ある are godan verbs with an exception, いる an ichidan
+         * one and いい an い-adjective, so each sits in its class's column rather than in one
+         * of its own, and a column is a class a learner would name.
+         */
+        val COLUMNS = listOf(
+            WordColumn("godan", "godan", setOf("godan", "iku", "aru")),
+            WordColumn("ichidan", "ichidan", setOf("ichidan", "iru")),
+            WordColumn("irregular", "irreg.", setOf("suru", "kuru")),
+            WordColumn("i-adjective", "い-adj", setOf("i-adjective", "ii")),
+            WordColumn("na-adjective", "な-adj", setOf("na-adjective")),
+        )
+
+        private val COLUMNS_BY_KEY = COLUMNS.associateBy { it.key }
+        private val COLUMN_OF_GROUP = COLUMNS.flatMap { column -> column.groups.map { it to column } }.toMap()
+
+        /** The column a word's group belongs to, which is what the grid switches. */
+        fun columnOf(group: String): String = COLUMN_OF_GROUP[group]?.key ?: group
+
+        fun columnGroups(key: String): Set<String> = COLUMNS_BY_KEY[key]?.groups.orEmpty()
+
+        /** How a switched-off square is named in [offSquares]. */
+        fun squareKey(form: String, column: String): String = "$form|$column"
+
         /** Every option the start screen offers, in the order it shows them. */
         val ALL: List<OptionItem> =
             FORMS + REGULAR_VERBS + EXCEPTION_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES +
@@ -224,6 +276,9 @@ data class QuizOptions(
         val LEVEL_KEYS: Set<String> = LEVEL_FILTERS.map { it.key }.toSet()
     }
 }
+
+/** A word class the practice grid gives a column to; see [QuizOptions.COLUMNS]. */
+data class WordColumn(val key: String, val label: String, val groups: Set<String>)
 
 /** One-tap starting points for free practice, so the option grid is optional. */
 enum class PracticePreset(val label: String) {
@@ -254,6 +309,7 @@ class OptionsStore(context: Context) {
                 ?.let { name -> Palette.entries.firstOrNull { it.name == name } }
                 ?: defaults.palette,
             furigana = prefs.getBoolean("furigana", defaults.furigana),
+            offSquares = prefs.getStringSet("offSquares", null).orEmpty(),
         )
     }
 
@@ -265,6 +321,7 @@ class OptionsStore(context: Context) {
             putString("theme", options.theme.name)
             putString("palette", options.palette.name)
             putBoolean("furigana", options.furigana)
+            putStringSet("offSquares", options.offSquares)
         }.apply()
     }
 }

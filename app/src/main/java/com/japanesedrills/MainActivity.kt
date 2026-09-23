@@ -298,6 +298,9 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
             AppTab.Practice -> PracticeScreen(
                 state = state,
                 onFlag = viewModel::setFlag,
+                onForm = viewModel::setForm,
+                onColumn = viewModel::setColumn,
+                onSquare = viewModel::setSquare,
                 onFocus = viewModel::setFocus,
                 onNumQuestions = viewModel::setNumQuestions,
                 onPreset = viewModel::applyPreset,
