@@ -23,7 +23,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
@@ -37,6 +39,8 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
@@ -46,6 +50,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -82,6 +87,7 @@ import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.SettingRow
 import com.japanesedrills.ui.components.SwitchRow
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 
@@ -115,21 +121,43 @@ fun PracticeScreen(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        SectionCard("Start from", "Sets the forms and words below in one tap") {
-            PresetRow(canUsePractised, onPreset)
+        SectionCard("Start from", "Sets everything below in one tap") {
+            Column {
+                PracticePreset.entries.forEachIndexed { i, preset ->
+                    SettingRow(
+                        preset.label,
+                        first = i == 0,
+                        // Nothing practised on the path yet would select no forms at all.
+                        onClick = { if (preset != PracticePreset.Practised || canUsePractised) onPreset(preset) },
+                    ) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
         }
 
         SectionCard("Quiz") {
-            OutlinedTextField(
-                value = options.numQuestions,
-                onValueChange = onNumQuestions,
-                label = { Text("Number of questions") },
-                singleLine = true,
-                isError = options.questionCount == null,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
-                modifier = Modifier.fillMaxWidth(),
-            )
-            FocusDropdown(selected = options.questionFocus, onSelected = onFocus)
+            Column {
+                ChoiceRow(
+                    label = "Questions",
+                    value = options.numQuestions,
+                    choices = QuizOptions.QUESTION_COUNTS.map { it.toString() to it.toString() },
+                    first = true,
+                    onChoose = onNumQuestions,
+                )
+                ChoiceRow(
+                    label = "Focus",
+                    value = QuizOptions.FOCUS.firstOrNull { it.key == options.questionFocus }?.label
+                        ?: options.questionFocus,
+                    choices = QuizOptions.FOCUS.map { it.key to it.label },
+                    first = false,
+                    onChoose = onFocus,
+                )
+            }
         }
 
         SectionCard("Word sets", "Every set you switch on is added to the pool") {
@@ -159,8 +187,15 @@ fun PracticeScreen(
         SectionCard("Options") {
             Column {
                 QuizOptions.GENERAL.forEachIndexed { i, item ->
-                    if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    SwitchRow(item.label, options.isOn(item.key)) { onFlag(item.key, it) }
+                    SettingRow(
+                        item.label,
+                        supporting = item.note,
+                        first = i == 0,
+                        onClick = { onFlag(item.key, !options.isOn(item.key)) },
+                        role = Role.Switch,
+                    ) {
+                        Switch(checked = options.isOn(item.key), onCheckedChange = null)
+                    }
                 }
             }
         }
@@ -227,17 +262,35 @@ fun PracticeBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+/** A setting whose value is picked from a short list, shown in a menu under the row. */
 @Composable
-private fun PresetRow(canUsePractised: Boolean, onPreset: (PracticePreset) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        for (preset in PracticePreset.entries) {
-            SuggestionChip(
-                onClick = { onPreset(preset) },
-                label = { Text(preset.label) },
-                // Nothing practised on the path yet would select no forms at all.
-                enabled = preset != PracticePreset.Practised || canUsePractised,
+private fun ChoiceRow(
+    label: String,
+    value: String,
+    choices: List<Pair<String, String>>,
+    first: Boolean,
+    onChoose: (String) -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        SettingRow(label, first = first, onClick = { expanded = true }) {
+            Text(value, style = MaterialTheme.typography.bodyLarge)
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            for ((key, text) in choices) {
+                DropdownMenuItem(
+                    text = { Text(text) },
+                    onClick = {
+                        onChoose(key)
+                        expanded = false
+                    },
+                )
+            }
         }
     }
 }
@@ -541,37 +594,6 @@ private fun SetRow(
                     uncheckedColor = if (dimmed) faded else MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun FocusDropdown(selected: String, onSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    val label = QuizOptions.FOCUS.firstOrNull { it.key == selected }?.label ?: selected
-
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = label,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Question focus") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth(),
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            for (item in QuizOptions.FOCUS) {
-                DropdownMenuItem(
-                    text = { Text(item.label) },
-                    onClick = {
-                        onSelected(item.key)
-                        expanded = false
-                    },
-                )
-            }
         }
     }
 }

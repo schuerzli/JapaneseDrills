@@ -159,6 +159,9 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
 - **A worked change is drawn with `ui/components/Changes.kt`, never by hand**: `StepBlock`,
   `AlignedChanges` and `ChangeRow` on the Grammar tab, in explanations, in results and in the
   Conjugation Intro. They drifted apart once, as four different looks for one thing.
+- **A card lists rows, not panels**: a setting, a count or a choice is a row from
+  `ui/components/Rows.kt` — label left, value right, hairlines between, one card around
+  them. The learn path, practice, settings and results all read the same way down.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in

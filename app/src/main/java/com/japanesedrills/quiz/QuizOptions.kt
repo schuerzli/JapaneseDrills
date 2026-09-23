@@ -2,7 +2,8 @@ package com.japanesedrills.quiz
 
 import android.content.Context
 
-data class OptionItem(val key: String, val label: String)
+/** One thing the practice screen offers, with a line under it where a label needs one. */
+data class OptionItem(val key: String, val label: String, val note: String? = null)
 
 /** Which colour scheme to use, regardless of the device setting. */
 enum class ThemeChoice(val label: String) {
@@ -164,6 +165,9 @@ data class QuizOptions(
         const val AUTO_EXPLAIN = "auto_show_explanation"
         const val MAX_QUESTIONS = 999
 
+        /** The session lengths the practice screen offers; any of them is a valid count. */
+        val QUESTION_COUNTS = listOf(5, 10, 15, 20, 30, 50)
+
         val FORMS = listOf(
             OptionItem("plain", "Plain"),
             OptionItem("polite", "Polite"),
@@ -209,10 +213,10 @@ data class QuizOptions(
         )
 
         val GENERAL = listOf(
-            OptionItem(TransformationBuilder.TRICK, "Trick questions (answers may be the same as the given form)"),
-            OptionItem(KANA, "Use hiragana throughout the test (no kanji)"),
-            OptionItem(AUTO_NEXT, "Automatically go to the next question on success"),
-            OptionItem(AUTO_EXPLAIN, "Automatically show the explanation on error"),
+            OptionItem(TransformationBuilder.TRICK, "Trick questions", "The answer may be the form you were given"),
+            OptionItem(KANA, "Hiragana only", "No kanji anywhere in the quiz"),
+            OptionItem(AUTO_NEXT, "Skip ahead when right", "Move on without tapping"),
+            OptionItem(AUTO_EXPLAIN, "Explain when wrong", "Open the explanation without tapping"),
         )
 
         val FOCUS = listOf(
