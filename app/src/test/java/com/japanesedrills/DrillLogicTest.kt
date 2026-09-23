@@ -580,6 +580,8 @@ class DrillLogicTest {
                 }
             }
             addAll(QuizOptions.ALL.map { it.label })
+            addAll(QuizOptions.COLUMNS.map { it.label })
+            addAll(WordSets.BUILT_IN.map { it.label })
             for (step in data.learnPath.steps) {
                 add(step.title); add(step.subtitle); add(step.chapter)
             }

@@ -242,7 +242,7 @@ data class QuizOptions(
         val COLUMNS = listOf(
             WordColumn("godan", "godan", setOf("godan", "iku", "aru")),
             WordColumn("ichidan", "ichidan", setOf("ichidan", "iru")),
-            WordColumn("irregular", "irreg.", setOf("suru", "kuru")),
+            WordColumn("irregular", "する 来[く]る", setOf("suru", "kuru")),
             WordColumn("i-adjective", "い-adj", setOf("i-adjective", "ii")),
             WordColumn("na-adjective", "な-adj", setOf("na-adjective")),
         )

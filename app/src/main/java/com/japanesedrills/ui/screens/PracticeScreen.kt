@@ -72,6 +72,7 @@ import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
+import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.TransformationBuilder
 import com.japanesedrills.quiz.WordColumn
@@ -79,6 +80,7 @@ import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.LocalFurigana
+import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.SwitchRow
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
@@ -311,11 +313,12 @@ private fun PracticeGrid(
             Spacer(Modifier.width(RowLabelWidth))
             for (column in columns) {
                 val on = options.isColumnOn(column)
-                Text(
-                    column.label,
+                // Through RichText, because the irregular column names its two verbs.
+                RichText(
+                    listOf(RichPart.Text(column.label)),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
+                    horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .weight(1f)
                         .clickable { onColumn(column, !on) }
@@ -360,7 +363,7 @@ private fun PracticeGrid(
                             )
                             .clickable(enabled = !strength) { onSquare(form.key, column, !asked) }
                             .semantics {
-                                contentDescription = "${form.label}, ${column.label}"
+                                contentDescription = "${form.label}, ${Furigana.toKanji(column.label)}"
                                 stateDescription = when {
                                     strength -> "${(held * 100).roundToInt()} percent"
                                     asked -> "Asked"
