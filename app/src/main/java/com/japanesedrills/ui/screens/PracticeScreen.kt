@@ -3,6 +3,7 @@ package com.japanesedrills.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -25,6 +26,8 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +51,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.draw.clip
@@ -68,6 +72,7 @@ import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.TransformationBuilder
 import com.japanesedrills.quiz.WordColumn
+import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.LocalFurigana
@@ -83,6 +88,8 @@ import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 fun PracticeScreen(
     state: DrillUiState,
     onFlag: (String, Boolean) -> Unit,
+    onWordSet: (String, Boolean) -> Unit,
+    onAllWords: (Boolean) -> Unit,
     onForm: (String, Boolean) -> Unit,
     onColumn: (WordColumn, Boolean) -> Unit,
     onSquare: (String, WordColumn, Boolean) -> Unit,
@@ -138,8 +145,8 @@ fun PracticeScreen(
             PracticeGrid(state, strength, onForm, onColumn, onSquare)
         }
 
-        SectionCard("Filters", "Only ask about words in the selected lists") {
-            LevelChips(options, onFlag)
+        SectionCard("Word sets", "Every set you switch on is added to the pool") {
+            WordSetList(state, onWordSet, onAllWords)
         }
 
         SectionCard("Options") {
@@ -161,10 +168,11 @@ fun PracticeBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
     val pool = state.pool
     val count = options.questionCount
     val problems = buildList {
+        if (!options.hasWords) add("Switch on a word set, or all words.")
         if (!options.hasPoliteness) add("Select at least one of 'Plain' and 'Polite'.")
         if (count == null) {
             add("Enter a number of questions between 1 and ${QuizOptions.MAX_QUESTIONS}.")
-        } else if (pool != null && pool.questions < count) {
+        } else if (pool != null && pool.questions < count && options.hasWords) {
             add(
                 if (pool.questions == 0) "No questions match these settings."
                 else "Not enough questions; some will repeat."
@@ -277,7 +285,7 @@ private fun PracticeGrid(
     val columns = QuizOptions.COLUMNS.filter { present == null || it.key in present }
     if (columns.isEmpty()) {
         Text(
-            "No words to practise. Switch on a list below.",
+            "No words to practise. Switch on a word set below.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -410,22 +418,85 @@ private val RowLabelWidth = 88.dp
 private val CellHeight = 26.dp
 private val CellGap = 3.dp
 
-/** The word lists, which narrow the words the grid then asks about. */
-@OptIn(ExperimentalLayoutApi::class)
+/**
+ * Which words the pool draws on. The sets stack, so the line at the foot gives the pool
+ * rather than the sum: a word in three sets is still one word.
+ *
+ * "All words" is a mode rather than a set. While it is on the others are dimmed but still
+ * live, so a tap on one records a choice for when it goes off again rather than fighting it.
+ */
 @Composable
-private fun LevelChips(options: QuizOptions, onFlag: (String, Boolean) -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        for (item in QuizOptions.LEVEL_FILTERS) {
-            val selected = options.isOn(item.key)
-            FilterChip(
-                selected = selected,
-                onClick = { onFlag(item.key, !selected) },
-                label = { Text(item.label) },
-                // The fill alone carries the state. A tick widened the chip on selection
-                // and reflowed every chip after it, which read as the grid jumping.
-                colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = MaterialTheme.colorScheme.primary,
-                    selectedLabelColor = MaterialTheme.colorScheme.onPrimary,
+private fun WordSetList(state: DrillUiState, onWordSet: (String, Boolean) -> Unit, onAllWords: (Boolean) -> Unit) {
+    val options = state.options
+    Column {
+        SetRow(
+            label = "All words",
+            count = state.wordCount.takeIf { it > 0 },
+            checked = options.allWords,
+            dimmed = false,
+            first = true,
+        ) { onAllWords(!options.allWords) }
+        for (set in WordSets.BUILT_IN) {
+            SetRow(
+                label = set.label,
+                count = state.setSizes[set.id],
+                checked = options.isSetOn(set.id),
+                dimmed = options.allWords,
+                first = false,
+            ) { onWordSet(set.id, !options.isSetOn(set.id)) }
+        }
+        Row(Modifier.padding(top = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                "In the pool",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                state.pool?.let { "${it.words} words" } ?: "…",
+                style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
+            )
+        }
+    }
+}
+
+/** One set: its name, how many words it holds, and whether the pool draws on it. */
+@Composable
+private fun SetRow(
+    label: String,
+    count: Int?,
+    checked: Boolean,
+    dimmed: Boolean,
+    first: Boolean,
+    onToggle: () -> Unit,
+) {
+    val faded = MaterialTheme.colorScheme.outline
+    Column {
+        if (!first) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Row(
+            Modifier
+                .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
+                .padding(vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = if (dimmed) faded else MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                count?.toString().orEmpty(),
+                style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
+                color = if (dimmed) faded else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(end = 12.dp),
+            )
+            Checkbox(
+                checked = checked,
+                onCheckedChange = null,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = if (dimmed) faded else MaterialTheme.colorScheme.primary,
+                    uncheckedColor = if (dimmed) faded else MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
             )
         }

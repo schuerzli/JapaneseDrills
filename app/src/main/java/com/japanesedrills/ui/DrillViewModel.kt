@@ -155,6 +155,10 @@ data class DrillUiState(
     val conjugationIntroFrom: Screen = Screen.Root,
     /** The form being read about on the Grammar tab. */
     val grammarNote: GrammarNote? = null,
+    /** How many words the app holds at all, for the "all words" row. */
+    val wordCount: Int = 0,
+    /** How many words each word set holds, beside its name on the practice screen. */
+    val setSizes: Map<String, Int> = emptyMap(),
     /** Representative words for showing how a form is built. */
     val grammarExamples: GrammarExamples = GrammarExamples(),
     /**
@@ -214,7 +218,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             val loaded = withContext(Dispatchers.IO) { DrillData.load(getApplication()) }
             data = loaded
-            engine = QuizEngine(loaded)
+            val loadedEngine = QuizEngine(loaded)
+            engine = loadedEngine
             val examples = GrammarExamples(
                 Grammar.EXAMPLE_KEYS.mapNotNull(loaded.wordsByKey::get).associateBy { it.key },
                 loaded.ownForms,
@@ -224,7 +229,15 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 // column has it; the rest come from the forms the groups actually define.
                 column.key to column.groups.flatMapTo(hashSetOf("plain")) { loaded.groupForms[it].orEmpty() }
             }
-            _state.update { it.copy(loading = false, grammarExamples = examples, columnForms = columnForms) }
+            _state.update {
+                it.copy(
+                    loading = false,
+                    grammarExamples = examples,
+                    columnForms = columnForms,
+                    setSizes = loadedEngine.setSizes(),
+                    wordCount = loaded.words.size,
+                )
+            }
             refreshPath()
             refreshPool()
         }
@@ -287,6 +300,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     // Settings
 
     fun setFlag(key: String, value: Boolean) = updateOptions { it.with(key, value) }
+
+    /** One word set switched on or off; several stack, and a word in two counts once. */
+    fun setWordSet(id: String, value: Boolean) = updateOptions { it.withSet(id, value) }
+
+    /** Draw on every word there is, remembering the sets underneath for when it goes off. */
+    fun setAllWords(value: Boolean) = updateOptions { it.copy(allWords = value) }
 
     /** A whole row of the grid: the form, for every class that has it. */
     fun setForm(form: String, value: Boolean) = updateOptions { options ->

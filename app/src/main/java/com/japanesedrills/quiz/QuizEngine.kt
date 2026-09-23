@@ -130,28 +130,32 @@ class QuestionPool(
 
 class QuizEngine(private val data: DrillData, private val random: Random = Random.Default) {
 
-    private val levelFilters = QuizOptions.LEVEL_FILTERS.map { it.key }
     private var nextId = 0
 
-    /** Whether the word is one of those being drawn on, before the grid has its say. */
-    private fun sourcesWord(word: Word, options: QuizOptions, activeLevels: List<String>): Boolean =
+    /**
+     * Whether the word is one of those being drawn on, before the grid has its say: it is in
+     * one of the chosen sets, and in the vocabulary a step or a review pins.
+     */
+    private fun sourcesWord(word: Word, options: QuizOptions): Boolean =
         (options.wordKeys?.contains(word.key) ?: true) &&
-            (activeLevels.isEmpty() || activeLevels.any { it in word.tags })
+            (options.allWords || options.sets.any { WordSets.holds(it, word) })
 
     /** Whether the options allow this word at all, whatever the transformation. */
-    private fun allowsWord(word: Word, options: QuizOptions, activeLevels: List<String>): Boolean =
-        options.isOn(word.group) && sourcesWord(word, options, activeLevels)
+    private fun allowsWord(word: Word, options: QuizOptions): Boolean =
+        options.isOn(word.group) && sourcesWord(word, options)
+
+    /** How many words each set holds, for the practice screen to show beside its name. */
+    fun setSizes(): Map<String, Int> =
+        WordSets.IDS.associateWith { id -> data.words.count { WordSets.holds(id, it) } }
 
     /**
      * The grid columns the chosen words fall into, switched on or not: what the grid has
      * rows and columns for at all. A column no word belongs to is not drawn, the same way a
      * square is not drawn for a form its class does not have.
      */
-    fun columnsFor(options: QuizOptions): Set<String> {
-        val activeLevels = levelFilters.filter(options::isOn)
-        return data.words.filterTo(HashSet()) { sourcesWord(it, options, activeLevels) }
+    fun columnsFor(options: QuizOptions): Set<String> =
+        data.words.filter { sourcesWord(it, options) }
             .mapTo(LinkedHashSet()) { QuizOptions.columnOf(it.group) }
-    }
 
     /** Whether this word actually has both forms, and they match the question focus. */
     private fun allowsPair(word: Word, t: Transformation, options: QuizOptions): Boolean {
@@ -177,9 +181,8 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
      */
     fun buildPool(options: QuizOptions, checkpoint: () -> Unit = {}): QuestionPool {
         val transformations = data.transformations
-        // Both of these are the same for every word, so they are decided once per pool
-        // rather than once per (word, transformation) pair.
-        val activeLevels = levelFilters.filter(options::isOn)
+        // The same for every word, so it is decided once per pool rather than once per
+        // (word, transformation) pair.
         val enabled = transformations.mapIndexed { i, t -> i to t }.filter { (_, t) -> t.tags.all(options::allows) }
 
         // The whole-pool lists run to six figures, so they start large.
@@ -188,7 +191,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         var words = 0
         data.words.forEachIndexed { w, word ->
             checkpoint()
-            if (!allowsWord(word, options, activeLevels)) return@forEachIndexed
+            if (!allowsWord(word, options)) return@forEachIndexed
             var asked = false
             for ((t, transformation) in enabled) {
                 if (allowsPair(word, transformation, options)) {
@@ -231,13 +234,12 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
      */
     fun buildSkillIndex(options: QuizOptions): Map<String, IntArray> {
         val transformations = data.transformations
-        val activeLevels = levelFilters.filter(options::isOn)
         val enabled = transformations.mapIndexed { i, t -> i to t }
             .filter { (_, t) -> !t.isTrick && t.tags.all(options::allows) }
 
         val index = LinkedHashMap<String, IntList>()
         data.words.forEachIndexed { w, word ->
-            if (!allowsWord(word, options, activeLevels)) return@forEachIndexed
+            if (!allowsWord(word, options)) return@forEachIndexed
             for ((t, transformation) in enabled) {
                 if (allowsPair(word, transformation, options)) {
                     index.getOrPut(skillOf(word, transformation)) { IntList() }

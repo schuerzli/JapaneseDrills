@@ -45,6 +45,17 @@ data class QuizOptions(
      */
     val offSquares: Set<String> = emptySet(),
     /**
+     * The word sets switched on, which the pool is drawn from ([WordSets]). Kept even while
+     * [allWords] is on, so switching that off returns to the sets you had chosen.
+     */
+    val sets: Set<String> = emptySet(),
+    /**
+     * Draw on every word there is, whatever [sets] holds. It is a mode rather than a set of
+     * its own: as one more set it would be the union of all the others and make them
+     * meaningless while it was on.
+     */
+    val allWords: Boolean = true,
+    /**
      * Restricts the pool to these word keys. Null means "no restriction" and is what
      * free practice always uses; steps and review set it to pin their vocabulary.
      * Never persisted — it is derived from the learn path, not chosen by the user.
@@ -74,6 +85,14 @@ data class QuizOptions(
 
     fun isColumnOn(column: WordColumn): Boolean = column.groups.any(::isOn)
 
+    fun isSetOn(id: String): Boolean = id in sets
+
+    fun withSet(id: String, value: Boolean): QuizOptions =
+        copy(sets = if (value) sets + id else sets - id)
+
+    /** True when the pool has no words at all to draw on, which is worth saying out loud. */
+    val hasWords: Boolean get() = allWords || sets.isNotEmpty()
+
     /**
      * Exactly these forms and word groups, no level filter, and [focus]. The general
      * options (kana, furigana, trick questions…) are preferences rather than a choice of
@@ -85,14 +104,14 @@ data class QuizOptions(
                 when (key) {
                     in FORM_KEYS -> key in forms
                     in GROUP_KEYS -> key in groups
-                    in LEVEL_KEYS -> false
                     else -> on
                 }
             },
             questionFocus = focus,
             // A preset states a whole selection, so it fills the grid in rather than
-            // leaving yesterday's holes punched in it.
+            // leaving yesterday's holes punched in it, and it draws on every word.
             offSquares = emptySet(),
+            allWords = true,
         )
 
     /**
@@ -127,7 +146,8 @@ data class QuizOptions(
     /** True when both option sets produce the same question pool. */
     fun sameQuestions(other: QuizOptions): Boolean =
         flags == other.flags && questionFocus == other.questionFocus &&
-            offSquares == other.offSquares && wordKeys == other.wordKeys
+            offSquares == other.offSquares && wordKeys == other.wordKeys &&
+            allWords == other.allWords && (allWords || sets == other.sets)
 
     val questionCount: Int? get() = numQuestions.toIntOrNull()?.takeIf { it in 1..MAX_QUESTIONS }
 
@@ -188,17 +208,6 @@ data class QuizOptions(
             OptionItem("ii", "いい adjective"),
         )
 
-        // Levels come from the JLPT word lists; words outside them carry no level tag and
-        // appear only when no filter is active. N1 is absent because the lists hold no
-        // N1 verbs or adjectives this drill can conjugate.
-        val LEVEL_FILTERS = listOf(
-            OptionItem("common", "Top 100 common verbs"),
-            OptionItem("n5", "JLPT N5"),
-            OptionItem("n4", "JLPT N4"),
-            OptionItem("n3", "JLPT N3"),
-            OptionItem("n2", "JLPT N2"),
-        )
-
         val GENERAL = listOf(
             OptionItem(TransformationBuilder.TRICK, "Trick questions (answers may be the same as the given form)"),
             OptionItem(KANA, "Use hiragana throughout the test (no kanji)"),
@@ -252,7 +261,7 @@ data class QuizOptions(
         /** Every option the start screen offers, in the order it shows them. */
         val ALL: List<OptionItem> =
             FORMS + REGULAR_VERBS + EXCEPTION_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES +
-                LEVEL_FILTERS + GENERAL
+                GENERAL
 
         /** The options that start switched on; every other option in [ALL] starts off. */
         private val ON_BY_DEFAULT = setOf(
@@ -273,7 +282,6 @@ data class QuizOptions(
         val GROUP_KEYS: Set<String> =
             (REGULAR_VERBS + EXCEPTION_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES)
                 .map { it.key }.toSet()
-        val LEVEL_KEYS: Set<String> = LEVEL_FILTERS.map { it.key }.toSet()
     }
 }
 
@@ -310,6 +318,8 @@ class OptionsStore(context: Context) {
                 ?: defaults.palette,
             furigana = prefs.getBoolean("furigana", defaults.furigana),
             offSquares = prefs.getStringSet("offSquares", null).orEmpty(),
+            sets = prefs.getStringSet("sets", null).orEmpty(),
+            allWords = prefs.getBoolean("allWords", defaults.allWords),
         )
     }
 
@@ -322,6 +332,8 @@ class OptionsStore(context: Context) {
             putString("palette", options.palette.name)
             putBoolean("furigana", options.furigana)
             putStringSet("offSquares", options.offSquares)
+            putStringSet("sets", options.sets)
+            putBoolean("allWords", options.allWords)
         }.apply()
     }
 }

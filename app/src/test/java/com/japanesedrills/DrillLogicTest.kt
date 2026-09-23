@@ -12,6 +12,7 @@ import com.japanesedrills.quiz.Mark
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
+import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.Question
@@ -146,13 +147,20 @@ class DrillLogicTest {
         assertTrue(common.none { it.group.endsWith("adjective") || it.group == "ii" })
 
         val engine = QuizEngine(data, Random(5))
-        val options = QuizOptions().with("common", true)
-        val pool = engine.buildPool(options)
+        val pool = engine.buildPool(onlySets("common"))
         assertTrue(pool.size > 0)
         repeat(100) {
             assertTrue("common" in engine.nextQuestion(pool)!!.word.tags)
         }
     }
+
+    /**
+     * Free practice over the sets switched on and nothing else, with the whole grid on, so a
+     * test about which words are drawn is not answered by a class being switched off.
+     */
+    private fun onlySets(vararg ids: String) = QuizOptions()
+        .select(QuizOptions.FORM_KEYS, QuizOptions.GROUP_KEYS)
+        .copy(allWords = false, sets = ids.toSet())
 
     @Test
     fun fixedRulesProduceCorrectForms() {
@@ -710,17 +718,17 @@ class DrillLogicTest {
     }
 
     /**
-     * The N4-N1 chips used to match nothing, because every word carried the same `n5` tag.
-     * Each level filter must select a usable set, and must select only that level.
+     * The N4-N1 lists used to match nothing, because every word carried the same `n5` tag.
+     * Each list must select a usable set, and must select only that level.
      */
     @Test
-    fun everyLevelFilterSelectsWords() {
+    fun everyLevelSetSelectsWords() {
         val engine = QuizEngine(data)
         for (level in listOf("n5", "n4", "n3", "n2")) {
             val words = data.words.filter { level in it.tags }
             assertTrue("$level has ${words.size} words", words.size >= 150)
 
-            val pool = engine.buildPool(QuizOptions().with(level, true))
+            val pool = engine.buildPool(onlySets(level))
             assertTrue(level, pool.size > 0)
             repeat(50) { assertTrue(level, level in engine.nextQuestion(pool)!!.word.tags) }
         }
@@ -728,6 +736,43 @@ class DrillLogicTest {
         for (word in data.words) {
             assertTrue(word.key, word.tags.count { it in setOf("n5", "n4", "n3", "n2") } <= 1)
         }
+    }
+
+    /**
+     * Sets add up rather than multiply: a word in two of them is still one word, so two
+     * sets together ask exactly what each asks, and nothing twice.
+     */
+    @Test
+    fun setsStackWithoutAskingAWordTwice() {
+        val engine = QuizEngine(data)
+        val common = engine.buildPool(onlySets("common")).size
+        val n5 = engine.buildPool(onlySets("n5")).size
+        val both = engine.buildPool(onlySets("common", "n5")).size
+        val shared = data.words.count { "common" in it.tags && "n5" in it.tags && it.group !in WordSets.PARTIAL_GROUPS }
+        assertTrue("the lists do overlap", shared > 0)
+        assertTrue("a stacked set is not the sum", both < common + n5)
+        assertTrue(both >= maxOf(common, n5))
+    }
+
+    /**
+     * 行く, ある, いる and いい are held back from the lists and kept in one set of their own:
+     * they have no column on the practice grid, so the set is what makes them switchable.
+     */
+    @Test
+    fun theListsLeaveThePartiallyIrregularWordsToTheirOwnSet() {
+        val partial = data.words.filter { it.group in WordSets.PARTIAL_GROUPS }
+        assertEquals(WordSets.PARTIAL_GROUPS, partial.mapTo(HashSet()) { it.group })
+        for (word in partial) {
+            assertTrue(word.key, WordSets.holds(WordSets.PARTIAL, word))
+            for (list in WordSets.IDS - WordSets.PARTIAL) {
+                assertFalse("$list holds ${word.key}", WordSets.holds(list, word))
+            }
+        }
+        val engine = QuizEngine(data)
+        val words = HashSet<String>()
+        val pool = engine.buildPool(onlySets(WordSets.PARTIAL))
+        repeat(60) { words += engine.nextQuestion(pool)!!.word.key }
+        assertEquals(partial.mapTo(HashSet()) { it.key }, words)
     }
 
     @Test

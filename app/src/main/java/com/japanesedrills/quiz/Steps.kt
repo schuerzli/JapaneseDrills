@@ -63,7 +63,6 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
             when (key) {
                 in QuizOptions.FORM_KEYS -> key in forms
                 in QuizOptions.GROUP_KEYS -> true
-                in QuizOptions.LEVEL_KEYS -> false
                 // Trick questions are a free-practice spice: they exist to catch you out,
                 // which is not what the path is for.
                 TransformationBuilder.TRICK -> false

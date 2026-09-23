@@ -108,8 +108,8 @@ These look like mistakes without their reason. Check here before "fixing" one.
   purpose — ある's rare potential/passive/causative/imperative, いる's progressive.
   Inheriting from godan/ichidan would bring those back.
 - **Level tags are `n5`–`n2` only.** The source lists hold no N1 verbs or
-  adjectives this app can conjugate. Words outside the lists carry no level tag and
-  appear only when no filter is active.
+  adjectives this app can conjugate. Words outside the lists carry no level tag, so only
+  free practice's "all words" reaches them.
 - **steps.json spells every step out in full** — its forms, focus and word batches — so
   the app does no bookkeeping; what is known by which point is worked out in the generator.
   Steps are an array, not an object keyed by id, because JSON key order is preserved by
@@ -131,7 +131,9 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   such as the version-1 backup format of the old lesson path. The whole is the *learn
   path* (`LearnPath`), its units are *steps*; the page that explains conjugation is the
   *Conjugation Intro* (`ConjugationIntro`); a godan ending melting into て or た is a
-  *fusion* (`FusionColumn`, the "fusion system"), never a "sound change".
+  *fusion* (`FusionColumn`, the "fusion system"), never a "sound change". Free practice
+  picks its vocabulary as *word sets* (`WordSets`) and its grammar as *squares* of a grid,
+  a form of one word class — the pairing review already schedules (`QuizEngine.skillOf`).
 - **The same goes for data: a word has one class everywhere** it is shown or conjugated,
   and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
   it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone

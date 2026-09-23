@@ -298,6 +298,8 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
             AppTab.Practice -> PracticeScreen(
                 state = state,
                 onFlag = viewModel::setFlag,
+                onWordSet = viewModel::setWordSet,
+                onAllWords = viewModel::setAllWords,
                 onForm = viewModel::setForm,
                 onColumn = viewModel::setColumn,
                 onSquare = viewModel::setSquare,
