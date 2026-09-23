@@ -357,12 +357,23 @@ SURU_GLOSSES = {
 
 
 def curate(entries):
-    """Applies CURATION_DROP and SURU_GLOSSES."""
+    """Applies CURATION_DROP, SURU_GLOSSES and COMMON_EXTRA."""
     for key in CURATION_DROP:
         entries.pop(key, None)
     for key, gloss in SURU_GLOSSES.items():
         if key in entries:
             entries[key]["meaning"] = gloss
+    for key in COMMON_EXTRA:
+        tags = entries[key]["tags"]
+        if "common" not in tags:
+            tags.append("common")
+
+
+# Three of the seed's hundred common verbs are 行く, ある and いる, which the app keeps in a
+# set of their own because each is regular except in a form or two. Its "Top 100 common
+# verbs" would therefore offer 97, so three more everyday N5 verbs join the tag and the
+# name stays true.
+COMMON_EXTRA = ("寝る", "覚える", "着く")
 
 
 def write(entries):

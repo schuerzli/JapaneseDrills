@@ -40,12 +40,14 @@ object WordSets {
     val PARTIAL_GROUPS = setOf("iku", "aru", "iru", "ii")
 
     val BUILT_IN: List<WordSet> = listOf(
+        // First, because it is the set with something to say: the other sets leave these
+        // four out, so this is where a learner turns them back on.
+        WordSet(PARTIAL, "Partially irregular"),
         WordSet("common", "Top 100 common verbs"),
         WordSet("n5", "JLPT N5"),
         WordSet("n4", "JLPT N4"),
         WordSet("n3", "JLPT N3"),
         WordSet("n2", "JLPT N2"),
-        WordSet(PARTIAL, "Partially irregular"),
     )
 
     val IDS: Set<String> = BUILT_IN.mapTo(LinkedHashSet()) { it.id }

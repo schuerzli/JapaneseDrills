@@ -140,9 +140,14 @@ class DrillLogicTest {
             .conjugations.getValue("negative").forms.single().let(Furigana::toKana))
     }
 
+    /**
+     * "Top 100 common verbs" has to hold a hundred. Three of the tagged words are the
+     * partially irregular ones the lists leave to their own set, which is why the tag itself
+     * is on more than a hundred.
+     */
     @Test
     fun commonFilterSelectsHundredVerbs() {
-        val common = data.words.filter { "common" in it.tags }
+        val common = data.words.filter { WordSets.holds("common", it) }
         assertEquals(100, common.size)
         assertTrue(common.none { it.group.endsWith("adjective") || it.group == "ii" })
 
