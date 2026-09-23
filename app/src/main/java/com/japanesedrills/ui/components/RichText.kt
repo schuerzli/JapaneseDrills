@@ -238,8 +238,10 @@ fun RichText(
                                     textStyle,
                                     textColor,
                                     Modifier.alignByBaseline(),
-                                    hangStart = segments.getOrNull(i - 1)?.reading == null,
-                                    hangEnd = segments.getOrNull(i + 1)?.reading == null,
+                                    // Only over a neighbour: a word hanging past the start of
+                                    // its own column pulled it out of line with the row above.
+                                    hangStart = i > 0 && segments[i - 1].reading == null,
+                                    hangEnd = i < segments.lastIndex && segments[i + 1].reading == null,
                                 )
                             }
                         }

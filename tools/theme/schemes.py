@@ -82,6 +82,15 @@ MARK_ROLES = ["markKana", "markEnding", "markFused"]
 MARKS_LIGHT = dict(markEnding="#1F5C8F", markFused="#7B3A82")
 MARKS_DARK = dict(markEnding="#8FC2F0", markFused="#E2A6E6")
 
+# How well something is holding up in review, for the bars on the learn path: a ramp from
+# barely started to solid, read left to right as a bar fills. Shared by every palette, like
+# the marks: it is a measurement, not part of a palette's character, and it stays off the
+# accent so a full bar never reads as something to tap. The far end is the green that means
+# "right" everywhere else; the near end is a clay that does not.
+STRENGTH_ROLES = ["strengthLow", "strengthMid", "strengthHigh"]
+STRENGTH_LIGHT = dict(strengthLow="#993A22", strengthMid="#6F4A07", strengthHigh="#255A2B")
+STRENGTH_DARK = dict(strengthLow="#E79C7C", strengthMid="#DBB868", strengthHigh="#97CA94")
+
 
 # The hero cards — the question, the welcome, the Conjugation Intro link and the score — are a
 # light wash of the accent over the page, with ordinary ink on top. They used to be a slab of
@@ -107,7 +116,10 @@ def scheme(**kw):
     """One mode of a palette. Roles the app never touches are filled from ones it does."""
     s = dict(kw)
     s.setdefault("markKana", s["primary"])
-    for role, colour in (MARKS_DARK if _dark(s["surface"]) else MARKS_LIGHT).items():
+    dark = _dark(s["surface"])
+    for role, colour in (MARKS_DARK if dark else MARKS_LIGHT).items():
+        s.setdefault(role, colour)
+    for role, colour in (STRENGTH_DARK if dark else STRENGTH_LIGHT).items():
         s.setdefault(role, colour)
     s.setdefault("primaryContainer", mix(s["primary"], s["surface"], HERO_TINT))
     s.setdefault("onPrimaryContainer", s["onSurface"])
@@ -123,7 +135,7 @@ def scheme(**kw):
     s.setdefault("surfaceDim", s["surfaceContainerHighest"])
     s.setdefault("surfaceContainerLowest", s["surfaceContainerLow"])
     s.setdefault("inversePrimary", s["primary"])
-    missing = [r for r in ROLES + ANSWER_ROLES + MARK_ROLES if r not in s]
+    missing = [r for r in ROLES + ANSWER_ROLES + MARK_ROLES + STRENGTH_ROLES if r not in s]
     assert not missing, f"missing roles: {missing}"
     return s
 
@@ -331,6 +343,8 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
                        "surfaceContainerHigh", "surfaceContainerHighest")]
          # The Conjugation Intro's marked kana: on its cards, and on the tables inside them.
          + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")]
+         # The strength bars, drawn on a card and on the track they fill.
+         + [(fg, bg) for fg in STRENGTH_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")]
          # The step numbers on the grammar cards, set in the outline colour so they stay quieter
          # than the text they number.
          + [("outline", "surfaceContainerLow")])
@@ -414,6 +428,8 @@ def kotlin_palettes():
             f"    darkAnswers = AnswerColors(\n{roles(ANSWER_ROLES, dark, ' ' * 8)}    ),\n"
             f"    lightMarks = MarkColors(\n{roles(MARK_ROLES, light, ' ' * 8)}    ),\n"
             f"    darkMarks = MarkColors(\n{roles(MARK_ROLES, dark, ' ' * 8)}    ),\n"
+            f"    lightStrength = StrengthColors(\n{roles(STRENGTH_ROLES, light, ' ' * 8)}    ),\n"
+            f"    darkStrength = StrengthColors(\n{roles(STRENGTH_ROLES, dark, ' ' * 8)}    ),\n"
             f"    display = {display.capitalize()}Face,\n"
             f"    body = {body.capitalize()}Face,\n"
             f'    faces = "{faces(display, body)}",\n'

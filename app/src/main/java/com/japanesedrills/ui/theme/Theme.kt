@@ -13,6 +13,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.R
@@ -44,6 +45,28 @@ data class MarkColors(
 )
 
 /**
+ * How well something is holding up in review, as a bar fills: clay while it is barely
+ * started, ochre in the middle, green when it is solid. Off the accent on purpose, so a full
+ * bar reads as a measurement rather than as something to tap.
+ */
+@Immutable
+data class StrengthColors(
+    val strengthLow: Color,
+    val strengthMid: Color,
+    val strengthHigh: Color,
+) {
+    /** The colour a bar [filled] 0f..1f is drawn in, mixed across the ramp. */
+    fun at(filled: Float): Color {
+        val level = filled.coerceIn(0f, 1f)
+        return if (level < 0.5f) {
+            lerp(strengthLow, strengthMid, level * 2f)
+        } else {
+            lerp(strengthMid, strengthHigh, (level - 0.5f) * 2f)
+        }
+    }
+}
+
+/**
  * Where a palette spends its accent beyond the roles every palette shares: on section
  * titles, and on the word-class headings in the grammar reference. It is what makes the
  * palettes different answers rather than one layout recoloured.
@@ -57,6 +80,8 @@ class PaletteSpec(
     val dark: ColorScheme,
     val lightAnswers: AnswerColors,
     val darkAnswers: AnswerColors,
+    val lightStrength: StrengthColors,
+    val darkStrength: StrengthColors,
     val lightMarks: MarkColors,
     val darkMarks: MarkColors,
     val display: FontFamily,
@@ -193,6 +218,16 @@ private val LatteSpec = PaletteSpec(
         markEnding = Color(0xFF8FC2F0),
         markFused = Color(0xFFE2A6E6),
     ),
+    lightStrength = StrengthColors(
+        strengthLow = Color(0xFF993A22),
+        strengthMid = Color(0xFF6F4A07),
+        strengthHigh = Color(0xFF255A2B),
+    ),
+    darkStrength = StrengthColors(
+        strengthLow = Color(0xFFE79C7C),
+        strengthMid = Color(0xFFDBB868),
+        strengthHigh = Color(0xFF97CA94),
+    ),
     display = LoraFace,
     body = ManropeFace,
     faces = "Lora · Manrope",
@@ -293,6 +328,16 @@ private val KissatenSpec = PaletteSpec(
         markKana = Color(0xFFE89B62),
         markEnding = Color(0xFF8FC2F0),
         markFused = Color(0xFFE2A6E6),
+    ),
+    lightStrength = StrengthColors(
+        strengthLow = Color(0xFF993A22),
+        strengthMid = Color(0xFF6F4A07),
+        strengthHigh = Color(0xFF255A2B),
+    ),
+    darkStrength = StrengthColors(
+        strengthLow = Color(0xFFE79C7C),
+        strengthMid = Color(0xFFDBB868),
+        strengthHigh = Color(0xFF97CA94),
     ),
     display = LoraFace,
     body = ManropeFace,
@@ -395,6 +440,16 @@ private val WashiSpec = PaletteSpec(
         markEnding = Color(0xFF8FC2F0),
         markFused = Color(0xFFE2A6E6),
     ),
+    lightStrength = StrengthColors(
+        strengthLow = Color(0xFF993A22),
+        strengthMid = Color(0xFF6F4A07),
+        strengthHigh = Color(0xFF255A2B),
+    ),
+    darkStrength = StrengthColors(
+        strengthLow = Color(0xFFE79C7C),
+        strengthMid = Color(0xFFDBB868),
+        strengthHigh = Color(0xFF97CA94),
+    ),
     display = OutfitFace,
     body = OutfitFace,
     faces = "Outfit",
@@ -495,6 +550,16 @@ private val CaramelSpec = PaletteSpec(
         markKana = Color(0xFFF4D0A6),
         markEnding = Color(0xFF8FC2F0),
         markFused = Color(0xFFE2A6E6),
+    ),
+    lightStrength = StrengthColors(
+        strengthLow = Color(0xFF993A22),
+        strengthMid = Color(0xFF6F4A07),
+        strengthHigh = Color(0xFF255A2B),
+    ),
+    darkStrength = StrengthColors(
+        strengthLow = Color(0xFFE79C7C),
+        strengthMid = Color(0xFFDBB868),
+        strengthHigh = Color(0xFF97CA94),
     ),
     display = FrauncesFace,
     body = NunitosansFace,
@@ -597,6 +662,16 @@ private val MochaSpec = PaletteSpec(
         markEnding = Color(0xFF8FC2F0),
         markFused = Color(0xFFE2A6E6),
     ),
+    lightStrength = StrengthColors(
+        strengthLow = Color(0xFF993A22),
+        strengthMid = Color(0xFF6F4A07),
+        strengthHigh = Color(0xFF255A2B),
+    ),
+    darkStrength = StrengthColors(
+        strengthLow = Color(0xFFE79C7C),
+        strengthMid = Color(0xFFDBB868),
+        strengthHigh = Color(0xFF97CA94),
+    ),
     display = ManropeFace,
     body = ManropeFace,
     faces = "Manrope",
@@ -626,6 +701,7 @@ private val AppShapes = Shapes(
 
 private val LocalAnswerColors = staticCompositionLocalOf { specOf(Palette.Latte).lightAnswers }
 private val LocalMarkColors = staticCompositionLocalOf { specOf(Palette.Latte).lightMarks }
+private val LocalStrengthColors = staticCompositionLocalOf { specOf(Palette.Latte).lightStrength }
 private val LocalAccents = staticCompositionLocalOf { specOf(Palette.Latte).accents }
 
 object DrillTheme {
@@ -634,6 +710,9 @@ object DrillTheme {
 
     val markColors: MarkColors
         @Composable get() = LocalMarkColors.current
+
+    val strengthColors: StrengthColors
+        @Composable get() = LocalStrengthColors.current
 
     val accents: Accents
         @Composable get() = LocalAccents.current
@@ -653,6 +732,7 @@ fun JapaneseDrillsTheme(
     CompositionLocalProvider(
         LocalAnswerColors provides if (darkTheme) spec.darkAnswers else spec.lightAnswers,
         LocalMarkColors provides if (darkTheme) spec.darkMarks else spec.lightMarks,
+        LocalStrengthColors provides if (darkTheme) spec.darkStrength else spec.lightStrength,
         LocalAccents provides spec.accents,
     ) {
         MaterialTheme(

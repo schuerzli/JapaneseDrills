@@ -1,5 +1,6 @@
 package com.japanesedrills.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,12 +10,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
@@ -22,12 +25,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,15 +40,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.StepCard
 import com.japanesedrills.ui.components.FuriganaText
+import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.SectionCardPiece
+import com.japanesedrills.ui.components.SectionSpacing
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
+import kotlin.math.roundToInt
 
 /** One chapter of the path, in path order. */
 private data class Chapter(val title: String, val cards: List<StepCard>) {
@@ -71,9 +81,9 @@ private fun chaptersOf(path: List<StepCard>): List<Chapter> {
  * first once there is anything to review, because returning daily is the habit worth
  * building; the steps are the slower, weekly sense of progress.
  *
- * Steps are grouped into chapters, and every chapter folds down to its heading; only the one
- * holding the next step starts open, so the path reads as where you are rather than as
- * forty-odd rows.
+ * A chapter is one card and its steps are the rows in it, the shape the rest of the app
+ * lists things in. Every chapter folds down to its heading row; only the one holding the next
+ * step starts open, so the path reads as where you are rather than as forty-odd rows.
  */
 @Composable
 fun LearnPathScreen(
@@ -86,55 +96,77 @@ fun LearnPathScreen(
     modifier: Modifier = Modifier,
 ) {
     val chapters = remember(state.path) { chaptersOf(state.path) }
+    val next = state.nextStep
 
     val list = rememberLazyListState()
     LazyColumn(
         state = list,
         modifier = modifier.fillMaxSize().verticalScrollbar(list),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (!state.started) {
-            item { WelcomeCard(onConjugationIntro) }
+            item { Spaced { WelcomeCard(onConjugationIntro) } }
         } else {
             item {
                 Text(
                     "${state.path.count { it.ready }} of ${state.path.size} steps ready",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = SectionSpacing),
                 )
             }
         }
-        if (state.progress.skills.isNotEmpty()) {
-            item { ReviewCard(state.dueCount, onReview) }
+        // What can be started right now, in one card: they are the same kind of thing, and
+        // before anything is started the welcome card already says where to begin.
+        if (state.progress.skills.isNotEmpty() || (state.started && next != null)) {
+            item {
+                Spaced {
+                    SectionCard("Today") {
+                        if (state.progress.skills.isNotEmpty()) ReviewRow(state.dueCount, onReview)
+                        if (state.started && next != null) {
+                            if (state.progress.skills.isNotEmpty()) {
+                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                            }
+                            NextUpRow(next, onStart = { onStep(next) })
+                        }
+                    }
+                }
+            }
         }
-        // Before anything is started the welcome card already says where to begin.
-        val next = state.nextStep
-        if (state.started && next != null) {
-            item { NextUpCard(next, onStart = { onStep(next) }) }
-        }
+        // A chapter is one card, drawn a row at a time: a card composed whole would be nine
+        // rows built in the frame it scrolls into.
         chapters.forEachIndexed { index, chapter ->
             val open = state.chapterOpen[chapter.title] ?: chapter.cards.any { it.step == state.nextStep }
             item(key = "chapter-${chapter.title}") {
-                ChapterHeader(
-                    number = index + 1,
-                    chapter = chapter,
-                    open = open,
-                    onToggle = { onToggleChapter(chapter.title, !open) },
-                )
+                SectionCardPiece(first = true, last = !open) {
+                    ChapterHeader(
+                        number = index + 1,
+                        chapter = chapter,
+                        open = open,
+                        onToggle = { onToggleChapter(chapter.title, !open) },
+                    )
+                }
             }
             if (open) {
                 items(chapter.cards, key = { it.step.id }) { card ->
-                    StepRow(
-                        card,
-                        recommended = card.step == state.nextStep,
-                        onClick = { onStep(card.step) },
-                        onIntro = { onStepIntro(card.step) },
-                    )
+                    SectionCardPiece(first = false, last = card.step.id == chapter.cards.last().step.id) {
+                        StepRow(
+                            card,
+                            recommended = card.step == state.nextStep,
+                            onClick = { onStep(card.step) },
+                            onIntro = { onStepIntro(card.step) },
+                        )
+                    }
                 }
             }
         }
     }
+}
+
+/** A card of its own, with the room between cards under it. */
+@Composable
+private fun Spaced(content: @Composable () -> Unit) {
+    Box(Modifier.padding(bottom = SectionSpacing)) { content() }
 }
 
 /**
@@ -146,8 +178,7 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onToggle)
-            .padding(top = 8.dp, bottom = 2.dp),
+            .clickable(onClick = onToggle),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(Modifier.weight(1f)) {
@@ -156,10 +187,7 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Text(
-                chapter.title,
-                style = MaterialTheme.typography.titleLarge,
-            )
+            Text(chapter.title, style = MaterialTheme.typography.heading)
         }
         Spacer(Modifier.width(12.dp))
         Text(
@@ -192,7 +220,7 @@ private fun WelcomeCard(onConjugationIntro: () -> Unit) {
         ),
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Start here", style = MaterialTheme.typography.titleLarge)
+            Text("Start here", style = MaterialTheme.typography.heading)
             Text(
                 "Each step adds one form or a few new words. Take them in order or jump " +
                     "ahead — nothing is locked. Anything you practise comes back for review.",
@@ -218,40 +246,21 @@ private fun WelcomeCard(onConjugationIntro: () -> Unit) {
 }
 
 @Composable
-private fun ReviewCard(due: Int, onReview: () -> Unit) {
+private fun ReviewRow(due: Int, onReview: () -> Unit) {
     val nothingDue = due == 0
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = if (nothingDue) {
-                MaterialTheme.colorScheme.surfaceContainerHighest
-            } else {
-                DrillTheme.answerColors.correctContainer
-            },
-            contentColor = if (nothingDue) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                DrillTheme.answerColors.onCorrectContainer
-            },
-        ),
-    ) {
-        Row(
-            Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Review", style = MaterialTheme.typography.heading)
-                Text(
-                    if (nothingDue) "Nothing due — everything is fresh" else "$due due today",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-            Button(onClick = onReview) {
-                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text(if (nothingDue) "Practise" else "Review")
-            }
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text("Review", style = MaterialTheme.typography.bodyLarge)
+            Text(
+                if (nothingDue) "Nothing due — everything is fresh" else "$due due today",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Button(onClick = onReview) {
+            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+            Text(if (nothingDue) "Practise" else "Review")
         }
     }
 }
@@ -261,113 +270,115 @@ private fun ReviewCard(due: Int, onReview: () -> Unit) {
  * learner can take any other step from the list below.
  */
 @Composable
-private fun NextUpCard(step: Step, onStart: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        ),
-    ) {
-        Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("Next up", style = MaterialTheme.typography.labelLarge)
-                FuriganaText(step.title, style = MaterialTheme.typography.heading)
-                FuriganaText(step.subtitle, style = MaterialTheme.typography.bodyMedium)
-            }
-            Spacer(Modifier.width(12.dp))
-            Button(onClick = onStart) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text("Start")
-            }
+private fun NextUpRow(step: Step, onStart: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            FuriganaText("Next up · ${step.title}", style = MaterialTheme.typography.bodyLarge)
+            FuriganaText(
+                step.subtitle,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
-    }
-}
-
-@Composable
-private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
-    val step = card.step
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        // The recommended row is marked by its fill alone, so nothing around it moves.
-        colors = CardDefaults.cardColors(
-            containerColor = if (recommended) {
-                MaterialTheme.colorScheme.secondaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-        ),
-    ) {
-        Row(
-            Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            StatusBadge(card)
-            Spacer(Modifier.width(16.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                FuriganaText(step.title, style = MaterialTheme.typography.heading)
-                FuriganaText(
-                    step.subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (card.newWords > 0) {
-                    Text(
-                        if (card.newWords == 1) "1 new word" else "${card.newWords} new words",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            // On every step that has an introduction, opened or not, so rows never change shape.
-            if (card.hasIntro) {
-                IconButton(onClick = onIntro) {
-                    Icon(
-                        Icons.Outlined.Info,
-                        contentDescription = "About this step",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+        Spacer(Modifier.width(12.dp))
+        Button(onClick = onStart) {
+            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+            Text("Start")
         }
     }
 }
 
 /**
- * A tick once the step has been ready, a play mark until then, and once started a ring
- * around it for how well the step's content is holding up in review, so it fades as a form
- * goes stale and gives the review queue a visible purpose.
+ * One step: a tick once it has been ready, what it is about, and a bar for how well its
+ * content is holding up in review.
  */
 @Composable
-private fun StatusBadge(card: StepCard) {
-    Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
-        if (card.started) {
-            CircularProgressIndicator(
-                progress = { card.strength },
-                modifier = Modifier.size(40.dp),
-                strokeWidth = 3.dp,
-                color = DrillTheme.answerColors.correct,
-                trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-            )
+private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
+    val step = card.step
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .semantics {
+                stateDescription = when {
+                    card.ready -> "Ready"
+                    card.started -> "Started"
+                    else -> "Not started"
+                }
+            },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        // The column is there whether or not a tick is, so every title starts in one place.
+        Box(Modifier.width(TickWidth)) {
+            if (card.ready) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
         }
-        if (card.ready) {
-            Icon(
-                Icons.Default.Check,
-                contentDescription = "Ready",
-                tint = DrillTheme.answerColors.correct,
-                modifier = Modifier.size(20.dp),
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            FuriganaText(
+                step.title,
+                style = MaterialTheme.typography.heading,
+                // The recommended step is named on the card above; here it is only marked,
+                // by colour rather than by a fill, so no row changes size.
+                color = if (recommended) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             )
-        } else {
-            Icon(
-                Icons.Default.PlayArrow,
-                contentDescription = if (card.started) "Started" else "Not started",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(if (card.started) 20.dp else 24.dp),
+            FuriganaText(
+                if (card.newWords > 0) "${step.subtitle} · ${words(card.newWords)}" else step.subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            StrengthBar(card.strength)
+        }
+        // On every step that has an introduction, opened or not, so rows never change shape.
+        if (card.hasIntro) {
+            IconButton(onClick = onIntro) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = "About this step",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+private fun words(count: Int): String = if (count == 1) "1 new word" else "$count new words"
+
+private val TickWidth = 26.dp
+
+/**
+ * How well a step's content is holding up in review, as a bar that takes its colour from how
+ * far it has filled ([com.japanesedrills.ui.theme.StrengthColors]): a step that has never
+ * been answered shows the empty track, and one that is solid reads green across.
+ */
+@Composable
+private fun StrengthBar(strength: Float) {
+    val filled = strength.coerceIn(0f, 1f)
+    Box(
+        Modifier
+            .padding(top = 3.dp)
+            .fillMaxWidth()
+            .height(BarHeight)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+            .semantics { stateDescription = "${(filled * 100).roundToInt()} percent in review" },
+    ) {
+        if (filled > 0f) {
+            Box(
+                Modifier
+                    .fillMaxWidth(filled)
+                    .height(BarHeight)
+                    .clip(CircleShape)
+                    .background(DrillTheme.strengthColors.at(filled)),
             )
         }
     }
 }
+
+private val BarHeight = 4.dp

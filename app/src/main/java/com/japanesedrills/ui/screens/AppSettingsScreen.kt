@@ -1,8 +1,12 @@
 package com.japanesedrills.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,29 +14,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -41,61 +42,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.SectionCard
-import com.japanesedrills.ui.components.SwitchRow
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.facesOf
 
-private fun plural(count: Int, noun: String) = if (count == 1) "1 $noun" else "$count ${noun}s"
-
-/** The palettes by name, each with the faces it is set in, since those change too. */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PaletteDropdown(selected: Palette, onSelected: (Palette) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = selected.label,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Theme") },
-            supportingText = { Text(facesOf(selected)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier
-                .menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                .fillMaxWidth(),
-        )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            for (palette in Palette.entries) {
-                DropdownMenuItem(
-                    text = {
-                        Column {
-                            Text(palette.label)
-                            Text(
-                                facesOf(palette),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    },
-                    onClick = {
-                        onSelected(palette)
-                        expanded = false
-                    },
-                )
-            }
-        }
-    }
-}
-
-/** Appearance, progress and attribution, reached from the cog in the top bar. */
+/**
+ * Appearance, progress and attribution, reached from the cog in the top bar.
+ *
+ * Every setting is a row with its value on the right, the way the practice tab lists its
+ * word sets: one shape to read down, whether the value is a palette, a choice of three or a
+ * switch.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppSettingsScreen(
@@ -129,176 +96,289 @@ fun AppSettingsScreen(
             )
         },
     ) { padding ->
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .verticalScrollWithScrollbar()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        SectionCard("Appearance") {
-            PaletteDropdown(state.options.palette, onPalette)
-            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                ThemeChoice.entries.forEachIndexed { i, choice ->
-                    SegmentedButton(
-                        selected = state.options.theme == choice,
-                        onClick = { onTheme(choice) },
-                        shape = SegmentedButtonDefaults.itemShape(i, ThemeChoice.entries.size),
-                        // No tick: it pushes the label aside on selection. The fill says it.
-                        icon = {},
-                    ) {
-                        Text(choice.label)
-                    }
-                }
-            }
-            SwitchRow(
-                "Show furigana",
-                checked = state.options.furigana,
-                supporting = "Readings above every kanji. Tapping a question card switches this too.",
-                onChange = onFurigana,
-            )
-        }
-
-        SectionCard("Progress", "Steps ready and everything scheduled for review") {
-            Text(
-                if (state.started) {
-                    "$ready of ${state.path.size} steps ready. Tracking " +
-                        plural(state.progress.words.size, "word") + " and " +
-                        plural(state.progress.skills.size, "skill") + "."
-                } else {
-                    "Nothing yet — the learn path has not been started."
-                },
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            if (state.salvagedProgress) {
-                Text(
-                    "Saved progress could not be read and has been set aside rather than " +
-                        "overwritten. Resetting below will discard it for good.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-            OutlinedButton(
-                onClick = { confirming = true },
-                // Also enabled when a document was set aside: that is the only way to
-                // clear it, and the notice above tells the user resetting will do so.
-                enabled = !state.progress.isEmpty || state.salvagedProgress,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-            ) {
-                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text("Reset progress")
-            }
-        }
-
-        SectionCard("Backup", "Progress is plain text — copy it somewhere safe, paste it back later") {
-            Text(
-                "Copying puts the whole learn path on the clipboard. Paste it into a note, " +
-                    "a message to yourself, anywhere that keeps text.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = {
-                        val text = onExport()
-                        clipboard.setText(AnnotatedString(text))
-                        notice = "Copied ${text.length} characters to the clipboard."
-                    },
-                    enabled = state.started,
-                ) {
-                    Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                    Text("Copy")
-                }
-                OutlinedButton(
-                    onClick = {
-                        val pasted = clipboard.getText()?.text.orEmpty()
-                        when {
-                            pasted.isBlank() -> notice = "The clipboard is empty."
-                            // Confirm first only when there is something to lose.
-                            state.started -> pendingImport = pasted
-                            else -> notice =
-                                if (onImport(pasted)) "Progress restored."
-                                else "That does not look like a progress backup."
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScrollWithScrollbar()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            SectionCard("Appearance") {
+                Column {
+                    PaletteRow(state.options.palette, onPalette)
+                    // Three choices side by side need the width, so they sit under the label
+                    // rather than squeezing it.
+                    StackedRow("Theme") {
+                        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                            ThemeChoice.entries.forEachIndexed { i, choice ->
+                                SegmentedButton(
+                                    selected = state.options.theme == choice,
+                                    onClick = { onTheme(choice) },
+                                    shape = SegmentedButtonDefaults.itemShape(i, ThemeChoice.entries.size),
+                                    // No tick: it pushes the label aside on selection. The fill says it.
+                                    icon = {},
+                                ) {
+                                    Text(choice.label)
+                                }
+                            }
                         }
                     }
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                    Text("Paste")
+                    SettingRow(
+                        "Show furigana",
+                        supporting = "Readings above every kanji. Tapping a question card switches this too.",
+                        onClick = { onFurigana(!state.options.furigana) },
+                        role = Role.Switch,
+                    ) {
+                        Switch(checked = state.options.furigana, onCheckedChange = null)
+                    }
                 }
             }
-            if (notice != null) {
-                Text(notice.orEmpty(), style = MaterialTheme.typography.bodyMedium)
+
+            SectionCard("Progress", "Everything the learn path has earned, and how to keep a copy") {
+                Column {
+                    StatRow("Steps ready", "$ready of ${state.path.size}", first = true)
+                    StatRow("Words tracked", "${state.progress.words.size}")
+                    StatRow("Skills scheduled", "${state.progress.skills.size}")
+                }
+                if (state.salvagedProgress) {
+                    Text(
+                        "Saved progress could not be read and has been set aside rather than " +
+                            "overwritten. Resetting below will discard it for good.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+                Text(
+                    "Progress is plain text. Copying puts the whole learn path on the clipboard: " +
+                        "paste it into a note, a message to yourself, anywhere that keeps text.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            val text = onExport()
+                            clipboard.setText(AnnotatedString(text))
+                            notice = "Copied ${text.length} characters to the clipboard."
+                        },
+                        enabled = state.started,
+                        modifier = Modifier.weight(1f),
+                    ) { Text("Copy") }
+                    OutlinedButton(
+                        onClick = {
+                            val pasted = clipboard.getText()?.text.orEmpty()
+                            when {
+                                pasted.isBlank() -> notice = "The clipboard is empty."
+                                // Confirm first only when there is something to lose.
+                                state.started -> pendingImport = pasted
+                                else -> notice =
+                                    if (onImport(pasted)) "Progress restored."
+                                    else "That does not look like a progress backup."
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                    ) { Text("Paste") }
+                    OutlinedButton(
+                        onClick = { confirming = true },
+                        // Also enabled when a document was set aside: that is the only way to
+                        // clear it, and the notice above tells the user resetting will do so.
+                        enabled = !state.progress.isEmpty || state.salvagedProgress,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                        modifier = Modifier.weight(1f),
+                    ) { Text("Reset") }
+                }
+                if (notice != null) {
+                    Text(notice.orEmpty(), style = MaterialTheme.typography.bodyMedium)
+                }
             }
+
+            SectionCard("About") {
+                SettingRow("Sources and attribution", first = true, onClick = onAbout) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
         }
 
-        SectionCard("About") {
-            Button(onClick = onAbout, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Outlined.Info, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text("Sources and attribution")
+        // Progress is the one thing in this app that cannot be recreated from the assets, so
+        // wiping it asks first and names what goes.
+        if (confirming) {
+            AlertDialog(
+                onDismissRequest = { confirming = false },
+                title = { Text("Reset progress?") },
+                text = {
+                    Text(
+                        "This clears every step record, the whole review schedule and the word " +
+                            "sets you have made. It cannot be undone. Your practice settings are " +
+                            "not affected."
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            onResetProgress()
+                            confirming = false
+                        }
+                    ) {
+                        Text("Reset", color = MaterialTheme.colorScheme.error)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { confirming = false }) { Text("Cancel") }
+                },
+            )
+        }
+
+        // Restoring replaces everything, so it asks in the one case where that costs something.
+        val importing = pendingImport
+        if (importing != null) {
+            AlertDialog(
+                onDismissRequest = { pendingImport = null },
+                title = { Text("Replace your progress?") },
+                text = {
+                    Text(
+                        "The pasted backup will replace the learn path you have now. " +
+                            "Copy your current progress first if you might want it back."
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            notice = if (onImport(importing)) "Progress restored."
+                            else "That does not look like a progress backup."
+                            pendingImport = null
+                        }
+                    ) {
+                        Text("Replace")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingImport = null }) { Text("Cancel") }
+                },
+            )
+        }
+    }
+}
+
+/** One setting: what it is, what it is set to, and a hairline above it unless it leads. */
+@Composable
+private fun SettingRow(
+    label: String,
+    supporting: String? = null,
+    first: Boolean = false,
+    onClick: (() -> Unit)? = null,
+    role: Role = Role.Button,
+    value: @Composable RowScope.() -> Unit,
+) {
+    Column {
+        if (!first) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .then(if (onClick != null) Modifier.clickable(role = role, onClick = onClick) else Modifier)
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(label, style = MaterialTheme.typography.bodyLarge)
+                if (supporting != null) {
+                    Text(
+                        supporting,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            value()
+        }
+    }
+}
+
+/** A setting whose control needs the whole width: the label, then the control under it. */
+@Composable
+private fun StackedRow(label: String, control: @Composable () -> Unit) {
+    Column {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Column(Modifier.padding(vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            control()
+        }
+    }
+}
+
+/** A count, in tabular figures so the numbers in a card stand in one column. */
+@Composable
+private fun StatRow(label: String, value: String, first: Boolean = false) {
+    Column {
+        if (!first) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Row(Modifier.fillMaxWidth().padding(vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            Text(value, style = MaterialTheme.typography.bodyLarge.copy(fontFeatureSettings = "tnum"))
+        }
+    }
+}
+
+/** The palettes by name, each with the faces it is set in, since those change too. */
+@Composable
+private fun PaletteRow(selected: Palette, onSelected: (Palette) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    Box {
+        SettingRow(
+            "Palette",
+            supporting = facesOf(selected),
+            first = true,
+            onClick = { expanded = true },
+        ) {
+            Swatch()
+            Spacer(Modifier.width(8.dp))
+            Text(selected.label, style = MaterialTheme.typography.bodyLarge)
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            for (palette in Palette.entries) {
+                DropdownMenuItem(
+                    text = {
+                        Column {
+                            Text(palette.label)
+                            Text(
+                                facesOf(palette),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    },
+                    onClick = {
+                        onSelected(palette)
+                        expanded = false
+                    },
+                )
             }
         }
-        Spacer(Modifier.height(8.dp))
     }
+}
 
-    // Progress is the one thing in this app that cannot be recreated from the assets, so
-    // wiping it asks first and names what goes.
-    if (confirming) {
-        AlertDialog(
-            onDismissRequest = { confirming = false },
-            title = { Text("Reset progress?") },
-            text = {
-                Text(
-                    "This clears every step record and the whole review schedule. " +
-                        "It cannot be undone. Your practice settings are not affected."
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onResetProgress()
-                        confirming = false
-                    }
-                ) {
-                    Text("Reset", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirming = false }) { Text("Cancel") }
-            },
-        )
-    }
-
-    // Restoring replaces everything, so it asks in the one case where that costs something.
-    val importing = pendingImport
-    if (importing != null) {
-        AlertDialog(
-            onDismissRequest = { pendingImport = null },
-            title = { Text("Replace your progress?") },
-            text = {
-                Text(
-                    "The pasted backup will replace the learn path you have now. " +
-                        "Copy your current progress first if you might want it back."
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        notice = if (onImport(importing)) "Progress restored."
-                        else "That does not look like a progress backup."
-                        pendingImport = null
-                    }
-                ) {
-                    Text("Replace")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingImport = null }) { Text("Cancel") }
-            },
-        )
-    }
-    }
+/** The palette in miniature: its accent, which is the part that changes most between them. */
+@Composable
+private fun Swatch() {
+    Box(
+        Modifier
+            .size(16.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primary),
+    )
 }

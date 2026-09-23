@@ -1,5 +1,6 @@
 package com.japanesedrills.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -16,8 +18,10 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
@@ -39,6 +43,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
@@ -54,9 +59,11 @@ import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.SectionCardPiece
 import com.japanesedrills.ui.components.SectionHeading
+import com.japanesedrills.ui.components.SectionPadding
 import com.japanesedrills.ui.components.StepBlock
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
+import com.japanesedrills.ui.theme.heading
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -165,19 +172,17 @@ private fun ReadinessCard(outcome: StepOutcome) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = if (outcome.becameReady) answers.correctContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = if (outcome.becameReady) answers.onCorrectContainer else MaterialTheme.colorScheme.onSurface,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(Modifier.padding(SectionPadding), verticalAlignment = Alignment.CenterVertically) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             FuriganaText(
                 when {
                     outcome.becameReady -> "Ready for the next step"
                     record.ready -> "${outcome.step.title} is ready"
                     else -> "${outcome.step.title}: not ready yet"
                 },
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.heading,
             )
             FuriganaText(
                 when {
@@ -191,7 +196,19 @@ private fun ReadinessCard(outcome: StepOutcome) {
                     else -> "$percent% of your last $recent answers were right; ready at $bar%."
                 },
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+            // The tick the learn path marks a ready step with, so the two screens agree.
+            if (record.ready) {
+                Spacer(Modifier.width(12.dp))
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = "Ready",
+                    tint = answers.correct,
+                    modifier = Modifier.size(24.dp),
+                )
+            }
         }
     }
 }
@@ -199,53 +216,58 @@ private fun ReadinessCard(outcome: StepOutcome) {
 @Composable
 private fun ScoreCard(history: List<HistoryEntry>) {
     val correct = history.count { it.correct }
-    val title = when (correct) {
-        history.size -> "All correct!"
-        0 -> "All incorrect!"
-        else -> "$correct of ${history.size} correct"
-    }
+    val missed = history.size - correct
+    val share = if (history.isEmpty()) 0f else correct / history.size.toFloat()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
-        Row(Modifier.padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    progress = { if (history.isEmpty()) 0f else correct / history.size.toFloat() },
-                    modifier = Modifier.size(88.dp),
-                    strokeWidth = 8.dp,
-                    trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                )
-                Text(
-                    "${if (history.isEmpty()) 0 else correct * 100 / history.size}%",
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }
-            Spacer(Modifier.width(24.dp))
-            Column {
-                Text(title, style = MaterialTheme.typography.headlineSmall)
-                val missed = history.size - correct
-                if (missed > 0) {
-                    Text(
-                        "$missed to review below",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start,
+        Column(Modifier.padding(SectionPadding), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                when (correct) {
+                    history.size -> "All ${history.size} correct"
+                    0 -> "None of ${history.size} correct"
+                    else -> "$correct of ${history.size} correct"
+                },
+                style = MaterialTheme.typography.heading,
+                color = if (DrillTheme.accents.titles) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+            )
+            // The same bar the learn path draws a step's strength with, filled by this
+            // session's score, so a share of something reads the same way twice.
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            ) {
+                if (share > 0f) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth(share)
+                            .height(6.dp)
+                            .clip(CircleShape)
+                            .background(DrillTheme.strengthColors.at(share)),
                     )
                 }
+            }
+            if (missed > 0) {
+                Text(
+                    if (missed == 1) "1 to review below" else "$missed to review below",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
 }
 
-/**
- * One answer, as a numbered change from the form given to the answer typed, and for a
- * wrong one, the accepted answers under it in the same column.
- */
 @Composable
 private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
     val question = entry.question
