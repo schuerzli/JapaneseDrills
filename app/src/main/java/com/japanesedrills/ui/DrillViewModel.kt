@@ -120,7 +120,6 @@ data class StepCard(
     val ready: Boolean,
     /** How well its content is holding up in review, 0f..1f; see [LearnPath.solidity]. */
     val strength: Float,
-    val newWords: Int,
 )
 
 /** How a session of a step went, shown on the results screen. */
@@ -563,7 +562,6 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 hasIntro = step.newBatches.isNotEmpty() || step.newForms.isNotEmpty() || step.newClasses.isNotEmpty(),
                 ready = record?.ready == true,
                 strength = learnPath.solidity(step, progress, data),
-                newWords = learnPath.newWords(step).size,
             )
         }
         val next = nextStep(learnPath, progress)

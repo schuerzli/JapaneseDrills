@@ -39,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -55,6 +56,7 @@ import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.SectionSpacing
 import com.japanesedrills.ui.components.StrengthBar
+import com.japanesedrills.ui.components.TextAction
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
@@ -337,8 +339,12 @@ private fun RecommendedRow(
 }
 
 /**
- * One step: a tick once it has been ready, what it is about, and a bar for how well its
- * content is holding up in review.
+ * One step, on one line: whether it has been ready, what it is called, how well its content
+ * is holding up in review, and the way in to what it introduces.
+ *
+ * One line and not three. The path is read down — twenty-odd lessons over six chapters —
+ * and a subtitle under every one of them turned a list into a wall. What a lesson is about
+ * is on the page it opens; the row only has to say which lesson it is and where it stands.
  */
 @Composable
 private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
@@ -346,9 +352,12 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
     Row(
         Modifier
             .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            // The recommended lesson is named on the panel above; here it is marked by the
+            // well it sits in, which fills its own footprint rather than moving any row.
+            .background(if (recommended) DrillTheme.surfaces.well else Color.Transparent)
             .clickable(onClick = onClick)
-            // A lesson is three stacked lines; without this they run into the next one.
-            .padding(vertical = 5.dp)
+            .padding(horizontal = 8.dp, vertical = 7.dp)
             .semantics {
                 stateDescription = when {
                     card.ready -> "Ready"
@@ -369,37 +378,28 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
                 )
             }
         }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            FuriganaText(
-                step.title,
-                style = MaterialTheme.typography.heading,
-                // The recommended step is named on the card above; here it is only marked,
-                // by colour rather than by a fill, so no row changes size.
-                color = if (recommended) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-            )
-            FuriganaText(
-                if (card.newWords > 0) "${step.subtitle} · ${words(card.newWords)}" else step.subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            if (!step.reading) StrengthBar(card.strength, Modifier.fillMaxWidth().padding(top = 1.dp))
+        FuriganaText(
+            step.title,
+            style = MaterialTheme.typography.heading,
+            color = if (recommended) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        // The bar's width is the same on every row, empty or not, so the titles beside
+        // them all end in one place and a reading lesson leaves a gap rather than a hole.
+        Spacer(Modifier.width(10.dp))
+        Box(Modifier.width(BarWidth)) {
+            if (!step.reading) StrengthBar(card.strength, Modifier.fillMaxWidth())
         }
         // On every step that has an introduction, opened or not, so rows never change shape.
-        if (card.hasIntro) {
-            IconButton(onClick = onIntro) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = "About this step",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+        Box(Modifier.width(IntroWidth), contentAlignment = Alignment.CenterEnd) {
+            if (card.hasIntro) TextAction("About") { onIntro() }
         }
     }
 }
 
-private fun words(count: Int): String = if (count == 1) "1 new word" else "$count new words"
-
 private val TickWidth = 26.dp
+private val BarWidth = 62.dp
+private val IntroWidth = 58.dp
 
 /**
  * How well a step's content is holding up in review, as a bar that takes its colour from how

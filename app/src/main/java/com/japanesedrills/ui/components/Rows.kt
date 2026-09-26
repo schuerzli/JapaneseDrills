@@ -41,7 +41,7 @@ fun SettingRow(
             Modifier
                 .fillMaxWidth()
                 .then(if (onClick != null) Modifier.clickable(role = role, onClick = onClick) else Modifier)
-                .padding(vertical = 9.dp),
+                .padding(vertical = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -64,7 +64,7 @@ fun SettingRow(
 @Composable
 fun StackedRow(label: String, control: @Composable () -> Unit) {
     Column {
-        Column(Modifier.padding(vertical = 9.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
             Text(label, style = MaterialTheme.typography.bodyLarge)
             control()
         }
@@ -87,7 +87,7 @@ fun TextAction(label: String, onClick: () -> Unit) {
         textDecoration = TextDecoration.Underline,
         modifier = Modifier
             .clickable(role = Role.Button, onClick = onClick)
-            .padding(horizontal = 6.dp, vertical = 3.dp),
+            .padding(horizontal = 6.dp, vertical = 2.dp),
     )
 }
 
