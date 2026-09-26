@@ -1,11 +1,14 @@
 package com.japanesedrills.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -19,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -78,16 +82,28 @@ val LocalFuriganaToggle = staticCompositionLocalOf<() -> Unit> { {} }
 fun FuriganaAction() {
     val on = LocalFurigana.current
     val toggle = LocalFuriganaToggle.current
+    // It lives on the gradient bar, so it is drawn in the bar's own two colours: the
+    // accent and onSurfaceVariant are page colours and all but vanished there. On is a
+    // fill rather than a brighter cream, because two near-whites are not a state.
+    val surfaces = DrillTheme.surfaces
     IconButton(onClick = toggle) {
-        Text(
-            "ふ",
-            style = MaterialTheme.typography.titleMedium,
-            color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.semantics {
-                contentDescription = if (on) "Hide readings" else "Show readings"
-                stateDescription = if (on) "Readings on" else "Readings off"
-            },
-        )
+        Box(
+            Modifier
+                .size(30.dp)
+                .clip(CircleShape)
+                .background(if (on) surfaces.onHero else Color.Transparent),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                "ふ",
+                style = MaterialTheme.typography.titleMedium,
+                color = if (on) surfaces.heroEnd else surfaces.onHeroVariant,
+                modifier = Modifier.semantics {
+                    contentDescription = if (on) "Hide readings" else "Show readings"
+                    stateDescription = if (on) "Readings on" else "Readings off"
+                },
+            )
+        }
     }
 }
 

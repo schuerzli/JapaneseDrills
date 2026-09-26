@@ -205,7 +205,9 @@ the schedule, is in `tools/steps/README.md`.
 - **One switch for readings.** Furigana is a single app-wide setting, so it has a single
   control: `FuriganaAction()` on the top bar of every screen that shows Japanese, reading
   `LocalFurigana` and `LocalFuriganaToggle` from the root. No screen offers its own — a
-  question card that quietly toggled them was a second answer to the same question.
+  question card that quietly toggled them was a second answer to the same question. It sits
+  on the gradient, so it is drawn in the bar's own two colours and says "on" with a fill:
+  page colours vanish there, and two near-whites are not a state.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in
