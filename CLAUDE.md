@@ -32,12 +32,15 @@ and the default JDK on this machine is 11. So the wrapper works, but only once
 JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug testDebugUnitTest
 ```
 
-Four things are generated rather than written by hand: `words.json` (`tools/wordlist`;
+These are generated rather than written by hand: `words.json` (`tools/wordlist`;
 curation and sentence readings re-run alone as `merge.py --finish`), `steps.json`
 (`tools/steps`), and the palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both
-`tools/theme`; `--fonts` needs `pip install fonttools`). Edit the generator and re-run it;
-editing its output means the next run silently reverts you. `steps.json` is the one whose
-staleness nothing else catches, so it has a check of its own:
+`tools/theme`; `--fonts` needs `pip install fonttools`). `--apply` also writes
+`res/values{,-night}/colors.xml`, where the window background and the launcher icon's
+background come from whichever palette `schemes.py` names as the default. Edit the
+generator and re-run it; editing its output means the next run silently reverts you.
+`steps.json` is the one whose staleness nothing else catches, so it has a check of its
+own:
 
 ```bash
 python tools/steps/generate.py --check
@@ -49,6 +52,10 @@ clears its contrast floor, which is easy to break by eye and easy to check:
 ```bash
 python tools/theme/schemes.py --check
 ```
+
+The `Pixel_8_API_35` AVD is pinned to `hw.gpu.mode = swiftshader_indirect`. On `auto`
+the launcher hands off to the qemu backend, which dies without printing anything and
+leaves `emulator.exe` exiting 4; software rendering boots and is fast enough to drive.
 
 Install on the running emulator; `-d` in place of `-s emulator-5554` installs on a
 USB-attached phone instead:

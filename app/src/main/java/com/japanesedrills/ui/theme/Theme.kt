@@ -699,10 +699,10 @@ private val AppShapes = Shapes(
     extraLarge = RoundedCornerShape(12.dp),
 )
 
-private val LocalAnswerColors = staticCompositionLocalOf { specOf(Palette.Latte).lightAnswers }
-private val LocalMarkColors = staticCompositionLocalOf { specOf(Palette.Latte).lightMarks }
-private val LocalStrengthColors = staticCompositionLocalOf { specOf(Palette.Latte).lightStrength }
-private val LocalAccents = staticCompositionLocalOf { specOf(Palette.Latte).accents }
+private val LocalAnswerColors = staticCompositionLocalOf { specOf(Palette.Kissaten).lightAnswers }
+private val LocalMarkColors = staticCompositionLocalOf { specOf(Palette.Kissaten).lightMarks }
+private val LocalStrengthColors = staticCompositionLocalOf { specOf(Palette.Kissaten).lightStrength }
+private val LocalAccents = staticCompositionLocalOf { specOf(Palette.Kissaten).accents }
 
 object DrillTheme {
     val answerColors: AnswerColors
@@ -724,7 +724,7 @@ fun facesOf(palette: Palette): String = specOf(palette).faces
 @Composable
 fun JapaneseDrillsTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    palette: Palette = Palette.Latte,
+    palette: Palette = Palette.Kissaten,
     content: @Composable () -> Unit,
 ) {
     val spec = specOf(palette)

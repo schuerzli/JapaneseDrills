@@ -33,7 +33,7 @@ data class QuizOptions(
     /** Not a quiz setting, but it rides along to reuse the same persistence. */
     val theme: ThemeChoice = ThemeChoice.System,
     /** Rides along for the same reason as [theme]. */
-    val palette: Palette = Palette.Latte,
+    val palette: Palette = Palette.Kissaten,
     /**
      * Whether readings are shown above kanji, everywhere in the app. A display setting like
      * [theme], not a choice of what to practise, so it is not one of the [flags].

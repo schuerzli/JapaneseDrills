@@ -38,7 +38,7 @@ RES = ROOT / "app/src/main/res"
 
 # The palette a fresh install starts in, and the one the window background and splash are
 # drawn from: those are resources, resolved before the app has read which palette was chosen.
-DEFAULT = "latte"
+DEFAULT = "kissaten"
 
 # The static weights cut from each face, as the suffix of its res/font file. These are the
 # weights ui/theme/Type.kt asks for; one it asked for that is not here would be synthesised.
@@ -140,8 +140,12 @@ def scheme(**kw):
     return s
 
 
-# --- The default palette ---------------------------------------------------
+# --- The palettes ----------------------------------------------------------
 #
+# Each was built and compared in the running app, and each is a different answer to "which
+# elements carry the accent", which is the decision that actually changes how a screen reads
+# — so a palette carries its faces and its accent placement with it, not just its colours.
+
 # Latte. A warm cafe: cream page, white cards, a caramel-washed question card, and one
 # caramel accent. The accent is spent on three things and nothing else — the form pill, the
 # button that moves you on, and the tab you are in — so colour always means "act here".
@@ -172,15 +176,9 @@ LATTE_DARK = scheme(
     correct="#A8CF8C", onCorrect="#1E3410", correctContainer="#374E26", onCorrectContainer="#D2EAC0",
 )
 
-# --- The other palettes -----------------------------------------------------
-#
-# Offered in Settings beside Latte. Each was built and compared in the running app, and each
-# is a different answer to "which elements carry the accent", which is the decision that
-# actually changes how a screen reads — so a palette carries its faces and its accent
-# placement with it, not just its colours.
-
-# Kissaten. Latte's structure in a dimmer room: mid-tone cards that sit close to the page,
-# and the accent carried by *type* — section titles stay terracotta instead of going ink.
+# Kissaten, the default. Latte's structure in a dimmer room: mid-tone cards that sit close
+# to the page, and the accent carried by *type* — section titles stay terracotta instead of
+# going ink.
 KISSATEN_LIGHT = scheme(
     primary="#8E4419", onPrimary="#FFFFFF",
     secondaryContainer="#E3D2BE", onSecondaryContainer="#2E2013",
