@@ -347,6 +347,8 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
         Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
+            // A lesson is three stacked lines; without this they run into the next one.
+            .padding(vertical = 5.dp)
             .semantics {
                 stateDescription = when {
                     card.ready -> "Ready"
@@ -367,7 +369,7 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
                 )
             }
         }
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             FuriganaText(
                 step.title,
                 style = MaterialTheme.typography.heading,
@@ -380,7 +382,7 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (!step.reading) StrengthBar(card.strength, Modifier.fillMaxWidth().padding(top = 2.dp))
+            if (!step.reading) StrengthBar(card.strength, Modifier.fillMaxWidth().padding(top = 1.dp))
         }
         // On every step that has an introduction, opened or not, so rows never change shape.
         if (card.hasIntro) {

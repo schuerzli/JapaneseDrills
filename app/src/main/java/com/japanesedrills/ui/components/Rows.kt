@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 
 /*
@@ -68,6 +69,26 @@ fun StackedRow(label: String, control: @Composable () -> Unit) {
             control()
         }
     }
+}
+
+/**
+ * The third rank of action, under the filled pill and the outlined one: the word alone.
+ *
+ * Deliberately not a TextButton, whose 40dp minimum height is most of a row on its own —
+ * these sit on rows that are already the whole tap target, so the word only has to name
+ * what tapping does.
+ */
+@Composable
+fun TextAction(label: String, onClick: () -> Unit) {
+    Text(
+        label,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.primary,
+        textDecoration = TextDecoration.Underline,
+        modifier = Modifier
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 6.dp, vertical = 3.dp),
+    )
 }
 
 /** A count, in tabular figures so the numbers in a section stand in one column. */

@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -72,6 +73,7 @@ import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.SettingRow
+import com.japanesedrills.ui.components.TextAction
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 
@@ -113,7 +115,7 @@ fun PracticeScreen(
                     SettingRow(preset.label, onClick = use) {
                         // Not a chevron: a preset sets the options below rather than
                         // opening a page, and a chevron means "opens a page" everywhere else.
-                        TextButton(onClick = use) { Text("Use") }
+                        TextAction("Use", use)
                     }
                 }
             }
@@ -569,8 +571,8 @@ private fun SetRow(
     Column {
         Row(
             Modifier
-                .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
-                .padding(vertical = 8.dp),
+                .toggleable(value = checked, role = Role.Switch, onValueChange = { onToggle() })
+                .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onEdit != null) {
@@ -596,13 +598,12 @@ private fun SetRow(
                 color = if (dimmed) faded else MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(end = 12.dp),
             )
-            Checkbox(
+            // A switch, like every other thing on this screen that is either on or off.
+            Switch(
                 checked = checked,
                 onCheckedChange = null,
-                colors = CheckboxDefaults.colors(
-                    checkedColor = if (dimmed) faded else MaterialTheme.colorScheme.primary,
-                    uncheckedColor = if (dimmed) faded else MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
+                enabled = !dimmed,
+                modifier = Modifier.scale(0.8f),
             )
         }
     }
