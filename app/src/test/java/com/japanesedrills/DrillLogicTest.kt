@@ -450,10 +450,13 @@ class DrillLogicTest {
         val engine = QuizEngine(data, Random(12))
         assertEquals(
             data.words.mapTo(HashSet()) { QuizOptions.columnOf(it.group) },
-            engine.columnsFor(QuizOptions()),
+            engine.buildPool(QuizOptions()).columns,
         )
         val adjectives = data.words.filter { it.group == "na-adjective" }.mapTo(HashSet()) { it.key }
-        assertEquals(setOf("na-adjective"), engine.columnsFor(QuizOptions(wordKeys = adjectives)))
+        assertEquals(
+            setOf("na-adjective"),
+            engine.buildPool(QuizOptions(wordKeys = adjectives)).columns,
+        )
     }
 
     /** A word class the grid has no column for could never be practised. */

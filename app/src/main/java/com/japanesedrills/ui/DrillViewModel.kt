@@ -323,13 +323,17 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     // Word sets the learner makes
 
-    /** A new set, switched on and opened for picking words. */
+    /**
+     * A new set, switched on and opened for picking words. It leaves "All words" alone: an
+     * empty set draws on nothing, so switching the mode off here would empty the pool for
+     * anyone who backed out of the editor. [setWordInSet] does it once the set can carry it.
+     */
     fun newWordSet() {
         val progress = _state.value.progress
         val set = CustomSet(WordSets.newId(progress.sets.keys), "My words")
         persist(progress.copy(sets = progress.sets + (set.id to set)))
         _state.update { it.copy(screen = Screen.WordSet, editingSet = set.id) }
-        updateOptions { it.withSet(set.id, true).copy(allWords = false) }
+        updateOptions { it.withSet(set.id, true) }
     }
 
     fun editWordSet(id: String) = _state.update { it.copy(screen = Screen.WordSet, editingSet = id) }
@@ -338,9 +342,16 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun renameWordSet(id: String, name: String) = editSet(id) { it.copy(name = name) }
 
-    /** One word added to or taken out of the set being edited. */
-    fun setWordInSet(id: String, word: String, value: Boolean) =
+    /**
+     * One word added to or taken out of the set being edited. The word that makes a
+     * switched-on set stop being empty is also what makes it worth drawing on, so that is
+     * where "All words" gives way to it.
+     */
+    fun setWordInSet(id: String, word: String, value: Boolean) {
+        val first = value && _state.value.progress.sets[id]?.words.isNullOrEmpty() == true
         editSet(id) { it.copy(words = if (value) it.words + word else it.words - word) }
+        if (first && _state.value.options.isSetOn(id)) updateOptions { it.copy(allWords = false) }
+    }
 
     fun deleteWordSet(id: String) {
         val progress = _state.value.progress
@@ -476,9 +487,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(pool = null) }
         poolJob = viewModelScope.launch {
             val newPool = withContext(Dispatchers.Default) { engine.buildPool(options) { ensureActive() } }
-            val columns = withContext(Dispatchers.Default) { engine.columnsFor(options) }
             pool = newPool
-            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size), columns = columns) }
+            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size), columns = newPool.columns) }
         }
     }
 

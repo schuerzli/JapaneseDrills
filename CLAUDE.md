@@ -170,6 +170,11 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
 - **A card lists rows, not panels**: a setting, a count or a choice is a row from
   `ui/components/Rows.kt` — label left, value right, hairlines between, one card around
   them. The learn path, practice, settings and results all read the same way down.
+- **How well something is holding up is drawn in one ramp**, per palette and generated
+  with the rest: `DrillTheme.strengthColors.at(fill)`, on the learn path's step bars, the
+  results score and the practice grid's strength view. It is deliberately not the accent,
+  which means "this does something when you tap it". Nothing yet means empty rather than
+  weak, and is drawn in `surfaceContainerHighest` in all three places.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in
@@ -190,6 +195,12 @@ schedules skills rather than questions, is in `tools/steps/README.md`.
   honours, so type can look right here and hairline on the phone. `res/font` therefore holds
   static weights (why, in `ui/theme/Type.kt`). Never point a `Font()` at a variable file, and
   check type changes on the phone.
+- **AndroidX is pinned below its latest by the toolchain, not by choice.** `core-ktx`
+  1.17+ and `activity-compose` 1.11+ want `compileSdk 36`, which is not installed here, and
+  `lifecycle` 2.9+ ships a lint jar that AGP 8.7's lint cannot load: it dies with
+  `IncompatibleClassChangeError` in `NonNullableMutableLiveDataDetector` during
+  `lintVitalRelease`, which reads as a lint bug rather than a version problem. Moving past
+  either ceiling means moving AGP and the SDK first.
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at
   a time with a short pause.

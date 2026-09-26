@@ -50,8 +50,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -74,6 +72,7 @@ import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
 import com.japanesedrills.ui.components.SettingRow
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
+import com.japanesedrills.ui.theme.DrillTheme
 
 /**
  * The free-practice tab: one-tap presets above the full option grid. Content only — the tab
@@ -199,9 +198,17 @@ fun PracticeBar(state: DrillUiState, onStart: () -> Unit, onReset: () -> Unit) {
         if (count == null) {
             add("Enter a number of questions between 1 and ${QuizOptions.MAX_QUESTIONS}.")
         } else if (pool != null && pool.questions < count && options.hasWords) {
+            // A set of the learner's own with nothing in it yet is the one empty pool the
+            // grid is not to blame for, and the only one with an obvious next move.
+            val empty = !options.allWords && options.sets.isNotEmpty() &&
+                options.sets.all { state.progress.sets[it]?.words?.isEmpty() == true }
             add(
-                if (pool.questions == 0) "No questions match these settings."
-                else "Not enough questions; some will repeat."
+                when {
+                    empty && options.sets.size == 1 -> "That set has no words in it yet. Open it and pick some."
+                    empty -> "Those sets have no words in them yet."
+                    pool.questions == 0 -> "No questions match these settings."
+                    else -> "Not enough questions; some will repeat."
+                }
             )
         }
     }
@@ -392,7 +399,8 @@ private fun PracticeGrid(
                             .clip(MaterialTheme.shapes.small)
                             .background(
                                 when {
-                                    strength -> ink(held)
+                                    strength -> held?.let { DrillTheme.strengthColors.at(it) }
+                                        ?: MaterialTheme.colorScheme.surfaceContainerHighest
                                     asked -> MaterialTheme.colorScheme.primary
                                     else -> MaterialTheme.colorScheme.surfaceContainerHighest
                                 }
@@ -401,7 +409,8 @@ private fun PracticeGrid(
                             .semantics {
                                 contentDescription = "${form.label}, ${Furigana.toKanji(column.label)}"
                                 stateDescription = when {
-                                    strength -> "${(held * 100).roundToInt()} percent"
+                                    strength -> held?.let { "${(it * 100).roundToInt()} percent" }
+                                        ?: "Never asked"
                                     asked -> "Asked"
                                     else -> "Not asked"
                                 }
@@ -416,43 +425,33 @@ private fun PracticeGrid(
 
 /**
  * How well a square is holding up, 0f..1f: the review strength of that form on that class,
- * averaged over the classes a column covers. Never asked counts as nothing, which is what
- * the palest square means.
+ * averaged over the classes a column covers. Null when review has never seen any of them,
+ * which is not the same as holding up badly and is not drawn as if it were.
  */
-private fun strengthOf(form: String, column: WordColumn, progress: Progress): Float {
+private fun strengthOf(form: String, column: WordColumn, progress: Progress): Float? {
     val type = TransformationBuilder.typeOfForm(form)
     val states = column.groups.map { progress.skills[QuizEngine.skillKey(type, it)] }
+    if (states.all { it == null }) return null
     return states.sumOf { state -> state?.let(Scheduler::strength)?.toDouble() ?: 0.0 }.toFloat() / states.size
 }
 
 /**
- * A square's shade in the strength view: the card's own ink, from an empty square to full
- * text colour. Ink rather than a colour of its own, because every colour in the app already
- * says something — the accent says "this does something when you tap it".
+ * The strength view's scale, for reading the squares: the empty square first, then the
+ * ramp the learn path and the results bar fill with. One meaning, one set of colours.
  */
-@Composable
-private fun ink(strength: Float): Color =
-    lerp(
-        MaterialTheme.colorScheme.surfaceContainerHighest,
-        MaterialTheme.colorScheme.onSurface,
-        strength.coerceIn(0f, 1f),
-    )
-
-/** The strength view's scale, for reading the squares. */
 @Composable
 private fun StrengthLegend() {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 6.dp)) {
         val caption = MaterialTheme.typography.bodySmall
         val muted = MaterialTheme.colorScheme.onSurfaceVariant
+        val swatch = Modifier
+            .padding(horizontal = 2.dp)
+            .size(width = 18.dp, height = 12.dp)
+            .clip(MaterialTheme.shapes.extraSmall)
         Text("never asked", style = caption, color = muted)
+        Box(swatch.background(MaterialTheme.colorScheme.surfaceContainerHighest))
         for (step in 0..Scheduler.LADDER.size) {
-            Box(
-                Modifier
-                    .padding(horizontal = 2.dp)
-                    .size(width = 18.dp, height = 12.dp)
-                    .clip(MaterialTheme.shapes.extraSmall)
-                    .background(ink(step.toFloat() / Scheduler.LADDER.size)),
-            )
+            Box(swatch.background(DrillTheme.strengthColors.at(step.toFloat() / Scheduler.LADDER.size)))
         }
         Text("solid", style = caption, color = muted)
     }
@@ -478,6 +477,8 @@ private fun WordSetList(
     onEditSet: (String) -> Unit,
 ) {
     val options = state.options
+    // As in the editor: a key words.json no longer has is not a word the set can draw on.
+    val known = remember(state.words) { state.words.mapTo(HashSet()) { it.key } }
     Column {
         SetRow(
             label = "All words",
@@ -500,7 +501,7 @@ private fun WordSetList(
         for (set in state.progress.sets.values) {
             SetRow(
                 label = set.name,
-                count = set.words.size,
+                count = set.words.count { it in known },
                 checked = options.isSetOn(set.id),
                 dimmed = options.allWords,
                 first = false,

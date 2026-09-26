@@ -76,6 +76,13 @@ class QuestionPool(
     val options: QuizOptions,
     /** How many distinct words the pool draws on. */
     val words: Int,
+    /**
+     * The grid columns those words fall into, switched on or not: what the grid has columns
+     * for at all. A column no word belongs to is not drawn, the same way a square is not
+     * drawn for a form its class does not have. It rides with the pool because building one
+     * already walks every word to decide which of them it draws on.
+     */
+    val columns: Set<String>,
     private val regular: IntArray,
     private val trick: IntArray,
 ) {
@@ -158,15 +165,6 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     fun setSizes(): Map<String, Int> =
         WordSets.IDS.associateWith { id -> data.words.count { WordSets.holds(id, it) } }
 
-    /**
-     * The grid columns the chosen words fall into, switched on or not: what the grid has
-     * rows and columns for at all. A column no word belongs to is not drawn, the same way a
-     * square is not drawn for a form its class does not have.
-     */
-    fun columnsFor(options: QuizOptions): Set<String> =
-        data.words.filter { sourcesWord(it, options) }
-            .mapTo(LinkedHashSet()) { QuizOptions.columnOf(it.group) }
-
     /** Whether this word actually has both forms, and they match the question focus. */
     private fun allowsPair(word: Word, t: Transformation, options: QuizOptions): Boolean {
         val from = word.conjugations[t.from] ?: return false
@@ -198,10 +196,15 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         // The whole-pool lists run to six figures, so they start large.
         val regular = IntList(1024)
         val trick = IntList(1024)
+        val columns = LinkedHashSet<String>()
         var words = 0
         data.words.forEachIndexed { w, word ->
             checkpoint()
-            if (!allowsWord(word, options)) return@forEachIndexed
+            if (!sourcesWord(word, options)) return@forEachIndexed
+            // Counted before the class has its say, so that switching a column off leaves
+            // it on the grid to switch back on.
+            columns.add(QuizOptions.columnOf(word.group))
+            if (!options.isOn(word.group)) return@forEachIndexed
             var asked = false
             for ((t, transformation) in enabled) {
                 if (allowsPair(word, transformation, options)) {
@@ -212,7 +215,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
             }
             if (asked) words++
         }
-        return QuestionPool(options, words, regular.toIntArray(), trick.toIntArray())
+        return QuestionPool(options, words, columns, regular.toIntArray(), trick.toIntArray())
     }
 
     /** A whole session's questions up front, drawn without replacement. */

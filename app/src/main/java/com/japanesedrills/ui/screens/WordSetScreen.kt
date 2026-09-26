@@ -67,12 +67,16 @@ fun WordSetScreen(
 ) {
     var query by remember { mutableStateOf("") }
     var confirmDelete by remember { mutableStateOf(false) }
+    // A set names keys, and regenerating words.json can retire one. What it holds is what
+    // it can still draw on, not how many names it kept.
+    val known = remember(words) { words.mapTo(HashSet()) { it.key } }
+    val held = set.words.count { it in known }
 
     Scaffold(
         modifier = modifier,
         topBar = {
             TopAppBar(
-                title = { Text("${set.words.size} words") },
+                title = { Text("$held words") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.Default.Check, contentDescription = "Done with this set")
