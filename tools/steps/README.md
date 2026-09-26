@@ -123,6 +123,18 @@ picking a due skill and then a word within it, preferring leeches, then due word
 anything not yet asked that session. Sessions cycle through the due skills rather than
 blocking on one: interleaving feels harder and retains better.
 
+A skill is due when its schedule says so, and one review has never asked is due as well:
+never asked and overdue are the same statement about whether it holds up, and the queue
+draws on both. The count on the path's Review row is that same reckoning over the same
+skills, so the number and the button can never disagree — the row once said nothing was
+due while the button had a queue of pairings it had not asked yet.
+
+Only path sessions write to any of this. Free practice records nothing on purpose, so the
+Review row does not appear at all until a step has been taken, and everything answered
+today is scheduled for tomorrow at the earliest: the first rung of the ladder is one day.
+A learner who has only used the Practice tab has no review, and one who checks the day
+they practised sees "nothing due". Both are the design, not a fault.
+
 This split is the one decision here that is expensive to reverse, because it is baked into
 the stored progress format.
 

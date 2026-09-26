@@ -161,7 +161,7 @@ fun AppSettingsScreen(
                             clipboard.setText(AnnotatedString(text))
                             notice = "Copied ${text.length} characters to the clipboard."
                         },
-                        enabled = state.started,
+                        enabled = !state.progress.isEmpty,
                         modifier = Modifier.weight(1f),
                     ) { Text("Copy") }
                     OutlinedButton(
@@ -170,7 +170,7 @@ fun AppSettingsScreen(
                             when {
                                 pasted.isBlank() -> notice = "The clipboard is empty."
                                 // Confirm first only when there is something to lose.
-                                state.started -> pendingImport = pasted
+                                !state.progress.isEmpty -> pendingImport = pasted
                                 else -> notice =
                                     if (onImport(pasted)) "Progress restored."
                                     else "That does not look like a progress backup."

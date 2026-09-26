@@ -79,14 +79,19 @@ data class Progress(
      */
     val sets: Map<String, CustomSet> = emptyMap(),
 ) {
+    /** Nothing worth keeping: nothing earned, and no set the learner put together. */
     val isEmpty: Boolean get() = steps.isEmpty() && skills.isEmpty() && words.isEmpty() && sets.isEmpty()
+
+    /**
+     * Anything earned on the learn path. A word set is the learner's work but not a step
+     * taken, so making one does not make the path say it has begun.
+     */
+    val onPath: Boolean get() = steps.isNotEmpty() || skills.isNotEmpty() || words.isNotEmpty()
 
     /**
      * How many skills are ready to be reviewed: the one definition of "due" for the UI.
      * Every skill here was practised, so a review can reach every one of them.
      */
-    fun dueCount(today: Long): Int = skills.values.count { Scheduler.isDue(it, today) }
-
     companion object {
         /** A pairing missed this often is a leech: it gets picked first in review. */
         const val LEECH_THRESHOLD = 4

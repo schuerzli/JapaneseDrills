@@ -181,10 +181,11 @@ data class DrillUiState(
         get() = !loading && options.hasPoliteness && options.questionCount != null && (pool?.questions ?: 0) > 0
 
     /**
-     * Any progress at all: opening a step already counts, and it would be odd to still be
-     * told nothing has begun.
+     * The learn path has begun: opening a step already counts, and it would be odd to still
+     * be told nothing has. A word set made on the practice tab is not a step taken, which
+     * is why this is not simply "there is something in the document".
      */
-    val started: Boolean get() = !progress.isEmpty
+    val started: Boolean get() = progress.onPath
 
     /**
      * The set a wrong word can be dropped from while drilling: the one set the session is
@@ -220,6 +221,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /** The session being drawn, so a second tap on Start while it is cannot start another. */
     private var startJob: Job? = null
+    private var dueJob: Job? = null
 
     /**
      * The rest of the running session's questions, as packed pairs. Every session kind
@@ -510,7 +512,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         val next = nextStep(learnPath, progress)
-        _state.update { it.copy(path = path, nextStep = next, dueCount = progress.dueCount(today)) }
+        _state.update { it.copy(path = path, nextStep = next) }
+        refreshDue()
     }
 
     private fun nextStep(learnPath: LearnPath, progress: Progress): Step? =
@@ -605,6 +608,28 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                     quizOptions = options,
                 )
             }
+        }
+    }
+
+    /**
+     * How much review has waiting, off the main thread: it walks the words the path has
+     * drilled, the same walk the session itself starts with.
+     */
+    private fun refreshDue() {
+        val engine = engine ?: return
+        val learnPath = data?.learnPath ?: return
+        dueJob?.cancel()
+        val practised = practised()
+        if (practised == null) {
+            _state.update { it.copy(dueCount = 0) }
+            return
+        }
+        val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
+        val progress = _state.value.progress
+        val day = today
+        dueJob = viewModelScope.launch {
+            val due = withContext(Dispatchers.Default) { engine.dueCount(options, progress, day) }
+            _state.update { it.copy(dueCount = due) }
         }
     }
 

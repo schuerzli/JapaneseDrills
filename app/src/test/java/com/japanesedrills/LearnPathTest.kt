@@ -456,16 +456,24 @@ class LearnPathTest {
     // Progress
 
     @Test
-    fun dueCountOnlyCountsWhatIsDue() {
-        val progress = Progress(
+    fun theDueCountIsWhatReviewWouldAskAbout() {
+        val options = reviewOptions()
+        val waiting = engine.buildSkillIndex(options).keys.toList()
+        assertTrue("review has no skills to count", waiting.size >= 2)
+
+        // Nothing answered yet: every pairing review knows about is waiting, which is what
+        // the queue draws on. A row saying "nothing due" there would contradict the button.
+        assertEquals(waiting.size, engine.dueCount(options, Progress(), 10))
+
+        val answered = Progress(
             skills = mapOf(
-                "past|godan" to SrsState(due = 5),
-                "te-form|ichidan" to SrsState(due = 50),
+                waiting[0] to SrsState(step = 0, due = 40),
+                waiting[1] to SrsState(step = 2, due = 10),
             )
         )
-        assertEquals(1, progress.dueCount(10))
-        assertEquals(2, progress.dueCount(50))
-        assertEquals(0, progress.dueCount(4))
+        assertEquals(waiting.size - 1, engine.dueCount(options, answered, 10))
+        assertEquals(waiting.size - 2, engine.dueCount(options, answered, 9))
+        assertEquals(waiting.size, engine.dueCount(options, answered, 40))
     }
 
     // Backup. The stored document and the one the user copies out are the same text, so

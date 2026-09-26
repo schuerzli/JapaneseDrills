@@ -264,6 +264,22 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     }
 
     /**
+     * Whether review would ask this skill today. A pairing it has never asked counts as
+     * due: it is the same "you have not shown me this holds up" that a lapsed one is, and
+     * the queue draws on both.
+     */
+    private fun isDueSkill(skill: String, progress: Progress, day: Long): Boolean =
+        progress.skills[skill]?.let { Scheduler.isDue(it, day) } ?: true
+
+    /**
+     * How many skills review has waiting, which is what the path's Review row counts. It
+     * reckons due exactly as [buildReviewQueue] does, so the number on the row is the
+     * number of things the button would go through.
+     */
+    fun dueCount(options: QuizOptions, progress: Progress, day: Long): Int =
+        buildSkillIndex(options).keys.count { isDueSkill(it, progress, day) }
+
+    /**
      * A review session's questions, cycling through the due skills so the session
      * interleaves them rather than blocking one skill at a time. Interleaving feels harder
      * and retains better, which is the whole point of a review.
@@ -272,9 +288,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         val index = buildSkillIndex(options)
         if (index.isEmpty()) return emptyList()
 
-        val due = index.keys.filter { key ->
-            progress.skills[key]?.let { Scheduler.isDue(it, day) } ?: true
-        }
+        val due = index.keys.filter { isDueSkill(it, progress, day) }
         val skills = due.ifEmpty { index.keys.toList() }.shuffled(random)
         val count = (skills.size * QUESTIONS_PER_SKILL).coerceIn(MIN_REVIEW, MAX_REVIEW)
 

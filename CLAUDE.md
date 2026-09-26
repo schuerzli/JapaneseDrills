@@ -130,8 +130,9 @@ These look like mistakes without their reason. Check here before "fixing" one.
   that no longer exists: nothing matches it and the set opens on what is left, rather than
   the key being dropped or the document refusing to load.
 
-Why the path is ordered the way it is, why nothing on it is locked, and why review
-schedules skills rather than questions, is in `tools/steps/README.md`.
+Why the path is ordered the way it is, why nothing on it is locked, why review schedules
+skills rather than questions, what counts as due, and why free practice writes nothing to
+the schedule, is in `tools/steps/README.md`.
 
 ## Consistency
 
