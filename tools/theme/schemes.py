@@ -1,7 +1,7 @@
 """Writes the app's palettes: the ones Settings offers, and the reasoning behind each.
 
     python tools/theme/schemes.py --apply     # rewrite Theme.kt and the colors.xml files
-    python tools/theme/schemes.py --check     # contrast sweep over every palette
+    python tools/theme/schemes.py --check     # contrast sweep, and is the output current
     python tools/theme/schemes.py --preview   # write preview.html comparing them
     python tools/theme/schemes.py --fonts     # rebuild res/font from tools/theme/fonts
 
@@ -371,7 +371,13 @@ def check():
         print(f"{name:9} {faces(display, body)}")
     print(f"\nall pairs clear {FLOOR} (secondary text {SECONDARY_FLOOR})" if not bad
           else f"\n{bad} pairs below their floor")
-    return bad
+
+    behind = stale()
+    for path in behind:
+        print(f"stale: {path.relative_to(ROOT).as_posix()} is not what the generator emits; run --apply")
+    if not behind:
+        print("generated files match the generator")
+    return bad + len(behind)
 
 
 # --- Fonts -----------------------------------------------------------------
@@ -439,26 +445,38 @@ def kotlin_palettes():
     return "\n".join(out)
 
 
+def outputs():
+    """What --apply writes, as {path: text}. The one description of it, so --check can hold
+    the files against it instead of repeating how they are built."""
+    src = THEME.read_text(encoding="utf-8")
+    assert GENERATED.search(src), "Theme.kt has lost its generated markers"
+    light, dark = PALETTES[DEFAULT][:2]
+    return {
+        THEME: GENERATED.sub(lambda m: m.group(1) + kotlin_palettes() + m.group(2), src),
+        RES / "values/colors.xml":
+            '<resources>\n    <color name="window_background">#FF%s</color>\n'
+            '    <color name="ic_launcher_background">#FF%s</color>\n</resources>\n'
+            % (light["surface"].lstrip("#"), light["primary"].lstrip("#")),
+        RES / "values-night/colors.xml":
+            '<resources>\n    <color name="window_background">#FF%s</color>\n</resources>\n'
+            % dark["surface"].lstrip("#"),
+    }
+
+
+def stale():
+    """The generated files that no longer match the generator: a palette changed without an
+    --apply, or one of its outputs edited by hand. Silent until it ships, otherwise."""
+    return [path for path, text in outputs().items() if path.read_text(encoding="utf-8") != text]
+
+
 def apply():
     for face in {face for p in PALETTES.values() for face in p[2:4]}:
         for suffix in WEIGHTS.values():
             assert (RES / "font" / f"{face}_{suffix}.ttf").exists(), \
                 f"res/font/{face}_{suffix}.ttf is missing; run --fonts"
 
-    src = THEME.read_text(encoding="utf-8")
-    assert GENERATED.search(src), "Theme.kt has lost its generated markers"
-    src = GENERATED.sub(lambda m: m.group(1) + kotlin_palettes() + m.group(2), src)
-    THEME.write_text(src, encoding="utf-8")
-
-    light, dark = PALETTES[DEFAULT][:2]
-
-    (RES / "values/colors.xml").write_text(
-        '<resources>\n    <color name="window_background">#FF%s</color>\n'
-        '    <color name="ic_launcher_background">#FF%s</color>\n</resources>\n'
-        % (light["surface"].lstrip("#"), light["primary"].lstrip("#")), encoding="utf-8")
-    (RES / "values-night/colors.xml").write_text(
-        '<resources>\n    <color name="window_background">#FF%s</color>\n</resources>\n'
-        % dark["surface"].lstrip("#"), encoding="utf-8")
+    for path, text in outputs().items():
+        path.write_text(text, encoding="utf-8")
     print(f"wrote {len(PALETTES)} palettes; window background from {DEFAULT}")
 
 

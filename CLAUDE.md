@@ -39,15 +39,15 @@ curation and sentence readings re-run alone as `merge.py --finish`), `steps.json
 `res/values{,-night}/colors.xml`, where the window background and the launcher icon's
 background come from whichever palette `schemes.py` names as the default. Edit the
 generator and re-run it; editing its output means the next run silently reverts you.
-`steps.json` is the one whose staleness nothing else catches, so it has a check of its
-own:
+Staleness is otherwise invisible, so `steps.json` has a check of its own:
 
 ```bash
 python tools/steps/generate.py --check
 ```
 
 A palette is only finished when every foreground/background pair the app puts together
-clears its contrast floor, which is easy to break by eye and easy to check:
+clears its contrast floor, which is easy to break by eye. The same check holds `Theme.kt`
+and the two `colors.xml` against what the generator would write now:
 
 ```bash
 python tools/theme/schemes.py --check
@@ -77,14 +77,14 @@ app/src/main/assets/     words.json (words), rules.json (conjugation), steps.jso
 app/src/main/res/        launcher icon, window background, the bundled fonts and their licence
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
-    quiz/                engine, question pool, romaji input, furigana, answer explanations,
-                         grammar reference, Conjugation Intro, learn path, spaced
-                         repetition, progress
+    quiz/                engine, question pool, word sets, romaji input, furigana, answer
+                         explanations, grammar reference, Conjugation Intro, learn path,
+                         spaced repetition, progress
     ui/                  ViewModel and state
     ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice,
                          word sets, quiz, results, settings, about
     ui/components/       furigana-aware rich text and table, worked changes, shared card
-                         and switch row, scrollbars
+                         and rows, scrollbars
     ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
@@ -126,8 +126,9 @@ These look like mistakes without their reason. Check here before "fixing" one.
   `ProgressStore` throws away real work, so it is written through on every answer and
   only cleared behind a confirmation. It can also be copied out as text, so the encoded
   shape is something other people hold copies of, not merely an internal detail. A set
-  names word keys, and regenerating `words.json` can retire one, so a set drops keys it no
-  longer knows rather than refusing to open.
+  names word keys, and regenerating `words.json` can retire one, so a set may name a word
+  that no longer exists: nothing matches it and the set opens on what is left, rather than
+  the key being dropped or the document refusing to load.
 
 Why the path is ordered the way it is, why nothing on it is locked, and why review
 schedules skills rather than questions, is in `tools/steps/README.md`.

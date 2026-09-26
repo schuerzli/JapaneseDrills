@@ -449,7 +449,7 @@ print("  by group:", dict(collections.Counter(c["group"] for _, c in pool)))
 
 # --- select -----------------------------------------------------------------
 # Take every N5 and N4 word there is, then split what is left between N3 and N2 so
-# each level filter has a usable pool. Common words first within a level, and する
+# each level set has a usable pool. Common words first within a level, and する
 # verbs are capped so the drill does not fill with words that all conjugate alike.
 by_level = collections.defaultdict(list)
 for key, c in pool:

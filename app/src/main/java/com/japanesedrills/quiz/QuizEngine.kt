@@ -150,11 +150,13 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     private fun allowsWord(word: Word, options: QuizOptions): Boolean =
         options.isOn(word.group) && sourcesWord(word, options)
 
-    /** How many words each set holds, for the practice screen to show beside its name. */
+    /**
+     * How many words each built-in set holds, for the practice screen to show beside its
+     * name. It depends on words.json alone, so it is the same for the life of the app; a
+     * set the learner made counts its own words instead, and they change under them.
+     */
     fun setSizes(): Map<String, Int> =
-        (WordSets.IDS + customSets.keys).associateWith { id ->
-            data.words.count { WordSets.holds(id, it, customSets) }
-        }
+        WordSets.IDS.associateWith { id -> data.words.count { WordSets.holds(id, it) } }
 
     /**
      * The grid columns the chosen words fall into, switched on or not: what the grid has

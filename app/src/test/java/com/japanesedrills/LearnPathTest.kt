@@ -6,7 +6,6 @@ import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.LearnPath
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
-import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec

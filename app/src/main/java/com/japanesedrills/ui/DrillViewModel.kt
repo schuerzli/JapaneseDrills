@@ -158,7 +158,7 @@ data class DrillUiState(
     val editingSet: String? = null,
     /** Every word there is, for the word-set editor to pick from. */
     val words: List<Word> = emptyList(),
-    /** How many words each word set holds, beside its name on the practice screen. */
+    /** How many words each built-in set holds, beside its name on the practice screen. */
     val setSizes: Map<String, Int> = emptyMap(),
     /** Representative words for showing how a form is built. */
     val grammarExamples: GrammarExamples = GrammarExamples(),

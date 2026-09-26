@@ -95,7 +95,7 @@ data class QuizOptions(
     val hasWords: Boolean get() = allWords || sets.isNotEmpty()
 
     /**
-     * Exactly these forms and word groups, no level filter, and [focus]. The general
+     * Exactly these forms and word groups, every word, and [focus]. The general
      * options (kana, furigana, trick questions…) are preferences rather than a choice of
      * what to practise, so they are left as they are.
      */
