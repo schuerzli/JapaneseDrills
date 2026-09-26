@@ -135,11 +135,14 @@ These look like mistakes without their reason. Check here before "fixing" one.
   that no longer exists: nothing matches it and the set opens on what is left, rather than
   the key being dropped or the document refusing to load.
 
-- **Review is what moves the path; a lesson is what is sprinkled in.** The learn tab offers
-  the next lesson only when review has nothing waiting (`DrillUiState.recommendNext`), and a
-  lesson is always entered through its notes, never straight into questions. A lesson's bar
-  is how well review is holding its content up, so the path is a read-out of review rather
-  than a checklist.
+- **Review is what moves the path; a lesson is what is sprinkled in.** The learn tab always
+  says what it recommends (`Recommendation`): the next lesson once review is *solid*, review
+  itself while it is not, and free practice when every lesson is ready. Solid is a small
+  backlog, not an empty one (`ReviewLoad.solid`, at most a fifth of what review tracks) —
+  waiting for zero would stop the path handing out lessons at all, since review is meant to
+  have something in it most days. A lesson is always entered through its notes, never
+  straight into questions, and its bar is how well review is holding its content up, so the
+  path is a read-out of review rather than a checklist.
 
 Why the path is ordered the way it is, why nothing on it is locked, why review schedules
 skills rather than questions, what counts as due, and why free practice writes nothing to

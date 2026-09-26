@@ -31,6 +31,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -42,6 +43,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
+import com.japanesedrills.ui.Recommendation
 import com.japanesedrills.ui.StepCard
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.SectionCard
@@ -90,9 +92,7 @@ fun LearnPathScreen(
     modifier: Modifier = Modifier,
 ) {
     val chapters = remember(state.path) { chaptersOf(state.path) }
-    // Only what the path actually recommends: while review has work, it is the only thing
-    // asked for, and a lesson offered anyway would compete with it.
-    val next = state.recommendNext
+    val recommendation = state.recommendation
 
     val list = rememberLazyListState()
     LazyColumn(
@@ -110,16 +110,16 @@ fun LearnPathScreen(
         }
         // What the path asks for right now, in one card: review first, because it is what
         // moves the lessons below, and the next lesson only when review has nothing waiting.
-        if (state.hasReview || next != null) {
+        if (state.hasReview || recommendation != null) {
             item {
                 Spaced {
                     SectionCard("Today") {
                         if (state.hasReview) ReviewRow(state.dueCount, onReview)
-                        if (next != null) {
+                        if (recommendation != null) {
                             if (state.hasReview) {
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             }
-                            NextUpRow(next, onStart = { onStep(next) })
+                            RecommendedRow(recommendation, onStep = onStep, onReview = onReview)
                         }
                     }
                 }
@@ -220,22 +220,50 @@ private fun ReviewRow(due: Int, onReview: () -> Unit) {
  * What the path recommends, with a way straight in. Readiness decides it, never a lock: the
  * learner can take any other step from the list below.
  */
+/**
+ * What the path wants next, whatever that is: the lesson when review is solid, review
+ * itself when it is not, and free practice once every lesson is ready. One row, one label,
+ * so the absence of a lesson is stated rather than left to be noticed.
+ */
 @Composable
-private fun NextUpRow(step: Step, onStart: () -> Unit) {
+private fun RecommendedRow(
+    recommendation: Recommendation,
+    onStep: (Step) -> Unit,
+    onReview: () -> Unit,
+) {
+    val title = when (recommendation) {
+        is Recommendation.Lesson -> recommendation.step.title
+        Recommendation.ImproveReview -> "Improve Review"
+        Recommendation.Done -> "Review or Practice"
+    }
+    val subtitle = when (recommendation) {
+        is Recommendation.Lesson -> recommendation.step.subtitle
+        Recommendation.ImproveReview -> "A new lesson once review is holding up"
+        Recommendation.Done -> "Every lesson is ready; review keeps them that way"
+    }
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            FuriganaText("Next lesson · ${step.title}", style = MaterialTheme.typography.bodyLarge)
+            FuriganaText("Recommended next · $title", style = MaterialTheme.typography.bodyLarge)
             FuriganaText(
-                step.subtitle,
+                subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
         Spacer(Modifier.width(12.dp))
-        Button(onClick = onStart) {
-            Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Text("Start")
+        when (recommendation) {
+            is Recommendation.Lesson -> Button(onClick = { onStep(recommendation.step) }) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Text("Open")
+            }
+            // Both other cases point at review, which is the button above; this one is
+            // outlined so the card never shows two filled buttons.
+            else -> OutlinedButton(onClick = onReview) {
+                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Text("Review")
+            }
         }
     }
 }

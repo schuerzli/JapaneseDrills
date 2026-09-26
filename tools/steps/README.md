@@ -23,10 +23,13 @@ drilled: it explains the kana grid and the verb classes that every later rule is
 and it is finished by being opened. It carries no forms, words or questions, so it is the one
 step nothing can drill.
 
-What the path offers next is decided by review, not by the list. While review has anything
-waiting, review is the only thing asked for; a new lesson appears when review is clear. That
-is the loop this is built around: start a lesson, come back to review it, and take a new
-lesson once the old ones are holding up. A lesson's progress bar is its review strength, so
+What the path offers next is decided by review, not by the list, and it always says so out
+loud. A new lesson is recommended when review is *solid*: at most a fifth of the skills it
+tracks are waiting. Not when review is empty — review is meant to have something in it most
+days, so a path that waited for zero would never hand out another lesson. While the backlog
+is bigger than that the recommendation reads "Improve Review", and once every lesson is
+ready it reads "Review or Practice". That is the loop this is built around: start a lesson,
+come back to review it, and take a new lesson once the old ones are holding up. A lesson's progress bar is its review strength, so
 the bars move when review is done, not when a lesson is tapped — and a lesson is always
 entered through its notes, so the grammar is stated before it is drilled.
 

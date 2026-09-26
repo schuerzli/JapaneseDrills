@@ -57,6 +57,21 @@ enum class Tab(val label: String) {
 
 enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, ConjugationIntro, GrammarDetail, WordSet }
 
+/**
+ * What the path suggests doing next, once review has been counted. The lesson is offered
+ * when review is solid; otherwise the path says which of the two it would rather have.
+ */
+sealed interface Recommendation {
+    /** Review is solid enough to take on something new. */
+    data class Lesson(val step: Step) : Recommendation
+
+    /** Review has a backlog: clearing it is worth more than another lesson. */
+    data object ImproveReview : Recommendation
+
+    /** Every lesson is ready. From here the app is review and free practice. */
+    data object Done : Recommendation
+}
+
 /** Which of the three things the running quiz is. */
 enum class SessionKind { Practice, Step, Review }
 
@@ -134,10 +149,12 @@ data class DrillUiState(
     val nextStep: Step? = null,
     val dueCount: Int = 0,
     /**
-     * Set once the due count has been worked out. Until then the path offers nothing, so a
+     * Set once review has been counted. Until then the path offers nothing, so a
      * recommendation cannot flash up and vanish when review turns out to have work.
      */
     val reviewCounted: Boolean = false,
+    /** Whether review's backlog is small enough to take on a new lesson ([ReviewLoad]). */
+    val reviewSolid: Boolean = true,
     /** The step being introduced or drilled. */
     val step: Step? = null,
     /** New vocabulary to present before [step] starts. */
@@ -183,11 +200,18 @@ data class DrillUiState(
     val salvagedProgress: Boolean = false,
 ) {
     /**
-     * The lesson to offer, if any. A new lesson is sprinkled in when review has nothing
-     * waiting; while something is due, review is the only thing the path asks for, because
-     * review is what moves the lessons already taken.
+     * What to do next, as the path sees it. A lesson once review is solid; otherwise
+     * review itself, which is what moves every lesson already taken. The row is always
+     * there, so "nothing new yet" is something the path says rather than something the
+     * learner has to infer from an absence.
      */
-    val recommendNext: Step? get() = if (reviewCounted && dueCount == 0) nextStep else null
+    val recommendation: Recommendation?
+        get() = when {
+            !reviewCounted -> null
+            nextStep == null -> Recommendation.Done
+            reviewSolid -> Recommendation.Lesson(nextStep)
+            else -> Recommendation.ImproveReview
+        }
 
     /** Whether there is a review at all: before the first lesson there is nothing to hold up. */
     val hasReview: Boolean get() = progress.skills.isNotEmpty()
@@ -645,8 +669,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * How much review has waiting, off the main thread: it walks the words the path has
-     * drilled, the same walk the session itself starts with.
+     * How review stands, off the main thread: it walks the words the path has drilled, the
+     * same walk the session itself starts with.
      */
     private fun refreshDue() {
         val engine = engine ?: return
@@ -654,15 +678,15 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         dueJob?.cancel()
         val practised = practised()
         if (practised == null) {
-            _state.update { it.copy(dueCount = 0, reviewCounted = true) }
+            _state.update { it.copy(dueCount = 0, reviewSolid = true, reviewCounted = true) }
             return
         }
         val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
         val progress = _state.value.progress
         val day = today
         dueJob = viewModelScope.launch {
-            val due = withContext(Dispatchers.Default) { engine.dueCount(options, progress, day) }
-            _state.update { it.copy(dueCount = due, reviewCounted = true) }
+            val load = withContext(Dispatchers.Default) { engine.reviewLoad(options, progress, day) }
+            _state.update { it.copy(dueCount = load.due, reviewSolid = load.solid, reviewCounted = true) }
         }
     }
 

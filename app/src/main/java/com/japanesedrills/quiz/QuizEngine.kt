@@ -72,6 +72,22 @@ private class Deck(source: IntArray, private val random: Random) {
  * All (word, transformation) pairs allowed by a set of options, split into regular and
  * trick questions. Pairs are packed as `wordIndex * transformationCount + transformationIndex`.
  */
+/**
+ * How review stands: [due] of the [total] skills it covers are waiting.
+ *
+ * [solid] is the path's gate for offering a new lesson. Not "nothing is due" — review is
+ * meant to have something in it most days, and a path that waited for zero would never
+ * hand out another lesson — but "the backlog is small against what is already learned".
+ */
+data class ReviewLoad(val due: Int, val total: Int) {
+    val solid: Boolean get() = total == 0 || due * SHARE <= total
+
+    companion object {
+        /** At most a fifth of what review tracks may be waiting. */
+        const val SHARE = 5
+    }
+}
+
 class QuestionPool(
     val options: QuizOptions,
     /** How many distinct words the pool draws on. */
@@ -272,12 +288,14 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         progress.skills[skill]?.let { Scheduler.isDue(it, day) } ?: true
 
     /**
-     * How many skills review has waiting, which is what the path's Review row counts. It
-     * reckons due exactly as [buildReviewQueue] does, so the number on the row is the
-     * number of things the button would go through.
+     * What review has waiting and what it knows about, reckoned exactly as
+     * [buildReviewQueue] reckons it: the number on the Review row, and the number the path
+     * decides against when it works out whether to recommend a new lesson.
      */
-    fun dueCount(options: QuizOptions, progress: Progress, day: Long): Int =
-        buildSkillIndex(options).keys.count { isDueSkill(it, progress, day) }
+    fun reviewLoad(options: QuizOptions, progress: Progress, day: Long): ReviewLoad {
+        val skills = buildSkillIndex(options).keys
+        return ReviewLoad(skills.count { isDueSkill(it, progress, day) }, skills.size)
+    }
 
     /**
      * A review session's questions, cycling through the due skills so the session

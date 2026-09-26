@@ -11,6 +11,7 @@ import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
+import com.japanesedrills.quiz.ReviewLoad
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
 import com.japanesedrills.quiz.StepRecord
@@ -482,7 +483,8 @@ class LearnPathTest {
 
         // Nothing answered yet: every pairing review knows about is waiting, which is what
         // the queue draws on. A row saying "nothing due" there would contradict the button.
-        assertEquals(waiting.size, engine.dueCount(options, Progress(), 10))
+        assertEquals(waiting.size, engine.reviewLoad(options, Progress(), 10).due)
+        assertEquals(waiting.size, engine.reviewLoad(options, Progress(), 10).total)
 
         val answered = Progress(
             skills = mapOf(
@@ -490,9 +492,23 @@ class LearnPathTest {
                 waiting[1] to SrsState(step = 2, due = 10),
             )
         )
-        assertEquals(waiting.size - 1, engine.dueCount(options, answered, 10))
-        assertEquals(waiting.size - 2, engine.dueCount(options, answered, 9))
-        assertEquals(waiting.size, engine.dueCount(options, answered, 40))
+        assertEquals(waiting.size - 1, engine.reviewLoad(options, answered, 10).due)
+        assertEquals(waiting.size - 2, engine.reviewLoad(options, answered, 9).due)
+        assertEquals(waiting.size, engine.reviewLoad(options, answered, 40).due)
+    }
+
+    /**
+     * The gate on a new lesson. Not "nothing is due" — review is meant to have something in
+     * it most days, and waiting for zero would stop the path handing out lessons at all —
+     * but a backlog small against what has already been learned.
+     */
+    @Test
+    fun reviewIsSolidWhenItsBacklogIsSmall() {
+        assertTrue("nothing learned yet, so nothing is holding it up", ReviewLoad(0, 0).solid)
+        assertTrue(ReviewLoad(2, 10).solid)
+        assertFalse(ReviewLoad(3, 10).solid)
+        assertFalse("a whole backlog is not solid", ReviewLoad(10, 10).solid)
+        assertTrue("a day's worth against a long path is", ReviewLoad(8, 60).solid)
     }
 
     // Backup. The stored document and the one the user copies out are the same text, so
