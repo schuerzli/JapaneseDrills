@@ -49,20 +49,33 @@ fun typographyOf(display: FontFamily, body: FontFamily) = Typography(
     titleLarge = base.titleLarge.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
     titleMedium = base.titleMedium.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
     titleSmall = base.titleSmall.copy(fontFamily = display, fontWeight = FontWeight.SemiBold),
-    bodyLarge = base.bodyLarge.copy(fontFamily = body, lineHeight = 26.sp),
-    bodyMedium = base.bodyMedium.copy(fontFamily = body, lineHeight = 22.sp),
+    bodyLarge = base.bodyLarge.copy(
+        fontFamily = body, fontSize = 15.sp, fontWeight = FontWeight.Medium, lineHeight = 24.sp,
+    ),
+    bodyMedium = base.bodyMedium.copy(fontFamily = body, fontWeight = FontWeight.Medium, lineHeight = 22.sp),
     bodySmall = base.bodySmall.copy(fontFamily = body, fontWeight = FontWeight.Medium, lineHeight = 18.sp),
-    labelLarge = base.labelLarge.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
+    labelLarge = base.labelLarge.copy(fontFamily = body, fontSize = 14.5.sp, fontWeight = FontWeight.Bold),
     labelMedium = base.labelMedium.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
-    labelSmall = base.labelSmall.copy(fontFamily = body, fontWeight = FontWeight.SemiBold),
+    labelSmall = base.labelSmall.copy(
+        fontFamily = body, fontSize = 11.5.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp,
+    ),
 )
 
 /**
- * A card's title, and a heading over a run of cards. Material has no slot for it, and its
- * titleMedium at 16sp barely stood out from the 14sp body text beneath.
+ * A section's heading, and the title of a row that has a line of its own under it. Bold
+ * rather than big: with one family doing the whole interface, weight is what separates a
+ * heading from what it heads, and a 20sp title over 15sp rows read as two different pages.
  */
-val Typography.heading: TextStyle get() = titleMedium.copy(fontSize = 20.sp, lineHeight = 28.sp)
+val Typography.heading: TextStyle
+    get() = titleMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold, lineHeight = 22.sp)
 
-/** A heading inside a card, under its [heading]: a word class on the Grammar tab, say. */
+/** A heading under a [heading]: a word class on the Grammar tab, say. */
 val Typography.subheading: TextStyle
-    get() = labelLarge.copy(fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp)
+    get() = labelLarge.copy(fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 21.sp)
+
+/**
+ * The one line a screen is about: what review is asking for, what the path recommends,
+ * the step just finished. Never more than one of them on a screen.
+ */
+val Typography.lead: TextStyle
+    get() = titleMedium.copy(fontSize = 21.sp, fontWeight = FontWeight.Bold, lineHeight = 26.sp)

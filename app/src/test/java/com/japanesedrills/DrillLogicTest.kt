@@ -459,6 +459,27 @@ class DrillLogicTest {
         )
     }
 
+    /**
+     * Every sourced word is either in the pool or counted against the column that dropped
+     * it: the practice screen subtracts one from the other to explain the difference.
+     */
+    @Test
+    fun theWordsTheGridAsksNothingAboutAreCounted() {
+        val engine = QuizEngine(data, Random(13))
+        // The adjectives are off by default, which is the whole of the gap between what
+        // "All words" holds and what the pool draws on when nothing has been touched.
+        val options = QuizOptions()
+        val pool = engine.buildPool(options)
+        assertEquals(
+            data.words.filterNot { options.isOn(it.group) }
+                .groupingBy { QuizOptions.columnOf(it.group) }.eachCount(),
+            pool.skipped,
+        )
+        assertEquals(data.words.size, pool.words + pool.skipped.values.sum())
+        val everything = options.withPreset(PracticePreset.Everything, emptySet(), emptySet())
+        assertTrue(engine.buildPool(everything).skipped.isEmpty())
+    }
+
     /** A word class the grid has no column for could never be practised. */
     @Test
     fun everyWordClassBelongsToAColumn() {

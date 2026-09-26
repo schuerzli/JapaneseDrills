@@ -10,21 +10,29 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -33,8 +41,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.japanesedrills.quiz.OptionsStore
@@ -46,6 +57,8 @@ import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.LocalFuriganaToggle
 import com.japanesedrills.ui.Tab as AppTab
+import com.japanesedrills.ui.components.HeroBar
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.screens.AboutScreen
 import com.japanesedrills.ui.screens.AppSettingsScreen
 import com.japanesedrills.ui.screens.ConjugationIntroScreen
@@ -58,6 +71,7 @@ import com.japanesedrills.ui.screens.QuizScreen
 import com.japanesedrills.ui.screens.ResultsScreen
 import com.japanesedrills.ui.screens.StepIntroScreen
 import com.japanesedrills.ui.screens.WordSetScreen
+import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.JapaneseDrillsTheme
 
 class MainActivity : ComponentActivity() {
@@ -260,15 +274,57 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
     }
 }
 
+/**
+ * The tabs, on the gradient rather than in a bar of their own: one underline in the
+ * header's own cream, and the tabs that are not current in its quieter shade. Material's
+ * PrimaryTabRow brings its own container colour and indicator, which on a gradient reads
+ * as a second bar stuck under the first.
+ */
+@Composable
+private fun TabRow(current: AppTab, onTab: (AppTab) -> Unit) {
+    val surfaces = DrillTheme.surfaces
+    Row(Modifier.padding(start = 20.dp, end = 20.dp), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+        AppTab.entries.forEach { tab ->
+            val here = tab == current
+            Column(
+                Modifier
+                    .selectable(selected = here, role = Role.Tab, onClick = { onTab(tab) })
+                    // As wide as its own label: in a Row, fillMaxWidth below would
+                    // otherwise take the whole bar and push the other tabs off it.
+                    .width(IntrinsicSize.Max)
+                    .padding(top = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    tab.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (here) surfaces.onHero else surfaces.onHeroVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(2.5.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(if (here) surfaces.onHero else Color.Transparent),
+                )
+            }
+        }
+    }
+}
+
 /** The three tabs, with settings on the bar beside them rather than among them. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier: Modifier) {
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
-            Column {
+            HeroBar {
                 TopAppBar(
+                    colors = heroBarColors(),
                     title = { Text("Japanese Drills") },
                     actions = {
                         FuriganaAction()
@@ -277,15 +333,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                         }
                     },
                 )
-                PrimaryTabRow(selectedTabIndex = state.tab.ordinal) {
-                    AppTab.entries.forEach { tab ->
-                        Tab(
-                            selected = state.tab == tab,
-                            onClick = { viewModel.selectTab(tab) },
-                            text = { Text(tab.label) },
-                        )
-                    }
-                }
+                TabRow(state.tab, viewModel::selectTab)
             }
         },
         bottomBar = {

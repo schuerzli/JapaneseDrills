@@ -58,6 +58,7 @@ FACES = {
     "outfit": "Outfit",
     "fraunces": "Fraunces",
     "nunitosans": "Nunito Sans",
+    "nunito": "Nunito",
 }
 
 ROLES = """primary onPrimary primaryContainer onPrimaryContainer
@@ -88,8 +89,19 @@ MARKS_DARK = dict(markEnding="#8FC2F0", markFused="#E2A6E6")
 # accent so a full bar never reads as something to tap. The far end is the green that means
 # "right" everywhere else; the near end is a clay that does not.
 STRENGTH_ROLES = ["strengthLow", "strengthMid", "strengthHigh"]
-STRENGTH_LIGHT = dict(strengthLow="#993A22", strengthMid="#6F4A07", strengthHigh="#255A2B")
+# Bright, because a bar's track is drawn with a hairline round it (ui/components/Bars.kt):
+# how far the bar runs is stated by that outline, not by how far the fill is from the track,
+# and on a cream page no friendly green or amber can be 3:1 from a cream track anyway.
+STRENGTH_LIGHT = dict(strengthLow="#E0563A", strengthMid="#E09A16", strengthHigh="#46A855")
 STRENGTH_DARK = dict(strengthLow="#E79C7C", strengthMid="#DBB868", strengthHigh="#97CA94")
+
+# The surfaces the layout itself is made of, over and above Material's roles: the gradient
+# the header and the spotlight are painted with, the page's own vertical wash, the tint of
+# a raised panel, and the well a marked-out row sits in. Every one is derived from the
+# palette's own colours, so a palette carries its own version of the design without having
+# to restate it.
+SURFACE_ROLES = ["heroStart", "heroEnd", "onHero", "onHeroVariant",
+                 "pageTop", "pageBottom", "tintTop", "tintBottom", "well"]
 
 
 # The hero cards — the question, the welcome, the Conjugation Intro link and the score — are a
@@ -121,6 +133,20 @@ def scheme(**kw):
         s.setdefault(role, colour)
     for role, colour in (STRENGTH_DARK if dark else STRENGTH_LIGHT).items():
         s.setdefault(role, colour)
+    # The gradient's mid colour: the accent itself in light, and in dark the deep brown
+    # that carries the accent's hue — the bright accent would be a lamp, not a chrome.
+    s.setdefault("hero", s["primary"] if not dark else mix(s["primary"], s["onPrimary"], 0.30))
+    s.setdefault("heroStart", mix("#FFFFFF", s["hero"], 0.07))
+    s.setdefault("heroEnd", mix("#000000", s["hero"], 0.14))
+    s.setdefault("onHero", mix("#FFFFFF", s["hero"], 0.95))
+    s.setdefault("onHeroVariant", mix("#FFFFFF", s["hero"], 0.91))
+    s.setdefault("pageTop", s["surfaceContainerLow"])
+    s.setdefault("pageBottom",
+                 mix("#000000", s["surface"], 0.35) if dark else s["surfaceContainerHighest"])
+    s.setdefault("tintTop", s["surfaceContainerLow"])
+    s.setdefault("tintBottom",
+                 mix("#000000", s["surfaceContainerLow"], 0.22) if dark else s["surfaceContainer"])
+    s.setdefault("well", s["surfaceContainerHigh"])
     s.setdefault("primaryContainer", mix(s["primary"], s["surface"], HERO_TINT))
     s.setdefault("onPrimaryContainer", s["onSurface"])
     s.setdefault("background", s["surface"])
@@ -135,7 +161,8 @@ def scheme(**kw):
     s.setdefault("surfaceDim", s["surfaceContainerHighest"])
     s.setdefault("surfaceContainerLowest", s["surfaceContainerLow"])
     s.setdefault("inversePrimary", s["primary"])
-    missing = [r for r in ROLES + ANSWER_ROLES + MARK_ROLES + STRENGTH_ROLES if r not in s]
+    missing = [r for r in ROLES + ANSWER_ROLES + MARK_ROLES + STRENGTH_ROLES + SURFACE_ROLES
+               if r not in s]
     assert not missing, f"missing roles: {missing}"
     return s
 
@@ -189,7 +216,9 @@ KISSATEN_LIGHT = scheme(
     inverseSurface="#241A14", inverseOnSurface="#F2E6D8",
     surfaceContainerLow="#FBF6EE", surfaceContainer="#EFE6DA",
     surfaceContainerHigh="#E9DED0", surfaceContainerHighest="#E2D5C4",
-    correct="#3C6630", onCorrect="#FFFFFF", correctContainer="#CDE6BE", onCorrectContainer="#12250B",
+    # Bright with a dark tick, not deep with a white one: a verdict should read as
+    # friendly at a glance, and on cream a deep green reads as severe.
+    correct="#5CBF68", onCorrect="#0B2E13", correctContainer="#CDE6BE", onCorrectContainer="#12250B",
 )
 KISSATEN_DARK = scheme(
     primary="#E89B62", onPrimary="#44220A",
@@ -295,7 +324,7 @@ QUIET = dict(titles=False, headings=False)
 PALETTES = {
     # name: (light, dark, display face, body face, accent placement), in Settings order
     "latte": (LATTE_LIGHT, LATTE_DARK, "lora", "manrope", INK_TITLES),
-    "kissaten": (KISSATEN_LIGHT, KISSATEN_DARK, "lora", "manrope", ACCENT_TITLES),
+    "kissaten": (KISSATEN_LIGHT, KISSATEN_DARK, "nunito", "nunito", ACCENT_TITLES),
     "washi": (WASHI_LIGHT, WASHI_DARK, "outfit", "outfit", QUIET),
     "caramel": (CARAMEL_LIGHT, CARAMEL_DARK, "fraunces", "nunitosans", INK_TITLES),
     "mocha": (MOCHA_LIGHT, MOCHA_DARK, "manrope", "manrope", ACCENT_TITLES),
@@ -341,8 +370,13 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
                        "surfaceContainerHigh", "surfaceContainerHighest")]
          # The Conjugation Intro's marked kana: on its cards, and on the tables inside them.
          + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")]
-         # The strength bars, drawn on a card and on the track they fill.
-         + [(fg, bg) for fg in STRENGTH_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")]
+         # Everything the gradient carries: the title and tabs on the header, and the
+         # spotlight's own label and lead line.
+         + [(fg, bg) for fg in ("onHero", "onHeroVariant") for bg in ("heroStart", "heroEnd")]
+         # And everything the layout's own surfaces carry.
+         + [(fg, bg)
+            for fg in ("onSurface", "onSurfaceVariant", "primary")
+            for bg in ("pageTop", "pageBottom", "tintTop", "tintBottom", "well")]
          # The step numbers on the grammar cards, set in the outline colour so they stay quieter
          # than the text they number.
          + [("outline", "surfaceContainerLow")])
@@ -355,7 +389,12 @@ SECONDARY_FLOOR = 7.0
 # Where the app sets that small type. surfaceVariant is not among them: only Material's own
 # components use it, never under the app's secondary text, so that pair keeps the plain floor.
 SECONDARY_ON = {"surface", "surfaceContainerLow", "surfaceContainer", "surfaceContainerHigh",
-                "surfaceContainerHighest", "secondaryContainer", "primaryContainer"}
+                "surfaceContainerHighest", "secondaryContainer", "primaryContainer",
+                "pageTop", "pageBottom", "tintTop", "tintBottom", "well"}
+
+# A bar's fill carries no text and its extent is stated by the track's hairline, so all it
+# has to be is tellable from the track.
+RAMP_FLOOR = 1.3
 
 
 def check():
@@ -368,6 +407,11 @@ def check():
                 if ratio < (SECONDARY_FLOOR if secondary else FLOOR):
                     bad += 1
                     print(f"  {name:9} {tag:5} {ratio:5.2f}  {fg} on {bg}  ({s[fg]}/{s[bg]})")
+            for fg in STRENGTH_ROLES:
+                ratio = contrast(s[fg], s["surfaceContainerHighest"])
+                if ratio < RAMP_FLOOR:
+                    bad += 1
+                    print(f"  {name:9} {tag:5} {ratio:5.2f}  {fg} on its track")
         print(f"{name:9} {faces(display, body)}")
     print(f"\nall pairs clear {FLOOR} (secondary text {SECONDARY_FLOOR})" if not bad
           else f"\n{bad} pairs below their floor")
@@ -434,6 +478,8 @@ def kotlin_palettes():
             f"    darkMarks = MarkColors(\n{roles(MARK_ROLES, dark, ' ' * 8)}    ),\n"
             f"    lightStrength = StrengthColors(\n{roles(STRENGTH_ROLES, light, ' ' * 8)}    ),\n"
             f"    darkStrength = StrengthColors(\n{roles(STRENGTH_ROLES, dark, ' ' * 8)}    ),\n"
+            f"    lightSurfaces = Surfaces(\n{roles(SURFACE_ROLES, light, ' ' * 8)}    ),\n"
+            f"    darkSurfaces = Surfaces(\n{roles(SURFACE_ROLES, dark, ' ' * 8)}    ),\n"
             f"    display = {display.capitalize()}Face,\n"
             f"    body = {body.capitalize()}Face,\n"
             f'    faces = "{faces(display, body)}",\n'

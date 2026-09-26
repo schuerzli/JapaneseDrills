@@ -31,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.ConjugationIntro
@@ -43,9 +44,11 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
+import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.StepInset
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
@@ -70,17 +73,22 @@ fun StepIntroScreen(
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { FuriganaText(step.title) },
-                navigationIcon = {
-                    IconButton(onClick = onQuit) {
-                        Icon(Icons.Default.Close, contentDescription = "Back to the path")
-                    }
-                },
-                actions = { FuriganaAction() },
-            )
+            HeroBar {
+                TopAppBar(
+                    colors = heroBarColors(),
+                    title = { FuriganaText(step.title) },
+                    navigationIcon = {
+                        IconButton(onClick = onQuit) {
+                            Icon(Icons.Default.Close, contentDescription = "Back to the path")
+                        }
+                    },
+                    actions = { FuriganaAction() },
+                )
+            }
         },
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.surfaceContainer, shadowElevation = 8.dp) {
@@ -139,7 +147,7 @@ fun StepIntroScreen(
             // One card, a word to a row: a step deals a handful, well within one item.
             if (words.isNotEmpty()) {
                 item(key = "words") {
-                    SectionCard("New words in this step") {
+                    Section("New words in this step") {
                         words.forEachIndexed { i, word ->
                             if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             WordRow(word, options)

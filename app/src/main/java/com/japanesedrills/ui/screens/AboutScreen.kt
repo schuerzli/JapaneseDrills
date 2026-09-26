@@ -26,11 +26,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.HeroBar
+import com.japanesedrills.ui.components.Section
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 
 /**
@@ -104,14 +107,14 @@ private val SOURCES = listOf(
 private val TYPEFACES = listOf(
     Source(
         name = "Lora",
-        usedFor = "Titles in the Latte and Kissaten themes.",
+        usedFor = "Titles in the Latte theme.",
         credit = "The Lora Project Authors",
         licence = "SIL Open Font License 1.1",
         url = "https://fonts.google.com/specimen/Lora",
     ),
     Source(
         name = "Manrope",
-        usedFor = "Text in the Latte, Kissaten and Mocha themes.",
+        usedFor = "Text in the Latte and Mocha themes.",
         credit = "The Manrope Project Authors",
         licence = "SIL Open Font License 1.1",
         url = "https://fonts.google.com/specimen/Manrope",
@@ -131,6 +134,13 @@ private val TYPEFACES = listOf(
         url = "https://fonts.google.com/specimen/Fraunces",
     ),
     Source(
+        name = "Nunito",
+        usedFor = "The Kissaten theme.",
+        credit = "The Nunito Project Authors",
+        licence = "SIL Open Font License 1.1",
+        url = "https://fonts.google.com/specimen/Nunito",
+    ),
+    Source(
         name = "Nunito Sans",
         usedFor = "Text in the Caramel theme.",
         credit = "The Nunito Sans Project Authors",
@@ -145,17 +155,22 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeTopAppBar(
-                title = { Text("About") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
+            HeroBar {
+                LargeTopAppBar(
+                    colors = heroBarColors(),
+                    title = { Text("About") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    scrollBehavior = scrollBehavior,
+                )
+            }
         },
     ) { padding ->
         Column(
@@ -167,7 +182,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            SectionCard("Based on", "This app is an Android version of two web drills.") {
+            Section("Based on", "This app is an Android version of two web drills.") {
                 Column {
                     ORIGINALS.forEachIndexed { i, source ->
                         if (i > 0) {
@@ -181,7 +196,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 }
             }
 
-            SectionCard(
+            Section(
                 "Word data",
                 "The 1000 words, their readings, meanings and JLPT levels come from these open datasets.",
             ) {
@@ -198,7 +213,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 }
             }
 
-            SectionCard("Typefaces", "Japanese is set in the system's own font; these cover the rest.") {
+            Section("Typefaces", "Japanese is set in the system's own font; these cover the rest.") {
                 Column {
                     TYPEFACES.forEachIndexed { i, source ->
                         if (i > 0) {
@@ -212,7 +227,7 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                 }
             }
 
-            SectionCard("Licence") {
+            Section("Licence") {
                 Row {
                     Icon(
                         Icons.Default.Info,

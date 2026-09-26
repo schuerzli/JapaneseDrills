@@ -41,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
@@ -48,10 +49,12 @@ import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
-import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.HeroBar
+import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.SettingRow
 import com.japanesedrills.ui.components.StackedRow
 import com.japanesedrills.ui.components.StatRow
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.facesOf
 
@@ -82,16 +85,21 @@ fun AppSettingsScreen(
     val ready = state.path.count { it.ready }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-            )
+            HeroBar {
+                TopAppBar(
+                    colors = heroBarColors(),
+                    title = { Text("Settings") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                )
+            }
         },
     ) { padding ->
         Column(
@@ -102,7 +110,7 @@ fun AppSettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            SectionCard("Appearance") {
+            Section("Appearance") {
                 Column {
                     PaletteRow(state.options.palette, onPalette)
                     // Three choices side by side need the width, so they sit under the label
@@ -125,9 +133,9 @@ fun AppSettingsScreen(
                 }
             }
 
-            SectionCard("Progress", "Everything the learn path has earned, and how to keep a copy") {
+            Section("Progress", "Everything the learn path has earned, and how to keep a copy") {
                 Column {
-                    StatRow("Steps ready", "$ready of ${state.path.size}", first = true)
+                    StatRow("Steps ready", "$ready of ${state.path.size}")
                     StatRow("Words tracked", "${state.progress.words.size}")
                     StatRow("Skills scheduled", "${state.progress.skills.size}")
                 }
@@ -183,8 +191,8 @@ fun AppSettingsScreen(
                 }
             }
 
-            SectionCard("About") {
-                SettingRow("Sources and attribution", first = true, onClick = onAbout) {
+            Section("About") {
+                SettingRow("Sources and attribution", onClick = onAbout) {
                     Icon(
                         Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
@@ -263,7 +271,6 @@ private fun PaletteRow(selected: Palette, onSelected: (Palette) -> Unit) {
         SettingRow(
             "Palette",
             supporting = facesOf(selected),
-            first = true,
             onClick = { expanded = true },
         ) {
             Swatch()

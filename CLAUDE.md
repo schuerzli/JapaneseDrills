@@ -83,8 +83,8 @@ app/src/main/java/com/japanesedrills/
     ui/                  ViewModel and state
     ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice,
                          word sets, quiz, results, settings, about
-    ui/components/       furigana-aware rich text and table, worked changes, shared card
-                         and rows, scrollbars
+    ui/components/       furigana-aware rich text and table, worked changes, the surfaces
+                         a screen is built from, sections and rows, scrollbars
     ui/theme/            the palettes (generated), the type scale and the shapes
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
@@ -182,14 +182,26 @@ the schedule, is in `tools/steps/README.md`.
 - **A worked change is drawn with `ui/components/Changes.kt`, never by hand**: `StepBlock`,
   `AlignedChanges` and `ChangeRow` on the Grammar tab, in explanations, in results and in the
   Conjugation Intro. They drifted apart once, as four different looks for one thing.
-- **A card lists rows, not panels**: a setting, a count or a choice is a row from
-  `ui/components/Rows.kt` — label left, value right, hairlines between, one card around
-  them. The learn path, practice, settings and results all read the same way down.
+- **Four things on a screen are filled, and nothing else**: the header, the spotlight, the
+  well under the one row a screen is pointing at, and a verdict. Everything else is the
+  page — which is itself a wash rather than a slab, so a Scaffold over it is transparent.
+  The surfaces are palette roles like any other (`Surfaces`, from `tools/theme/schemes.py`),
+  and `ui/components/Surfaces.kt` is the only place that paints them.
+- **The spotlight says what to do now**, and a screen has at most one: review while it has
+  work, the question being asked, the step just finished. A reference screen has nothing to
+  do, so the Conjugation Intro on the Grammar tab is marked out with the well instead.
+- **A section lists rows, not panels**: a setting, a count or a choice is a row from
+  `ui/components/Rows.kt`, under an accent heading with a rule, indented
+  (`ui/components/Section.kt`). No card, no line between rows — the entries of one section
+  are like things and the heading already says where the section starts. The learn path,
+  practice, grammar, settings and results all read the same way down.
 - **How well something is holding up is drawn in one ramp**, per palette and generated
-  with the rest: `DrillTheme.strengthColors.at(fill)`, on the learn path's step bars, the
-  results score and the practice grid's strength view. It is deliberately not the accent,
-  which means "this does something when you tap it". Nothing yet means empty rather than
-  weak, and is drawn in `surfaceContainerHighest` in all three places.
+  with the rest: `StrengthBar` on the learn path's step bars and the results score, and
+  `DrillTheme.strengthColors.at(fill)` in the practice grid's strength view. It is
+  deliberately not the accent, which means "this does something when you tap it". Nothing
+  yet means empty rather than weak, and is drawn in `surfaceContainerHighest` in all three
+  places. A bar's track carries a hairline: that is what states how far the bar runs, which
+  is what lets the ramp be bright — see `STRENGTH_LIGHT` in `tools/theme/schemes.py`.
 - **One switch for readings.** Furigana is a single app-wide setting, so it has a single
   control: `FuriganaAction()` on the top bar of every screen that shows Japanese, reading
   `LocalFurigana` and `LocalFuriganaToggle` from the root. No screen offers its own — a
@@ -220,6 +232,10 @@ the schedule, is in `tools/steps/README.md`.
   `IncompatibleClassChangeError` in `NonNullableMutableLiveDataDetector` during
   `lintVitalRelease`, which reads as a lint bug rather than a version problem. Moving past
   either ceiling means moving AGP and the SDK first.
+- **A transparent Scaffold has no content colour.** `contentColorFor(Color.Transparent)`
+  is unspecified, so every `Text` that did not name a colour came out black on the dark
+  theme. A Scaffold made transparent for the page wash must also be given
+  `contentColor = MaterialTheme.colorScheme.onSurface`.
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at
   a time with a short pause.

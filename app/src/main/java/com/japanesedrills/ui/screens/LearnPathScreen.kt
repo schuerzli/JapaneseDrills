@@ -33,11 +33,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
@@ -46,12 +48,17 @@ import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.Recommendation
 import com.japanesedrills.ui.StepCard
 import com.japanesedrills.ui.components.FuriganaText
-import com.japanesedrills.ui.components.SectionCard
-import com.japanesedrills.ui.components.SectionCardPiece
+import com.japanesedrills.ui.components.Lit
+import com.japanesedrills.ui.components.Panel
+import com.japanesedrills.ui.components.PanelPadding
+import com.japanesedrills.ui.components.Section
+import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.SectionSpacing
+import com.japanesedrills.ui.components.StrengthBar
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
+import com.japanesedrills.ui.theme.lead
 import kotlin.math.roundToInt
 
 /** One chapter of the path, in path order. */
@@ -100,37 +107,39 @@ fun LearnPathScreen(
         modifier = modifier.fillMaxSize().verticalScrollbar(list),
         contentPadding = PaddingValues(16.dp),
     ) {
-        item {
-            Text(
-                "${state.path.count { it.ready }} of ${state.path.size} lessons ready",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = SectionSpacing),
-            )
-        }
-        // What the path asks for right now, in one card: review first, because it is what
-        // moves the lessons below, and the next lesson only when review has nothing waiting.
+        // What the path asks for right now, in one panel. Whichever of the two it
+        // actually wants is the lit half: colour says what to do first, and the order
+        // never changes, so the screen reads the same way every day.
         if (state.hasReview || recommendation != null) {
             item {
                 Spaced {
-                    SectionCard("Today") {
-                        if (state.hasReview) ReviewRow(state.dueCount, onReview)
-                        if (recommendation != null) {
-                            if (state.hasReview) {
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                    Panel {
+                        val leadIsReview = state.hasReview
+                        if (state.hasReview) {
+                            if (leadIsReview) {
+                                Lit { ReviewRow(state.dueCount, onReview, lead = true) }
+                            } else {
+                                ReviewRow(state.dueCount, onReview, lead = false)
                             }
-                            RecommendedRow(recommendation, onStep = onStep, onReview = onReview)
+                        }
+                        if (recommendation != null) {
+                            if (leadIsReview) {
+                                RecommendedRow(recommendation, onStep, onReview, lead = false)
+                            } else {
+                                Lit { RecommendedRow(recommendation, onStep, onReview, lead = true) }
+                            }
                         }
                     }
                 }
             }
         }
+        item { PathHeading(ready = state.path.count { it.ready }, total = state.path.size) }
         // A chapter is one card, drawn a row at a time: a card composed whole would be nine
         // rows built in the frame it scrolls into.
         chapters.forEachIndexed { index, chapter ->
             val open = state.chapterOpen[chapter.title] ?: chapter.cards.any { it.step == state.nextStep }
             item(key = "chapter-${chapter.title}") {
-                SectionCardPiece(first = true, last = !open) {
+                SectionPiece(first = true, last = !open) {
                     ChapterHeader(
                         number = index + 1,
                         chapter = chapter,
@@ -141,7 +150,7 @@ fun LearnPathScreen(
             }
             if (open) {
                 items(chapter.cards, key = { it.step.id }) { card ->
-                    SectionCardPiece(first = false, last = card.step.id == chapter.cards.last().step.id) {
+                    SectionPiece(first = false, last = card.step.id == chapter.cards.last().step.id) {
                         StepRow(
                             card,
                             recommended = card.step == state.nextStep,
@@ -155,10 +164,40 @@ fun LearnPathScreen(
     }
 }
 
-/** A card of its own, with the room between cards under it. */
+/** A panel of its own, with the room between it and what follows under it. */
 @Composable
 private fun Spaced(content: @Composable () -> Unit) {
     Box(Modifier.padding(bottom = SectionSpacing)) { content() }
+}
+
+/**
+ * Where today ends and the whole path begins. Centred between two rules, because it
+ * divides the screen rather than titling a list: everything above it is this visit,
+ * everything below it is the course.
+ */
+@Composable
+private fun PathHeading(ready: Int, total: Int) {
+    Column(
+        Modifier.padding(top = 8.dp, bottom = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+            Text(
+                "The path",
+                style = MaterialTheme.typography.heading,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 14.dp),
+            )
+            HorizontalDivider(Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant)
+        }
+        Text(
+            "$ready of $total lessons ready",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(top = 2.dp),
+        )
+    }
 }
 
 /**
@@ -197,21 +236,69 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
 }
 
 @Composable
-private fun ReviewRow(due: Int, onReview: () -> Unit) {
-    val nothingDue = due == 0
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+private fun ReviewRow(due: Int, onReview: () -> Unit, lead: Boolean) {
+    PanelRow(
+        label = "Review",
+        line = if (due == 0) "Nothing due" else "$due due today",
+        lead = lead,
+        action = "Review",
+        icon = Icons.Default.Refresh,
+        onClick = onReview,
+    )
+}
+
+/**
+ * One half of the today panel. The lit one carries the larger line and the filled button;
+ * the other states where it stands and offers the same word without a shape round it.
+ */
+@Composable
+private fun PanelRow(
+    label: String,
+    line: String,
+    lead: Boolean,
+    action: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+) {
+    val surfaces = DrillTheme.surfaces
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .padding(
+                start = PanelPadding,
+                end = if (lead) PanelPadding else PanelPadding - 8.dp,
+                top = if (lead) 16.dp else 10.dp,
+                bottom = if (lead) 18.dp else 12.dp,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text("Review", style = MaterialTheme.typography.bodyLarge)
             Text(
-                if (nothingDue) "Nothing due — everything is fresh" else "$due due today",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                label,
+                style = MaterialTheme.typography.labelSmall,
+                color = if (lead) surfaces.onHeroVariant else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            FuriganaText(
+                line,
+                style = if (lead) MaterialTheme.typography.lead else MaterialTheme.typography.heading,
+                color = if (lead) surfaces.onHero else MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        Button(onClick = onReview) {
-            Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-            Text(if (nothingDue) "Practise" else "Review")
+        Spacer(Modifier.width(12.dp))
+        if (lead) {
+            Button(
+                onClick = onClick,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = surfaces.onHero,
+                    contentColor = surfaces.heroEnd,
+                ),
+            ) {
+                Icon(icon, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                Text(action)
+            }
+        } else {
+            TextButton(onClick = onClick) { Text(action) }
         }
     }
 }
@@ -230,42 +317,23 @@ private fun RecommendedRow(
     recommendation: Recommendation,
     onStep: (Step) -> Unit,
     onReview: () -> Unit,
+    lead: Boolean,
 ) {
     val title = when (recommendation) {
         is Recommendation.Lesson -> recommendation.step.title
         Recommendation.ImproveReview -> "Improve Review"
         Recommendation.Done -> "Review or Practice"
     }
-    val subtitle = when (recommendation) {
-        is Recommendation.Lesson -> recommendation.step.subtitle
-        Recommendation.ImproveReview -> "A new lesson once review is holding up"
-        Recommendation.Done -> "Every lesson is ready; review keeps them that way"
-    }
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            FuriganaText("Recommended next · $title", style = MaterialTheme.typography.bodyLarge)
-            FuriganaText(
-                subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        Spacer(Modifier.width(12.dp))
-        when (recommendation) {
-            is Recommendation.Lesson -> Button(onClick = { onStep(recommendation.step) }) {
-                Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text("Open")
-            }
-            // Both other cases point at review, which is the button above; this one is
-            // outlined so the card never shows two filled buttons.
-            else -> OutlinedButton(onClick = onReview) {
-                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Text("Review")
-            }
-        }
-    }
+    PanelRow(
+        label = "Recommended next",
+        line = title,
+        lead = lead,
+        action = if (recommendation is Recommendation.Lesson) "Open" else "Review",
+        icon = if (recommendation is Recommendation.Lesson) Icons.Default.PlayArrow else Icons.Default.Refresh,
+        onClick = {
+            if (recommendation is Recommendation.Lesson) onStep(recommendation.step) else onReview()
+        },
+    )
 }
 
 /**
@@ -312,7 +380,7 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            if (!step.reading) StrengthBar(card.strength)
+            if (!step.reading) StrengthBar(card.strength, Modifier.fillMaxWidth().padding(top = 2.dp))
         }
         // On every step that has an introduction, opened or not, so rows never change shape.
         if (card.hasIntro) {
@@ -336,28 +404,3 @@ private val TickWidth = 26.dp
  * far it has filled ([com.japanesedrills.ui.theme.StrengthColors]): a step that has never
  * been answered shows the empty track, and one that is solid reads green across.
  */
-@Composable
-private fun StrengthBar(strength: Float) {
-    val filled = strength.coerceIn(0f, 1f)
-    Box(
-        Modifier
-            .padding(top = 3.dp)
-            .fillMaxWidth()
-            .height(BarHeight)
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-            .semantics { stateDescription = "${(filled * 100).roundToInt()} percent in review" },
-    ) {
-        if (filled > 0f) {
-            Box(
-                Modifier
-                    .fillMaxWidth(filled)
-                    .height(BarHeight)
-                    .clip(CircleShape)
-                    .background(DrillTheme.strengthColors.at(filled)),
-            )
-        }
-    }
-}
-
-private val BarHeight = 4.dp

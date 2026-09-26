@@ -34,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,9 @@ import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.ui.components.FuriganaAction
+import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
@@ -74,22 +77,27 @@ fun WordSetScreen(
     val held = set.words.count { it in known }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text("$held words") },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Check, contentDescription = "Done with this set")
-                    }
-                },
-                actions = {
-                    FuriganaAction()
-                    IconButton(onClick = { confirmDelete = true }) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete this set")
-                    }
-                },
-            )
+            HeroBar {
+                TopAppBar(
+                    colors = heroBarColors(),
+                    title = { Text("$held words") },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.Check, contentDescription = "Done with this set")
+                        }
+                    },
+                    actions = {
+                        FuriganaAction()
+                        IconButton(onClick = { confirmDelete = true }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete this set")
+                        }
+                    },
+                )
+            }
         },
     ) { padding ->
         Column(Modifier.padding(padding)) {

@@ -102,7 +102,12 @@ data class QuizState(
 )
 
 /** What the current settings add up to: how many words, and how many questions from them. */
-data class PoolCounts(val words: Int, val questions: Int)
+data class PoolCounts(
+    val words: Int,
+    val questions: Int,
+    /** Sourced words the grid asks nothing about, by column ([QuestionPool.skipped]). */
+    val skipped: Map<String, Int> = emptyMap(),
+)
 
 /** One row on the learn path. */
 data class StepCard(
@@ -471,9 +476,15 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setFocus(focus: String) = updateOptions { it.withFocus(focus) }
 
+    /**
+     * Only "What I've learned" is built out of the path's history. The other two state a
+     * whole selection of their own, so they have to work on a fresh install — gating all
+     * three on there being progress left every preset doing nothing until the path started.
+     */
     fun applyPreset(preset: PracticePreset) {
-        val practised = practised() ?: return
-        updateOptions { it.withPreset(preset, practised.forms, practised.groups) }
+        val practised = practised()
+        if (preset == PracticePreset.Practised && practised == null) return
+        updateOptions { it.withPreset(preset, practised?.forms.orEmpty(), practised?.groups.orEmpty()) }
     }
 
     fun setNumQuestions(text: String) = updateOptions { it.copy(numQuestions = text.filter(Char::isDigit).take(3)) }
@@ -529,7 +540,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         poolJob = viewModelScope.launch {
             val newPool = withContext(Dispatchers.Default) { engine.buildPool(options) { ensureActive() } }
             pool = newPool
-            _state.update { it.copy(pool = PoolCounts(newPool.words, newPool.size), columns = newPool.columns) }
+            _state.update {
+                it.copy(
+                    pool = PoolCounts(newPool.words, newPool.size, newPool.skipped),
+                    columns = newPool.columns,
+                )
+            }
         }
     }
 

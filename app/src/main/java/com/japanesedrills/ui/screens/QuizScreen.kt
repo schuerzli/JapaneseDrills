@@ -37,7 +37,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -62,6 +61,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.TextRange
@@ -91,10 +91,13 @@ import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.FusionTable
+import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.JapaneseLocale
 import com.japanesedrills.ui.components.RichText
+import com.japanesedrills.ui.components.Spotlight
 import com.japanesedrills.ui.components.StepBlock
 import com.japanesedrills.ui.components.Subheading
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 
@@ -125,25 +128,36 @@ fun QuizScreen(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
             Column {
-                TopAppBar(
-                    title = { Text("Question $number of ${quiz.total}") },
-                    navigationIcon = {
-                        IconButton(onClick = onQuit) {
-                            Icon(Icons.Default.Close, contentDescription = "Quit")
-                        }
-                    },
-                    actions = {
-                        FuriganaAction()
-                        ScoreBadge(quiz.history.count { it.correct })
-                        Spacer(Modifier.width(12.dp))
-                    },
-                )
+                HeroBar {
+                    TopAppBar(
+                        colors = heroBarColors(),
+                        title = { Text("Question $number of ${quiz.total}") },
+                        navigationIcon = {
+                            IconButton(onClick = onQuit) {
+                                Icon(Icons.Default.Close, contentDescription = "Quit")
+                            }
+                        },
+                        actions = {
+                            FuriganaAction()
+                            ScoreBadge(quiz.history.count { it.correct })
+                            Spacer(Modifier.width(12.dp))
+                        },
+                    )
+                }
+                // On the page rather than on the gradient: it measures the session, which
+                // is what the page is about, not the app.
                 LinearProgressIndicator(
                     progress = { progress },
                     modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.primary,
+                    trackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    gapSize = 0.dp,
+                    drawStopIndicator = {},
                 )
             }
         },
@@ -187,13 +201,14 @@ fun QuizScreen(
     }
 }
 
+/** How many are right so far, cut from the header's own cream: the bar is two colours. */
 @Composable
 private fun ScoreBadge(correct: Int) {
-    val colors = DrillTheme.answerColors
+    val surfaces = DrillTheme.surfaces
     Surface(
         shape = MaterialTheme.shapes.small,
-        color = colors.correctContainer,
-        contentColor = colors.onCorrectContainer,
+        color = surfaces.onHero,
+        contentColor = surfaces.heroEnd,
     ) {
         Row(Modifier.padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Default.Check, contentDescription = "Correct answers", modifier = Modifier.size(16.dp))
@@ -207,47 +222,42 @@ private fun ScoreBadge(correct: Int) {
 private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
     val question = quiz.question
     val formLabel = Prompts.formLabel(question.transformation.phrase)
-    val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
+    val surfaces = DrillTheme.surfaces
     val given = question.givenDisplay(options.kana)
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = onContainer,
-        ),
-    ) {
+    // Lit, and the only lit thing on the screen: what is being asked reads before the
+    // field, the hint or the button, whatever the word inside it happens to be.
+    Spotlight {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 28.dp),
+                .padding(horizontal = 20.dp, vertical = 26.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 Prompts.INSTRUCTION,
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.labelSmall,
+                color = surfaces.onHeroVariant,
             )
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Surface(
-                shape = MaterialTheme.shapes.large,
-                color = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = CircleShape,
+                color = surfaces.onHero,
+                contentColor = surfaces.heroEnd,
             ) {
                 Text(
                     formLabel,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
                 )
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(22.dp))
             RichText(
                 parts = listOf(RichPart.Jp(given)),
                 style = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Medium),
-                color = onContainer,
+                color = surfaces.onHero,
                 horizontalArrangement = Arrangement.Center,
                 // The readings switch is on the bar; the word must not jump when it is used.
                 reserveReadingSpace = true,
@@ -368,13 +378,13 @@ private fun ResultCard(
             }
         }
 
-        // The correct answer and what to do next.
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = CardDefaults.cardColors(containerColor = scheme.surfaceContainerLow),
+        // The correct answer and what to do next, flat on the page: the verdict above is
+        // the filled thing here, and two filled panels would argue about which to read.
+        Column(
+            Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            run {
                 if (!correct) {
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("The correct answer was", style = MaterialTheme.typography.bodyLarge)
@@ -454,13 +464,14 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
     val bringIntoView = remember { BringIntoViewRequester() }
     LaunchedEffect(Unit) { bringIntoView.bringIntoView() }
 
-    ElevatedCard(
-        modifier = Modifier
+    // The explanation is a section of the page, not a card on it.
+    Column(
+        Modifier
             .fillMaxWidth()
-            .bringIntoViewRequester(bringIntoView),
-        shape = MaterialTheme.shapes.extraLarge,
+            .bringIntoViewRequester(bringIntoView)
+            .padding(horizontal = 4.dp),
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.padding(vertical = 4.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Subheading("Goal")
             // The given word is already shown in the question card, so only the forms are
             // compared here, as a change like any other, with what the question changes marked.

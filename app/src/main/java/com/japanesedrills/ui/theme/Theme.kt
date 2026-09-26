@@ -1,6 +1,9 @@
 package com.japanesedrills.ui.theme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
@@ -12,6 +15,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.font.FontFamily
@@ -67,6 +72,34 @@ data class StrengthColors(
 }
 
 /**
+ * The surfaces the layout is made of, over and above Material's roles.
+ *
+ * One gradient does the app's two loud jobs: the header, which says which app this is, and
+ * the spotlight, which says what to do now. Nothing else on a screen is filled — a panel is
+ * the page with a tint and a shadow, and a row the path is pointing at sits in the [well].
+ *
+ * All of them are derived from the palette's own colours in tools/theme/schemes.py, so
+ * every palette has its own version of the design rather than one palette's design recoloured.
+ */
+@Immutable
+data class Surfaces(
+    /** The gradient, top-left to bottom-right. */
+    val heroStart: Color,
+    val heroEnd: Color,
+    /** What is written on it, and the quieter of the two. */
+    val onHero: Color,
+    val onHeroVariant: Color,
+    /** The page's own wash, which keeps a screen from ending in a flat slab. */
+    val pageTop: Color,
+    val pageBottom: Color,
+    /** A raised panel: lighter at the top, so the lift reads without a border. */
+    val tintTop: Color,
+    val tintBottom: Color,
+    /** Recessed, for the one row a screen is pointing at. */
+    val well: Color,
+)
+
+/**
  * Where a palette spends its accent beyond the roles every palette shares: on section
  * titles, and on the word-class headings in the grammar reference. It is what makes the
  * palettes different answers rather than one layout recoloured.
@@ -82,6 +115,8 @@ class PaletteSpec(
     val darkAnswers: AnswerColors,
     val lightStrength: StrengthColors,
     val darkStrength: StrengthColors,
+    val lightSurfaces: Surfaces,
+    val darkSurfaces: Surfaces,
     val lightMarks: MarkColors,
     val darkMarks: MarkColors,
     val display: FontFamily,
@@ -121,6 +156,12 @@ private val NunitosansFace = face(
     R.font.nunitosans_medium,
     R.font.nunitosans_semibold,
     R.font.nunitosans_bold,
+)
+private val NunitoFace = face(
+    R.font.nunito_regular,
+    R.font.nunito_medium,
+    R.font.nunito_semibold,
+    R.font.nunito_bold,
 )
 
 private val LatteSpec = PaletteSpec(
@@ -219,14 +260,36 @@ private val LatteSpec = PaletteSpec(
         markFused = Color(0xFFE2A6E6),
     ),
     lightStrength = StrengthColors(
-        strengthLow = Color(0xFF993A22),
-        strengthMid = Color(0xFF6F4A07),
-        strengthHigh = Color(0xFF255A2B),
+        strengthLow = Color(0xFFE0563A),
+        strengthMid = Color(0xFFE09A16),
+        strengthHigh = Color(0xFF46A855),
     ),
     darkStrength = StrengthColors(
         strengthLow = Color(0xFFE79C7C),
         strengthMid = Color(0xFFDBB868),
         strengthHigh = Color(0xFF97CA94),
+    ),
+    lightSurfaces = Surfaces(
+        heroStart = Color(0xFF98592D),
+        heroEnd = Color(0xFF7C4119),
+        onHero = Color(0xFFF9F6F4),
+        onHeroVariant = Color(0xFFF5EFEB),
+        pageTop = Color(0xFFFFFFFF),
+        pageBottom = Color(0xFFEDE0D2),
+        tintTop = Color(0xFFFFFFFF),
+        tintBottom = Color(0xFFF8EFE6),
+        well = Color(0xFFF3E8DC),
+    ),
+    darkSurfaces = Surfaces(
+        heroStart = Color(0xFF855A34),
+        heroEnd = Color(0xFF6B4320),
+        onHero = Color(0xFFF8F6F4),
+        onHeroVariant = Color(0xFFF3EFEB),
+        pageTop = Color(0xFF231A15),
+        pageBottom = Color(0xFF120E0B),
+        tintTop = Color(0xFF231A15),
+        tintBottom = Color(0xFF1B1410),
+        well = Color(0xFF332921),
     ),
     display = LoraFace,
     body = ManropeFace,
@@ -308,8 +371,8 @@ private val KissatenSpec = PaletteSpec(
         surfaceContainerHighest = Color(0xFF3D3128),
     ),
     lightAnswers = AnswerColors(
-        correct = Color(0xFF3C6630),
-        onCorrect = Color(0xFFFFFFFF),
+        correct = Color(0xFF5CBF68),
+        onCorrect = Color(0xFF0B2E13),
         correctContainer = Color(0xFFCDE6BE),
         onCorrectContainer = Color(0xFF12250B),
     ),
@@ -330,18 +393,40 @@ private val KissatenSpec = PaletteSpec(
         markFused = Color(0xFFE2A6E6),
     ),
     lightStrength = StrengthColors(
-        strengthLow = Color(0xFF993A22),
-        strengthMid = Color(0xFF6F4A07),
-        strengthHigh = Color(0xFF255A2B),
+        strengthLow = Color(0xFFE0563A),
+        strengthMid = Color(0xFFE09A16),
+        strengthHigh = Color(0xFF46A855),
     ),
     darkStrength = StrengthColors(
         strengthLow = Color(0xFFE79C7C),
         strengthMid = Color(0xFFDBB868),
         strengthHigh = Color(0xFF97CA94),
     ),
-    display = LoraFace,
-    body = ManropeFace,
-    faces = "Lora · Manrope",
+    lightSurfaces = Surfaces(
+        heroStart = Color(0xFF965129),
+        heroEnd = Color(0xFF7A3A16),
+        onHero = Color(0xFFF9F6F4),
+        onHeroVariant = Color(0xFFF5EEEA),
+        pageTop = Color(0xFFFBF6EE),
+        pageBottom = Color(0xFFE2D5C4),
+        tintTop = Color(0xFFFBF6EE),
+        tintBottom = Color(0xFFEFE6DA),
+        well = Color(0xFFE9DED0),
+    ),
+    darkSurfaces = Surfaces(
+        heroStart = Color(0xFF7F5333),
+        heroEnd = Color(0xFF653C1F),
+        onHero = Color(0xFFF8F6F4),
+        onHeroVariant = Color(0xFFF3EEEB),
+        pageTop = Color(0xFF201813),
+        pageBottom = Color(0xFF100C0A),
+        tintTop = Color(0xFF201813),
+        tintBottom = Color(0xFF19130F),
+        well = Color(0xFF31271F),
+    ),
+    display = NunitoFace,
+    body = NunitoFace,
+    faces = "Nunito",
     accents = Accents(titles = true, headings = true),
 )
 
@@ -441,14 +526,36 @@ private val WashiSpec = PaletteSpec(
         markFused = Color(0xFFE2A6E6),
     ),
     lightStrength = StrengthColors(
-        strengthLow = Color(0xFF993A22),
-        strengthMid = Color(0xFF6F4A07),
-        strengthHigh = Color(0xFF255A2B),
+        strengthLow = Color(0xFFE0563A),
+        strengthMid = Color(0xFFE09A16),
+        strengthHigh = Color(0xFF46A855),
     ),
     darkStrength = StrengthColors(
         strengthLow = Color(0xFFE79C7C),
         strengthMid = Color(0xFFDBB868),
         strengthHigh = Color(0xFF97CA94),
+    ),
+    lightSurfaces = Surfaces(
+        heroStart = Color(0xFFA95131),
+        heroEnd = Color(0xFF8C3A1D),
+        onHero = Color(0xFFFAF6F4),
+        onHeroVariant = Color(0xFFF7EEEB),
+        pageTop = Color(0xFFFFFFFF),
+        pageBottom = Color(0xFFEBE5DB),
+        tintTop = Color(0xFFFFFFFF),
+        tintBottom = Color(0xFFFCF9F4),
+        well = Color(0xFFF2EDE5),
+    ),
+    darkSurfaces = Surfaces(
+        heroStart = Color(0xFF8F5339),
+        heroEnd = Color(0xFF743C24),
+        onHero = Color(0xFFF9F6F4),
+        onHeroVariant = Color(0xFFF4EEEC),
+        pageTop = Color(0xFF1B1714),
+        pageBottom = Color(0xFF0E0C0A),
+        tintTop = Color(0xFF1B1714),
+        tintBottom = Color(0xFF151210),
+        well = Color(0xFF2B2520),
     ),
     display = OutfitFace,
     body = OutfitFace,
@@ -552,14 +659,36 @@ private val CaramelSpec = PaletteSpec(
         markFused = Color(0xFFE2A6E6),
     ),
     lightStrength = StrengthColors(
-        strengthLow = Color(0xFF993A22),
-        strengthMid = Color(0xFF6F4A07),
-        strengthHigh = Color(0xFF255A2B),
+        strengthLow = Color(0xFFE0563A),
+        strengthMid = Color(0xFFE09A16),
+        strengthHigh = Color(0xFF46A855),
     ),
     darkStrength = StrengthColors(
         strengthLow = Color(0xFFE79C7C),
         strengthMid = Color(0xFFDBB868),
         strengthHigh = Color(0xFF97CA94),
+    ),
+    lightSurfaces = Surfaces(
+        heroStart = Color(0xFF573E31),
+        heroEnd = Color(0xFF40291C),
+        onHero = Color(0xFFF6F5F4),
+        onHeroVariant = Color(0xFFEFECEB),
+        pageTop = Color(0xFFFFFFFF),
+        pageBottom = Color(0xFFEEE1D0),
+        tintTop = Color(0xFFFFFFFF),
+        tintBottom = Color(0xFFF9F0E5),
+        well = Color(0xFFF4E9DB),
+    ),
+    darkSurfaces = Surfaces(
+        heroStart = Color(0xFF7C644C),
+        heroEnd = Color(0xFF624C36),
+        onHero = Color(0xFFF8F7F5),
+        onHeroVariant = Color(0xFFF2F0EE),
+        pageTop = Color(0xFF241B15),
+        pageBottom = Color(0xFF130E0B),
+        tintTop = Color(0xFF241B15),
+        tintBottom = Color(0xFF1C1510),
+        well = Color(0xFF352A21),
     ),
     display = FrauncesFace,
     body = NunitosansFace,
@@ -663,14 +792,36 @@ private val MochaSpec = PaletteSpec(
         markFused = Color(0xFFE2A6E6),
     ),
     lightStrength = StrengthColors(
-        strengthLow = Color(0xFF993A22),
-        strengthMid = Color(0xFF6F4A07),
-        strengthHigh = Color(0xFF255A2B),
+        strengthLow = Color(0xFFE0563A),
+        strengthMid = Color(0xFFE09A16),
+        strengthHigh = Color(0xFF46A855),
     ),
     darkStrength = StrengthColors(
         strengthLow = Color(0xFFE79C7C),
         strengthMid = Color(0xFFDBB868),
         strengthHigh = Color(0xFF97CA94),
+    ),
+    lightSurfaces = Surfaces(
+        heroStart = Color(0xFF875E24),
+        heroEnd = Color(0xFF6C4710),
+        onHero = Color(0xFFF9F6F3),
+        onHeroVariant = Color(0xFFF3EFEA),
+        pageTop = Color(0xFFFFFCF6),
+        pageBottom = Color(0xFFE8DECE),
+        tintTop = Color(0xFFFFFCF6),
+        tintBottom = Color(0xFFF5EDE1),
+        well = Color(0xFFEFE6D8),
+    ),
+    darkSurfaces = Surfaces(
+        heroStart = Color(0xFF80622C),
+        heroEnd = Color(0xFF654A18),
+        onHero = Color(0xFFF8F7F4),
+        onHeroVariant = Color(0xFFF3F0EB),
+        pageTop = Color(0xFF261D17),
+        pageBottom = Color(0xFF140F0C),
+        tintTop = Color(0xFF261D17),
+        tintBottom = Color(0xFF1E1712),
+        well = Color(0xFF382C24),
     ),
     display = ManropeFace,
     body = ManropeFace,
@@ -688,20 +839,22 @@ private fun specOf(palette: Palette): PaletteSpec = when (palette) {
 // </generated>
 
 /**
- * Tight corners, the same for every palette: a card reads as a panel rather than a pill.
- * Anything meant to be round asks for a circle outright rather than relying on these.
+ * Soft corners, the same for every palette: the panels the spotlight and the question card
+ * are drawn on are large and rounded, and the small shapes follow them down. Anything meant
+ * to be a full pill asks for a circle outright rather than relying on these.
  */
 private val AppShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(6.dp),
-    medium = RoundedCornerShape(8.dp),
-    large = RoundedCornerShape(10.dp),
-    extraLarge = RoundedCornerShape(12.dp),
+    extraSmall = RoundedCornerShape(6.dp),
+    small = RoundedCornerShape(8.dp),
+    medium = RoundedCornerShape(12.dp),
+    large = RoundedCornerShape(16.dp),
+    extraLarge = RoundedCornerShape(24.dp),
 )
 
 private val LocalAnswerColors = staticCompositionLocalOf { specOf(Palette.Kissaten).lightAnswers }
 private val LocalMarkColors = staticCompositionLocalOf { specOf(Palette.Kissaten).lightMarks }
 private val LocalStrengthColors = staticCompositionLocalOf { specOf(Palette.Kissaten).lightStrength }
+private val LocalSurfaces = staticCompositionLocalOf { specOf(Palette.Kissaten).lightSurfaces }
 private val LocalAccents = staticCompositionLocalOf { specOf(Palette.Kissaten).accents }
 
 object DrillTheme {
@@ -713,6 +866,9 @@ object DrillTheme {
 
     val strengthColors: StrengthColors
         @Composable get() = LocalStrengthColors.current
+
+    val surfaces: Surfaces
+        @Composable get() = LocalSurfaces.current
 
     val accents: Accents
         @Composable get() = LocalAccents.current
@@ -733,13 +889,24 @@ fun JapaneseDrillsTheme(
         LocalAnswerColors provides if (darkTheme) spec.darkAnswers else spec.lightAnswers,
         LocalMarkColors provides if (darkTheme) spec.darkMarks else spec.lightMarks,
         LocalStrengthColors provides if (darkTheme) spec.darkStrength else spec.lightStrength,
+        LocalSurfaces provides if (darkTheme) spec.darkSurfaces else spec.lightSurfaces,
         LocalAccents provides spec.accents,
     ) {
         MaterialTheme(
             colorScheme = if (darkTheme) spec.dark else spec.light,
             typography = typography,
             shapes = AppShapes,
-            content = content,
-        )
+        ) {
+            // The page's own wash, under everything: every Scaffold above it is
+            // transparent, so a screen never ends in a flat slab of one colour.
+            val page = if (darkTheme) spec.darkSurfaces else spec.lightSurfaces
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(0f to page.pageTop, 0.7f to page.pageBottom),
+                    ),
+            ) { content() }
+        }
     }
 }

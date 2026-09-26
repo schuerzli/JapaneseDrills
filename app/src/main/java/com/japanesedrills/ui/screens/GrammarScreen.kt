@@ -1,7 +1,9 @@
 package com.japanesedrills.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -27,6 +28,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.ChangeShape
@@ -43,10 +46,15 @@ import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.FusionTable
-import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.HeroBar
+import com.japanesedrills.ui.components.Section
+import com.japanesedrills.ui.components.SectionHeading
+import com.japanesedrills.ui.components.SectionIndent
 import com.japanesedrills.ui.components.StepBlock
 import com.japanesedrills.ui.components.Subheading
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
+import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
 
 /**
@@ -64,7 +72,7 @@ fun GrammarScreen(
         state = list,
         modifier = modifier.fillMaxSize().verticalScrollbar(list),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         item {
             Text(
@@ -76,23 +84,36 @@ fun GrammarScreen(
         }
         // First, and marked out from the list: the rest of this screen assumes you know
         // what a godan verb is, and this is where that is explained.
+        // Marked out from the list, but not lit: the spotlight is for what to do now,
+        // and a reference screen has nothing to do. The well is the surface the learn
+        // path puts under the lesson it is pointing at.
         item {
-            Card(
-                modifier = Modifier
+            Row(
+                Modifier
                     .fillMaxWidth()
-                    .clickable(onClick = onConjugationIntro),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
+                    .clip(MaterialTheme.shapes.large)
+                    .background(DrillTheme.surfaces.well)
+                    .clickable(onClick = onConjugationIntro)
+                    .padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(ConjugationIntro.TITLE, style = MaterialTheme.typography.heading)
-                        Text(ConjugationIntro.SUMMARY, style = MaterialTheme.typography.bodySmall)
-                    }
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(
+                        ConjugationIntro.TITLE,
+                        style = MaterialTheme.typography.heading,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        ConjugationIntro.SUMMARY,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
             }
         }
         item(key = "forms") { ListHeading("Forms") }
@@ -105,37 +126,31 @@ fun GrammarScreen(
 
 @Composable
 private fun ListHeading(text: String) {
-    Text(
-        text,
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(top = 8.dp),
-    )
+    Box(Modifier.padding(top = 10.dp)) { SectionHeading(text) }
 }
 
 @Composable
 private fun NoteRow(note: GrammarNote, onClick: () -> Unit) {
-    Card(
-        modifier = Modifier
+    Row(
+        Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+            .clickable(onClick = onClick)
+            .padding(start = SectionIndent, top = 9.dp, bottom = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                FuriganaText(note.title, style = MaterialTheme.typography.heading)
-                FuriganaText(
-                    note.summary,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
+            FuriganaText(note.title, style = MaterialTheme.typography.heading)
+            FuriganaText(
+                note.summary,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+        Icon(
+            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -149,17 +164,22 @@ fun GrammarDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { FuriganaText(note.title) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Close, contentDescription = "Back to the form list")
-                    }
-                },
-                actions = { FuriganaAction() },
-            )
+            HeroBar {
+                TopAppBar(
+                    colors = heroBarColors(),
+                    title = { FuriganaText(note.title) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.Close, contentDescription = "Back to the form list")
+                        }
+                    },
+                    actions = { FuriganaAction() },
+                )
+            }
         },
     ) { padding ->
         val list = rememberLazyListState()
@@ -183,7 +203,7 @@ fun GrammarDetailScreen(
  */
 @Composable
 fun GrammarUsage(note: GrammarNote, heading: String = "What it is for") {
-    SectionCard(heading) {
+    Section(heading) {
         FuriganaText(note.summary, style = MaterialTheme.typography.bodyLarge)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             for (line in note.notes) {
@@ -207,7 +227,7 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
     val words = Grammar.examplesFor(note.key).mapNotNull(examples::get)
     val target = Grammar.conjugationOf(note.key)
     if (target == null) {
-        SectionCard("How it is built", "Nothing to build — this is the form words are listed in") {
+        Section("How it is built", "Nothing to build — this is the form words are listed in") {
             for (word in words) {
                 RichText(
                     listOf(RichPart.Jp(word.dictionary), RichPart.Text("  ${word.meaning}")),
@@ -230,7 +250,7 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
         word.group !in Grammar.IRREGULAR_GROUPS + Grammar.EXCEPTION_GROUPS || examples.declaresOwnRule(word, target)
     }
 
-    SectionCard("How it is built", "Starting from the dictionary form") {
+    Section("How it is built", "Starting from the dictionary form") {
         // Grouped by heading rather than one heading per word: する and 来る are worth
         // meeting as "the irregulars" rather than as two unrelated classes.
         shown.groupBy { (word, _) -> headingFor(word) }.toList().forEachIndexed { index, (heading, group) ->

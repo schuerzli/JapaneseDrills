@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.ConjugationIntroBlock
@@ -27,12 +28,14 @@ import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
+import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.SectionCardPiece
+import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.SectionHeading
 import com.japanesedrills.ui.components.Subheading
 import com.japanesedrills.ui.components.TableLayout
+import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
@@ -44,17 +47,22 @@ import com.japanesedrills.ui.components.verticalScrollbar
 @Composable
 fun ConjugationIntroScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     Scaffold(
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text(ConjugationIntro.TITLE) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.Close, contentDescription = "Back to the form list")
-                    }
-                },
-                actions = { FuriganaAction() },
-            )
+            HeroBar {
+                TopAppBar(
+                    colors = heroBarColors(),
+                    title = { Text(ConjugationIntro.TITLE) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(Icons.Default.Close, contentDescription = "Back to the form list")
+                        }
+                    },
+                    actions = { FuriganaAction() },
+                )
+            }
         },
     ) { padding ->
         // Each block is its own list item, drawn so a section still reads as one card. As one
@@ -68,9 +76,9 @@ fun ConjugationIntroScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         ) {
             for (section in ConjugationIntro.SECTIONS) {
                 val pieces = piecesOf(section.blocks)
-                item(key = section.title) { SectionCardPiece(first = true, last = false) { SectionHeading(section.title) } }
+                item(key = section.title) { SectionPiece(first = true, last = false) { SectionHeading(section.title) } }
                 itemsIndexed(pieces, key = { i, _ -> "${section.title}/$i" }) { i, piece ->
-                    SectionCardPiece(first = false, last = i == pieces.lastIndex) {
+                    SectionPiece(first = false, last = i == pieces.lastIndex) {
                         if (piece.size == 1 && piece[0] !is ConjugationIntroBlock.Step) {
                             ConjugationIntroBlockView(piece[0], afterTable = pieces.getOrNull(i - 1)?.last() is ConjugationIntroBlock.Table)
                         } else {

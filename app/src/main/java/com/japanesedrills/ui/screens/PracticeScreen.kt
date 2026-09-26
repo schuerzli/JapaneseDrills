@@ -42,6 +42,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,7 +70,7 @@ import com.japanesedrills.quiz.WordColumn
 import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.SectionCard
+import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.SettingRow
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
@@ -104,32 +105,26 @@ fun PracticeScreen(
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        SectionCard("Start from", "Sets everything below in one tap") {
+        Section("Start from", "Sets everything below in one tap") {
             Column {
                 PracticePreset.entries.forEachIndexed { i, preset ->
-                    SettingRow(
-                        preset.label,
-                        first = i == 0,
-                        // Nothing practised on the path yet would select no forms at all.
-                        onClick = { if (preset != PracticePreset.Practised || canUsePractised) onPreset(preset) },
-                    ) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                    // Nothing practised on the path yet would select no forms at all.
+                    val use = { if (preset != PracticePreset.Practised || canUsePractised) onPreset(preset) }
+                    SettingRow(preset.label, onClick = use) {
+                        // Not a chevron: a preset sets the options below rather than
+                        // opening a page, and a chevron means "opens a page" everywhere else.
+                        TextButton(onClick = use) { Text("Use") }
                     }
                 }
             }
         }
 
-        SectionCard("Quiz") {
+        Section("Quiz") {
             Column {
                 ChoiceRow(
                     label = "Questions",
                     value = options.numQuestions,
                     choices = QuizOptions.QUESTION_COUNTS.map { it.toString() to it.toString() },
-                    first = true,
                     onChoose = onNumQuestions,
                 )
                 ChoiceRow(
@@ -137,17 +132,16 @@ fun PracticeScreen(
                     value = QuizOptions.FOCUS.firstOrNull { it.key == options.questionFocus }?.label
                         ?: options.questionFocus,
                     choices = QuizOptions.FOCUS.map { it.key to it.label },
-                    first = false,
                     onChoose = onFocus,
                 )
             }
         }
 
-        SectionCard("Word sets", "Every set you switch on is added to the pool") {
+        Section("Word sets", "Every set you switch on is added to the pool") {
             WordSetList(state, onWordSet, onAllWords, onNewSet, onEditSet)
         }
 
-        SectionCard("What to practise", "A form of a word class; tap a name for its whole line") {
+        Section("What to practise", "A form of a word class; tap a name for its whole line") {
             // Two readings of one grid: what a session would ask, and how those pairings are
             // holding up. The second is the same shape, so the eye keeps its place.
             var strength by remember { mutableStateOf(false) }
@@ -167,13 +161,12 @@ fun PracticeScreen(
             PracticeGrid(state, strength, onForm, onColumn, onSquare)
         }
 
-        SectionCard("Options") {
+        Section("Options") {
             Column {
                 QuizOptions.GENERAL.forEachIndexed { i, item ->
                     SettingRow(
                         item.label,
                         supporting = item.note,
-                        first = i == 0,
                         onClick = { onFlag(item.key, !options.isOn(item.key)) },
                         role = Role.Switch,
                     ) {
@@ -259,12 +252,11 @@ private fun ChoiceRow(
     label: String,
     value: String,
     choices: List<Pair<String, String>>,
-    first: Boolean,
     onChoose: (String) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box {
-        SettingRow(label, first = first, onClick = { expanded = true }) {
+        SettingRow(label, onClick = { expanded = true }) {
             Text(value, style = MaterialTheme.typography.bodyLarge)
             Icon(
                 Icons.Default.KeyboardArrowDown,
@@ -485,7 +477,6 @@ private fun WordSetList(
             count = state.words.size.takeIf { it > 0 },
             checked = options.allWords,
             dimmed = false,
-            first = true,
         ) { onAllWords(!options.allWords) }
         for (set in WordSets.BUILT_IN) {
             SetRow(
@@ -493,7 +484,6 @@ private fun WordSetList(
                 count = state.setSizes[set.id],
                 checked = options.isSetOn(set.id),
                 dimmed = options.allWords,
-                first = false,
             ) { onWordSet(set.id, !options.isSetOn(set.id)) }
         }
         // The learner's own sets carry a pencil, which opens the editor; the built-in ones
@@ -504,7 +494,6 @@ private fun WordSetList(
                 count = set.words.count { it in known },
                 checked = options.isSetOn(set.id),
                 dimmed = options.allWords,
-                first = false,
                 onEdit = { onEditSet(set.id) },
             ) { onWordSet(set.id, !options.isSetOn(set.id)) }
         }
@@ -525,6 +514,44 @@ private fun WordSetList(
                 style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
             )
         }
+        PoolGap(state.pool?.skipped.orEmpty())
+    }
+}
+
+/**
+ * Why the pool holds fewer words than the sets do. The sets say what is available and the
+ * grid says what is asked about, and a word in a column with nothing switched on is in the
+ * first and not the second — a gap with no explanation anywhere on the screen until here.
+ */
+@Composable
+private fun PoolGap(skipped: Map<String, Int>) {
+    if (skipped.isEmpty()) return
+    val total = skipped.values.sum()
+    // Largest first: the one column that explains most of the gap is the one to switch on.
+    val lines = QuizOptions.COLUMNS.mapNotNull { column ->
+        skipped[column.key]?.let { column to it }
+    }.sortedByDescending { it.second }
+    Column(
+        Modifier.padding(top = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(3.dp),
+    ) {
+        Text(
+            if (total == 1) "1 more word is in your sets, but nothing on the grid asks about it:"
+            else "$total more words are in your sets, but nothing on the grid asks about them:",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        for ((column, count) in lines) {
+            RichText(
+                listOf(
+                    RichPart.Text("\u2022  $count in "),
+                    RichPart.Text(column.label),
+                    RichPart.Text(" \u2014 nothing selected"),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -535,17 +562,15 @@ private fun SetRow(
     count: Int?,
     checked: Boolean,
     dimmed: Boolean,
-    first: Boolean,
     onEdit: (() -> Unit)? = null,
     onToggle: () -> Unit,
 ) {
     val faded = MaterialTheme.colorScheme.outline
     Column {
-        if (!first) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
         Row(
             Modifier
                 .toggleable(value = checked, role = Role.Checkbox, onValueChange = { onToggle() })
-                .padding(vertical = 10.dp),
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (onEdit != null) {

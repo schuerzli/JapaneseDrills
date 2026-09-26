@@ -99,6 +99,13 @@ class QuestionPool(
      * already walks every word to decide which of them it draws on.
      */
     val columns: Set<String>,
+    /**
+     * Words the sets brought in that nothing on the grid asks about, by column: the whole
+     * of the difference between what the sets hold and what [words] counts. Either the
+     * class is switched off or every square in its column is, and both read the same way
+     * to the learner — the column is not being practised.
+     */
+    val skipped: Map<String, Int>,
     private val regular: IntArray,
     private val trick: IntArray,
 ) {
@@ -213,14 +220,19 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         val regular = IntList(1024)
         val trick = IntList(1024)
         val columns = LinkedHashSet<String>()
+        val skipped = HashMap<String, Int>()
         var words = 0
         data.words.forEachIndexed { w, word ->
             checkpoint()
             if (!sourcesWord(word, options)) return@forEachIndexed
             // Counted before the class has its say, so that switching a column off leaves
             // it on the grid to switch back on.
-            columns.add(QuizOptions.columnOf(word.group))
-            if (!options.isOn(word.group)) return@forEachIndexed
+            val column = QuizOptions.columnOf(word.group)
+            columns.add(column)
+            if (!options.isOn(word.group)) {
+                skipped[column] = (skipped[column] ?: 0) + 1
+                return@forEachIndexed
+            }
             var asked = false
             for ((t, transformation) in enabled) {
                 if (allowsPair(word, transformation, options)) {
@@ -229,9 +241,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
                     if (transformation.isTrick) trick.add(packed) else regular.add(packed)
                 }
             }
-            if (asked) words++
+            if (asked) words++ else skipped[column] = (skipped[column] ?: 0) + 1
         }
-        return QuestionPool(options, words, columns, regular.toIntArray(), trick.toIntArray())
+        return QuestionPool(options, words, columns, skipped, regular.toIntArray(), trick.toIntArray())
     }
 
     /** A whole session's questions up front, drawn without replacement. */
