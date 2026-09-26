@@ -133,6 +133,11 @@ data class DrillUiState(
      */
     val nextStep: Step? = null,
     val dueCount: Int = 0,
+    /**
+     * Set once the due count has been worked out. Until then the path offers nothing, so a
+     * recommendation cannot flash up and vanish when review turns out to have work.
+     */
+    val reviewCounted: Boolean = false,
     /** The step being introduced or drilled. */
     val step: Step? = null,
     /** New vocabulary to present before [step] starts. */
@@ -177,6 +182,16 @@ data class DrillUiState(
     /** Set when stored progress could not be read and was put aside rather than overwritten. */
     val salvagedProgress: Boolean = false,
 ) {
+    /**
+     * The lesson to offer, if any. A new lesson is sprinkled in when review has nothing
+     * waiting; while something is due, review is the only thing the path asks for, because
+     * review is what moves the lessons already taken.
+     */
+    val recommendNext: Step? get() = if (reviewCounted && dueCount == 0) nextStep else null
+
+    /** Whether there is a review at all: before the first lesson there is nothing to hold up. */
+    val hasReview: Boolean get() = progress.skills.isNotEmpty()
+
     val canStart: Boolean
         get() = !loading && options.hasPoliteness && options.questionCount != null && (pool?.questions ?: 0) > 0
 
@@ -537,21 +552,39 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Shows whatever the step adds the first time it is opened, and goes straight to the
-     * questions after that. The introduction stays one tap away ([showStepIntro]), and its
-     * notes are on the Grammar tab too.
+     * A lesson opens on what it is about, every time — never straight into questions. A step
+     * that adds nothing new shows the notes for the forms it drills instead, so the way in
+     * is the same page whether it is the first visit or the tenth.
      */
-    fun openStep(step: Step) = open(step, intro = step.id !in _state.value.progress.steps)
+    fun openStep(step: Step) {
+        // The Conjugation Intro is a lesson that is read: opening it is finishing it.
+        if (step.reading) {
+            markRead(step)
+            showConjugationIntro()
+            return
+        }
+        open(step)
+    }
 
-    /** The step's introduction again, new words and all, whether or not it has been opened. */
-    fun showStepIntro(step: Step) = open(step, intro = true)
+    /** The same page: a lesson is always entered through what it is about. */
+    fun showStepIntro(step: Step) = openStep(step)
 
-    private fun open(step: Step, intro: Boolean) {
+    private fun markRead(step: Step) {
+        val progress = _state.value.progress
+        if (progress.steps[step.id]?.ready == true) return
+        persist(progress.copy(steps = progress.steps + (step.id to StepRecord(ready = true))))
+        refreshPath()
+    }
+
+    private fun open(step: Step) {
         val data = data ?: return
         val words = data.learnPath.newWords(step).mapNotNull(data.wordsByKey::get)
-        val forms = step.newForms.mapNotNull(Grammar::get)
+        // What it teaches, or failing that what it drills: a step late on the path adds no
+        // form of its own, and its notes are the forms it puts together.
+        val forms = step.newForms.ifEmpty { step.forms.filterNot { it == "plain" } }
+            .mapNotNull(Grammar::get)
         val classes = step.newClasses.mapNotNull(Grammar::classNote)
-        if (!intro || (words.isEmpty() && forms.isEmpty() && classes.isEmpty())) {
+        if (words.isEmpty() && forms.isEmpty() && classes.isEmpty()) {
             startStep(step)
             return
         }
@@ -621,7 +654,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         dueJob?.cancel()
         val practised = practised()
         if (practised == null) {
-            _state.update { it.copy(dueCount = 0) }
+            _state.update { it.copy(dueCount = 0, reviewCounted = true) }
             return
         }
         val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
@@ -629,7 +662,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val day = today
         dueJob = viewModelScope.launch {
             val due = withContext(Dispatchers.Default) { engine.dueCount(options, progress, day) }
-            _state.update { it.copy(dueCount = due) }
+            _state.update { it.copy(dueCount = due, reviewCounted = true) }
         }
     }
 

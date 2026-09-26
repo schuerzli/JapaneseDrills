@@ -39,6 +39,7 @@ import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.components.AlignedChanges
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.FusionTable
@@ -157,6 +158,7 @@ fun GrammarDetailScreen(
                         Icon(Icons.Default.Close, contentDescription = "Back to the form list")
                     }
                 },
+                actions = { FuriganaAction() },
             )
         },
     ) { padding ->

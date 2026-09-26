@@ -25,6 +25,7 @@ import com.japanesedrills.quiz.ConjugationIntroBlock
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
@@ -52,6 +53,7 @@ fun ConjugationIntroScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                         Icon(Icons.Default.Close, contentDescription = "Back to the form list")
                     }
                 },
+                actions = { FuriganaAction() },
             )
         },
     ) { padding ->

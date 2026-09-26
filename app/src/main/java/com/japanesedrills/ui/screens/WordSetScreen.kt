@@ -43,6 +43,7 @@ import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RomajiConverter
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.verticalScrollbar
 
@@ -83,6 +84,7 @@ fun WordSetScreen(
                     }
                 },
                 actions = {
+                    FuriganaAction()
                     IconButton(onClick = { confirmDelete = true }) {
                         Icon(Icons.Default.Delete, contentDescription = "Delete this set")
                     }

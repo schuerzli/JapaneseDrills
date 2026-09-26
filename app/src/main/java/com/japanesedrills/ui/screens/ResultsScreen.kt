@@ -54,6 +54,7 @@ import com.japanesedrills.ui.HistoryEntry
 import com.japanesedrills.ui.StepOutcome
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.SectionCardPiece
 import com.japanesedrills.ui.components.SectionHeading
@@ -87,6 +88,7 @@ fun ResultsScreen(
                         Icon(Icons.Default.Close, contentDescription = "Done")
                     }
                 },
+                actions = { FuriganaAction() },
             )
         },
         bottomBar = {

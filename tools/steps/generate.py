@@ -127,6 +127,11 @@ def deal(batch, groups, count):
     return ("deal", batch, groups, count, [], None)
 
 
+def reading(step_id, title, subtitle):
+    """A lesson that is read rather than drilled: no forms, no words, no questions."""
+    return ("reading", step_id, title, subtitle)
+
+
 def form(key, title, subtitle, questions=14):
     return ("form", key, title, subtitle, questions)
 
@@ -152,6 +157,10 @@ def polite(step_id, title, subtitle, forms, questions=16):
 # classes behind one uniform ending.
 SPINE = [
     chapter("Plain verb forms"),
+    # The path opens with the page that explains what a conjugation is. It is a lesson
+    # like any other so that it can be recommended, ticked and returned to; it is read
+    # rather than drilled, so it carries no forms and no questions.
+    reading("conjugation-intro", "Conjugation Intro", "How a Japanese verb changes shape"),
     deal("verbs-1", VERBS, 8),
     form("negative", "Negative", "Saying something does not happen"),
     form("past", "Past", "Saying something already happened"),
@@ -278,6 +287,22 @@ def build():
         kind = entry[0]
         if kind == "chapter":
             current_chapter = entry[1]
+        elif kind == "reading":
+            _, step_id, title, subtitle = entry
+            steps.append({
+                "id": step_id,
+                "title": title,
+                "subtitle": subtitle,
+                "chapter": current_chapter,
+                "kind": "read",
+                "forms": [],
+                "focus": FOCUS_NONE,
+                "batches": [],
+                "newBatches": [],
+                "newForms": [],
+                "newClasses": [],
+                "questions": 0,
+            })
         elif kind == "deal":
             _, batch, groups, count, pins, levels = entry
             pending.append(dealt(batch, groups, count, pins, levels))

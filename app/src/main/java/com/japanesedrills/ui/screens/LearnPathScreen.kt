@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -28,14 +27,11 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,7 +40,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
-import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Step
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.StepCard
@@ -91,12 +86,13 @@ fun LearnPathScreen(
     onStep: (Step) -> Unit,
     onStepIntro: (Step) -> Unit,
     onReview: () -> Unit,
-    onConjugationIntro: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val chapters = remember(state.path) { chaptersOf(state.path) }
-    val next = state.nextStep
+    // Only what the path actually recommends: while review has work, it is the only thing
+    // asked for, and a lesson offered anyway would compete with it.
+    val next = state.recommendNext
 
     val list = rememberLazyListState()
     LazyColumn(
@@ -104,27 +100,23 @@ fun LearnPathScreen(
         modifier = modifier.fillMaxSize().verticalScrollbar(list),
         contentPadding = PaddingValues(16.dp),
     ) {
-        if (!state.started) {
-            item { Spaced { WelcomeCard(onConjugationIntro) } }
-        } else {
-            item {
-                Text(
-                    "${state.path.count { it.ready }} of ${state.path.size} steps ready",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = SectionSpacing),
-                )
-            }
+        item {
+            Text(
+                "${state.path.count { it.ready }} of ${state.path.size} lessons ready",
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = SectionSpacing),
+            )
         }
-        // What can be started right now, in one card: they are the same kind of thing, and
-        // before anything is started the welcome card already says where to begin.
-        if (state.progress.skills.isNotEmpty() || (state.started && next != null)) {
+        // What the path asks for right now, in one card: review first, because it is what
+        // moves the lessons below, and the next lesson only when review has nothing waiting.
+        if (state.hasReview || next != null) {
             item {
                 Spaced {
                     SectionCard("Today") {
-                        if (state.progress.skills.isNotEmpty()) ReviewRow(state.dueCount, onReview)
-                        if (state.started && next != null) {
-                            if (state.progress.skills.isNotEmpty()) {
+                        if (state.hasReview) ReviewRow(state.dueCount, onReview)
+                        if (next != null) {
+                            if (state.hasReview) {
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             }
                             NextUpRow(next, onStart = { onStep(next) })
@@ -204,47 +196,6 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
     }
 }
 
-/**
- * The welcome, with the way into the Conjugation Intro. Every rule on the path is phrased in
- * terms of the kana grid and the verb classes, and the Conjugation Intro is the only place
- * that explains them.
- */
-@Composable
-private fun WelcomeCard(onConjugationIntro: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
-    ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text("Start here", style = MaterialTheme.typography.heading)
-            Text(
-                "Each step adds one form or a few new words. Take them in order or jump " +
-                    "ahead — nothing is locked. Anything you practise comes back for review.",
-                style = MaterialTheme.typography.bodyMedium,
-            )
-            TextButton(
-                onClick = onConjugationIntro,
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ),
-            ) {
-                Text("Read first: ${ConjugationIntro.TITLE}", style = MaterialTheme.typography.labelLarge)
-                Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(ButtonDefaults.IconSize),
-                )
-            }
-        }
-    }
-}
-
 @Composable
 private fun ReviewRow(due: Int, onReview: () -> Unit) {
     val nothingDue = due == 0
@@ -273,7 +224,7 @@ private fun ReviewRow(due: Int, onReview: () -> Unit) {
 private fun NextUpRow(step: Step, onStart: () -> Unit) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            FuriganaText("Next up · ${step.title}", style = MaterialTheme.typography.bodyLarge)
+            FuriganaText("Next lesson · ${step.title}", style = MaterialTheme.typography.bodyLarge)
             FuriganaText(
                 step.subtitle,
                 style = MaterialTheme.typography.bodyMedium,
@@ -333,7 +284,7 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            StrengthBar(card.strength)
+            if (!step.reading) StrengthBar(card.strength)
         }
         // On every step that has an introduction, opened or not, so rows never change shape.
         if (card.hasIntro) {

@@ -48,6 +48,9 @@ class LearnPathTest {
 
     private val steps get() = learnPath.steps
 
+    /** The lessons that are drilled. The path also opens with one that is only read. */
+    private val drills get() = steps.filterNot { it.reading }
+
     @Test
     fun stepIdsAreUnique() {
         val ids = steps.map { it.id }
@@ -88,10 +91,26 @@ class LearnPathTest {
         }
     }
 
-    /** Plain is the register, not a form to teach: every step asks in it. */
+    /** Plain is the register, not a form to teach: every drilled step asks in it. */
     @Test
-    fun plainIsOnInEveryStep() {
-        for (step in steps) assertTrue("${step.id} switches plain off", "plain" in step.forms)
+    fun plainIsOnInEveryDrilledStep() {
+        for (step in drills) assertTrue("${step.id} switches plain off", "plain" in step.forms)
+    }
+
+    /**
+     * The path opens with the page that explains what a conjugation is, as a lesson of its
+     * own: it is read rather than drilled, so it carries no forms, no words and no
+     * questions, and nothing that builds a pool should ever be handed it.
+     */
+    @Test
+    fun thePathOpensWithTheConjugationIntro() {
+        val first = steps.first()
+        assertTrue("the path does not open with a reading lesson", first.reading)
+        assertEquals("conjugation-intro", first.id)
+        assertEquals(0, first.questions)
+        assertTrue(first.forms.isEmpty() && first.batches.isEmpty() && first.newBatches.isEmpty())
+        assertEquals("it belongs to the first chapter", drills.first().chapter, first.chapter)
+        assertEquals("only the intro is read", 1, steps.count { it.reading })
     }
 
     /**
@@ -136,7 +155,7 @@ class LearnPathTest {
 
     @Test
     fun aSessionLongerThanItsPoolFallsBackToRepeatsRatherThanStoppingShort() {
-        val pool = engine.buildPool(learnPath.optionsFor(steps.first(), QuizOptions()))
+        val pool = engine.buildPool(learnPath.optionsFor(drills.first(), QuizOptions()))
         val drawn = engine.buildQueue(pool, pool.size + 5)
         assertEquals(pool.size + 5, drawn.size)
         // Every distinct pair is still used before anything is repeated.
@@ -243,7 +262,7 @@ class LearnPathTest {
 
     @Test
     fun everyPresetAsksSomething() {
-        val first = steps.first()
+        val first = drills.first()
         val forms = first.forms
         val groups = learnPath.words(first).mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
         for (preset in PracticePreset.entries) {
@@ -597,7 +616,7 @@ class LearnPathTest {
     /** The old ring measured every lesson so far on every word type, so later work drained it. */
     @Test
     fun aStepsRingIgnoresWhatLaterStepsAdd() {
-        val first = steps.first()
+        val first = drills.first()
         val solid = SrsState(step = Scheduler.LADDER.size - 1)
         val own = Progress(skills = mapOf("negative|godan" to solid, "negative|ichidan" to solid))
         val later = own.copy(

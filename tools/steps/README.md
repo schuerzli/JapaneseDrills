@@ -18,6 +18,18 @@ infers difficulty. When a step is in the wrong place, the fix should be moving a
 
 ## A recommended order, not a course
 
+The path opens with the Conjugation Intro, which is a lesson that is read rather than
+drilled: it explains the kana grid and the verb classes that every later rule is phrased in,
+and it is finished by being opened. It carries no forms, words or questions, so it is the one
+step nothing can drill.
+
+What the path offers next is decided by review, not by the list. While review has anything
+waiting, review is the only thing asked for; a new lesson appears when review is clear. That
+is the loop this is built around: start a lesson, come back to review it, and take a new
+lesson once the old ones are holding up. A lesson's progress bar is its review strength, so
+the bars move when review is done, not when a lesson is tapped — and a lesson is always
+entered through its notes, so the grammar is stated before it is drilled.
+
 Nothing on the path is locked and nothing is ever finished. A step is a named filter over
 the same drill free practice uses — some forms, some words, perhaps one question type — and
 the path is an order worth taking them in. Anyone can open any step, including the polite

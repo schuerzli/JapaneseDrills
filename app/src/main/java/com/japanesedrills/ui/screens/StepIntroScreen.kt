@@ -41,6 +41,7 @@ import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Step
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.SectionCard
@@ -78,6 +79,7 @@ fun StepIntroScreen(
                         Icon(Icons.Default.Close, contentDescription = "Back to the path")
                     }
                 },
+                actions = { FuriganaAction() },
             )
         },
         bottomBar = {

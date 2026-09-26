@@ -255,6 +255,20 @@
   },
   "steps": [
     {
+      "id": "conjugation-intro",
+      "title": "Conjugation Intro",
+      "subtitle": "How a Japanese verb changes shape",
+      "chapter": "Plain verb forms",
+      "kind": "read",
+      "forms": [],
+      "focus": "none",
+      "batches": [],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 0
+    },
+    {
       "id": "negative",
       "title": "Negative",
       "subtitle": "Saying something does not happen",

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +26,9 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.PlatformTextStyle
@@ -60,6 +64,32 @@ val JapaneseLocale = LocaleList("ja-JP")
  * root from the one setting, so no screen can disagree with another about it.
  */
 val LocalFurigana = staticCompositionLocalOf { true }
+
+/**
+ * Flipping [LocalFurigana], provided once at the root. Readings are one setting for the
+ * whole app, so there is one switch for them: [FuriganaAction], on the bar of every screen
+ * that shows Japanese. A screen that offered its own would be a second answer to the same
+ * question.
+ */
+val LocalFuriganaToggle = staticCompositionLocalOf<() -> Unit> { {} }
+
+/** The readings switch, for a top bar's actions. */
+@Composable
+fun FuriganaAction() {
+    val on = LocalFurigana.current
+    val toggle = LocalFuriganaToggle.current
+    IconButton(onClick = toggle) {
+        Text(
+            "ふ",
+            style = MaterialTheme.typography.titleMedium,
+            color = if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.semantics {
+                contentDescription = if (on) "Hide readings" else "Show readings"
+                stateDescription = if (on) "Readings on" else "Readings off"
+            },
+        )
+    }
+}
 
 /**
  * Renders English text mixed with Japanese, drawing furigana above kanji. Readings come

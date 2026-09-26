@@ -117,6 +117,11 @@ These look like mistakes without their reason. Check here before "fixing" one.
 - **Level tags are `n5`–`n2` only.** The source lists hold no N1 verbs or
   adjectives this app can conjugate. Words outside the lists carry no level tag, so only
   free practice's "all words" reaches them.
+- **The path's first lesson is read, not drilled.** The Conjugation Intro is a step like
+  any other so it can be recommended, ticked and returned to, and it carries `"kind":
+  "read"` with no forms, no words and no questions. Opening it finishes it. Anything that
+  builds a pool or measures review has nothing to work with there, so tests that sweep the
+  path skip it (`LearnPathTest.drills`).
 - **steps.json spells every step out in full** — its forms, focus and word batches — so
   the app does no bookkeeping; what is known by which point is worked out in the generator.
   Steps are an array, not an object keyed by id, because JSON key order is preserved by
@@ -129,6 +134,12 @@ These look like mistakes without their reason. Check here before "fixing" one.
   names word keys, and regenerating `words.json` can retire one, so a set may name a word
   that no longer exists: nothing matches it and the set opens on what is left, rather than
   the key being dropped or the document refusing to load.
+
+- **Review is what moves the path; a lesson is what is sprinkled in.** The learn tab offers
+  the next lesson only when review has nothing waiting (`DrillUiState.recommendNext`), and a
+  lesson is always entered through its notes, never straight into questions. A lesson's bar
+  is how well review is holding its content up, so the path is a read-out of review rather
+  than a checklist.
 
 Why the path is ordered the way it is, why nothing on it is locked, why review schedules
 skills rather than questions, what counts as due, and why free practice writes nothing to
@@ -176,6 +187,10 @@ the schedule, is in `tools/steps/README.md`.
   results score and the practice grid's strength view. It is deliberately not the accent,
   which means "this does something when you tap it". Nothing yet means empty rather than
   weak, and is drawn in `surfaceContainerHighest` in all three places.
+- **One switch for readings.** Furigana is a single app-wide setting, so it has a single
+  control: `FuriganaAction()` on the top bar of every screen that shows Japanese, reading
+  `LocalFurigana` and `LocalFuriganaToggle` from the root. No screen offers its own — a
+  question card that quietly toggled them was a second answer to the same question.
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in

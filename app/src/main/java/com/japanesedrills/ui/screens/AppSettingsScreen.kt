@@ -68,7 +68,6 @@ fun AppSettingsScreen(
     state: DrillUiState,
     onTheme: (ThemeChoice) -> Unit,
     onPalette: (Palette) -> Unit,
-    onFurigana: (Boolean) -> Unit,
     onResetProgress: () -> Unit,
     onExport: () -> String,
     onImport: (String) -> Boolean,
@@ -122,14 +121,6 @@ fun AppSettingsScreen(
                                 }
                             }
                         }
-                    }
-                    SettingRow(
-                        "Show furigana",
-                        supporting = "Readings above every kanji. Tapping a question card switches this too.",
-                        onClick = { onFurigana(!state.options.furigana) },
-                        role = Role.Switch,
-                    ) {
-                        Switch(checked = state.options.furigana, onCheckedChange = null)
                     }
                 }
             }

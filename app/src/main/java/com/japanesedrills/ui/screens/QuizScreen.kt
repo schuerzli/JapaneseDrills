@@ -88,10 +88,10 @@ import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.ui.QuizState
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.FusionTable
 import com.japanesedrills.ui.components.JapaneseLocale
-import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.StepBlock
 import com.japanesedrills.ui.components.Subheading
@@ -108,7 +108,6 @@ fun QuizScreen(
     onSubmit: (String) -> Unit,
     onProceed: () -> Unit,
     onExplain: () -> Unit,
-    onToggleFurigana: () -> Unit,
     onDropWord: () -> Unit,
     onQuit: () -> Unit,
     modifier: Modifier = Modifier,
@@ -137,6 +136,7 @@ fun QuizScreen(
                         }
                     },
                     actions = {
+                        FuriganaAction()
                         ScoreBadge(quiz.history.count { it.correct })
                         Spacer(Modifier.width(12.dp))
                     },
@@ -158,7 +158,7 @@ fun QuizScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            QuestionCard(quiz, options, onToggleFurigana)
+            QuestionCard(quiz, options)
 
             if (answer == null) {
                 AnswerInput(
@@ -204,25 +204,18 @@ private fun ScoreBadge(correct: Int) {
 }
 
 @Composable
-private fun QuestionCard(quiz: QuizState, options: QuizOptions, onToggleFurigana: () -> Unit) {
+private fun QuestionCard(quiz: QuizState, options: QuizOptions) {
     val question = quiz.question
     val formLabel = Prompts.formLabel(question.transformation.phrase)
     val onContainer = MaterialTheme.colorScheme.onPrimaryContainer
     val given = question.givenDisplay(options.kana)
-    // Nothing to read in kana mode, or in a word with no kanji, so no switch either.
-    val switchable = Furigana.hasReading(given)
 
     Card(
-        onClick = onToggleFurigana,
-        enabled = switchable,
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        // The disabled colours would grey the card out; being untappable is not a state to show.
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = onContainer,
-            disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            disabledContentColor = onContainer,
         ),
     ) {
         Column(
@@ -256,23 +249,9 @@ private fun QuestionCard(quiz: QuizState, options: QuizOptions, onToggleFurigana
                 style = TextStyle(fontSize = 44.sp, fontWeight = FontWeight.Medium),
                 color = onContainer,
                 horizontalArrangement = Arrangement.Center,
-                // Tapping the card switches readings; the word must not jump when it does.
+                // The readings switch is on the bar; the word must not jump when it is used.
                 reserveReadingSpace = true,
             )
-            // The line is kept, empty, for a word with nothing to read, so the card does not
-            // change height from one question to the next.
-            if (!options.kana) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    when {
-                        !switchable -> ""
-                        LocalFurigana.current -> "Tap to hide readings"
-                        else -> "Tap to show readings"
-                    },
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
         }
     }
 }

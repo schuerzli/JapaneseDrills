@@ -29,6 +29,12 @@ data class Step(
      */
     val newClasses: List<String>,
     val questions: Int,
+    /**
+     * A lesson that is read rather than drilled — the Conjugation Intro, which opens the
+     * path. It has no forms, no words and no questions, so nothing that builds a pool or
+     * measures review applies to it; it is done once it has been opened.
+     */
+    val reading: Boolean = false,
 )
 
 /** The learn path, in order, and the word batches its steps draw on. */
@@ -127,6 +133,7 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
                     newForms = obj.getJSONArray("newForms").strings(),
                     newClasses = obj.getJSONArray("newClasses").strings(),
                     questions = obj.getInt("questions"),
+                    reading = obj.optString("kind") == "read",
                 )
             }
             return LearnPath(steps, batches)

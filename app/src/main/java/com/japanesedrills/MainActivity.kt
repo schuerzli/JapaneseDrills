@@ -42,7 +42,9 @@ import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.DrillViewModel
 import com.japanesedrills.ui.Screen
+import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.LocalFurigana
+import com.japanesedrills.ui.components.LocalFuriganaToggle
 import com.japanesedrills.ui.Tab as AppTab
 import com.japanesedrills.ui.screens.AboutScreen
 import com.japanesedrills.ui.screens.AppSettingsScreen
@@ -103,7 +105,10 @@ class MainActivity : ComponentActivity() {
             }
             JapaneseDrillsTheme(darkTheme = dark, palette = state.options.palette) {
                 // One value for every screen, so furigana can never be on in one place and off in another.
-                CompositionLocalProvider(LocalFurigana provides state.options.furigana) { DrillApp(state, viewModel) }
+                CompositionLocalProvider(
+                    LocalFurigana provides state.options.furigana,
+                    LocalFuriganaToggle provides viewModel::toggleFurigana,
+                ) { DrillApp(state, viewModel) }
             }
         }
     }
@@ -164,7 +169,6 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 onSubmit = viewModel::submit,
                 onProceed = viewModel::proceed,
                 onExplain = viewModel::explain,
-                onToggleFurigana = viewModel::toggleFurigana,
                 onDropWord = viewModel::dropCurrentWord,
                 onQuit = viewModel::backToRoot,
                 modifier = contentModifier,
@@ -181,8 +185,8 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 examples = state.grammarExamples,
                 options = state.options,
                 onStart = { viewModel.startStep(step) },
-                onConjugationIntro = viewModel::showConjugationIntro,
                 onQuit = viewModel::backToRoot,
+                onConjugationIntro = viewModel::showConjugationIntro,
                 modifier = contentModifier,
             )
         }
@@ -224,7 +228,6 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 state = state,
                 onTheme = viewModel::setTheme,
                 onPalette = viewModel::setPalette,
-                onFurigana = viewModel::setFurigana,
                 onResetProgress = viewModel::resetProgress,
                 onExport = viewModel::exportProgress,
                 onImport = viewModel::importProgress,
@@ -268,6 +271,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 TopAppBar(
                     title = { Text("Japanese Drills") },
                     actions = {
+                        FuriganaAction()
                         IconButton(onClick = viewModel::showSettings) {
                             Icon(Icons.Default.Settings, contentDescription = "Settings")
                         }
@@ -301,7 +305,6 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onStep = viewModel::openStep,
                 onStepIntro = viewModel::showStepIntro,
                 onReview = viewModel::startReview,
-                onConjugationIntro = viewModel::showConjugationIntro,
                 onToggleChapter = viewModel::setChapterOpen,
                 modifier = inner,
             )
