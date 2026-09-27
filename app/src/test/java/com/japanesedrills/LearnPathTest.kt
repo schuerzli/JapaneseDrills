@@ -17,6 +17,7 @@ import com.japanesedrills.quiz.SrsState
 import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.quiz.TransformationBuilder
 import com.japanesedrills.quiz.WordSets
+import com.japanesedrills.ui.DrillUiState
 import java.io.File
 import kotlin.random.Random
 import org.junit.Assert.assertEquals
@@ -471,6 +472,22 @@ class LearnPathTest {
             previous = Scheduler.strength(state)
         }
         assertEquals(1f, Scheduler.strength(state), 0.001f)
+    }
+
+    /**
+     * Which half of the today panel is lit follows what the path wants done first, not
+     * whether review exists at all: lighting it on "there is a review" left "Nothing due"
+     * as the loudest thing on the screen for the rest of the day after one was finished.
+     */
+    @Test
+    fun theLitHalfIsWhateverThePathWantsFirst() {
+        val counted = DrillUiState(reviewCounted = true)
+        assertTrue(counted.copy(dueCount = 3).reviewLeads)
+        assertFalse(counted.reviewLeads)
+        // Until review has been counted the path offers nothing, so nothing can be lit
+        // on the wrong row and swap under the reader a frame later.
+        assertTrue(DrillUiState().reviewLeads)
+        assertNull(DrillUiState().recommendation)
     }
 
     // Progress

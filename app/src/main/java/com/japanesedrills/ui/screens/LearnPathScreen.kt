@@ -111,25 +111,25 @@ fun LearnPathScreen(
     ) {
         // What the path asks for right now, in one panel. Whichever of the two it
         // actually wants is the lit half: colour says what to do first, and the order
-        // never changes, so the screen reads the same way every day.
-        if (state.hasReview || recommendation != null) {
+        // never changes, so the screen reads the same way every day. Nothing is drawn
+        // until review has been counted, which is what makes `recommendation` non-null,
+        // so the lit half cannot start on the wrong row and swap under the reader.
+        if (recommendation != null) {
             item {
                 Spaced {
                     Panel {
-                        val leadIsReview = state.hasReview
+                        val lead = state.reviewLeads
                         if (state.hasReview) {
-                            if (leadIsReview) {
+                            if (lead) {
                                 Lit { ReviewRow(state.dueCount, onReview, lead = true) }
                             } else {
                                 ReviewRow(state.dueCount, onReview, lead = false)
                             }
                         }
-                        if (recommendation != null) {
-                            if (leadIsReview) {
-                                RecommendedRow(recommendation, onStep, onReview, lead = false)
-                            } else {
-                                Lit { RecommendedRow(recommendation, onStep, onReview, lead = true) }
-                            }
+                        if (lead) {
+                            RecommendedRow(recommendation, onStep, onReview, lead = false)
+                        } else {
+                            Lit { RecommendedRow(recommendation, onStep, onReview, lead = true) }
                         }
                     }
                 }

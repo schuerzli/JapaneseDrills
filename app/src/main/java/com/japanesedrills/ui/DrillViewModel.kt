@@ -220,6 +220,13 @@ data class DrillUiState(
     /** Whether there is a review at all: before the first lesson there is nothing to hold up. */
     val hasReview: Boolean get() = progress.skills.isNotEmpty()
 
+    /**
+     * Which half of the today panel is lit. Review while it has work to do, and the
+     * recommendation once it has none — [hasReview] only says review exists, so lighting
+     * on that left "Nothing due" as the loudest thing on the screen for the rest of the day.
+     */
+    val reviewLeads: Boolean get() = dueCount > 0 || recommendation == null
+
     val canStart: Boolean
         get() = !loading && options.hasPoliteness && options.questionCount != null && (pool?.questions ?: 0) > 0
 
