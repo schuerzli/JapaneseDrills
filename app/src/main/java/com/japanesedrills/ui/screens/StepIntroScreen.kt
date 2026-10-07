@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.Furigana
+import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.QuizEngine
@@ -119,7 +120,7 @@ fun StepIntroScreen(
         ) {
             // The rule text below leans on the kana grid and the verb classes, which only
             // the Conjugation Intro explains; this is where not knowing them would first bite.
-            if (forms.isNotEmpty()) {
+            if (forms.isNotEmpty() || step.builds.isNotEmpty()) {
                 item(key = "conjugation-intro") {
                     TextButton(onClick = onConjugationIntro) {
                         Text("New to verb classes and the kana grid? Read the ${ConjugationIntro.TITLE}")
@@ -136,12 +137,38 @@ fun StepIntroScreen(
             for (note in classes) {
                 item(key = "class-${note.key}") { GrammarUsage(note, heading = note.title) }
             }
+            // What the lesson turns on, before anything else about the form: usually that an
+            // ending conjugates as a class already taught.
+            step.point?.let { point ->
+                item(key = "point") {
+                    Section("The key idea") {
+                        FuriganaText(point, style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+            }
             // Grammar next: the words are practice material for whatever the form is.
-            // Titled by name, so a note reads the same here as on the Grammar tab.
+            // Titled by name, so a note reads the same here as on the Grammar tab. Only the
+            // lines and the example words of the classes this lesson drills.
+            val groups = step.conjugations.keys
             for (note in forms) {
-                item(key = "usage-${note.key}") { GrammarUsage(note, heading = note.title) }
-                item(key = "build-${note.key}") {
-                    GrammarConstruction(note, examples)
+                item(key = "usage-${note.key}") { GrammarUsage(note, heading = note.title, groups = groups) }
+                if (step.builds.isEmpty()) {
+                    item(key = "build-${note.key}") { GrammarConstruction(note, examples, groups = groups) }
+                }
+            }
+            // What this lesson builds that nothing before it did, on the groups it builds it on.
+            val focus = Grammar[if (step.focus == "politeness") "polite" else step.focus]
+            if (focus != null) {
+                for ((target, on) in step.builds) {
+                    item(key = "build-$target") {
+                        GrammarConstruction(
+                            focus,
+                            examples,
+                            target = target,
+                            groups = on,
+                            heading = if (step.builds.size > 1) labelOf(target) else "How it is built",
+                        )
+                    }
                 }
             }
             // One card, a word to a row: a step deals a handful, well within one item.
@@ -158,6 +185,10 @@ fun StepIntroScreen(
         }
     }
 }
+
+/** A conjugation's name as a heading: "te-form negative" reads "て-form negative". */
+private fun labelOf(conjugation: String): String =
+    conjugation.replace("te-form", "て-form").replaceFirstChar(Char::uppercase)
 
 /**
  * A new word: the word and its meaning on one line, its class under them, and its example

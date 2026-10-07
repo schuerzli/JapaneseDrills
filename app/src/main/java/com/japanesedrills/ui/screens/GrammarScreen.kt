@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -199,14 +198,14 @@ fun GrammarDetailScreen(
 /**
  * The prose half: what the form means and when it is reached for. [heading] defaults to
  * the question the card answers; where several notes share a screen, their titles say
- * which is which.
+ * which is which. [groups], in a lesson, leaves out the lines about classes it does not drill.
  */
 @Composable
-fun GrammarUsage(note: GrammarNote, heading: String = "What it is for") {
+fun GrammarUsage(note: GrammarNote, heading: String = "What it is for", groups: Set<String>? = null) {
     Section(heading) {
         FuriganaText(note.summary, style = MaterialTheme.typography.bodyLarge)
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            for (line in note.notes) {
+            for (line in note.notes.filter { it.isFor(groups) }.map { it.text }) {
                 // On the text's baseline, or a reading over the first line lifts the bullet above it.
                 Row {
                     Text("•  ", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.alignByBaseline())
@@ -221,11 +220,20 @@ fun GrammarUsage(note: GrammarNote, heading: String = "What it is for") {
  * The construction half, derived per word class from the same engine that explains a wrong
  * answer, so it cannot disagree with what the drill accepts. A class with no such form —
  * an adjective has no passive — simply does not appear.
+ *
+ * A lesson passes what it builds as [target] — the negative past, not the past — and the
+ * word groups it builds it on as [groups], so the い-adjective past shows 高い alone.
  */
 @Composable
-fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
+fun GrammarConstruction(
+    note: GrammarNote,
+    examples: GrammarExamples,
+    target: String? = Grammar.conjugationOf(note.key),
+    groups: Set<String>? = null,
+    heading: String = "How it is built",
+) {
     val words = Grammar.examplesFor(note.key).mapNotNull(examples::get)
-    val target = Grammar.conjugationOf(note.key)
+        .filter { groups == null || it.group in groups }
     if (target == null) {
         Section("How it is built", "Nothing to build — this is the form words are listed in") {
             for (word in words) {
@@ -249,8 +257,9 @@ fun GrammarConstruction(note: GrammarNote, examples: GrammarExamples) {
     val shown = derived.filter { (word, _) ->
         word.group !in Grammar.IRREGULAR_GROUPS + Grammar.EXCEPTION_GROUPS || examples.declaresOwnRule(word, target)
     }
+    if (shown.isEmpty()) return
 
-    Section("How it is built", "Starting from the dictionary form") {
+    Section(heading, "Starting from the dictionary form") {
         // Grouped by heading rather than one heading per word: する and 来る are worth
         // meeting as "the irregulars" rather than as two unrelated classes.
         shown.groupBy { (word, _) -> headingFor(word) }.toList().forEachIndexed { index, (heading, group) ->

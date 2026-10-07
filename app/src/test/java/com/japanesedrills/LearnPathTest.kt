@@ -44,6 +44,10 @@ class LearnPathTest {
     }
 
     private val learnPath: LearnPath get() = data.learnPath
+
+    private companion object {
+        val CAP = QuizOptions.DEFAULT_REVIEW_CAP
+    }
     private val engine: QuizEngine by lazy { QuizEngine(data) }
 
     // Path shape
@@ -185,8 +189,7 @@ class LearnPathTest {
     @Test
     fun aFocusedStepAsksOnlyItsForm() {
         for (step in steps.filter { it.focus != QuizOptions.FOCUS_NONE }) {
-            val types = engine.buildSkillIndex(learnPath.optionsFor(step, QuizOptions())).keys
-                .map(QuizEngine::typeOfSkill).toSet()
+            val types = engine.pairsFor(learnPath.optionsFor(step, QuizOptions())).map { transformationOf(it).type }.toSet()
             assertEquals("${step.id} asks other question types", setOf(step.focus), types)
         }
     }
@@ -203,7 +206,42 @@ class LearnPathTest {
     }
 
     private fun askedWords(options: QuizOptions): Set<String> =
-        engine.buildSkillIndex(options).values.flatMap { entries -> entries.map { engine.wordOf(it).key } }.toSet()
+        engine.pairsFor(options).map { engine.wordOf(it).key }.toSet()
+
+    private fun transformationOf(packed: Int) = data.transformations[packed % data.transformations.size]
+
+    /** A lesson asks exactly what its whitelist names, per word group, and nothing besides. */
+    @Test
+    fun aStepAsksOnlyTheConjugationsItLists() {
+        for (step in drills) {
+            for (packed in engine.pairsFor(learnPath.optionsFor(step, QuizOptions()))) {
+                val t = transformationOf(packed)
+                val allowed = step.conjugations[engine.wordOf(packed).group].orEmpty()
+                assertTrue("${step.id} asks ${t.from} → ${t.to}", t.from in allowed && t.to in allowed)
+            }
+        }
+    }
+
+    /**
+     * A compound is asked only once the ending in it has been taught the form: ない is an
+     * い-adjective, so nothing asks 書かなかった before the い-adjective past has been taught,
+     * and the lesson that makes that point is the first to ask it. The same goes for なくて.
+     */
+    @Test
+    fun aNegativeCompoundWaitsForTheAdjectiveForm() {
+        for ((compound, adjective, lesson) in listOf(
+            Triple("past negative", "i-adjectives-past", "negative-past"),
+            Triple("te-form negative", "te-form-adjectives", "te-form-adjectives"),
+        )) {
+            val taught = steps.indexOfFirst { it.id == adjective }
+            val first = steps.indexOfFirst { it.id == lesson }
+            assertTrue("$adjective is not on the path before $lesson", taught in 0..first)
+            for (step in steps.take(first)) {
+                assertFalse("${step.id} asks $compound", step.conjugations.values.any { compound in it })
+            }
+            assertTrue("$lesson does not ask $compound", steps[first].conjugations.values.any { compound in it })
+        }
+    }
 
     /**
      * Form option keys and transformation types are almost the same vocabulary, which is
@@ -334,102 +372,122 @@ class LearnPathTest {
 
     // Review
 
+    /**
+     * A review question belongs to one lesson, and is one that lesson asks: 書かなかった is the
+     * negative past's, never the negative's, however much has been learned since.
+     */
     @Test
-    fun reviewSpansEverythingPractisedAndNothingElse() {
-        val options = reviewOptions()
-        val words = options.wordKeys!!
-
-        val index = engine.buildSkillIndex(options)
-        assertTrue("review pool is empty", index.isNotEmpty())
-        val asked = index.values.flatMap { entries -> entries.map { engine.wordOf(it).key } }.toSet()
-        assertTrue(words.containsAll(asked))
+    fun aReviewAsksEachLessonOnlyItsOwnQuestions() {
+        val lessons = reviewLessons()
+        val own = lessons.mapValues { (_, options) -> engine.pairsFor(options).toSet() }
+        repeat(10) { seed ->
+            val queue = QuizEngine(data, Random(seed)).buildReviewQueue(lessons, Progress(), 0, CAP)
+            assertTrue("review drew nothing", queue.isNotEmpty())
+            for (drawn in queue) {
+                val lesson = drawn.lesson
+                assertNotNull("a review question with no lesson", lesson)
+                assertTrue("seed $seed: $lesson asked another lesson's question", drawn.packed in own.getValue(lesson!!))
+            }
+        }
+        val negative = own.getValue("negative").map(::transformationOf)
+        assertTrue("the negative lesson asks a past", negative.none { "past" in "${it.from} ${it.to}" })
     }
 
     @Test
     fun reviewDoesNotRepeatAQuestionWhileUnaskedOnesRemain() {
-        val options = reviewOptions()
-        val index = engine.buildSkillIndex(options)
+        val lessons = reviewLessons()
+        val pools = lessons.mapValues { (_, options) -> engine.pairsFor(options) }
 
-        // One leech per skill: it is picked first, and used to be picked every time.
-        val leeches = index.map { (skill, entries) ->
-            Progress.leechKey(engine.wordOf(entries.first()).key, QuizEngine.typeOfSkill(skill)) to
+        // One leech per lesson: it is picked first, and used to be picked every time.
+        val leeches = pools.values.associate { pool ->
+            Progress.leechKey(engine.wordOf(pool.first()).key, transformationOf(pool.first()).type) to
                 Progress.LEECH_THRESHOLD
-        }.toMap()
+        }
         repeat(20) { seed ->
-            val queue = QuizEngine(data, Random(seed)).buildReviewQueue(options, Progress(leeches = leeches), day = 0)
-            assertTrue("pool too small for the check", index.values.sumOf { it.size } >= queue.size)
-            assertEquals("seed $seed repeated a question", queue.size, queue.toSet().size)
+            val queue = QuizEngine(data, Random(seed)).buildReviewQueue(lessons, Progress(leeches = leeches), 0, CAP)
+            assertTrue("pools too small for the check", pools.values.sumOf { it.size } >= queue.size)
+            assertEquals("seed $seed repeated a question", queue.size, queue.map { it.packed }.toSet().size)
         }
     }
 
     @Test
-    fun aReviewIsAsLongAsItsDueSkillsHaveEarned() {
-        val options = reviewOptions()
-        val skills = engine.buildSkillIndex(options).keys.toList()
-        assertTrue("review has no skills to count", skills.size >= 2)
+    fun aReviewIsAsLongAsItsDueLessonsHaveEarned() {
+        val lessons = reviewLessons().keys.toList()
+        assertTrue("review has no lessons to count", lessons.size >= 2)
 
-        // Everything rested and far in the future, except the skills named here.
+        // Everything rested and far in the future, except the lessons named here.
         fun waiting(vararg due: Pair<String, Int>) = Progress(
-            skills = skills.associateWith { SrsState(step = 5, due = 99L) } +
-                due.associate { (skill, step) -> skill to SrsState(step = step, due = 0L) },
+            lessons = lessons.associateWith { SrsState(step = 5, due = 99L) } +
+                due.associate { (lesson, step) -> lesson to SrsState(step = step, due = 0L) },
         )
 
-        val one = engine.reviewLoad(options, waiting(skills[0] to Scheduler.UNLEARNED), 0)
+        val one = engine.reviewLoad(lessons, waiting(lessons[0] to Scheduler.UNLEARNED), 0, CAP)
         val two = engine.reviewLoad(
-            options,
-            waiting(skills[0] to Scheduler.UNLEARNED, skills[1] to Scheduler.UNLEARNED),
+            lessons,
+            waiting(lessons[0] to Scheduler.UNLEARNED, lessons[1] to Scheduler.UNLEARNED),
             0,
+            CAP,
         )
         assertEquals(1, one.due)
         assertEquals(2, two.due)
         // The whole complaint about the old fixed ten: two due is twice the work of one.
-        assertTrue("one due skill should be a short review, was ${one.questions}", one.questions <= 6)
-        assertTrue("two due skills ask more than one", two.questions > one.questions)
+        assertTrue("one due lesson should be a short review, was ${one.questions}", one.questions <= 6)
+        assertTrue("two due lessons ask more than one", two.questions > one.questions)
 
         // Higher up the ladder earns more questions, not fewer: a lapse already comes back
-        // tomorrow where a mature skill waits months, so volume is free to even out time.
-        val mature = engine.reviewLoad(options, waiting(skills[0] to 5), 0)
-        assertTrue("a mature skill earns more than a fresh one", mature.questions > one.questions)
-
-        // Nothing answered at all is the heaviest case, and it is still capped.
-        val everything = engine.reviewLoad(options, Progress(), 0)
-        assertEquals(skills.size, everything.due)
-        assertTrue("an unanswered review is capped", everything.questions <= options.reviewCap)
+        // tomorrow where a mature lesson waits months, so volume is free to even out time.
+        val mature = engine.reviewLoad(lessons, waiting(lessons[0] to 5), 0, CAP)
+        assertTrue("a mature lesson earns more than a fresh one", mature.questions > one.questions)
 
         // A cap the learner chose is the length when more is due, and the row says so.
-        val capped = options.copy(reviewCap = 5)
-        assertEquals(5, engine.reviewLoad(capped, Progress(), 0).questions)
-        assertEquals(5, engine.buildReviewQueue(capped, Progress(), 0).size)
+        assertEquals(5, engine.reviewLoad(lessons, Progress(), 0, cap = 5).questions)
+        assertEquals(5, engine.buildReviewQueue(reviewLessons(), Progress(), 0, cap = 5).size)
     }
 
     @Test
     fun theReviewRowCannotLieAboutTheSessionLength() {
-        val options = reviewOptions()
-        val skills = engine.buildSkillIndex(options).keys.toList()
+        val lessons = reviewLessons()
+        val ids = lessons.keys.toList()
         val cases = listOf(
             Progress(),
-            Progress(skills = mapOf(skills[0] to SrsState(step = 5, due = 0L))),
-            Progress(skills = skills.associateWith { SrsState(step = 3, due = 0L) }),
-            Progress(skills = skills.associateWith { SrsState(step = 5, due = 99L) }),
+            Progress(lessons = mapOf(ids[0] to SrsState(step = 5, due = 0L))),
+            Progress(lessons = ids.associateWith { SrsState(step = 3, due = 0L) }),
+            Progress(lessons = ids.associateWith { SrsState(step = 5, due = 99L) }),
         )
         for ((i, progress) in cases.withIndex()) {
-            val said = engine.reviewLoad(options, progress, 0).questions
+            val said = engine.reviewLoad(ids, progress, 0, CAP).questions
             // A fresh engine per seed: the number on the row is reached before the session
             // is built, so it must not depend on where the shuffle happens to land.
             repeat(5) { seed ->
-                val queue = QuizEngine(data, Random(seed)).buildReviewQueue(options, progress, 0)
+                val queue = QuizEngine(data, Random(seed)).buildReviewQueue(lessons, progress, 0, CAP)
                 assertEquals("case $i, seed $seed", said, queue.size)
             }
         }
     }
 
-    /** A review after the first two steps, built the way the app builds one. */
-    private fun reviewOptions(): QuizOptions {
-        val practised = steps.take(2)
-        return learnPath.optionsFor(
-            practised.flatMapTo(HashSet()) { learnPath.words(it) },
-            practised.flatMapTo(HashSet()) { it.forms },
-            QuizOptions(),
+    /** The lessons through the negative past, each on its own options, as the app builds a review. */
+    private fun reviewLessons(): Map<String, QuizOptions> {
+        val through = drills.indexOfFirst { it.id == "negative-past" }
+        return drills.take(through + 1).associate { it.id to learnPath.optionsFor(it, QuizOptions()) }
+    }
+
+    /**
+     * A session grades a lesson once, on all its answers: fifteen right and one slip at the
+     * end still passes and climbs, where a schedule step per answer stepped it back down.
+     */
+    @Test
+    fun aLessonIsGradedOnceOnTheWholeSession() {
+        val start = Progress(lessons = mapOf("past" to SrsState(step = 3, due = 10)))
+        val slip = start.withLessonGraded("past", List(15) { true } + false, day = 10)
+        assertEquals(4, slip.lessons.getValue("past").step)
+        val bad = start.withLessonGraded("past", List(10) { true } + List(6) { false }, day = 10)
+        assertEquals(2, bad.lessons.getValue("past").step)
+        assertEquals(11L, bad.lessons.getValue("past").due)
+        // The first time through: a pass puts it on the ladder, a fail leaves it below.
+        assertEquals(0, Progress().withLessonGraded("past", List(6) { true }, 0).lessons.getValue("past").step)
+        assertEquals(
+            Scheduler.UNLEARNED,
+            Progress().withLessonGraded("past", List(6) { false }, 0).lessons.getValue("past").step,
         )
     }
 
@@ -555,24 +613,23 @@ class LearnPathTest {
 
     @Test
     fun theDueCountIsWhatReviewWouldAskAbout() {
-        val options = reviewOptions()
-        val waiting = engine.buildSkillIndex(options).keys.toList()
-        assertTrue("review has no skills to count", waiting.size >= 2)
+        val lessons = reviewLessons().keys.toList()
+        assertTrue("review has no lessons to count", lessons.size >= 2)
 
-        // Nothing answered yet: every pairing review knows about is waiting, which is what
-        // the queue draws on. A row saying "nothing due" there would contradict the button.
-        assertEquals(waiting.size, engine.reviewLoad(options, Progress(), 10).due)
-        assertEquals(waiting.size, engine.reviewLoad(options, Progress(), 10).total)
+        // A lesson in review with no schedule cannot happen in the app, but it counts as
+        // waiting rather than as nothing: the row and the button must agree.
+        assertEquals(lessons.size, engine.reviewLoad(lessons, Progress(), 10, CAP).due)
+        assertEquals(lessons.size, engine.reviewLoad(lessons, Progress(), 10, CAP).total)
 
         val answered = Progress(
-            skills = mapOf(
-                waiting[0] to SrsState(step = 0, due = 40),
-                waiting[1] to SrsState(step = 2, due = 10),
+            lessons = mapOf(
+                lessons[0] to SrsState(step = 0, due = 40),
+                lessons[1] to SrsState(step = 2, due = 10),
             )
         )
-        assertEquals(waiting.size - 1, engine.reviewLoad(options, answered, 10).due)
-        assertEquals(waiting.size - 2, engine.reviewLoad(options, answered, 9).due)
-        assertEquals(waiting.size, engine.reviewLoad(options, answered, 40).due)
+        assertEquals(lessons.size - 1, engine.reviewLoad(lessons, answered, 10, CAP).due)
+        assertEquals(lessons.size - 2, engine.reviewLoad(lessons, answered, 9, CAP).due)
+        assertEquals(lessons.size, engine.reviewLoad(lessons, answered, 40, CAP).due)
     }
 
     /**
@@ -599,7 +656,7 @@ class LearnPathTest {
     fun aBackupRoundTripsEveryField() {
         val original = Progress(
             steps = mapOf("negative" to StepRecord(recent = 0b1011, answered = 4, ready = true)),
-            skills = mapOf("past|godan" to SrsState(step = 2, ease = 1.1, due = 20715, reps = 5, lapses = 1)),
+            lessons = mapOf("negative-past" to SrsState(step = 2, ease = 1.1, due = 20715, reps = 5, lapses = 1)),
             words = mapOf("教える" to SrsState(step = 0, ease = 0.85, due = 20700, reps = 2, lapses = 2)),
             leeches = mapOf("教える|politeness" to 3),
             sets = mapOf("set1" to CustomSet("set1", "Tricky godan", setOf("帰る", "使える"))),
@@ -611,9 +668,9 @@ class LearnPathTest {
 
     @Test
     fun anExportedBackupIsReadableText() {
-        val text = ProgressCodec.encode(Progress(skills = mapOf("past|godan" to SrsState())), indent = 2)
+        val text = ProgressCodec.encode(Progress(lessons = mapOf("negative-past" to SrsState())), indent = 2)
         assertTrue("should be multi-line so it survives being pasted around", text.contains('\n'))
-        assertTrue(text.contains("past|godan"))
+        assertTrue(text.contains("negative-past"))
     }
 
     @Test
@@ -710,31 +767,18 @@ class LearnPathTest {
         assertTrue(record.ready)
     }
 
-    /** The old ring measured every lesson so far on every word type, so later work drained it. */
+    /**
+     * A lesson's bar is its own schedule, so nothing in another lesson can move it. The old
+     * ring measured every lesson so far on every word type, and later work drained it.
+     */
     @Test
-    fun aStepsStrengthIgnoresWhatLaterStepsAdd() {
-        val first = drills.first()
-        val mature = SrsState(step = Scheduler.LADDER.size - 1)
-        val own = Progress(skills = mapOf("negative|godan" to mature, "negative|ichidan" to mature))
-        val later = own.copy(
-            skills = own.skills + ("negative|i-adjective" to SrsState()) + ("politeness|godan" to SrsState()),
-        )
-        val strength = learnPath.strength(first, own, data)
-        assertEquals(1f, strength, 0.001f)
-        assertEquals(strength, learnPath.strength(first, later, data), 0.001f)
-    }
-
-    @Test
-    fun aWordStepsStrengthIsItsWords() {
-        val step = steps.first { it.focus == QuizOptions.FOCUS_NONE && it.newBatches.isNotEmpty() }
-        val words = learnPath.newWords(step)
-        val half = words.take(words.size / 2).associateWith { SrsState(step = Scheduler.LADDER.size - 1) }
-        assertEquals(0f, learnPath.strength(step, Progress(), data), 0.001f)
-        assertEquals(
-            (words.size / 2).toFloat() / words.size,
-            learnPath.strength(step, Progress(words = half), data),
-            0.001f,
-        )
+    fun aLessonsStrengthIsItsOwnSchedule() {
+        val (first, later) = drills.take(2)
+        val own = Progress(lessons = mapOf(first.id to SrsState(step = Scheduler.LADDER.size - 1)))
+        assertEquals(1f, learnPath.strength(first, own), 0.001f)
+        val withLater = own.copy(lessons = own.lessons + (later.id to SrsState()))
+        assertEquals(1f, learnPath.strength(first, withLater), 0.001f)
+        assertEquals(0f, learnPath.strength(later, withLater), 0.001f)
     }
 
     @Test
@@ -750,13 +794,5 @@ class LearnPathTest {
     fun surroundingWhitespaceFromACopyPasteIsTolerated() {
         val text = ProgressCodec.encode(Progress(leeches = mapOf("a|past" to 2)), indent = 2)
         assertEquals(mapOf("a|past" to 2), ProgressCodec.decodeOrNull("\n\n  $text  \n")?.leeches)
-    }
-
-    @Test
-    fun skillKeysSplitBackIntoTheirFormName() {
-        val word = data.words.first { it.group == "godan" }
-        val t = data.transformations.first { it.type == "past" && !it.isTrick }
-        assertEquals("past|godan", QuizEngine.skillOf(word, t))
-        assertEquals("past", QuizEngine.typeOfSkill(QuizEngine.skillOf(word, t)))
     }
 }

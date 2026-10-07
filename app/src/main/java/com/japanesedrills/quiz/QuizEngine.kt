@@ -14,6 +14,12 @@ data class Question(
     val given: String,
     /** The accepted answers. */
     val answers: List<String>,
+    /**
+     * The lesson this question is asked for, whose schedule its answer moves; null in free
+     * practice, which records nothing. A review interleaves several lessons, but every
+     * question in it belongs to exactly one of them.
+     */
+    val lesson: String? = null,
 ) {
     fun givenDisplay(kana: Boolean): String = display(given, kana)
 
@@ -28,11 +34,14 @@ data class Question(
     private fun display(text: String, kana: Boolean) = if (kana) Furigana.toKana(text) else text
 }
 
+/** One question of a session, drawn up front: a packed pair, and the lesson it is asked for. */
+data class Drawn(val packed: Int, val lesson: String? = null)
+
 /**
  * A growable int array, so packing the pool does not box every index.
  *
- * [initialCapacity] matters because the skill index builds one of these per skill, most of
- * them small: sizing them all for the whole pool wasted most of half a megabyte per review.
+ * [initialCapacity] matters because a review builds one of these per lesson, most of them
+ * small: sizing them all for the whole pool wasted most of half a megabyte per review.
  */
 private class IntList(initialCapacity: Int = 16) {
     private var items = IntArray(initialCapacity)
@@ -74,12 +83,12 @@ private class Deck(source: IntArray, private val random: Random) {
  * trick questions. Pairs are packed as `wordIndex * transformationCount + transformationIndex`.
  */
 /**
- * How review stands: [due] of the [total] skills it covers are waiting, and the session
+ * How review stands: [due] of the [total] lessons it covers are waiting, and the session
  * would be [questions] long.
  *
  * [questions] is what the Review row shows, because it is what the learner is about to
  * spend their time on; [due] is the smaller note under it. The two move together but
- * neither can be worked out from the other, since a skill's share depends on how far up
+ * neither can be worked out from the other, since a lesson's share depends on how far up
  * the ladder it is (see [QuizEngine.buildReviewQueue]).
  *
  * [solid] is the path's gate for offering a new lesson. Not "nothing is due" — review is
@@ -205,6 +214,12 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
         val column = QuizOptions.columnOf(word.group)
         if (t.tags.any { QuizOptions.squareKey(it, column) in options.offSquares }) return false
 
+        // A lesson's own conjugations, per word group: what it teaches, and nothing it does not.
+        options.conjugations?.let { lesson ->
+            val allowed = lesson[word.group] ?: return false
+            if (t.from !in allowed || t.to !in allowed) return false
+        }
+
         return when (options.questionFocus) {
             QuizOptions.FOCUS_NONE -> true
             // Only questions that switch between a て/た-style form and a non-て/た form.
@@ -259,7 +274,9 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     /** The word a packed pair refers to, without building the whole question. */
     fun wordOf(packed: Int): Word = data.words[packed / data.transformations.size]
 
-    fun questionFor(packed: Int): Question {
+    fun questionFor(drawn: Drawn): Question = questionFor(drawn.packed, drawn.lesson)
+
+    fun questionFor(packed: Int, lesson: String? = null): Question {
         val count = data.transformations.size
         val word = data.words[packed / count]
         val t = data.transformations[packed % count]
@@ -270,144 +287,131 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
             transformation = t,
             given = word.conjugations.getValue(t.from).forms.random(random),
             answers = word.conjugations.getValue(t.to).forms,
+            lesson = lesson,
         )
     }
 
     /**
-     * The allowed pairs grouped by skill, for review scheduling.
-     *
-     * Review schedules skills rather than individual questions: there are on the order of
-     * 10^5 (word, transformation) pairs, so per-pair intervals would be meaningless. One
-     * scan per review session is cheap; picking a question is then an index lookup.
+     * Every regular question [options] allows, packed: what a review draws one lesson's
+     * questions from. Built from the lesson's own options, so nothing it asks belongs to
+     * another lesson — 書かなかった is the negative-past lesson's, never the negative's.
      */
-    fun buildSkillIndex(options: QuizOptions): Map<String, IntArray> {
+    fun pairsFor(options: QuizOptions): IntArray {
         val transformations = data.transformations
         val enabled = transformations.mapIndexed { i, t -> i to t }
             .filter { (_, t) -> !t.isTrick && t.tags.all(options::allows) }
-
-        val index = LinkedHashMap<String, IntList>()
+        val out = IntList()
         data.words.forEachIndexed { w, word ->
             if (!allowsWord(word, options)) return@forEachIndexed
             for ((t, transformation) in enabled) {
-                if (allowsPair(word, transformation, options)) {
-                    index.getOrPut(skillOf(word, transformation)) { IntList() }
-                        .add(w * transformations.size + t)
-                }
+                if (allowsPair(word, transformation, options)) out.add(w * transformations.size + t)
             }
         }
-        return index.mapValues { it.value.toIntArray() }
+        return out.toIntArray()
     }
 
-    /**
-     * Whether review would ask this skill today. A pairing it has never asked counts as
-     * due: it is the same "you have not shown me this holds up" that a lapsed one is, and
-     * the queue draws on both.
-     */
-    private fun isDueSkill(skill: String, progress: Progress, day: Long): Boolean =
-        progress.skills[skill]?.let { Scheduler.isDue(it, day) } ?: true
+    /** Whether review would ask this lesson today. */
+    private fun isDue(lesson: String, progress: Progress, day: Long): Boolean =
+        progress.lessons[lesson]?.let { Scheduler.isDue(it, day) } ?: true
 
     /**
-     * What review has waiting and what it knows about, reckoned exactly as
-     * [buildReviewQueue] reckons it: the number on the Review row, and the number the path
+     * What review has waiting among [lessons], the lessons in review, reckoned exactly as
+     * [buildReviewQueue] reckons it: the numbers on the Review row, and the one the path
      * decides against when it works out whether to recommend a new lesson.
      */
-    fun reviewLoad(options: QuizOptions, progress: Progress, day: Long): ReviewLoad {
-        val index = buildSkillIndex(options)
-        val due = index.keys.count { isDueSkill(it, progress, day) }
-        return ReviewLoad(due, index.size, reviewPlan(index, progress, day, options.reviewCap).values.sum())
+    fun reviewLoad(lessons: Collection<String>, progress: Progress, day: Long, cap: Int): ReviewLoad {
+        val due = lessons.count { isDue(it, progress, day) }
+        return ReviewLoad(due, lessons.size, reviewPlan(lessons, progress, day, cap).values.sum())
     }
 
     /**
-     * How many questions each skill this review asks has earned, longest overdue first.
+     * How many questions each lesson this review asks has earned, longest overdue first.
      *
      * The length of a review is the sum over what is due, the way a pile of Anki cards is
-     * — a fixed ten made four skills and fourteen the same morning's work. What varies
-     * here is the share per skill, because this app schedules skills rather than single
-     * questions: one question could not say whether godan past tense still holds up.
+     * — a fixed ten made four lessons and fourteen the same morning's work. What varies
+     * here is the share per lesson, because a lesson is many questions: one could not say
+     * whether the past tense still holds up.
      *
      * The share *rises* with the ladder, which is the opposite of what it looks like it
      * should do. Weakness is already paid for twice — a lapse comes back tomorrow while a
-     * mature skill waits ninety days, and inside a skill [pickForSkill] serves leeches and
-     * due words first — so paying for it a third time in volume only buys the learner a
+     * mature lesson waits ninety days, and inside a lesson [pickForLesson] serves leeches
+     * and due words first — so paying for it a third time in volume only buys the learner a
      * long session of the questions they are most likely to get wrong. What the share is
-     * for is evening out the *time*: a rung-zero skill is slow and hesitant where a mature
+     * for is evening out the *time*: a rung-zero lesson is slow and hesitant where a mature
      * one is recall, so fewer of the former costs about as many minutes as more of the
      * latter. The ramp is deliberately shallow: a steep one would make the morning after a
      * bad session the shortest review of the week, which is when there is most to do.
      */
-    private fun reviewPlan(
-        index: Map<String, IntArray>,
-        progress: Progress,
-        day: Long,
-        cap: Int,
-    ): Map<String, Int> {
+    private fun reviewPlan(lessons: Collection<String>, progress: Progress, day: Long, cap: Int): Map<String, Int> {
         // Nothing due still builds a session, so the Review button is never a dead end.
-        val due = index.keys.filter { isDueSkill(it, progress, day) }.ifEmpty { index.keys.toList() }
+        val due = lessons.filter { isDue(it, progress, day) }.ifEmpty { lessons.toList() }
         // Shuffled, then ordered by how long it has been waiting: the shuffle is what
         // breaks the ties, which is most of them, so a capped session is not always the
-        // same skills in the same order as the index happens to list them.
+        // same lessons in the same order as the path happens to list them.
         val ordered = due.shuffled(random)
-            .sortedBy { progress.skills[it]?.due ?: Long.MIN_VALUE }
+            .sortedBy { progress.lessons[it]?.due ?: Long.MIN_VALUE }
 
         val plan = LinkedHashMap<String, Int>()
         var budget = cap
-        for (skill in ordered) {
+        for (lesson in ordered) {
             if (budget == 0) break
-            val share = questionsForSkill(progress.skills[skill]).coerceAtMost(budget)
-            plan[skill] = share
+            val share = questionsForLesson(progress.lessons[lesson]).coerceAtMost(budget)
+            plan[lesson] = share
             budget -= share
         }
         return plan
     }
 
-    /** A skill's share of a review: [MIN_PER_SKILL] on the bottom rung, [MAX_PER_SKILL] on the top. */
-    private fun questionsForSkill(state: SrsState?): Int {
-        val spread = (MAX_PER_SKILL - MIN_PER_SKILL) * Scheduler.strength(state ?: SrsState())
-        return MIN_PER_SKILL + spread.roundToInt()
+    /** A lesson's share of a review: [MIN_PER_LESSON] on the bottom rung, [MAX_PER_LESSON] on the top. */
+    private fun questionsForLesson(state: SrsState?): Int {
+        val spread = (MAX_PER_LESSON - MIN_PER_LESSON) * Scheduler.strength(state ?: SrsState())
+        return MIN_PER_LESSON + spread.roundToInt()
     }
 
     /**
-     * A review session's questions, taking one skill at a time in turn so the session
-     * interleaves them rather than blocking one skill at a time. Interleaving feels harder
-     * and retains better, which is the whole point of a review. How many each skill gets
+     * A review session's questions, each drawn from one lesson's own pool ([lessons] gives
+     * each lesson in review its options), taking the lessons one at a time in turn so the
+     * session interleaves them rather than blocking one at a time. Interleaving feels harder
+     * and retains better, which is the whole point of a review. How many each lesson gets
      * is [reviewPlan].
      */
-    fun buildReviewQueue(options: QuizOptions, progress: Progress, day: Long): List<Int> {
-        val index = buildSkillIndex(options)
-        if (index.isEmpty()) return emptyList()
-
-        val plan = reviewPlan(index, progress, day, options.reviewCap)
-        val left = LinkedHashMap(plan)
-        // The lap order is not the plan's order, which is by how overdue a skill is: that
+    fun buildReviewQueue(lessons: Map<String, QuizOptions>, progress: Progress, day: Long, cap: Int): List<Drawn> {
+        val plan = reviewPlan(lessons.keys, progress, day, cap)
+        val pools = plan.keys.associateWith { pairsFor(lessons.getValue(it)) }.filterValues { it.isNotEmpty() }
+        val left = plan.filterKeys { it in pools }.toMutableMap()
+        // The lap order is not the plan's order, which is by how overdue a lesson is: that
         // decides who gets in under the cap, not who is asked first.
-        val lap = plan.keys.shuffled(random)
-        val count = plan.values.sum()
+        val lap = left.keys.shuffled(random)
+        val count = left.values.sum()
 
-        val queue = ArrayList<Int>(count)
+        val queue = ArrayList<Drawn>(count)
         val asked = HashSet<Int>()
         while (queue.size < count) {
-            for (skill in lap) {
+            for (lesson in lap) {
                 if (queue.size == count) break
-                val remaining = left.getValue(skill)
+                val remaining = left.getValue(lesson)
                 if (remaining == 0) continue
-                left[skill] = remaining - 1
-                val picked = pickForSkill(index.getValue(skill), progress, day, typeOfSkill(skill), asked)
+                left[lesson] = remaining - 1
+                val picked = pickForLesson(pools.getValue(lesson), progress, day, asked)
                 asked += picked
-                queue += picked
+                queue += Drawn(picked, lesson)
             }
         }
         return queue
     }
 
+    /** The leech key of a packed pair: its word, and the grammar its question is about. */
+    private fun leechOf(packed: Int): String =
+        Progress.leechKey(wordOf(packed).key, data.transformations[packed % data.transformations.size].type)
+
     /**
-     * Within a skill, a leech beats a due word beats anything else, and anything not yet
-     * asked this session beats a repeat. Without that last rule a skill with one leech
+     * Within a lesson, a leech beats a due word beats anything else, and anything not yet
+     * asked this session beats a repeat. Without that last rule a lesson with one leech
      * asked that same question every time the cycle came round to it.
      */
-    private fun pickForSkill(entries: IntArray, progress: Progress, day: Long, type: String, asked: Set<Int>): Int {
+    private fun pickForLesson(entries: IntArray, progress: Progress, day: Long, asked: Set<Int>): Int {
         pickWhere(entries) { packed ->
-            packed !in asked &&
-                (progress.leeches[Progress.leechKey(wordOf(packed).key, type)] ?: 0) >= Progress.LEECH_THRESHOLD
+            packed !in asked && (progress.leeches[leechOf(packed)] ?: 0) >= Progress.LEECH_THRESHOLD
         }?.let { return it }
 
         pickWhere(entries) { packed ->
@@ -422,7 +426,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     /**
      * One matching entry, chosen uniformly, in a single pass.
      *
-     * A broad skill holds thousands of packed pairs once the vocabulary opens up, and
+     * A broad lesson holds thousands of packed pairs once the vocabulary opens up, and
      * filtering it into a list would box every candidate just to pick one of them.
      */
     private inline fun pickWhere(entries: IntArray, matches: (Int) -> Boolean): Int? {
@@ -438,20 +442,8 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     }
 
     companion object {
-        private const val MIN_PER_SKILL = 6
-        private const val MAX_PER_SKILL = 16
-
-        /**
-         * The unit spaced repetition schedules: a grammar operation on a word class.
-         * Godan て-form and ichidan て-form are different skills because one is a table of
-         * exceptions and the other is a single rule.
-         */
-        fun skillOf(word: Word, t: Transformation): String = skillKey(t.type, word.group)
-
-        fun skillKey(type: String, group: String): String = "$type|$group"
-
-        /** The half of a skill key naming the grammar. */
-        fun typeOfSkill(skill: String): String = skill.substringBefore('|')
+        private const val MIN_PER_LESSON = 6
+        private const val MAX_PER_LESSON = 16
 
         private val japaneseText = Regex(
             // From U+3000 rather than the kana blocks, so the iteration mark 々 (U+3005)

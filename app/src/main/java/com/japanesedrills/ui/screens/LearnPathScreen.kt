@@ -242,9 +242,8 @@ private fun count(n: Int, noun: String): String =
 
 /**
  * What review would cost, not how much is waiting: the length of the session is what the
- * learner is deciding about, and it is no longer a fixed number. What is waiting goes in
- * the note underneath, where a skill is called a kind of question — the pairing of a form
- * with a word class has no name on this screen and does not need one.
+ * learner is deciding about, and it is no longer a fixed number. How many lessons are
+ * waiting goes in the note underneath.
  */
 @Composable
 private fun ReviewRow(state: DrillUiState, onReview: () -> Unit, lead: Boolean) {
@@ -252,7 +251,7 @@ private fun ReviewRow(state: DrillUiState, onReview: () -> Unit, lead: Boolean) 
     PanelRow(
         label = "Review",
         line = if (due == 0) "Nothing due" else count(state.dueQuestions, "question"),
-        note = if (due == 0) null else "across ${count(due, "kind")} of question",
+        note = if (due == 0) null else "across ${count(due, "lesson")}",
         lead = lead,
         action = "Review",
         icon = Icons.Default.Refresh,

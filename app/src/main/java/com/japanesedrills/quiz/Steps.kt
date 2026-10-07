@@ -1,6 +1,5 @@
 package com.japanesedrills.quiz
 
-import com.japanesedrills.data.DrillData
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -30,6 +29,23 @@ data class Step(
     val newClasses: List<String>,
     val questions: Int,
     /**
+     * What this lesson asks, per word group: the conjugations its questions go between. A
+     * compound is listed only once every rule it is built from has been taught, so the
+     * negative past is not asked before ない has been shown to be an い-adjective. Worked
+     * out by tools/steps/generate.py; the app only obeys it.
+     */
+    val conjugations: Map<String, Set<String>> = emptyMap(),
+    /**
+     * What this lesson newly builds, and on which word groups: the introduction shows how
+     * each of these is made, on those groups' example words and no others.
+     */
+    val builds: Map<String, Set<String>> = emptyMap(),
+    /**
+     * The one thing the introduction leads with — usually that an ending conjugates as a
+     * class already taught, which is what lets its compounds be asked at all.
+     */
+    val point: String? = null,
+    /**
      * A lesson that is read rather than drilled — the Conjugation Intro, which opens the
      * path. It has no forms, no words and no questions, so nothing that builds a pool or
      * measures review applies to it; it is done once it has been opened.
@@ -51,23 +67,18 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
     fun newWords(step: Step): List<String> = step.newBatches.flatMap { batches[it].orEmpty() }
 
     /**
-     * The options a set of vocabulary and forms is drilled with, used both for a step and
-     * for a review spanning everything practised. Word groups and levels are wide open
-     * because [QuizOptions.wordKeys] already pins the exact vocabulary; the display
-     * preferences ride along from [base] so kana/furigana choices still apply.
+     * The options a lesson is drilled with, in its own session and in review alike. Word
+     * groups are wide open because [QuizOptions.wordKeys] already pins the exact vocabulary
+     * and [QuizOptions.conjugations] the exact grammar; the display preferences ride along
+     * from [base] so kana/furigana choices still apply.
      *
-     * One builder for both, so a step and the review that follows it can never end up
-     * playing by different rules.
+     * One builder for both, so a lesson and its review can never end up playing by
+     * different rules.
      */
-    fun optionsFor(
-        words: Set<String>,
-        forms: Set<String>,
-        base: QuizOptions,
-        focus: String = QuizOptions.FOCUS_NONE,
-    ): QuizOptions {
+    fun optionsFor(step: Step, base: QuizOptions): QuizOptions {
         val flags = QuizOptions.DEFAULT_FLAGS.mapValues { (key, _) ->
             when (key) {
-                in QuizOptions.FORM_KEYS -> key in forms
+                in QuizOptions.FORM_KEYS -> key in step.forms
                 in QuizOptions.GROUP_KEYS -> true
                 // Trick questions are a free-practice spice: they exist to catch you out,
                 // which is not what the path is for.
@@ -77,40 +88,26 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
         }
         return QuizOptions(
             flags = flags,
-            questionFocus = focus,
+            questionFocus = step.focus,
             theme = base.theme,
             palette = base.palette,
             furigana = base.furigana,
             reviewCap = base.reviewCap,
-            wordKeys = words,
+            wordKeys = words(step),
+            conjugations = step.conjugations,
         )
     }
 
-    fun optionsFor(step: Step, base: QuizOptions): QuizOptions =
-        optionsFor(words(step), step.forms, base, step.focus)
+    /** The lessons review covers: every drilled one that has been graded at least once. */
+    fun inReview(progress: Progress): List<Step> = steps.filter { !it.reading && it.id in progress.lessons }
 
     /**
-     * How well the step's own content is holding up, 0f..1f, for the bar on its row: the
-     * average review strength of what it is about, counting what has never been answered
-     * as nothing. A form step is about its form on the word types it drills, a word step
-     * about its new words. Nothing added by a later step can move it.
-     *
-     * The average rather than the weakest item, so one slip shortens the bar instead of
-     * emptying it.
+     * How well the lesson is holding up, 0f..1f, for the bar on its row: how far up the
+     * ladder its own schedule is. It moves on this lesson's answers alone, so nothing
+     * learned or forgotten in a later lesson can move it.
      */
-    fun strength(step: Step, progress: Progress, data: DrillData): Float {
-        val strengths = if (step.focus == QuizOptions.FOCUS_NONE) {
-            newWords(step).map { progress.words[it] }
-        } else {
-            val forms = TransformationBuilder.formsOfType(step.focus)
-            words(step).mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
-                // Only word types that have the form: ある has no potential to be strong in.
-                .filter { group -> data.groupForms[group].orEmpty().any(forms::contains) }
-                .map { progress.skills[QuizEngine.skillKey(step.focus, it)] }
-        }
-        if (strengths.isEmpty()) return 0f
-        return strengths.sumOf { state -> state?.let(Scheduler::strength)?.toDouble() ?: 0.0 }.toFloat() / strengths.size
-    }
+    fun strength(step: Step, progress: Progress): Float =
+        progress.lessons[step.id]?.let(Scheduler::strength) ?: 0f
 
     companion object {
         fun parse(json: String): LearnPath {
@@ -134,6 +131,9 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
                     newForms = obj.getJSONArray("newForms").strings(),
                     newClasses = obj.getJSONArray("newClasses").strings(),
                     questions = obj.getInt("questions"),
+                    conjugations = obj.getJSONObject("conjugations").stringSets(),
+                    builds = obj.getJSONObject("builds").stringSets(),
+                    point = obj.optString("point").ifEmpty { null },
                     reading = obj.optString("kind") == "read",
                 )
             }
@@ -141,5 +141,8 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
         }
 
         private fun JSONArray.strings(): List<String> = (0 until length()).map { getString(it) }
+
+        private fun JSONObject.stringSets(): Map<String, Set<String>> =
+            keys().asSequence().associateWith { getJSONArray(it).strings().toSet() }
     }
 }

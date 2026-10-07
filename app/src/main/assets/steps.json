@@ -10,6 +10,16 @@
       "会う",
       "寝る"
     ],
+    "i-adjectives": [
+      "うるさい",
+      "つまらない",
+      "低い",
+      "冷たい",
+      "危ない",
+      "古い",
+      "可愛い",
+      "多い"
+    ],
     "verbs-2": [
       "住む",
       "教える",
@@ -48,16 +58,6 @@
       "変える",
       "座る",
       "始める"
-    ],
-    "i-adjectives": [
-      "うるさい",
-      "つまらない",
-      "低い",
-      "冷たい",
-      "危ない",
-      "古い",
-      "可愛い",
-      "多い"
     ],
     "ii": [
       "いい"
@@ -258,7 +258,7 @@
       "id": "conjugation-intro",
       "title": "Conjugation Intro",
       "subtitle": "How a Japanese verb changes shape",
-      "chapter": "Plain verb forms",
+      "chapter": "The plain forms",
       "kind": "read",
       "forms": [],
       "focus": "none",
@@ -266,13 +266,15 @@
       "newBatches": [],
       "newForms": [],
       "newClasses": [],
-      "questions": 0
+      "questions": 0,
+      "conjugations": {},
+      "builds": {}
     },
     {
       "id": "negative",
       "title": "Negative",
       "subtitle": "Saying something does not happen",
-      "chapter": "Plain verb forms",
+      "chapter": "The plain forms",
       "forms": [
         "plain",
         "negative"
@@ -288,16 +290,31 @@
         "negative"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative"
+        ]
+      },
+      "builds": {
+        "negative": [
+          "godan",
+          "ichidan"
+        ]
+      }
     },
     {
       "id": "past",
       "title": "Past",
       "subtitle": "Saying something already happened",
-      "chapter": "Plain verb forms",
+      "chapter": "The plain forms",
       "forms": [
         "plain",
-        "negative",
         "past"
       ],
       "focus": "past",
@@ -309,13 +326,134 @@
         "past"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "past"
+        ],
+        "ichidan": [
+          "dictionary",
+          "past"
+        ]
+      },
+      "builds": {
+        "past": [
+          "godan",
+          "ichidan"
+        ]
+      }
+    },
+    {
+      "id": "i-adjectives-negative",
+      "title": "い-adjectives · Negative",
+      "subtitle": "Adjectives that conjugate on their own",
+      "chapter": "The plain forms",
+      "forms": [
+        "plain",
+        "negative"
+      ],
+      "focus": "negative",
+      "batches": [
+        "i-adjectives"
+      ],
+      "newBatches": [
+        "i-adjectives"
+      ],
+      "newForms": [],
+      "newClasses": [
+        "i-adjective"
+      ],
+      "questions": 12,
+      "conjugations": {
+        "i-adjective": [
+          "dictionary",
+          "negative"
+        ]
+      },
+      "builds": {
+        "negative": [
+          "i-adjective"
+        ]
+      },
+      "point": "Every negative so far ends in ない, and ない is an い-adjective itself. Whatever an い-adjective does, ない does too — which is where the next lesson starts."
+    },
+    {
+      "id": "i-adjectives-past",
+      "title": "い-adjectives · Past",
+      "subtitle": "Adjectives that conjugate on their own",
+      "chapter": "The plain forms",
+      "forms": [
+        "plain",
+        "past"
+      ],
+      "focus": "past",
+      "batches": [
+        "i-adjectives"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 12,
+      "conjugations": {
+        "i-adjective": [
+          "dictionary",
+          "past"
+        ]
+      },
+      "builds": {
+        "past": [
+          "i-adjective"
+        ]
+      }
+    },
+    {
+      "id": "negative-past",
+      "title": "Negative past",
+      "subtitle": "ない is an い-adjective",
+      "chapter": "The plain forms",
+      "forms": [
+        "plain",
+        "negative",
+        "past"
+      ],
+      "focus": "past",
+      "batches": [
+        "verbs-1",
+        "i-adjectives"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "negative",
+          "past negative"
+        ],
+        "i-adjective": [
+          "negative",
+          "past negative"
+        ],
+        "ichidan": [
+          "negative",
+          "past negative"
+        ]
+      },
+      "builds": {
+        "past negative": [
+          "godan",
+          "i-adjective",
+          "ichidan"
+        ]
+      },
+      "point": "The past of a negative is the い-adjective past of ない: replace its い with かった. 書[か]かない → 書[か]かなかった, exactly as 高[たか]くない → 高[たか]くなかった."
     },
     {
       "id": "verbs-2",
       "title": "More verbs",
       "subtitle": "Eight more everyday verbs",
-      "chapter": "Plain verb forms",
+      "chapter": "The plain forms",
       "forms": [
         "plain",
         "negative",
@@ -330,17 +468,30 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "te-form",
       "title": "て-form",
       "subtitle": "The connector half the grammar is built on",
-      "chapter": "Plain verb forms",
+      "chapter": "The plain forms",
       "forms": [
         "plain",
-        "negative",
-        "past",
         "te-form"
       ],
       "focus": "te-form",
@@ -353,7 +504,71 @@
         "te-form"
       ],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "te-form"
+        ],
+        "ichidan": [
+          "dictionary",
+          "te-form"
+        ]
+      },
+      "builds": {
+        "te-form": [
+          "godan",
+          "ichidan"
+        ]
+      }
+    },
+    {
+      "id": "te-form-adjectives",
+      "title": "Adjective て-form",
+      "subtitle": "And the て-form of ない",
+      "chapter": "The plain forms",
+      "forms": [
+        "plain",
+        "negative",
+        "te-form"
+      ],
+      "focus": "te-form",
+      "batches": [
+        "verbs-1",
+        "i-adjectives",
+        "verbs-2"
+      ],
+      "newBatches": [],
+      "newForms": [],
+      "newClasses": [],
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "negative",
+          "te-form negative"
+        ],
+        "i-adjective": [
+          "dictionary",
+          "negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "ichidan": [
+          "negative",
+          "te-form negative"
+        ]
+      },
+      "builds": {
+        "te-form": [
+          "i-adjective"
+        ],
+        "te-form negative": [
+          "godan",
+          "i-adjective",
+          "ichidan"
+        ]
+      },
+      "point": "An い-adjective replaces its い with くて: 高[たか]い → 高[たか]くて. ない is one, so the て-form of a negative is なくて: 書[か]かない → 書[か]かなくて."
     },
     {
       "id": "irregular-negative",
@@ -377,7 +592,28 @@
         "kuru",
         "iku"
       ],
-      "questions": 6
+      "questions": 6,
+      "conjugations": {
+        "iku": [
+          "dictionary",
+          "negative"
+        ],
+        "kuru": [
+          "dictionary",
+          "negative"
+        ],
+        "suru": [
+          "dictionary",
+          "negative"
+        ]
+      },
+      "builds": {
+        "negative": [
+          "iku",
+          "kuru",
+          "suru"
+        ]
+      }
     },
     {
       "id": "irregular-past",
@@ -386,7 +622,6 @@
       "chapter": "The irregular verbs",
       "forms": [
         "plain",
-        "negative",
         "past"
       ],
       "focus": "past",
@@ -396,7 +631,28 @@
       "newBatches": [],
       "newForms": [],
       "newClasses": [],
-      "questions": 6
+      "questions": 6,
+      "conjugations": {
+        "iku": [
+          "dictionary",
+          "past"
+        ],
+        "kuru": [
+          "dictionary",
+          "past"
+        ],
+        "suru": [
+          "dictionary",
+          "past"
+        ]
+      },
+      "builds": {
+        "past": [
+          "iku",
+          "kuru",
+          "suru"
+        ]
+      }
     },
     {
       "id": "irregular-te-form",
@@ -405,8 +661,6 @@
       "chapter": "The irregular verbs",
       "forms": [
         "plain",
-        "negative",
-        "past",
         "te-form"
       ],
       "focus": "te-form",
@@ -416,7 +670,28 @@
       "newBatches": [],
       "newForms": [],
       "newClasses": [],
-      "questions": 6
+      "questions": 6,
+      "conjugations": {
+        "iku": [
+          "dictionary",
+          "te-form"
+        ],
+        "kuru": [
+          "dictionary",
+          "te-form"
+        ],
+        "suru": [
+          "dictionary",
+          "te-form"
+        ]
+      },
+      "builds": {
+        "te-form": [
+          "iku",
+          "kuru",
+          "suru"
+        ]
+      }
     },
     {
       "id": "verbs-3",
@@ -438,7 +713,26 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "existence",
@@ -463,7 +757,27 @@
         "aru",
         "iru"
       ],
-      "questions": 10
+      "questions": 10,
+      "conjugations": {
+        "aru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "iru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {},
+      "point": "ある's negative is simply ない — the same ない every negative ends in, so its past is なかった and its て-form なくて."
     },
     {
       "id": "progressive",
@@ -474,7 +788,6 @@
         "plain",
         "negative",
         "past",
-        "te-form",
         "progressive"
       ],
       "focus": "progressive",
@@ -489,7 +802,69 @@
         "progressive"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative"
+        ],
+        "iku": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative"
+        ],
+        "kuru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative"
+        ],
+        "suru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative"
+        ]
+      },
+      "builds": {
+        "progressive": [
+          "godan",
+          "ichidan",
+          "iku",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "ている is the verb いる after a て-form, and conjugates exactly like it: 食[た]べていない, 食[た]べていた, 食[た]べていなかった."
     },
     {
       "id": "verbs-4",
@@ -512,68 +887,34 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
-    },
-    {
-      "id": "i-adjectives-negative",
-      "title": "い-adjectives · Negative",
-      "subtitle": "Adjectives that conjugate like verbs",
-      "chapter": "Adjectives",
-      "forms": [
-        "plain",
-        "negative"
-      ],
-      "focus": "negative",
-      "batches": [
-        "i-adjectives"
-      ],
-      "newBatches": [
-        "i-adjectives"
-      ],
-      "newForms": [],
-      "newClasses": [
-        "i-adjective"
-      ],
-      "questions": 12
-    },
-    {
-      "id": "i-adjectives-past",
-      "title": "い-adjectives · Past",
-      "subtitle": "Adjectives that conjugate like verbs",
-      "chapter": "Adjectives",
-      "forms": [
-        "plain",
-        "negative",
-        "past"
-      ],
-      "focus": "past",
-      "batches": [
-        "i-adjectives"
-      ],
-      "newBatches": [],
-      "newForms": [],
-      "newClasses": [],
-      "questions": 12
-    },
-    {
-      "id": "i-adjectives-te-form",
-      "title": "い-adjectives · て-form",
-      "subtitle": "Adjectives that conjugate like verbs",
-      "chapter": "Adjectives",
-      "forms": [
-        "plain",
-        "negative",
-        "past",
-        "te-form"
-      ],
-      "focus": "te-form",
-      "batches": [
-        "i-adjectives"
-      ],
-      "newBatches": [],
-      "newForms": [],
-      "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "ii",
@@ -584,8 +925,7 @@
         "plain",
         "negative",
         "past",
-        "te-form",
-        "progressive"
+        "te-form"
       ],
       "focus": "none",
       "batches": [
@@ -598,7 +938,18 @@
       "newClasses": [
         "ii"
       ],
-      "questions": 10
+      "questions": 10,
+      "conjugations": {
+        "ii": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "adjectives-1",
@@ -609,8 +960,7 @@
         "plain",
         "negative",
         "past",
-        "te-form",
-        "progressive"
+        "te-form"
       ],
       "focus": "none",
       "batches": [
@@ -621,7 +971,18 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "i-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "na-adjectives-negative",
@@ -643,7 +1004,19 @@
       "newClasses": [
         "na-adjective"
       ],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "na-adjective": [
+          "dictionary",
+          "negative"
+        ]
+      },
+      "builds": {
+        "negative": [
+          "na-adjective"
+        ]
+      },
+      "point": "The negative じゃない ends in ない again, so it carries on as an い-adjective: じゃなかった, じゃなくて."
     },
     {
       "id": "na-adjectives-past",
@@ -652,7 +1025,6 @@
       "chapter": "Adjectives",
       "forms": [
         "plain",
-        "negative",
         "past"
       ],
       "focus": "past",
@@ -662,7 +1034,18 @@
       "newBatches": [],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "na-adjective": [
+          "dictionary",
+          "past"
+        ]
+      },
+      "builds": {
+        "past": [
+          "na-adjective"
+        ]
+      }
     },
     {
       "id": "na-adjectives-te-form",
@@ -671,8 +1054,6 @@
       "chapter": "Adjectives",
       "forms": [
         "plain",
-        "negative",
-        "past",
         "te-form"
       ],
       "focus": "te-form",
@@ -682,7 +1063,18 @@
       "newBatches": [],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "na-adjective": [
+          "dictionary",
+          "te-form"
+        ]
+      },
+      "builds": {
+        "te-form": [
+          "na-adjective"
+        ]
+      }
     },
     {
       "id": "adjectives-2",
@@ -693,8 +1085,7 @@
         "plain",
         "negative",
         "past",
-        "te-form",
-        "progressive"
+        "te-form"
       ],
       "focus": "none",
       "batches": [
@@ -705,7 +1096,26 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "i-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "na-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "suru-1",
@@ -728,7 +1138,22 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "suru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "potential",
@@ -738,9 +1163,6 @@
       "forms": [
         "plain",
         "negative",
-        "past",
-        "te-form",
-        "progressive",
         "potential"
       ],
       "focus": "potential",
@@ -758,7 +1180,56 @@
         "potential"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "potential",
+          "potential negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "potential",
+          "potential negative"
+        ],
+        "iku": [
+          "dictionary",
+          "negative",
+          "potential",
+          "potential negative"
+        ],
+        "iru": [
+          "dictionary",
+          "negative",
+          "potential",
+          "potential negative"
+        ],
+        "kuru": [
+          "dictionary",
+          "negative",
+          "potential",
+          "potential negative"
+        ],
+        "suru": [
+          "dictionary",
+          "negative",
+          "potential",
+          "potential negative"
+        ]
+      },
+      "builds": {
+        "potential": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "Every potential is an ordinary ichidan verb: 書[か]ける conjugates like 食[た]べる, so 書[か]けない and 書[か]けた need nothing new."
     },
     {
       "id": "verbs-5",
@@ -782,7 +1253,38 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "volitional",
@@ -791,11 +1293,6 @@
       "chapter": "Ability, intention and desire",
       "forms": [
         "plain",
-        "negative",
-        "past",
-        "te-form",
-        "progressive",
-        "potential",
         "volitional"
       ],
       "focus": "volitional",
@@ -814,7 +1311,48 @@
         "volitional"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "aru": [
+          "dictionary",
+          "volitional"
+        ],
+        "godan": [
+          "dictionary",
+          "volitional"
+        ],
+        "ichidan": [
+          "dictionary",
+          "volitional"
+        ],
+        "iku": [
+          "dictionary",
+          "volitional"
+        ],
+        "iru": [
+          "dictionary",
+          "volitional"
+        ],
+        "kuru": [
+          "dictionary",
+          "volitional"
+        ],
+        "suru": [
+          "dictionary",
+          "volitional"
+        ]
+      },
+      "builds": {
+        "volitional": [
+          "aru",
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      }
     },
     {
       "id": "desire",
@@ -826,9 +1364,6 @@
         "negative",
         "past",
         "te-form",
-        "progressive",
-        "potential",
-        "volitional",
         "desire"
       ],
       "focus": "desire",
@@ -847,7 +1382,104 @@
         "desire"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "ichidan": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "iku": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "iru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "kuru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "suru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {
+        "desire": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "たい is an い-adjective: 書[か]きたくない, 書[か]きたかった and 書[か]きたくて are 高[たか]い's endings on 書[か]きたい."
     },
     {
       "id": "suru-2",
@@ -860,9 +1492,9 @@
         "past",
         "te-form",
         "progressive",
-        "potential",
+        "desire",
         "volitional",
-        "desire"
+        "potential"
       ],
       "focus": "none",
       "batches": [
@@ -873,7 +1505,31 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "suru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "conditional",
@@ -883,22 +1539,20 @@
       "forms": [
         "plain",
         "negative",
-        "past",
-        "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
         "conditional"
       ],
       "focus": "conditional",
       "batches": [
         "verbs-1",
+        "i-adjectives",
         "verbs-2",
         "irregular",
         "verbs-3",
         "existence",
         "verbs-4",
+        "ii",
+        "adjectives-1",
+        "adjectives-2",
         "suru-1",
         "verbs-5",
         "suru-2"
@@ -908,7 +1562,88 @@
         "conditional"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "aru": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "godan": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "i-adjective": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "ichidan": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "ii": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "iku": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "iru": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "kuru": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ],
+        "suru": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative"
+        ]
+      },
+      "builds": {
+        "conditional": [
+          "aru",
+          "godan",
+          "i-adjective",
+          "ichidan",
+          "ii",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ],
+        "conditional negative": [
+          "aru",
+          "godan",
+          "i-adjective",
+          "ichidan",
+          "ii",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "たら is the past with ら added, whatever the word: 書[か]いたら, 高[たか]かったら, and for a negative, なかった → なかったら."
     },
     {
       "id": "provisional",
@@ -918,23 +1653,20 @@
       "forms": [
         "plain",
         "negative",
-        "past",
-        "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
-        "conditional",
         "provisional"
       ],
       "focus": "provisional",
       "batches": [
         "verbs-1",
+        "i-adjectives",
         "verbs-2",
         "irregular",
         "verbs-3",
         "existence",
         "verbs-4",
+        "ii",
+        "adjectives-1",
+        "adjectives-2",
         "suru-1",
         "verbs-5",
         "suru-2"
@@ -944,7 +1676,88 @@
         "provisional"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "aru": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "godan": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "i-adjective": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "ii": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "iku": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "iru": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "kuru": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ],
+        "suru": [
+          "dictionary",
+          "negative",
+          "provisional",
+          "provisional negative"
+        ]
+      },
+      "builds": {
+        "provisional": [
+          "aru",
+          "godan",
+          "i-adjective",
+          "ichidan",
+          "ii",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ],
+        "provisional negative": [
+          "aru",
+          "godan",
+          "i-adjective",
+          "ichidan",
+          "ii",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "An い-adjective replaces its い with ければ: 高[たか]い → 高[たか]ければ. ない is one, so a negative becomes なければ: 書[か]かない → 書[か]かなければ."
     },
     {
       "id": "verbs-6",
@@ -957,9 +1770,9 @@
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional"
       ],
@@ -972,7 +1785,60 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "godan": [
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ],
+        "ichidan": [
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "imperative",
@@ -982,14 +1848,6 @@
       "forms": [
         "plain",
         "negative",
-        "past",
-        "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
-        "conditional",
-        "provisional",
         "imperative"
       ],
       "focus": "imperative",
@@ -1010,7 +1868,68 @@
         "imperative"
       ],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "aru": [
+          "imperative negative",
+          "negative"
+        ],
+        "godan": [
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative"
+        ],
+        "iku": [
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative"
+        ],
+        "iru": [
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative"
+        ],
+        "kuru": [
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative"
+        ],
+        "suru": [
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative"
+        ]
+      },
+      "builds": {
+        "imperative": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ],
+        "imperative negative": [
+          "aru",
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      }
     },
     {
       "id": "adjectives-3",
@@ -1022,13 +1941,8 @@
         "negative",
         "past",
         "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
         "conditional",
-        "provisional",
-        "imperative"
+        "provisional"
       ],
       "focus": "none",
       "batches": [
@@ -1039,7 +1953,30 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "i-adjective": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "na-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "passive",
@@ -1051,13 +1988,6 @@
         "negative",
         "past",
         "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
-        "conditional",
-        "provisional",
-        "imperative",
         "passive"
       ],
       "focus": "passive",
@@ -1078,7 +2008,92 @@
         "passive"
       ],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "godan": [
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "te-form"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "te-form"
+        ],
+        "iku": [
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "te-form"
+        ],
+        "iru": [
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "te-form"
+        ],
+        "kuru": [
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "te-form"
+        ],
+        "suru": [
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "te-form"
+        ]
+      },
+      "builds": {
+        "passive": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "Every passive is an ordinary ichidan verb, so it takes every form you know: 書[か]かれない, 書[か]かれた."
     },
     {
       "id": "verbs-7",
@@ -1091,9 +2106,9 @@
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional",
         "imperative",
@@ -1108,7 +2123,74 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 12
+      "questions": 12,
+      "conjugations": {
+        "godan": [
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ],
+        "ichidan": [
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "causative",
@@ -1119,14 +2201,6 @@
         "plain",
         "negative",
         "past",
-        "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
-        "conditional",
-        "provisional",
-        "imperative",
         "passive",
         "causative"
       ],
@@ -1149,7 +2223,128 @@
         "causative"
       ],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "godan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "past",
+          "past negative"
+        ],
+        "ichidan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "past",
+          "past negative"
+        ],
+        "iku": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "past",
+          "past negative"
+        ],
+        "iru": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "past",
+          "past negative"
+        ],
+        "kuru": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "past",
+          "past negative"
+        ],
+        "suru": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "dictionary",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "past",
+          "past negative"
+        ]
+      },
+      "builds": {
+        "causative": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      },
+      "point": "Every causative is an ordinary ichidan verb too — so it has a passive of its own: 書[か]かせる → 書[か]かせられる."
     },
     {
       "id": "verbs-8",
@@ -1162,9 +2357,9 @@
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional",
         "imperative",
@@ -1180,7 +2375,90 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 14
+      "questions": 14,
+      "conjugations": {
+        "godan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ],
+        "ichidan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "polite-basics",
@@ -1189,19 +2467,19 @@
       "chapter": "The polite layer",
       "forms": [
         "plain",
+        "polite",
         "negative",
-        "past",
-        "polite"
+        "past"
       ],
       "focus": "politeness",
       "batches": [
         "verbs-1",
+        "i-adjectives",
         "verbs-2",
         "irregular",
         "verbs-3",
         "existence",
         "verbs-4",
-        "i-adjectives",
         "ii",
         "adjectives-1",
         "na-adjectives",
@@ -1219,7 +2497,123 @@
         "polite"
       ],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "aru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "godan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "i-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "ichidan": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "ii": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "iku": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "iru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "kuru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "na-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ],
+        "suru": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative"
+        ]
+      },
+      "builds": {
+        "polite": [
+          "aru",
+          "godan",
+          "i-adjective",
+          "ichidan",
+          "ii",
+          "iku",
+          "iru",
+          "kuru",
+          "na-adjective",
+          "suru"
+        ]
+      }
     },
     {
       "id": "polite-everywhere",
@@ -1228,19 +2622,14 @@
       "chapter": "The polite layer",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
-        "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
-        "conditional",
-        "provisional",
-        "imperative",
-        "passive",
-        "causative",
-        "polite"
+        "volitional",
+        "potential",
+        "passive"
       ],
       "focus": "politeness",
       "batches": [
@@ -1250,23 +2639,249 @@
         "verbs-3",
         "existence",
         "verbs-4",
-        "i-adjectives",
-        "ii",
-        "adjectives-1",
-        "na-adjectives",
-        "adjectives-2",
         "suru-1",
         "verbs-5",
         "suru-2",
         "verbs-6",
-        "adjectives-3",
         "verbs-7",
         "verbs-8"
       ],
       "newBatches": [],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "aru": [
+          "polite volitional",
+          "volitional"
+        ],
+        "godan": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "volitional"
+        ],
+        "ichidan": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "volitional"
+        ],
+        "iku": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "volitional"
+        ],
+        "iru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "volitional"
+        ],
+        "kuru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "volitional"
+        ],
+        "suru": [
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "volitional"
+        ]
+      },
+      "builds": {
+        "desire polite": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ],
+        "polite passive": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ],
+        "polite potential": [
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ],
+        "polite progressive": [
+          "godan",
+          "ichidan",
+          "iku",
+          "kuru",
+          "suru"
+        ],
+        "polite volitional": [
+          "aru",
+          "godan",
+          "ichidan",
+          "iku",
+          "iru",
+          "kuru",
+          "suru"
+        ]
+      }
     },
     {
       "id": "n3-verbs",
@@ -1275,19 +2890,19 @@
       "chapter": "Wider vocabulary",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional",
         "imperative",
         "passive",
-        "causative",
-        "polite"
+        "causative"
       ],
       "focus": "none",
       "batches": [
@@ -1298,7 +2913,128 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "godan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite past",
+          "polite past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ],
+        "ichidan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite past",
+          "polite past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "n3-adjectives",
@@ -1307,19 +3043,12 @@
       "chapter": "Wider vocabulary",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
         "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
         "conditional",
-        "provisional",
-        "imperative",
-        "passive",
-        "causative",
-        "polite"
+        "provisional"
       ],
       "focus": "none",
       "batches": [
@@ -1330,7 +3059,38 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "i-adjective": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "na-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "n3-suru",
@@ -1339,19 +3099,19 @@
       "chapter": "Wider vocabulary",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional",
         "imperative",
         "passive",
-        "causative",
-        "polite"
+        "causative"
       ],
       "focus": "none",
       "batches": [
@@ -1362,7 +3122,69 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "suru": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite past",
+          "polite past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "n2-verbs",
@@ -1371,19 +3193,19 @@
       "chapter": "Wider vocabulary",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional",
         "imperative",
         "passive",
-        "causative",
-        "polite"
+        "causative"
       ],
       "focus": "none",
       "batches": [
@@ -1394,7 +3216,128 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "godan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite past",
+          "polite past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ],
+        "ichidan": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite past",
+          "polite past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "n2-adjectives",
@@ -1403,19 +3346,12 @@
       "chapter": "Wider vocabulary",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
         "te-form",
-        "progressive",
-        "potential",
-        "volitional",
-        "desire",
         "conditional",
-        "provisional",
-        "imperative",
-        "passive",
-        "causative",
-        "polite"
+        "provisional"
       ],
       "focus": "none",
       "batches": [
@@ -1426,7 +3362,38 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "i-adjective": [
+          "conditional",
+          "conditional negative",
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative"
+        ],
+        "na-adjective": [
+          "dictionary",
+          "negative",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite past",
+          "polite past negative",
+          "te-form",
+          "te-form negative"
+        ]
+      },
+      "builds": {}
     },
     {
       "id": "n2-suru",
@@ -1435,19 +3402,19 @@
       "chapter": "Wider vocabulary",
       "forms": [
         "plain",
+        "polite",
         "negative",
         "past",
         "te-form",
         "progressive",
-        "potential",
-        "volitional",
         "desire",
+        "volitional",
+        "potential",
         "conditional",
         "provisional",
         "imperative",
         "passive",
-        "causative",
-        "polite"
+        "causative"
       ],
       "focus": "none",
       "batches": [
@@ -1458,7 +3425,69 @@
       ],
       "newForms": [],
       "newClasses": [],
-      "questions": 16
+      "questions": 16,
+      "conjugations": {
+        "suru": [
+          "causative",
+          "causative negative",
+          "causative passive",
+          "causative passive negative",
+          "causative passive past",
+          "causative passive past negative",
+          "causative past",
+          "causative past negative",
+          "conditional",
+          "conditional negative",
+          "desire",
+          "desire negative",
+          "desire past",
+          "desire past negative",
+          "desire polite",
+          "desire polite negative",
+          "desire polite past",
+          "desire polite past negative",
+          "desire te-form",
+          "desire te-form negative",
+          "dictionary",
+          "imperative",
+          "imperative negative",
+          "negative",
+          "passive",
+          "passive negative",
+          "passive past",
+          "passive past negative",
+          "passive te-form",
+          "past",
+          "past negative",
+          "polite",
+          "polite negative",
+          "polite passive",
+          "polite passive negative",
+          "polite passive past",
+          "polite passive past negative",
+          "polite past",
+          "polite past negative",
+          "polite potential",
+          "polite potential negative",
+          "polite progressive",
+          "polite progressive negative",
+          "polite progressive past",
+          "polite progressive past negative",
+          "polite volitional",
+          "potential",
+          "potential negative",
+          "progressive",
+          "progressive negative",
+          "progressive past",
+          "progressive past negative",
+          "provisional",
+          "provisional negative",
+          "te-form",
+          "te-form negative",
+          "volitional"
+        ]
+      },
+      "builds": {}
     }
   ]
 }

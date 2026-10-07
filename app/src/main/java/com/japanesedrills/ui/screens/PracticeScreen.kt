@@ -19,22 +19,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,7 +38,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,8 +56,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.PracticePreset
-import com.japanesedrills.quiz.Progress
-import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Scheduler
@@ -98,7 +91,7 @@ fun PracticeScreen(
     modifier: Modifier = Modifier,
 ) {
     val options = state.options
-    val canUsePractised = state.progress.skills.isNotEmpty()
+    val canUsePractised = state.progress.lessons.isNotEmpty()
 
     Column(
         modifier = modifier
@@ -310,9 +303,8 @@ private fun CountRow(label: String, value: Int?) {
 }
 
 /**
- * What a session will ask, as a square per form and word class: the pairing the drill
- * itself is built on (`QuizEngine.skillOf`). Tapping a form or a class switches its whole
- * line; tapping a square switches that one pairing.
+ * What a session will ask, as a square per form and word class. Tapping a form or a class
+ * switches its whole line; tapping a square switches that one pairing.
  *
  * Only what can exist is drawn. A class no chosen word belongs to has no column, and a form
  * a class does not have has no square — an adjective has no passive.
@@ -384,7 +376,7 @@ private fun PracticeGrid(
                         continue
                     }
                     val asked = options.asksSquare(form.key, column.key)
-                    val held = strengthOf(form.key, column, state.progress)
+                    val held = strengthOf(form.key, column, state)
                     Box(
                         Modifier
                             .weight(1f)
@@ -418,15 +410,17 @@ private fun PracticeGrid(
 }
 
 /**
- * How well a square is holding up, 0f..1f: the review strength of that form on that class,
- * averaged over the classes a column covers. Null when review has never seen any of them,
+ * How well a square is holding up, 0f..1f: the review strength of the lessons that teach
+ * that form on that column's classes, averaged. Null when review has none of them yet,
  * which is not the same as holding up badly and is not drawn as if it were.
  */
-private fun strengthOf(form: String, column: WordColumn, progress: Progress): Float? {
+private fun strengthOf(form: String, column: WordColumn, state: DrillUiState): Float? {
     val type = TransformationBuilder.typeOfForm(form)
-    val states = column.groups.map { progress.skills[QuizEngine.skillKey(type, it)] }
-    if (states.all { it == null }) return null
-    return states.sumOf { state -> state?.let(Scheduler::strength)?.toDouble() ?: 0.0 }.toFloat() / states.size
+    val states = state.path.map { it.step }
+        .filter { step -> step.focus == type && step.conjugations.keys.any(column.groups::contains) }
+        .mapNotNull { state.progress.lessons[it.id] }
+    if (states.isEmpty()) return null
+    return states.map(Scheduler::strength).average().toFloat()
 }
 
 /**

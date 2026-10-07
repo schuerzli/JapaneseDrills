@@ -476,6 +476,7 @@ object Explanations {
         Op.PAST -> rule("Replace the last い with かった.")
         Op.POLITE -> rule("Add です.")
         Op.TE -> rule("Replace the last い with くて.")
+        Op.PROV -> rule("Replace the last い with ければ.")
         else -> null
     }
 

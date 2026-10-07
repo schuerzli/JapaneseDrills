@@ -4540,6 +4540,38 @@
      "after": "くなくて"
     }
    ]
+  },
+  "conditional": {
+   "forms": [
+    {
+     "before": "い",
+     "after": "かったら"
+    }
+   ]
+  },
+  "conditional negative": {
+   "forms": [
+    {
+     "before": "い",
+     "after": "くなかったら"
+    }
+   ]
+  },
+  "provisional": {
+   "forms": [
+    {
+     "before": "い",
+     "after": "ければ"
+    }
+   ]
+  },
+  "provisional negative": {
+   "forms": [
+    {
+     "before": "い",
+     "after": "くなければ"
+    }
+   ]
   }
  },
  "ii": {
@@ -4603,6 +4635,34 @@
    "forms": [
     {
      "result": "良[よ]くなくて"
+    }
+   ]
+  },
+  "conditional": {
+   "forms": [
+    {
+     "result": "良[よ]かったら"
+    }
+   ]
+  },
+  "conditional negative": {
+   "forms": [
+    {
+     "result": "良[よ]くなかったら"
+    }
+   ]
+  },
+  "provisional": {
+   "forms": [
+    {
+     "result": "良[よ]ければ"
+    }
+   ]
+  },
+  "provisional negative": {
+   "forms": [
+    {
+     "result": "良[よ]くなければ"
     }
    ]
   }

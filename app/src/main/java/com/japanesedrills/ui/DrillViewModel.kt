@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
 import com.japanesedrills.quiz.CustomSet
+import com.japanesedrills.quiz.Drawn
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
@@ -29,7 +30,6 @@ import com.japanesedrills.quiz.StepRecord
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.quiz.WordColumn
 import com.japanesedrills.quiz.WordSets
-import com.japanesedrills.quiz.TransformationBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
@@ -151,7 +151,7 @@ data class DrillUiState(
      * jumped ahead, since everything after it builds on it. Its chapter starts unfolded.
      */
     val nextStep: Step? = null,
-    /** How many skills review is waiting on: the note under the Review row. */
+    /** How many lessons review is waiting on: the note under the Review row. */
     val dueCount: Int = 0,
     /** How long the review it would start is, in questions: the Review row's own line. */
     val dueQuestions: Int = 0,
@@ -221,7 +221,7 @@ data class DrillUiState(
         }
 
     /** Whether there is a review at all: before the first lesson there is nothing to hold up. */
-    val hasReview: Boolean get() = progress.skills.isNotEmpty()
+    val hasReview: Boolean get() = progress.lessons.isNotEmpty()
 
     /**
      * Which half of the today panel is lit. Review while it has work to do, and the
@@ -274,14 +274,14 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /** The session being drawn, so a second tap on Start while it is cannot start another. */
     private var startJob: Job? = null
-    private var dueJob: Job? = null
 
     /**
-     * The rest of the running session's questions, as packed pairs. Every session kind
-     * draws its questions up front so none of them can ask the same pair twice while
-     * unasked ones remain.
+     * The rest of the running session's questions, each with the lesson it is asked for.
+     * Every session kind draws its questions up front so none of them can ask the same pair
+     * twice while unasked ones remain, and so that a lesson can be graded once its last
+     * question in the session has been answered.
      */
-    private var queue: MutableList<Int> = mutableListOf()
+    private var queue: MutableList<Drawn> = mutableListOf()
 
     /** Whether the running step was already ready when it started, to tell when it became so. */
     private var wasReady = false
@@ -425,7 +425,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val set = state.droppableSet ?: return
         val word = state.quiz?.question?.word?.key ?: return
         editSet(set.id) { it.copy(words = it.words - word) }
-        queue.removeAll { engine?.wordOf(it)?.key == word }
+        queue.removeAll { engine?.wordOf(it.packed)?.key == word }
     }
 
     private fun editSet(id: String, change: (CustomSet) -> CustomSet) {
@@ -575,9 +575,10 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             StepCard(
                 step = step,
                 started = record != null,
-                hasIntro = step.newBatches.isNotEmpty() || step.newForms.isNotEmpty() || step.newClasses.isNotEmpty(),
+                hasIntro = step.newBatches.isNotEmpty() || step.newForms.isNotEmpty() ||
+                    step.newClasses.isNotEmpty() || step.builds.isNotEmpty() || step.point != null,
                 ready = record?.ready == true,
-                strength = learnPath.strength(step, progress, data),
+                strength = learnPath.strength(step, progress),
             )
         }
         val next = nextStep(learnPath, progress)
@@ -588,20 +589,17 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     private fun nextStep(learnPath: LearnPath, progress: Progress): Step? =
         learnPath.steps.firstOrNull { progress.steps[it.id]?.ready != true }
 
-    /** What the path has drilled so far: every word and question type answered there. */
-    private class Practised(val words: Set<String>, val forms: Set<String>, val groups: Set<String>)
+    /** What the path has drilled so far: the forms of every lesson in review, and the word groups answered. */
+    private class Practised(val forms: Set<String>, val groups: Set<String>)
 
     private fun practised(): Practised? {
         val data = data ?: return null
         val progress = _state.value.progress
-        if (progress.skills.isEmpty()) return null
-        val words = progress.words.keys.filterTo(HashSet()) { it in data.wordsByKey }
+        val lessons = data.learnPath.inReview(progress)
+        if (lessons.isEmpty()) return null
         return Practised(
-            words = words,
-            forms = progress.skills.keys.flatMapTo(hashSetOf("plain")) {
-                TransformationBuilder.formsOfType(QuizEngine.typeOfSkill(it))
-            },
-            groups = words.mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group },
+            forms = lessons.flatMapTo(hashSetOf("plain")) { it.forms },
+            groups = progress.words.keys.mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group },
         )
     }
 
@@ -633,12 +631,16 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     private fun open(step: Step) {
         val data = data ?: return
         val words = data.learnPath.newWords(step).mapNotNull(data.wordsByKey::get)
-        // What it teaches, or failing that what it drills: a step late on the path adds no
-        // form of its own, and its notes are the forms it puts together.
-        val forms = step.newForms.ifEmpty { step.forms.filterNot { it == "plain" } }
-            .mapNotNull(Grammar::get)
+        // What it teaches. A step that only takes something known somewhere new — ない's
+        // past, a new class's negative — shows how it builds that instead of the form's notes
+        // again; a mixed step builds nothing new, so its notes are the forms it puts together.
+        val forms = when {
+            step.newForms.isNotEmpty() -> step.newForms
+            step.builds.isNotEmpty() -> emptyList()
+            else -> step.forms.filterNot { it == "plain" }
+        }.mapNotNull(Grammar::get)
         val classes = step.newClasses.mapNotNull(Grammar::classNote)
-        if (words.isEmpty() && forms.isEmpty() && classes.isEmpty()) {
+        if (words.isEmpty() && forms.isEmpty() && classes.isEmpty() && step.builds.isEmpty() && step.point == null) {
             startStep(step)
             return
         }
@@ -676,7 +678,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
         startJob = viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
-                engine.buildQueue(engine.buildPool(options), step.questions)
+                engine.buildQueue(engine.buildPool(options), step.questions).map { Drawn(it, step.id) }
             }
             val question = startQueue(drawn)
             if (question == null) {
@@ -699,33 +701,22 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * How review stands, off the main thread: it walks the words the path has drilled, the
-     * same walk the session itself starts with.
+     * How review stands. It reads the lessons' schedules and nothing else, so it is cheap
+     * enough to reckon on the spot; only the session itself walks the words.
      */
     private fun refreshDue() {
         val engine = engine ?: return
         val learnPath = data?.learnPath ?: return
-        dueJob?.cancel()
-        val practised = practised()
-        if (practised == null) {
-            _state.update {
-                it.copy(dueCount = 0, dueQuestions = 0, reviewSolid = true, reviewCounted = true)
-            }
-            return
-        }
-        val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
         val progress = _state.value.progress
-        val day = today
-        dueJob = viewModelScope.launch {
-            val load = withContext(Dispatchers.Default) { engine.reviewLoad(options, progress, day) }
-            _state.update {
-                it.copy(
-                    dueCount = load.due,
-                    dueQuestions = load.questions,
-                    reviewSolid = load.solid,
-                    reviewCounted = true,
-                )
-            }
+        val lessons = learnPath.inReview(progress).map { it.id }
+        val load = engine.reviewLoad(lessons, progress, today, _state.value.options.reviewCap)
+        _state.update {
+            it.copy(
+                dueCount = load.due,
+                dueQuestions = load.questions,
+                reviewSolid = load.solid,
+                reviewCounted = true,
+            )
         }
     }
 
@@ -733,13 +724,15 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         if (startJob?.isActive == true) return
         val engine = engine ?: return
         val learnPath = data?.learnPath ?: return
-        val practised = practised() ?: return
         val progress = _state.value.progress
-        val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
+        // Each lesson on its own options, so every question it asks is one of its own.
+        val options = _state.value.options
+        val lessons = learnPath.inReview(progress).associate { it.id to learnPath.optionsFor(it, options) }
+        if (lessons.isEmpty()) return
 
         startJob = viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
-                engine.buildReviewQueue(options, progress, today)
+                engine.buildReviewQueue(lessons, progress, today, options.reviewCap)
             }
             val question = startQueue(drawn)
             if (question == null) {
@@ -766,7 +759,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val pool = pool?.takeIf { it.options.sameQuestions(state.options) } ?: return
         val total = state.options.questionCount ?: return
         if (!state.canStart) return
-        val question = startQueue(engine.buildQueue(pool, total)) ?: return
+        val question = startQueue(engine.buildQueue(pool, total).map { Drawn(it) }) ?: return
         _state.update {
             it.copy(
                 screen = Screen.Quiz,
@@ -779,7 +772,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /** Loads a drawn session and takes its first question, or null if nothing was drawn. */
-    private fun startQueue(drawn: List<Int>): Question? {
+    private fun startQueue(drawn: List<Drawn>): Question? {
         if (drawn.isEmpty()) return null
         queue = drawn.toMutableList()
         return engine?.questionFor(queue.removeAt(0))
@@ -797,7 +790,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
         val entry = HistoryEntry(quiz.question, response)
         val options = _state.value.quizOptions
-        if (_state.value.kind != SessionKind.Practice) record(entry)
+        if (_state.value.kind != SessionKind.Practice) record(entry, quiz.history)
         _state.update {
             it.copy(
                 quiz = quiz.copy(
@@ -810,20 +803,21 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         if (entry.correct && options.autoNext) proceed()
     }
 
-    /** Folds one answer into the schedule and the step's record. Practice never touches progress. */
-    private fun record(entry: HistoryEntry) {
+    /**
+     * Folds one answer into progress: the word's schedule and its leech count at once, the
+     * step's record when this is the step's own session, and the lesson's schedule once this
+     * was its last question in the session, graded on all of them
+     * ([Progress.withLessonGraded]). Practice never touches progress.
+     */
+    private fun record(entry: HistoryEntry, earlier: List<HistoryEntry>) {
         val word = entry.question.word
         val t = entry.question.transformation
-        val skill = QuizEngine.skillOf(word, t)
         val leech = Progress.leechKey(word.key, t.type)
         val day = today
 
         val progress = _state.value.progress
         val misses = progress.leeches[leech] ?: 0
         val updated = progress.copy(
-            skills = progress.skills + (skill to Scheduler.review(
-                progress.skills[skill] ?: SrsState(), entry.correct, day
-            )),
             words = progress.words + (word.key to Scheduler.review(
                 progress.words[word.key] ?: SrsState(), entry.correct, day
             )),
@@ -837,7 +831,14 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 progress.steps + (step.id to (progress.steps[step.id] ?: StepRecord()).with(entry.correct, step.questions))
             } ?: progress.steps,
         )
-        persist(updated)
+        // The last of its lesson's questions in this session: grade the lesson on all of them.
+        val lesson = entry.question.lesson?.takeIf { id -> queue.none { it.lesson == id } }
+        persist(
+            lesson?.let { id ->
+                val answers = (earlier + entry).filter { it.question.lesson == id }.map { it.correct }
+                updated.withLessonGraded(id, answers, day)
+            } ?: updated
+        )
     }
 
     /** Publishes new progress; the collector in [init] is what writes it to disk. */

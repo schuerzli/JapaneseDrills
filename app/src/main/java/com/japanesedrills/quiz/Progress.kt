@@ -64,12 +64,16 @@ data class StepRecord(
  *
  * Scheduling happens on two axes because the raw question space is about 10^5 pairs —
  * far too many to schedule individually, and each one would be seen roughly never.
- * [skills] ("past|godan") carries the grammar, [words] carries the vocabulary, and
+ * [lessons] (by step id) carries the grammar, [words] carries the vocabulary, and
  * [leeches] records the handful of specific pairings that keep going wrong.
  */
 data class Progress(
     val steps: Map<String, StepRecord> = emptyMap(),
-    val skills: Map<String, SrsState> = emptyMap(),
+    /**
+     * Each lesson's review schedule, by step id, once it has been graded: a lesson is
+     * reviewed on its own questions and nothing else, and moves on its own answers alone.
+     */
+    val lessons: Map<String, SrsState> = emptyMap(),
     val words: Map<String, SrsState> = emptyMap(),
     val leeches: Map<String, Int> = emptyMap(),
     /**
@@ -80,13 +84,23 @@ data class Progress(
     val sets: Map<String, CustomSet> = emptyMap(),
 ) {
     /** Nothing worth keeping: nothing earned, and no set the learner put together. */
-    val isEmpty: Boolean get() = steps.isEmpty() && skills.isEmpty() && words.isEmpty() && sets.isEmpty()
+    val isEmpty: Boolean get() = steps.isEmpty() && lessons.isEmpty() && words.isEmpty() && sets.isEmpty()
 
     /**
      * Anything earned on the learn path. A word set is the learner's work but not a step
      * taken, so making one does not make the path say it has begun.
      */
-    val onPath: Boolean get() = steps.isNotEmpty() || skills.isNotEmpty() || words.isNotEmpty()
+    val onPath: Boolean get() = steps.isNotEmpty() || lessons.isNotEmpty() || words.isNotEmpty()
+
+    /**
+     * [lesson] graded once on a session's [answers] to it, passing at [LESSON_PASS]. Once
+     * per session rather than once per answer: a lesson is asked many times a session, and
+     * a schedule step per answer let a single late slip undo the rest.
+     */
+    fun withLessonGraded(lesson: String, answers: List<Boolean>, day: Long): Progress {
+        val passed = answers.count { it } >= LESSON_PASS * answers.size
+        return copy(lessons = lessons + (lesson to Scheduler.review(lessons[lesson] ?: SrsState(), passed, day)))
+    }
 
     /**
      * How many skills are ready to be reviewed: the one definition of "due" for the UI.
@@ -95,6 +109,9 @@ data class Progress(
     companion object {
         /** A pairing missed this often is a leech: it gets picked first in review. */
         const val LEECH_THRESHOLD = 4
+
+        /** The share of a lesson's questions in one session that passes it ([withLessonGraded]). */
+        const val LESSON_PASS = 0.8
 
         fun leechKey(wordKey: String, type: String) = "$wordKey|$type"
     }
@@ -112,9 +129,10 @@ object ProgressCodec {
     /**
      * Bumped only when the shape changes; [decode] refuses any other version. Version 1 was
      * the gated lesson path, whose records mean nothing on the step path; version 2 was
-     * before the learner could put word sets together.
+     * before the learner could put word sets together; version 3 scheduled review by skill
+     * (a question type on a word group) rather than by lesson.
      */
-    const val VERSION = 3
+    const val VERSION = 4
 
     /** [indent] > 0 pretty-prints, which is what makes an exported backup readable. */
     fun encode(progress: Progress, indent: Int = 0): String {
@@ -148,7 +166,7 @@ object ProgressCodec {
         }.orEmpty()
         return Progress(
             steps = steps,
-            skills = root.optJSONObject("skills").states(),
+            lessons = root.optJSONObject("lessons").states(),
             words = root.optJSONObject("words").states(),
             leeches = root.optJSONObject("leeches")?.let { obj ->
                 obj.keys().asSequence().associateWith { obj.getInt(it) }
@@ -178,7 +196,7 @@ object ProgressCodec {
                 })
             }
         })
-        put("skills", progress.skills.toJson())
+        put("lessons", progress.lessons.toJson())
         put("words", progress.words.toJson())
         put("leeches", JSONObject().apply { progress.leeches.forEach { (k, v) -> put(k, v) } })
         put("sets", JSONObject().apply {

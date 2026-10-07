@@ -135,7 +135,7 @@ fun AppSettingsScreen(
                 }
             }
 
-            Section("Review", "Each kind of question due adds to a review, up to this many") {
+            Section("Review", "Each lesson due adds to a review, up to this many") {
                 StackedRow("Longest review") {
                     val caps = QuizOptions.REVIEW_CAPS
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
@@ -157,7 +157,7 @@ fun AppSettingsScreen(
                 Column {
                     StatRow("Steps ready", "$ready of ${state.path.size}")
                     StatRow("Words tracked", "${state.progress.words.size}")
-                    StatRow("Kinds of question tracked", "${state.progress.skills.size}")
+                    StatRow("Lessons in review", "${state.progress.lessons.size}")
                 }
                 if (state.salvagedProgress) {
                     Text(

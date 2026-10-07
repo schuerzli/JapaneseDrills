@@ -595,7 +595,7 @@ class DrillLogicTest {
 
         val texts = buildList {
             for (note in Grammar.NOTES + Grammar.CLASS_NOTES) {
-                add(note.title); add(note.summary); addAll(note.notes)
+                add(note.title); add(note.summary); addAll(note.notes.map { it.text })
             }
             for (section in ConjugationIntro.SECTIONS) {
                 add(section.title)
@@ -612,7 +612,7 @@ class DrillLogicTest {
             addAll(QuizOptions.COLUMNS.map { it.label })
             addAll(WordSets.BUILT_IN.map { it.label })
             for (step in data.learnPath.steps) {
-                add(step.title); add(step.subtitle); add(step.chapter)
+                add(step.title); add(step.subtitle); add(step.chapter); step.point?.let(::add)
             }
             addAll(data.words.map { it.sentenceJp })
         }

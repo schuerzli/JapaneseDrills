@@ -75,6 +75,12 @@ data class QuizOptions(
      * Never persisted — it is derived from the learn path, not chosen by the user.
      */
     val wordKeys: Set<String>? = null,
+    /**
+     * Restricts each word group to these conjugations: a lesson's own grammar, as the path
+     * pins it ([Step.conjugations]). Null means no restriction, which is free practice.
+     * Never persisted, for the same reason as [wordKeys].
+     */
+    val conjugations: Map<String, Set<String>>? = null,
 ) {
     fun isOn(key: String): Boolean = flags[key] ?: false
 
@@ -160,7 +166,7 @@ data class QuizOptions(
     /** True when both option sets produce the same question pool. */
     fun sameQuestions(other: QuizOptions): Boolean =
         flags == other.flags && questionFocus == other.questionFocus &&
-            offSquares == other.offSquares && wordKeys == other.wordKeys &&
+            offSquares == other.offSquares && wordKeys == other.wordKeys && conjugations == other.conjugations &&
             allWords == other.allWords && (allWords || sets == other.sets)
 
     val questionCount: Int? get() = numQuestions.toIntOrNull()?.takeIf { it in 1..MAX_QUESTIONS }
