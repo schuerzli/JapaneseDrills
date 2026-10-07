@@ -114,8 +114,7 @@ object ConjugationIntro {
                     "Be aware that all 一[いち]段[だん] verbs end in -いる or -える, but not all verbs that " +
                         "end in -いる or -える are 一[いち]段[だん] verbs. 帰[かえ]る, 入[はい]る, 走[はし]る, " +
                         "知[し]る, 滑[すべ]る and 参[まい]る are all 五[ご]段[だん] verbs. This is just something " +
-                        "you learn on a case-by-case basis. The rule that does hold without exception runs " +
-                        "the other way: a verb that does not end in る is always 五[ご]段[だん].",
+                        "you learn on a case-by-case basis.",
                 ),
                 ConjugationIntroBlock.Line(
                     "To change a 一[いち]段[だん] verb, all you do is drop the last kana of the dictionary " +
