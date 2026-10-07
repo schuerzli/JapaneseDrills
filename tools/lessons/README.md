@@ -31,8 +31,9 @@ is bigger than that the recommendation reads "Improve Review", and once every le
 ready it reads "Review or Practice". That is the loop this is built around: start a lesson,
 come back to review it, and take a new lesson once the old ones are holding up. A lesson's
 bar is its review strength, so the bars move when review is done, not when a lesson is
-tapped — and a lesson is always entered through its notes, so the grammar is stated before
-it is drilled.
+tapped — and a lesson is first entered through its notes, so the grammar is stated before
+it is drilled. After that its row offers Start, straight to the questions; tapping the row
+still reads it.
 
 Nothing on the path is locked and nothing is ever finished. A lesson is a named filter over
 the same drill free practice uses — some forms, some words, perhaps one question type — and

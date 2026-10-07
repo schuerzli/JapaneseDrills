@@ -88,7 +88,8 @@ private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
 fun LearnPathScreen(
     state: DrillUiState,
     onLesson: (Lesson) -> Unit,
-    onLessonIntro: (Lesson) -> Unit,
+    /** Straight into a lesson's questions, past its introduction. */
+    onStart: (Lesson) -> Unit,
     onReview: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -150,7 +151,7 @@ fun LearnPathScreen(
                             card,
                             recommended = card.lesson == state.nextLesson,
                             onClick = { onLesson(card.lesson) },
-                            onIntro = { onLessonIntro(card.lesson) },
+                            onStart = { onStart(card.lesson) },
                         )
                     }
                 }
@@ -347,14 +348,18 @@ private fun RecommendedRow(
 
 /**
  * One lesson, on one line: whether it has been ready, what it is called, how well its content
- * is holding up in review, and the way in to what it introduces.
+ * is holding up in review, and a way straight into its questions.
+ *
+ * Tapping the row reads the lesson; Start skips that. Start only comes once the lesson has
+ * been played, so the first time through is always by way of what it teaches — and its
+ * column is there either way, so the row does not change shape when it appears.
  *
  * One line and not three. The path is read down — dozens of lessons over several chapters —
  * and a subtitle under every one of them turned a list into a wall; the row only has to say
  * which lesson it is and where it stands.
  */
 @Composable
-private fun LessonRow(card: LessonCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
+private fun LessonRow(card: LessonCard, recommended: Boolean, onClick: () -> Unit, onStart: () -> Unit) {
     val lesson = card.lesson
     Row(
         Modifier
@@ -397,14 +402,13 @@ private fun LessonRow(card: LessonCard, recommended: Boolean, onClick: () -> Uni
         Box(Modifier.width(BarWidth)) {
             if (!lesson.reading) StrengthBar(card.strength, Modifier.fillMaxWidth())
         }
-        // On every lesson that has an introduction, opened or not, so rows never change shape.
-        Box(Modifier.width(IntroWidth), contentAlignment = Alignment.CenterEnd) {
-            if (card.hasIntro) TextAction("About") { onIntro() }
+        Box(Modifier.width(StartWidth), contentAlignment = Alignment.CenterEnd) {
+            if (card.started && !lesson.reading) TextAction("Start", onStart)
         }
     }
 }
 
 private val TickWidth = 26.dp
 private val BarWidth = 62.dp
-private val IntroWidth = 58.dp
+private val StartWidth = 58.dp
 

@@ -357,7 +357,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
             AppTab.Learn -> LearnPathScreen(
                 state = state,
                 onLesson = viewModel::openLesson,
-                onLessonIntro = viewModel::openLesson,
+                onStart = viewModel::startLesson,
                 onReview = viewModel::startReview,
                 onToggleChapter = viewModel::setChapterOpen,
                 modifier = inner,

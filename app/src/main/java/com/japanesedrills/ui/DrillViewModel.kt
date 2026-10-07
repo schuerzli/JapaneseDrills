@@ -114,10 +114,8 @@ data class PoolCounts(
 /** One row on the learn path. */
 data class LessonCard(
     val lesson: Lesson,
-    /** Opened at least once, so its introduction has been seen. */
+    /** Played at least once, so its row can offer a way straight into its questions. */
     val started: Boolean,
-    /** It introduces something, so there is an introduction to reopen. */
-    val hasIntro: Boolean,
     /** Its recent answers have cleared the bar at some point; see [LessonRecord.ready]. */
     val ready: Boolean,
     /** How well its content is holding up in review, 0f..1f; see [LearnPath.strength]. */
@@ -577,8 +575,6 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             LessonCard(
                 lesson = lesson,
                 started = record != null,
-                hasIntro = lesson.newBatches.isNotEmpty() || lesson.newForms.isNotEmpty() ||
-                    lesson.newClasses.isNotEmpty() || lesson.builds.isNotEmpty() || lesson.point != null,
                 ready = record?.ready == true,
                 strength = learnPath.strength(lesson, progress),
             )
@@ -606,9 +602,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * A lesson opens on what it is about, every time — never straight into questions. A lesson
-     * that adds nothing new shows the notes for the forms it drills instead, so the way in
-     * is the same page whether it is the first visit or the tenth.
+     * A lesson opens on what it is about, every time it is opened; a lesson that adds nothing
+     * new shows the notes for the forms it drills instead. The way straight into questions is
+     * [startLesson], which its row offers once the lesson has been played.
      */
     fun openLesson(lesson: Lesson) {
         // The Conjugation Intro is a lesson that is read: opening it is finishing it.
