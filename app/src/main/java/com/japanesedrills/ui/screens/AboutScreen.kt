@@ -2,6 +2,7 @@ package com.japanesedrills.ui.screens
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -16,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -25,14 +26,21 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.japanesedrills.R
 import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.Section
+import com.japanesedrills.ui.components.TextAction
 import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 
@@ -103,7 +111,10 @@ private val SOURCES = listOf(
     ),
 )
 
-/** Bundled fonts. The OFL asks that the licence travel with them; it is in res/raw/ofl.txt. */
+/**
+ * Bundled fonts. The OFL asks that the licence travel with them where a user can read it: it
+ * is res/raw/ofl.txt, shown in full under them ([FontLicence]).
+ */
 private val TYPEFACES = listOf(
     Source(
         name = "Lora",
@@ -183,48 +194,19 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Section("Based on", "This app is an Android version of two web drills.") {
-                Column {
-                    ORIGINALS.forEachIndexed { i, source ->
-                        if (i > 0) {
-                            HorizontalDivider(
-                                Modifier.padding(vertical = 12.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                            )
-                        }
-                        SourceEntry(source)
-                    }
-                }
+                SourceList(ORIGINALS)
             }
 
             Section(
                 "Word data",
-                "The 1000 words, their readings, meanings and JLPT levels come from these open datasets.",
+                "The words, their readings, meanings and JLPT levels come from these open datasets.",
             ) {
-                Column {
-                    SOURCES.forEachIndexed { i, source ->
-                        if (i > 0) {
-                            HorizontalDivider(
-                                Modifier.padding(vertical = 12.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                            )
-                        }
-                        SourceEntry(source)
-                    }
-                }
+                SourceList(SOURCES)
             }
 
             Section("Typefaces", "Japanese is set in the system's own font; these cover the rest.") {
-                Column {
-                    TYPEFACES.forEachIndexed { i, source ->
-                        if (i > 0) {
-                            HorizontalDivider(
-                                Modifier.padding(vertical = 12.dp),
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                            )
-                        }
-                        SourceEntry(source)
-                    }
-                }
+                SourceList(TYPEFACES)
+                FontLicence()
             }
 
             Section("Licence") {
@@ -258,6 +240,52 @@ fun AboutScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
         }
     }
 }
+
+/** Like entries one after another, with no rule between them, as every section lists them. */
+@Composable
+private fun SourceList(sources: List<Source>) {
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        for (source in sources) SourceEntry(source)
+    }
+}
+
+/**
+ * The SIL Open Font License, in full, folded away until asked for. Shipping the file in the
+ * app is not enough on its own: the licence asks that it can be read.
+ */
+@Composable
+private fun FontLicence() {
+    var open by remember { mutableStateOf(false) }
+    val resources = LocalContext.current.resources
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // Back by the action's own touch padding, so the word lines up with the entries above.
+        Box(Modifier.offset(x = (-6).dp)) {
+            TextAction(if (open) "Hide the font licence" else "Read the font licence") { open = !open }
+        }
+        if (open) {
+            val text = remember { reflowed(resources.openRawResource(R.raw.ofl).bufferedReader().use { it.readText() }) }
+            Text(
+                text,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+/**
+ * Plain-text licence paragraphs as a phone shows them: the file is wrapped for a terminal,
+ * which on a narrow screen breaks every line halfway across. Paragraphs stay apart and the
+ * lines inside one run together, except a heading (a short line in capitals), which keeps a
+ * line of its own; the rules of dashes drawn around headings go.
+ */
+private fun reflowed(text: String): String =
+    text.replace("\r\n", "\n").trim().split(Regex("\n\\s*\n")).joinToString("\n\n") { paragraph ->
+        val lines = paragraph.lines().map { it.trim() }.filter { it.isNotEmpty() && !it.all { c -> c == '-' } }
+        val heading = lines.firstOrNull()?.takeIf { it.length < 40 && it.none(Char::isLowerCase) && lines.size > 1 }
+        val body = (if (heading != null) lines.drop(1) else lines).joinToString(" ")
+        if (heading != null) "$heading\n$body" else body
+    }
 
 @Composable
 private fun SourceEntry(source: Source) {

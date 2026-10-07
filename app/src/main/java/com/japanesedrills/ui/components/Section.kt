@@ -86,5 +86,3 @@ val SectionSpacing = 18.dp
 /** Inside the spotlight and the panels: they are the only things with an inside. */
 val PanelPadding = 20.dp
 
-/** The gap either side of a screen's content. */
-val ScreenGutter = 16.dp

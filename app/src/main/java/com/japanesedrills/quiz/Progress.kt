@@ -6,8 +6,8 @@ import org.json.JSONObject
 
 /**
  * How a lesson has gone so far: its last [WINDOW] answers, newest in the lowest bit, and how
- * many it has had in all. It exists as soon as the lesson is first opened, which is how the
- * introduction knows to show only once.
+ * many it has had in all. It exists as soon as a session of the lesson is started, which is
+ * what marks the lesson as started on the path.
  */
 data class LessonRecord(
     val recent: Int = 0,
@@ -85,12 +85,6 @@ data class Progress(
 ) {
     /** Nothing worth keeping: nothing earned, and no set the learner put together. */
     val isEmpty: Boolean get() = records.isEmpty() && lessons.isEmpty() && words.isEmpty() && sets.isEmpty()
-
-    /**
-     * Anything earned on the learn path. A word set is the learner's work but not a lesson
-     * taken, so making one does not make the path say it has begun.
-     */
-    val onPath: Boolean get() = records.isNotEmpty() || lessons.isNotEmpty() || words.isNotEmpty()
 
     /**
      * [lesson] graded once on a session's [answers] to it, passing at [LESSON_PASS]. Once

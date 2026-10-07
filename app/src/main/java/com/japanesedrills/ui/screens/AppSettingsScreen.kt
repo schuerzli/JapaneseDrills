@@ -30,7 +30,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -43,7 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Palette
@@ -78,9 +76,9 @@ fun AppSettingsScreen(
     onImport: (String) -> Boolean,
     onAbout: () -> Unit,
     onBack: () -> Unit,
+    modifier: Modifier = Modifier,
     /** The debug build's developer section; nothing in a release build. */
     developer: @Composable () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     var confirming by remember { mutableStateOf(false) }
     var pendingImport by remember { mutableStateOf<String?>(null) }
@@ -116,14 +114,14 @@ fun AppSettingsScreen(
         ) {
             Section("Appearance") {
                 Column {
-                    PaletteRow(state.options.palette, onPalette)
+                    PaletteRow(state.options.app.palette, onPalette)
                     // Three choices side by side need the width, so they sit under the label
                     // rather than squeezing it.
                     StackedRow("Theme") {
                         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                             ThemeChoice.entries.forEachIndexed { i, choice ->
                                 SegmentedButton(
-                                    selected = state.options.theme == choice,
+                                    selected = state.options.app.theme == choice,
                                     onClick = { onTheme(choice) },
                                     shape = SegmentedButtonDefaults.itemShape(i, ThemeChoice.entries.size),
                                     // No tick: it pushes the label aside on selection. The fill says it.
@@ -143,7 +141,7 @@ fun AppSettingsScreen(
                     SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
                         caps.forEachIndexed { i, cap ->
                             SegmentedButton(
-                                selected = state.options.reviewCap == cap,
+                                selected = state.options.app.reviewCap == cap,
                                 onClick = { onReviewCap(cap) },
                                 shape = SegmentedButtonDefaults.itemShape(i, caps.size),
                                 icon = {},

@@ -3,7 +3,6 @@ package com.japanesedrills.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
@@ -26,13 +26,13 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -45,15 +45,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.QuizOptions
@@ -69,6 +68,7 @@ import com.japanesedrills.ui.components.SettingRow
 import com.japanesedrills.ui.components.TextAction
 import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
+import kotlin.math.roundToInt
 
 /**
  * The free-practice tab: one-tap presets above the full option grid. Content only — the tab
@@ -102,7 +102,7 @@ fun PracticeScreen(
     ) {
         Section("Start from", "Sets everything below in one tap") {
             Column {
-                PracticePreset.entries.forEachIndexed { i, preset ->
+                PracticePreset.entries.forEach { preset ->
                     // Nothing practised on the path yet would select no forms at all.
                     val use = { if (preset != PracticePreset.Practised || canUsePractised) onPreset(preset) }
                     SettingRow(preset.label, onClick = use) {
@@ -158,7 +158,7 @@ fun PracticeScreen(
 
         Section("Options") {
             Column {
-                QuizOptions.GENERAL.forEachIndexed { i, item ->
+                QuizOptions.GENERAL.forEach { item ->
                     SettingRow(
                         item.label,
                         supporting = item.note,

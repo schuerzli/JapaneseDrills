@@ -10,22 +10,22 @@ import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.Mark
 import com.japanesedrills.quiz.PracticePreset
-import com.japanesedrills.quiz.QuizEngine
-import com.japanesedrills.quiz.QuizOptions
-import com.japanesedrills.quiz.WordSets
-import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.Question
 import com.japanesedrills.quiz.QuestionPool
+import com.japanesedrills.quiz.QuizEngine
+import com.japanesedrills.quiz.QuizOptions
+import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.RubySegment
-import java.io.File
-import kotlin.random.Random
+import com.japanesedrills.quiz.WordSets
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
+import kotlin.random.Random
 
 class DrillLogicTest {
 
@@ -612,7 +612,7 @@ class DrillLogicTest {
             addAll(QuizOptions.COLUMNS.map { it.label })
             addAll(WordSets.BUILT_IN.map { it.label })
             for (lesson in data.learnPath.lessons) {
-                add(lesson.title); add(lesson.subtitle); add(lesson.chapter); lesson.point?.let(::add)
+                add(lesson.title); add(lesson.chapter); lesson.point?.let(::add)
             }
             addAll(data.words.map { it.sentenceJp })
         }

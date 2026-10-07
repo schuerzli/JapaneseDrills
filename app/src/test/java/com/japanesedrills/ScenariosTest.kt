@@ -9,11 +9,11 @@ import com.japanesedrills.quiz.ProgressCodec
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.ReviewLoad
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 /**
  * The debug build's progress states are only worth having if each is the state it says it

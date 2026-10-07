@@ -37,12 +37,7 @@ data class Question(
 /** One question of a session, drawn up front: a packed pair, and the lesson it is asked for. */
 data class Drawn(val packed: Int, val lesson: String? = null)
 
-/**
- * A growable int array, so packing the pool does not box every index.
- *
- * [initialCapacity] matters because a review builds one of these per lesson, most of them
- * small: sizing them all for the whole pool wasted most of half a megabyte per review.
- */
+/** A growable int array, so packing the pool does not box every index. */
 private class IntList(initialCapacity: Int = 16) {
     private var items = IntArray(initialCapacity)
     private var size = 0
@@ -79,10 +74,6 @@ private class Deck(source: IntArray, private val random: Random) {
 }
 
 /**
- * All (word, transformation) pairs allowed by a set of options, split into regular and
- * trick questions. Pairs are packed as `wordIndex * transformationCount + transformationIndex`.
- */
-/**
  * How review stands: [due] of the [total] lessons it covers are waiting, and the session
  * would be [questions] long.
  *
@@ -104,6 +95,10 @@ data class ReviewLoad(val due: Int, val total: Int, val questions: Int) {
     }
 }
 
+/**
+ * All (word, transformation) pairs allowed by a set of options, split into regular and
+ * trick questions. Pairs are packed as `wordIndex * transformationCount + transformationIndex`.
+ */
 class QuestionPool(
     val options: QuizOptions,
     /** How many distinct words the pool draws on. */
@@ -122,7 +117,8 @@ class QuestionPool(
      * to the learner — the column is not being practised.
      */
     val skipped: Map<String, Int>,
-    private val regular: IntArray,
+    /** Every question that is not a trick one: all a lesson's options allow, since they allow no tricks. */
+    internal val regular: IntArray,
     private val trick: IntArray,
 ) {
     val size: Int get() = regular.size + trick.size
@@ -191,10 +187,6 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     private fun sourcesWord(word: Word, options: QuizOptions): Boolean =
         (options.wordKeys?.contains(word.key) ?: true) &&
             (options.allWords || options.sets.any { WordSets.holds(it, word, customSets) })
-
-    /** Whether the options allow this word at all, whatever the transformation. */
-    private fun allowsWord(word: Word, options: QuizOptions): Boolean =
-        options.isOn(word.group) && sourcesWord(word, options)
 
     /**
      * How many words each built-in set holds, for the practice screen to show beside its
@@ -296,19 +288,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
      * questions from. Built from the lesson's own options, so nothing it asks belongs to
      * another lesson — 書かなかった is the negative-past lesson's, never the negative's.
      */
-    fun pairsFor(options: QuizOptions): IntArray {
-        val transformations = data.transformations
-        val enabled = transformations.mapIndexed { i, t -> i to t }
-            .filter { (_, t) -> !t.isTrick && t.tags.all(options::allows) }
-        val out = IntList()
-        data.words.forEachIndexed { w, word ->
-            if (!allowsWord(word, options)) return@forEachIndexed
-            for ((t, transformation) in enabled) {
-                if (allowsPair(word, transformation, options)) out.add(w * transformations.size + t)
-            }
-        }
-        return out.toIntArray()
-    }
+    fun pairsFor(options: QuizOptions): IntArray = buildPool(options).regular
 
     /** Whether review would ask this lesson today. */
     private fun isDue(lesson: String, progress: Progress, day: Long): Boolean =

@@ -59,7 +59,7 @@ Two separate signals on a lesson, because they answer different questions:
 Neither is review being *solid*, which is about the whole backlog, not one lesson.
 
 The path recommends the earliest lesson that is not ready, even when the learner has jumped
-ahead, because everything after it builds on it. The figures live in `StepRecord`.
+ahead, because everything after it builds on it. The figures live in `LessonRecord`.
 
 ## One thing changes at a time
 

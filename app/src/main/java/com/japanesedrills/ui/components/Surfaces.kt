@@ -1,10 +1,10 @@
 package com.japanesedrills.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,15 +38,6 @@ import kotlin.math.roundToInt
 @Composable
 fun heroBrush(): Brush =
     Brush.linearGradient(listOf(DrillTheme.surfaces.heroStart, DrillTheme.surfaces.heroEnd))
-
-/** The page's own wash, lighter at the top. Every screen's outermost background. */
-@Composable
-fun Modifier.pageWash(): Modifier = this.background(
-    Brush.verticalGradient(
-        0f to DrillTheme.surfaces.pageTop,
-        0.7f to DrillTheme.surfaces.pageBottom,
-    ),
-)
 
 /**
  * The chrome: the app's identity, and on the tab screens the tabs. It is the one thing on

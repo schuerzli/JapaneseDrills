@@ -43,9 +43,9 @@ import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
-import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.FusionTable
 import com.japanesedrills.ui.components.HeroBar
+import com.japanesedrills.ui.components.RichText
 import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.SectionHeading
 import com.japanesedrills.ui.components.SectionIndent

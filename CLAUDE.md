@@ -141,14 +141,14 @@ These look like mistakes without their reason. Check here before "fixing" one.
   path skip it (`LearnPathTest.drills`).
 - **lessons.json spells every lesson out in full** — its forms, focus, word batches and the
   conjugations it asks per word group — so the app does no bookkeeping; what is known by
-  which point is worked out in the generator.
+  which point is worked out in the generator. Lessons are an array, not an object keyed by
+  id, because JSON key order is preserved by Android's `JSONObject` and not by the
+  `org.json` used in unit tests.
 - **A compound is asked only once every rule in it has been taught.** Endings conjugate as
   classes — ない is an い-adjective, ている is いる — so the Past lesson asks no 書かなかった:
   that waits for the い-adjective past, and the い-adjective conditional and provisional in
   `rules.json` exist so that なかったら and なければ have one to wait for. The reasoning, and
   how the generator decides it, is the README's "Compounds".
-  Lessons are an array, not an object keyed by id, because JSON key order is preserved by
-  Android's `JSONObject` and not by the `org.json` used in unit tests.
 - **Progress is the only state that cannot be rebuilt from the assets**, and the word sets
   the learner puts together ride in the same document for that reason. Wiping
   `ProgressStore` throws away real work, so it is written through on every answer and
@@ -202,8 +202,8 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
 - **Japanese goes through `RichText` or `FuriganaText`, never a bare `Text`**, with every
   kanji in furigana notation. Readings are one setting for the whole app (`LocalFurigana`),
   and a bare `Text` can neither show them nor hide them. `everyKanjiShownHasAReading` checks
-  the notes, the Conjugation Intro, labels, lesson titles and sentences; it cannot check a call
-  site.
+  the notes, the Conjugation Intro, labels, lesson titles and points, and sentences; it cannot
+  check a call site.
 - **Worked examples mark what a conjugation touches** — the last kana, the form's ending, the
   two fused. The Conjugation Intro writes its marks by hand in their own markup
   (`RichPart.marked`, explained in `quiz/ConjugationIntro.kt`), read only where a caller asks
@@ -218,7 +218,8 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
   well under the one row a screen is pointing at, and a verdict. Everything else is the
   page — which is itself a wash rather than a slab, so a Scaffold over it is transparent.
   The surfaces are palette roles like any other (`Surfaces`, from `tools/theme/schemes.py`),
-  and `ui/components/Surfaces.kt` is the only place that paints them.
+  and `ui/components/Surfaces.kt` paints them all but the page wash, which the theme lays
+  under every screen (`JapaneseDrillsTheme`).
 - **The spotlight says what to do now**, and a screen has at most one: review while it has
   work, the question being asked, the lesson just finished. A reference screen has nothing to
   do, so the Conjugation Intro on the Grammar tab is marked out with the well instead.
@@ -289,8 +290,9 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
 ## Licensing
 
 The bundled typefaces are under the SIL Open Font License, which asks that the licence
-travel with the font: it does, as `res/raw/ofl.txt`, and every face is credited on the
-About screen. A face added to a palette needs its copyright line there and an About entry.
+travel with the font where a user can read it: it does, as `res/raw/ofl.txt`, shown in full
+on the About screen, where every face is credited too. A face added to a palette needs its
+copyright line there and an About entry.
 
 The word data comes from JMdict, JmdictFurigana, the Tanaka Corpus and
 open-anki-jlpt-decks. The first three are CC BY-SA, so words.json is a modified

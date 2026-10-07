@@ -229,30 +229,30 @@ def deal(batch, groups, count):
     return ("deal", batch, groups, count, [], None)
 
 
-def reading(lesson_id, title, subtitle):
+def reading(lesson_id, title):
     """A lesson that is read rather than drilled: no forms, no words, no questions."""
-    return ("reading", lesson_id, title, subtitle)
+    return ("reading", lesson_id, title)
 
 
-def form(key, title, subtitle, questions=14, on=None, endings=(), point=None):
-    return ("form", key, title, subtitle, questions, on, tuple(endings), point)
+def form(key, title, questions=14, on=None, endings=(), point=None):
+    return ("form", key, title, questions, on, tuple(endings), point)
 
 
-def extend(lesson_id, title, subtitle, key, hosts, questions=14, point=None):
-    return ("extend", lesson_id, title, subtitle, key, tuple(hosts), questions, point)
+def extend(lesson_id, title, key, hosts, questions=14, point=None):
+    return ("extend", lesson_id, title, key, tuple(hosts), questions, point)
 
 
-def word_type(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), questions=12, point=None):
-    return ("word_type", batch, title, subtitle, groups, count, list(pins), list(classes), questions, None, point)
+def word_type(batch, title, groups=(), count=0, pins=(), classes=(), questions=12, point=None):
+    return ("word_type", batch, title, groups, count, list(pins), list(classes), questions, None, point)
 
 
-def words(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), questions=12, levels=None, point=None):
-    return ("words", batch, title, subtitle, groups, count, list(pins), list(classes), questions,
+def words(batch, title, groups=(), count=0, pins=(), classes=(), questions=12, levels=None, point=None):
+    return ("words", batch, title, groups, count, list(pins), list(classes), questions,
             set(levels) if levels else None, point)
 
 
-def polite(lesson_id, title, subtitle, forms, questions=16):
-    return ("polite", lesson_id, title, subtitle, forms, questions)
+def polite(lesson_id, title, forms, questions=16):
+    return ("polite", lesson_id, title, forms, questions)
 
 
 # Why this order (see README.md): the plain forms first, because the negative is where the
@@ -267,97 +267,91 @@ SPINE = [
     # The path opens with the page that explains what a conjugation is. It is a lesson
     # like any other so that it can be recommended, ticked and returned to; it is read
     # rather than drilled, so it carries no forms and no questions.
-    reading("conjugation-intro", "Conjugation Intro", "How a Japanese verb changes shape"),
+    reading("conjugation-intro", "Conjugation Intro"),
     deal("verbs-1", VERBS, 8),
-    form("negative", "Negative", "Saying something does not happen"),
-    form("past", "Past", "Saying something already happened"),
-    word_type("i-adjectives", "い-adjectives", "Adjectives that conjugate on their own",
-              ("i-adjective",), 8, classes=["i-adjective"],
+    form("negative", "Negative"),
+    form("past", "Past"),
+    word_type("i-adjectives", "い-adjectives", ("i-adjective",), 8, classes=["i-adjective"],
               point="Every negative so far ends in ない, and ない is an い-adjective itself. "
                     "Whatever an い-adjective does, ない does too — which is where the next "
                     "lesson starts."),
-    extend("negative-past", "Negative past", "ない is an い-adjective", "past", ["ない"],
+    extend("negative-past", "Negative past", "past", ["ない"],
            point="The past of a negative is the い-adjective past of ない: replace its い with "
                  "かった. 書[か]かない → 書[か]かなかった, exactly as 高[たか]くない → 高[たか]くなかった."),
-    words("verbs-2", "More verbs", "Eight more everyday verbs", VERBS, 8),
-    form("te-form", "て-form", "The connector half the grammar is built on", questions=16, on=VERBS),
-    extend("te-form-adjectives", "Adjective て-form", "And the て-form of ない", "te-form",
-           ["i-adjective", "ない"],
+    words("verbs-2", "More verbs", VERBS, 8),
+    form("te-form", "て-form", questions=16, on=VERBS),
+    extend("te-form-adjectives", "Adjective て-form", "te-form", ["i-adjective", "ない"],
            point="An い-adjective replaces its い with くて: 高[たか]い → 高[たか]くて. ない is one, "
                  "so the て-form of a negative is なくて: 書[か]かない → 書[か]かなくて."),
 
     chapter("The irregular verbs"),
     # Three words in one form both ways is six questions, so six it asks rather than repeat.
-    word_type("irregular", "する, 来[く]る, 行[い]く", "The verbs that break the rules",
-              pins=["する", "来る", "行く"], classes=["suru", "kuru", "iku"], questions=6),
-    words("verbs-3", "Everyday actions", "Verbs you need every day", VERBS, 8),
-    words("existence", "ある and いる", "To exist — with a negative that comes from nowhere",
-          pins=["ある", "いる"], classes=["aru", "iru"], questions=10,
-          point="ある's negative is simply ない — the same ない every negative ends in, so its "
-                "past is なかった and its て-form なくて."),
-    form("progressive", "Progressive", "Something happening right now",
+    word_type("irregular", "する, 来[く]る, 行[い]く", pins=["する", "来る", "行く"],
+              classes=["suru", "kuru", "iku"], questions=6),
+    words("verbs-3", "Everyday actions", VERBS, 8),
+    words("existence", "ある and いる", pins=["ある", "いる"], classes=["aru", "iru"], questions=10,
+          point="That ない is the same one every negative ends in, so ある's negative past is "
+                "なかった and its て-form なくて, with nothing new to learn."),
+    form("progressive", "Progressive",
          point="ている is the verb いる after a て-form, and conjugates exactly like it: "
                "食[た]べていない, 食[た]べていた, 食[た]べていなかった."),
-    words("verbs-4", "Verbs of motion", "Coming, going and carrying", VERBS, 8),
+    words("verbs-4", "Verbs of motion", VERBS, 8),
 
     chapter("Adjectives"),
-    words("ii", "いい", "The adjective that conjugates as よい",
-          pins=["いい"], classes=["ii"], questions=10),
-    words("adjectives-1", "Describing things", "More い-adjectives", ("i-adjective",), 8),
-    word_type("na-adjectives", "な-adjectives", "Adjectives that behave like nouns",
-              ("na-adjective",), 8, classes=["na-adjective"],
+    words("ii", "いい", pins=["いい"], classes=["ii"], questions=10),
+    words("adjectives-1", "Describing things", ("i-adjective",), 8),
+    word_type("na-adjectives", "な-adjectives", ("na-adjective",), 8, classes=["na-adjective"],
               point="The negative じゃない ends in ない again, so it carries on as an "
                     "い-adjective: じゃなかった, じゃなくて."),
-    words("adjectives-2", "Opinions", "Adjectives for people and things", ADJECTIVES, 8),
+    words("adjectives-2", "Opinions", ADJECTIVES, 8),
 
     chapter("Ability, intention and desire"),
-    words("suru-1", "する verbs", "Nouns turned into verbs", ("suru",), 8),
-    form("potential", "Potential", "Being able to do something",
+    words("suru-1", "する verbs", ("suru",), 8),
+    form("potential", "Potential",
          point="Every potential is an ordinary ichidan verb: 書[か]ける conjugates like "
                "食[た]べる, so 書[か]けない and 書[か]けた need nothing new."),
-    words("verbs-5", "Work and study", "Verbs for getting things done", VERBS, 7, pins=["やる"]),
-    form("volitional", "Volitional", "Let's do it"),
-    form("desire", "Desire", "Wanting to do something",
+    words("verbs-5", "Work and study", VERBS, 7, pins=["やる"]),
+    form("volitional", "Volitional"),
+    form("desire", "Desire",
          point="たい is an い-adjective: 書[か]きたくない, 書[か]きたかった and 書[か]きたくて are "
                "高[たか]い's endings on 書[か]きたい."),
-    words("suru-2", "More する verbs", "Compound verbs in daily use", ("suru",), 10, questions=14),
+    words("suru-2", "More する verbs", ("suru",), 10, questions=14),
 
     chapter("Conditions and commands"),
-    form("conditional", "Conditional (たら)", "If and when", endings=["ない"],
+    form("conditional", "Conditional (たら)", endings=["ない"],
          point="たら is the past with ら added, whatever the word: 書[か]いたら, 高[たか]かったら, "
                "and for a negative, なかった → なかったら."),
-    form("provisional", "Provisional (ば)", "The other conditional", endings=["ない"],
+    form("provisional", "Provisional (ば)", endings=["ない"],
          point="An い-adjective replaces its い with ければ: 高[たか]い → 高[たか]ければ. ない is "
                "one, so a negative becomes なければ: 書[か]かない → 書[か]かなければ."),
-    words("verbs-6", "Around the house", "Daily-life verbs", VERBS, 8),
-    form("imperative", "Imperative", "Direct commands"),
-    words("adjectives-3", "More adjectives", "Describing with more precision", ADJECTIVES, 10, questions=14),
+    words("verbs-6", "Around the house", VERBS, 8),
+    form("imperative", "Imperative"),
+    words("adjectives-3", "More adjectives", ADJECTIVES, 10, questions=14),
 
     chapter("Passive and causative"),
-    form("passive", "Passive", "Having something done to you", questions=16,
+    form("passive", "Passive", questions=16,
          point="Every passive is an ordinary ichidan verb, so it takes every form you know: "
                "書[か]かれない, 書[か]かれた."),
-    words("verbs-7", "Talking and thinking", "Verbs of speech and mind", VERBS, 8),
-    form("causative", "Causative", "Making or letting someone act", questions=16,
+    words("verbs-7", "Talking and thinking", VERBS, 8),
+    form("causative", "Causative", questions=16,
          point="Every causative is an ordinary ichidan verb too — so it has a passive of its "
                "own: 書[か]かせる → 書[か]かせられる."),
-    words("verbs-8", "More verbs", "Stepping beyond the basics", VERBS, 10, questions=14),
+    words("verbs-8", "More verbs", VERBS, 10, questions=14),
 
     chapter("The polite layer"),
-    polite("polite-basics", "Polite basics", "ます and です on the forms you use most",
-           ["negative", "past"]),
-    polite("polite-everywhere", "Polite everywhere", "The polite version of every form", None),
+    polite("polite-basics", "Polite basics", ["negative", "past"]),
+    polite("polite-everywhere", "Polite everywhere", None),
 
     # Every form is known by here, so what is left is vocabulary drilled with all of it. These
     # batches draw on their JLPT level alone; without that the commonest-first order dealt
     # N5 verbs into "N3 verbs".
     chapter("Wider vocabulary"),
-    words("n3-verbs", "N3 verbs", "Wider everyday vocabulary", VERBS, 12, questions=16, levels=["n3"]),
-    words("n3-adjectives", "N3 adjectives", "Shades of description", ADJECTIVES, 12, questions=16, levels=["n3"]),
-    words("n3-suru", "N3 する verbs", "Nouns turned into verbs, N3", ("suru",), 12, questions=16, levels=["n3"]),
-    words("n2-verbs", "N2 verbs", "Less common everyday verbs", VERBS, 12, questions=16, levels=["n2"]),
-    words("n2-adjectives", "N2 adjectives", "Sharper description", ADJECTIVES, 12, questions=16, levels=["n2"]),
-    words("n2-suru", "N2 する verbs", "Nouns turned into verbs, N2", ("suru",), 12, questions=16, levels=["n2"]),
+    words("n3-verbs", "N3 verbs", VERBS, 12, questions=16, levels=["n3"]),
+    words("n3-adjectives", "N3 adjectives", ADJECTIVES, 12, questions=16, levels=["n3"]),
+    words("n3-suru", "N3 する verbs", ("suru",), 12, questions=16, levels=["n3"]),
+    words("n2-verbs", "N2 verbs", VERBS, 12, questions=16, levels=["n2"]),
+    words("n2-adjectives", "N2 adjectives", ADJECTIVES, 12, questions=16, levels=["n2"]),
+    words("n2-suru", "N2 する verbs", ("suru",), 12, questions=16, levels=["n2"]),
 ]
 
 
@@ -378,7 +372,7 @@ def build():
     # Named words are held back first, so no ordinary batch is dealt them as well.
     for entry in SPINE:
         if entry[0] in ("word_type", "words"):
-            for key in entry[6]:
+            for key in entry[5]:  # pins
                 picker.reserve(key)
     for key in KEPT_OFF_THE_PATH:
         picker.reserve(key)
@@ -423,7 +417,7 @@ def build():
             out.add((x, y))
         return out
 
-    def lesson(lesson_id, title, subtitle, focus, candidates, questions, new, new_forms=(), classes=(), point=None):
+    def lesson(lesson_id, title, focus, candidates, questions, new, new_forms=(), classes=(), point=None):
         """A drilled lesson over the batches in [candidates] that have anything to ask.
 
         [new] is what this lesson teaches; None means a mixed lesson, which asks everything
@@ -464,7 +458,6 @@ def build():
         entry = {
             "id": lesson_id,
             "title": title,
-            "subtitle": subtitle,
             "chapter": current_chapter,
             "forms": [f for f in FORM_ORDER if f in forms],
             "focus": focus,
@@ -494,11 +487,10 @@ def build():
         if kind == "chapter":
             current_chapter = entry[1]
         elif kind == "reading":
-            _, lesson_id, title, subtitle = entry
+            _, lesson_id, title = entry
             lessons.append({
                 "id": lesson_id,
                 "title": title,
-                "subtitle": subtitle,
                 "chapter": current_chapter,
                 "kind": "read",
                 "forms": [],
@@ -515,35 +507,35 @@ def build():
             _, batch, groups, count, pins, levels = entry
             pending.append(dealt(batch, groups, count, pins, levels))
         elif kind == "form":
-            _, key, title, subtitle, questions, on, endings, point = entry
+            _, key, title, questions, on, endings, point = entry
             known.append(key)
             groups = on if on is not None else sorted(g for g in dealt_groups() if has_form(g, key))
             new = {(key, g) for g in groups} | {(key, e) for e in endings}
             new |= introduce_ending(key)
-            lesson(key, title, subtitle, type_of(key), list(batches), questions, new,
+            lesson(key, title, type_of(key), list(batches), questions, new,
                  new_forms=[key], point=point)
         elif kind == "extend":
-            _, lesson_id, title, subtitle, key, hosts, questions, point = entry
-            lesson(lesson_id, title, subtitle, type_of(key), list(batches), questions,
+            _, lesson_id, title, key, hosts, questions, point = entry
+            lesson(lesson_id, title, type_of(key), list(batches), questions,
                  {(key, h) for h in hosts}, point=point)
         elif kind == "word_type":
-            _, batch, title, subtitle, groups, count, pins, classes, questions, levels, point = entry
+            _, batch, title, groups, count, pins, classes, questions, levels, point = entry
             pending.append(dealt(batch, groups, count, pins, levels))
             fresh = groups_of(batch)
             forms_here = [f for f in known if any(has_form(g, f) for g in fresh)]
             for i, key in enumerate(forms_here):
-                lesson(f"{batch}-{key}", f"{title} · {FORM_LABELS[key]}", subtitle, type_of(key), [batch],
+                lesson(f"{batch}-{key}", f"{title} · {FORM_LABELS[key]}", type_of(key), [batch],
                      questions, {(key, g) for g in fresh if has_form(g, key)},
                      classes=classes if i == 0 else (), point=point if i == 0 else None)
         elif kind == "words":
-            _, batch, title, subtitle, groups, count, pins, classes, questions, levels, point = entry
+            _, batch, title, groups, count, pins, classes, questions, levels, point = entry
             pending.append(dealt(batch, groups, count, pins, levels))
             # New words of a new group take every form known so far; for a group already
             # met this teaches nothing it did not already know.
             taught.update((f, g) for g in groups_of(batch) for f in known if has_form(g, f))
-            lesson(batch, title, subtitle, FOCUS_NONE, [batch], questions, None, classes=classes, point=point)
+            lesson(batch, title, FOCUS_NONE, [batch], questions, None, classes=classes, point=point)
         elif kind == "polite":
-            _, lesson_id, title, subtitle, forms, questions = entry
+            _, lesson_id, title, forms, questions = entry
             first = "polite" not in known
             if first:
                 known.append("polite")
@@ -554,7 +546,7 @@ def build():
                 hosts = dealt_groups()
                 after = set(forms)
             new = {("polite", h) for h in hosts} | {(f, "polite") for f in after}
-            lesson(lesson_id, title, subtitle, POLITENESS, list(batches), questions, new,
+            lesson(lesson_id, title, POLITENESS, list(batches), questions, new,
                  new_forms=["polite"] if first else [])
 
     if pending:

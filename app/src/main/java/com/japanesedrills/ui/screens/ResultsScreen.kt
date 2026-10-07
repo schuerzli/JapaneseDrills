@@ -1,6 +1,5 @@
 package com.japanesedrills.ui.screens
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -27,9 +25,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,15 +38,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
-import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.ui.HistoryEntry
 import com.japanesedrills.ui.LessonOutcome
 import com.japanesedrills.ui.components.AlignedChanges
@@ -57,12 +53,12 @@ import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.HeroBar
-import com.japanesedrills.ui.components.SectionPiece
-import com.japanesedrills.ui.components.SectionHeading
 import com.japanesedrills.ui.components.PanelPadding
+import com.japanesedrills.ui.components.SectionHeading
+import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.Spotlight
-import com.japanesedrills.ui.components.StrengthBar
 import com.japanesedrills.ui.components.StepBlock
+import com.japanesedrills.ui.components.StrengthBar
 import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme

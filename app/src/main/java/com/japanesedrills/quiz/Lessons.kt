@@ -10,7 +10,6 @@ import org.json.JSONObject
 data class Lesson(
     val id: String,
     val title: String,
-    val subtitle: String,
     /** The heading the path groups this lesson under. */
     val chapter: String,
     /** The form options switched on, "plain" included. */
@@ -56,10 +55,6 @@ data class Lesson(
 /** The learn path, in order, and the word batches its lessons draw on. */
 class LearnPath(val lessons: List<Lesson>, private val batches: Map<String, List<String>>) {
 
-    private val byId = lessons.associateBy { it.id }
-
-    operator fun get(id: String): Lesson? = byId[id]
-
     /** Every word the lesson may ask about, by word key. */
     fun words(lesson: Lesson): Set<String> = lesson.batches.flatMapTo(LinkedHashSet()) { batches[it].orEmpty() }
 
@@ -89,10 +84,7 @@ class LearnPath(val lessons: List<Lesson>, private val batches: Map<String, List
         return QuizOptions(
             flags = flags,
             questionFocus = lesson.focus,
-            theme = base.theme,
-            palette = base.palette,
-            furigana = base.furigana,
-            reviewCap = base.reviewCap,
+            app = base.app,
             wordKeys = words(lesson),
             conjugations = lesson.conjugations,
         )
@@ -122,7 +114,6 @@ class LearnPath(val lessons: List<Lesson>, private val batches: Map<String, List
                 Lesson(
                     id = obj.getString("id"),
                     title = obj.getString("title"),
-                    subtitle = obj.getString("subtitle"),
                     chapter = obj.getString("chapter"),
                     forms = obj.getJSONArray("forms").strings().toSet(),
                     focus = obj.getString("focus"),

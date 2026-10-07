@@ -352,6 +352,10 @@ object ConjugationIntro {
                         "like 高[たか]い: 書[か]きたくない, 書[か]きたかった.",
                 ),
                 ConjugationIntroBlock.Line(
+                    "The negative works the same way: ない is itself an い-adjective, so 書[か]かない → " +
+                        "書[か]かなかった, exactly as 高[たか]い → 高[たか]かった.",
+                ),
+                ConjugationIntroBlock.Line(
                     "This is why a text this short covers every form in this app's Grammar tab. A long " +
                         "form is a short form with another short form applied to it, and the second step " +
                         "follows rules you already know.",

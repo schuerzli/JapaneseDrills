@@ -10,28 +10,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -46,13 +41,12 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.ui.DrillUiState
-import com.japanesedrills.ui.Recommendation
 import com.japanesedrills.ui.LessonCard
+import com.japanesedrills.ui.Recommendation
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.Lit
 import com.japanesedrills.ui.components.Panel
 import com.japanesedrills.ui.components.PanelPadding
-import com.japanesedrills.ui.components.Section
 import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.SectionSpacing
 import com.japanesedrills.ui.components.StrengthBar
@@ -61,7 +55,6 @@ import com.japanesedrills.ui.components.verticalScrollbar
 import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
 import com.japanesedrills.ui.theme.lead
-import kotlin.math.roundToInt
 
 /** One chapter of the path, in path order. */
 private data class Chapter(val title: String, val cards: List<LessonCard>) {
@@ -324,10 +317,6 @@ private fun PanelRow(
 }
 
 /**
- * What the path recommends, with a way straight in. Readiness decides it, never a lock: the
- * learner can take any other lesson from the list below.
- */
-/**
  * What the path wants next, whatever that is: the lesson when review is solid, review
  * itself when it is not, and free practice once every lesson is ready. One row, one label,
  * so the absence of a lesson is stated rather than left to be noticed.
@@ -360,9 +349,9 @@ private fun RecommendedRow(
  * One lesson, on one line: whether it has been ready, what it is called, how well its content
  * is holding up in review, and the way in to what it introduces.
  *
- * One line and not three. The path is read down — twenty-odd lessons over six chapters —
- * and a subtitle under every one of them turned a list into a wall. What a lesson is about
- * is on the page it opens; the row only has to say which lesson it is and where it stands.
+ * One line and not three. The path is read down — dozens of lessons over several chapters —
+ * and a subtitle under every one of them turned a list into a wall; the row only has to say
+ * which lesson it is and where it stands.
  */
 @Composable
 private fun LessonRow(card: LessonCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
@@ -419,8 +408,3 @@ private val TickWidth = 26.dp
 private val BarWidth = 62.dp
 private val IntroWidth = 58.dp
 
-/**
- * How well a lesson's content is holding up in review, as a bar that takes its colour from how
- * far it has filled ([com.japanesedrills.ui.theme.StrengthColors]): a lesson that has never
- * been answered shows the empty track, and one that is solid reads green across.
- */

@@ -23,9 +23,14 @@ data class GrammarNote(
  * One line of a note, and the word groups it is about when it is not about every class: a
  * lesson shows only the lines about the classes it drills, so the い-adjective past does
  * not explain the godan fusions. The Grammar tab shows every line.
+ *
+ * A line can also be the Grammar tab's alone ([inLessons] false) when a lesson already
+ * makes it its key idea, so the page does not say it twice.
  */
-data class NoteLine(val text: String, val groups: Set<String>? = null) {
-    fun isFor(lesson: Set<String>?): Boolean = groups == null || lesson == null || groups.any(lesson::contains)
+data class NoteLine(val text: String, val groups: Set<String>? = null, val inLessons: Boolean = true) {
+    /** Whether a lesson drilling [lesson]'s word groups shows it; null [lesson] is the Grammar tab. */
+    fun isFor(lesson: Set<String>?): Boolean =
+        lesson == null || (inLessons && (groups == null || groups.any(lesson::contains)))
 }
 
 /**
@@ -76,6 +81,9 @@ object Grammar {
     /** A line about godan verbs only. */
     private fun godan(text: String) = NoteLine(text, GODAN_GROUPS)
 
+    /** A line for the Grammar tab only: the lesson that teaches it leads with it as its key idea. */
+    private fun reference(text: String) = NoteLine(text, inLessons = false)
+
     /** Shown under one heading, because "irregular" is the useful fact about both of them. */
     val IRREGULAR_GROUPS = setOf("suru", "kuru")
 
@@ -100,7 +108,7 @@ object Grammar {
             summary = "The casual style. Its present is the dictionary form — how a word is listed.",
             notes = lines(
                 "Used with family, close friends and anyone below you in a hierarchy.",
-                "Every tense has one: 食[た]べた and 食[た]べない are as plain as 食[た]べる. It is a register, " +
+                "Every form has one: 食[た]べた and 食[た]べない are as plain as 食[た]べる. It is a register, " +
                     "not a single form.",
                 "The normal form inside a longer sentence: before と思[おも]う, から, けど, and " +
                     "directly in front of a noun.",
@@ -131,7 +139,7 @@ object Grammar {
                     "Built from the plain form alone. The polite ません says the same thing and " +
                         "comes with the polite layer."
                 ),
-                "The ない it ends in is an い-adjective itself, and conjugates like one.",
+                reference("The ない it ends in is an い-adjective itself, and conjugates like one."),
                 "With a verb it is \"does not\"; with an adjective, \"is not\".",
             ),
         ),
@@ -161,7 +169,7 @@ object Grammar {
             title = "Progressive",
             summary = "ている: an action in progress, or the state left behind by one.",
             notes = lines(
-                "With action verbs it is \"is doing\": food is being eaten right now.",
+                "With action verbs it is \"is doing\": 食[た]べている, is eating.",
                 "With change-of-state verbs it is the resulting state, not the change: " +
                     "知[し]っている means \"know\", 結[けっ]婚[こん]している means \"is married\".",
                 "Also covers habits — what someone does these days.",
@@ -177,7 +185,7 @@ object Grammar {
                 "Said flatly about someone else it is wrong: use たがる, or hedge with " +
                     "たいようだ or たいそうです.",
                 "Built on the い-row stem: 書[か]く → 書[か]きたい. The polite ます form uses the same stem.",
-                "The result conjugates as an い-adjective: 食[た]べたくない, 食[た]べたかった.",
+                reference("The result conjugates as an い-adjective: 食[た]べたくない, 食[た]べたかった."),
                 "The object may take が as well as を.",
             ),
         ),
@@ -211,7 +219,7 @@ object Grammar {
                 "Works for one-off and hypothetical conditions alike.",
                 "In the past it can mean \"when I did X, it turned out that…\" — a discovery " +
                     "rather than a condition.",
-                "Built straight from the past form: add ら to it.",
+                reference("Built straight from the past form: add ら to it."),
             ),
         ),
         GrammarNote(

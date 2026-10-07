@@ -26,32 +26,27 @@ enum class Palette(val label: String) {
 }
 
 /**
- * Settings chosen on the practice screen, and the app-wide ones from Settings that ride
- * along to share its persistence. Flag keys match the web drill's option ids.
- *
- * A setting that rides along is named in three places: here, in [OptionsStore]'s load and
- * save, and in [LearnPath.optionsFor], which builds the path's options fresh rather than
- * copying them — so a setting it does not name silently falls back to its default on every
- * lesson and review.
+ * The settings chosen in Settings rather than on the practice screen. They ride in
+ * [QuizOptions] to share its persistence, as one value: a lesson's options and the practice
+ * screen's reset both carry it whole, so a setting added here cannot be dropped by either.
+ * [OptionsStore] is the one place that names each of them.
  */
+data class AppSettings(
+    val theme: ThemeChoice = ThemeChoice.System,
+    val palette: Palette = Palette.Kissaten,
+    /** Whether readings are shown above kanji, everywhere in the app. */
+    val furigana: Boolean = true,
+    /** The most questions one review may ask, however much is due. */
+    val reviewCap: Int = QuizOptions.DEFAULT_REVIEW_CAP,
+)
+
+/** Settings chosen on the practice screen. Flag keys match the web drill's option ids. */
 data class QuizOptions(
     val flags: Map<String, Boolean> = DEFAULT_FLAGS,
     val questionFocus: String = FOCUS_NONE,
     val numQuestions: String = "10",
-    /** Not a quiz setting, but it rides along to reuse the same persistence. */
-    val theme: ThemeChoice = ThemeChoice.System,
-    /** Rides along for the same reason as [theme]. */
-    val palette: Palette = Palette.Kissaten,
-    /**
-     * Whether readings are shown above kanji, everywhere in the app. A display setting like
-     * [theme], not a choice of what to practise, so it is not one of the [flags].
-     */
-    val furigana: Boolean = true,
-    /**
-     * The most questions one review may ask, however much is due. Rides along like [theme]:
-     * it is chosen in Settings, not on the practice screen, but it is the engine that reads it.
-     */
-    val reviewCap: Int = DEFAULT_REVIEW_CAP,
+    /** Not practice settings at all; see [AppSettings]. */
+    val app: AppSettings = AppSettings(),
     /**
      * The squares of the practice grid switched off one at a time, as `form|column` (see
      * [squareKey]). A square is off anyway when its form or its column is, so this holds
@@ -188,8 +183,9 @@ data class QuizOptions(
         val QUESTION_COUNTS = listOf(5, 10, 15, 20, 30, 50)
 
         /**
-         * The longest reviews Settings offers. A lesson earns up to 16 questions, so 100 holds
-         * about six mature ones; the cap is for the day after a holiday, not for every day.
+         * The longest reviews Settings offers. The default holds about six lessons at the top
+         * of the ladder (`QuizEngine.MAX_PER_LESSON` each): the cap is for the day after a
+         * holiday, not for every day.
          */
         val REVIEW_CAPS = listOf(30, 50, 100, 200)
         const val DEFAULT_REVIEW_CAP = 100
@@ -333,6 +329,7 @@ class OptionsStore(context: Context) {
 
     fun load(): QuizOptions {
         val defaults = QuizOptions()
+        val app = AppSettings()
         val flags = defaults.flags.mapValues { (key, default) -> prefs.getBoolean("flag_$key", default) }
         return QuizOptions(
             flags = flags,
@@ -340,16 +337,18 @@ class OptionsStore(context: Context) {
                 ?.takeIf { focus -> QuizOptions.FOCUS.any { it.key == focus } }
                 ?: defaults.questionFocus,
             numQuestions = prefs.getString("numQuestions", null) ?: defaults.numQuestions,
-            theme = prefs.getString("theme", null)
-                ?.let { name -> ThemeChoice.entries.firstOrNull { it.name == name } }
-                ?: defaults.theme,
-            palette = prefs.getString("palette", null)
-                ?.let { name -> Palette.entries.firstOrNull { it.name == name } }
-                ?: defaults.palette,
-            furigana = prefs.getBoolean("furigana", defaults.furigana),
-            reviewCap = prefs.getInt("reviewCap", defaults.reviewCap)
-                .takeIf { it in QuizOptions.REVIEW_CAPS }
-                ?: defaults.reviewCap,
+            app = AppSettings(
+                theme = prefs.getString("theme", null)
+                    ?.let { name -> ThemeChoice.entries.firstOrNull { it.name == name } }
+                    ?: app.theme,
+                palette = prefs.getString("palette", null)
+                    ?.let { name -> Palette.entries.firstOrNull { it.name == name } }
+                    ?: app.palette,
+                furigana = prefs.getBoolean("furigana", app.furigana),
+                reviewCap = prefs.getInt("reviewCap", app.reviewCap)
+                    .takeIf { it in QuizOptions.REVIEW_CAPS }
+                    ?: app.reviewCap,
+            ),
             offSquares = prefs.getStringSet("offSquares", null).orEmpty(),
             sets = prefs.getStringSet("sets", null).orEmpty(),
             allWords = prefs.getBoolean("allWords", defaults.allWords),
@@ -361,10 +360,10 @@ class OptionsStore(context: Context) {
             options.flags.forEach { (key, value) -> putBoolean("flag_$key", value) }
             putString("questionFocus", options.questionFocus)
             putString("numQuestions", options.numQuestions)
-            putString("theme", options.theme.name)
-            putString("palette", options.palette.name)
-            putBoolean("furigana", options.furigana)
-            putInt("reviewCap", options.reviewCap)
+            putString("theme", options.app.theme.name)
+            putString("palette", options.app.palette.name)
+            putBoolean("furigana", options.app.furigana)
+            putInt("reviewCap", options.app.reviewCap)
             putStringSet("offSquares", options.offSquares)
             putStringSet("sets", options.sets)
             putBoolean("allWords", options.allWords)

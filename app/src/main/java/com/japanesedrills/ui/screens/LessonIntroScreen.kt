@@ -39,10 +39,10 @@ import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
+import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
-import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.HeroBar

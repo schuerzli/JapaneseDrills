@@ -2,10 +2,13 @@ package com.japanesedrills
 
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
+import com.japanesedrills.quiz.AppSettings
 import com.japanesedrills.quiz.CustomSet
-import com.japanesedrills.quiz.LearnPath
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
+import com.japanesedrills.quiz.LearnPath
+import com.japanesedrills.quiz.Palette
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
@@ -14,18 +17,18 @@ import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.ReviewLoad
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
-import com.japanesedrills.quiz.LessonRecord
+import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.quiz.TransformationBuilder
 import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.ui.DrillUiState
-import java.io.File
-import kotlin.random.Random
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
+import kotlin.random.Random
 
 /**
  * The learn path's safety net. These are the checks that turn a bad edit to lessons.json —
@@ -192,6 +195,18 @@ class LearnPathTest {
             val types = engine.pairsFor(learnPath.optionsFor(lesson, QuizOptions())).map { transformationOf(it).type }.toSet()
             assertEquals("${lesson.id} asks other question types", setOf(lesson.focus), types)
         }
+    }
+
+    /**
+     * The settings chosen in Settings travel whole: a lesson keeps them, and so does the
+     * practice screen's reset, which once put a chosen review cap back to its default.
+     */
+    @Test
+    fun theAppSettingsSurviveALessonAndAReset() {
+        val app = AppSettings(theme = ThemeChoice.Dark, palette = Palette.Mocha, furigana = false, reviewCap = 30)
+        val base = QuizOptions(app = app, numQuestions = "5")
+        assertEquals(app, learnPath.optionsFor(drills.first(), base).app)
+        assertEquals(app, QuizOptions(app = base.app).app)
     }
 
     @Test

@@ -31,8 +31,8 @@ import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.RichTable
 import com.japanesedrills.ui.components.RichText
-import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.SectionHeading
+import com.japanesedrills.ui.components.SectionPiece
 import com.japanesedrills.ui.components.Subheading
 import com.japanesedrills.ui.components.TableLayout
 import com.japanesedrills.ui.components.heroBarColors

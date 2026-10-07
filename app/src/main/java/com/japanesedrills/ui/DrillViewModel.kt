@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
 import com.japanesedrills.dev.DevTools
+import com.japanesedrills.quiz.AppSettings
 import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.Drawn
 import com.japanesedrills.quiz.Furigana
@@ -13,6 +14,8 @@ import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.GrammarExamples
 import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.LearnPath
+import com.japanesedrills.quiz.Lesson
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.OptionsStore
 import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.PracticePreset
@@ -26,8 +29,6 @@ import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
-import com.japanesedrills.quiz.Lesson
-import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.quiz.WordColumn
 import com.japanesedrills.quiz.WordSets
@@ -235,13 +236,6 @@ data class DrillUiState(
         get() = !loading && options.hasPoliteness && options.questionCount != null && (pool?.questions ?: 0) > 0
 
     /**
-     * The learn path has begun: opening a lesson already counts, and it would be odd to still
-     * be told nothing has. A word set made on the practice tab is not a lesson taken, which
-     * is why this is not simply "there is something in the document".
-     */
-    val started: Boolean get() = progress.onPath
-
-    /**
      * The set a wrong word can be dropped from while drilling: the one set the session is
      * drawing on, when that set is the learner's own. Two sets at once, or every word there
      * is, and the question does not say which set to drop it from.
@@ -372,8 +366,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         // Every route back to the path runs through here, including quitting a session
-        // part-way. Abandoned sessions still moved the schedule, so the due count has to be
-        // recomputed even though nothing finished.
+        // part-way. An abandoned session still moved the path — a lesson can turn ready
+        // mid-session, and a review grades each lesson whose questions are all answered —
+        // so the path is reckoned again even though nothing finished.
         refreshPath()
     }
 
@@ -503,23 +498,25 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setNumQuestions(text: String) = updateOptions { it.copy(numQuestions = text.filter(Char::isDigit).take(3)) }
 
-    fun setTheme(theme: ThemeChoice) = updateOptions { it.copy(theme = theme) }
+    fun setTheme(theme: ThemeChoice) = updateApp { it.copy(theme = theme) }
 
-    fun setPalette(palette: Palette) = updateOptions { it.copy(palette = palette) }
+    fun setPalette(palette: Palette) = updateApp { it.copy(palette = palette) }
 
     /** The pool is untouched, but the Review row states the session's length, which is capped. */
     fun setReviewCap(cap: Int) {
-        updateOptions { it.copy(reviewCap = cap) }
+        updateApp { it.copy(reviewCap = cap) }
         refreshDue()
     }
 
     /** One setting, flipped from Settings or by tapping the question card. */
-    fun setFurigana(on: Boolean) = updateOptions { it.copy(furigana = on) }
+    fun setFurigana(on: Boolean) = updateApp { it.copy(furigana = on) }
 
-    fun toggleFurigana() = setFurigana(!_state.value.options.furigana)
+    fun toggleFurigana() = setFurigana(!_state.value.options.app.furigana)
 
-    /** Resets the practice settings only; the appearance is not one of them. */
-    fun resetDefaults() = updateOptions { QuizOptions(theme = it.theme, palette = it.palette, furigana = it.furigana) }
+    /** Resets the practice settings only; the ones chosen in Settings are not among them. */
+    fun resetDefaults() = updateOptions { QuizOptions(app = it.app) }
+
+    private fun updateApp(transform: (AppSettings) -> AppSettings) = updateOptions { it.copy(app = transform(it.app)) }
 
     /** The whole learn path as text, for copying somewhere safe. */
     fun exportProgress(): String = ProgressCodec.encode(_state.value.progress, indent = 2)
@@ -623,9 +620,6 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         open(lesson)
     }
 
-    /** The same page: a lesson is always entered through what it is about. */
-    fun showLessonIntro(lesson: Lesson) = openLesson(lesson)
-
     private fun markRead(lesson: Lesson) {
         val progress = _state.value.progress
         if (progress.records[lesson.id]?.ready == true) return
@@ -714,7 +708,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val learnPath = data?.learnPath ?: return
         val progress = _state.value.progress
         val lessons = learnPath.inReview(progress).map { it.id }
-        val load = engine.reviewLoad(lessons, progress, today, _state.value.options.reviewCap)
+        val load = engine.reviewLoad(lessons, progress, today, _state.value.options.app.reviewCap)
         _state.update {
             it.copy(
                 dueCount = load.due,
@@ -737,7 +731,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
         startJob = viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
-                engine.buildReviewQueue(lessons, progress, today, options.reviewCap)
+                engine.buildReviewQueue(lessons, progress, today, options.app.reviewCap)
             }
             val question = startQueue(drawn)
             if (question == null) {

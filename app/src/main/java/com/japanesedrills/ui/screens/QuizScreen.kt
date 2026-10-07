@@ -80,11 +80,11 @@ import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.FusionColumn
 import com.japanesedrills.quiz.Prompts
-import com.japanesedrills.quiz.Solution
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
 import com.japanesedrills.quiz.RomajiConverter
+import com.japanesedrills.quiz.Solution
 import com.japanesedrills.ui.QuizState
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
@@ -113,9 +113,9 @@ fun QuizScreen(
     onExplain: () -> Unit,
     onDropWord: () -> Unit,
     onQuit: () -> Unit,
+    modifier: Modifier = Modifier,
     /** The debug build's session shortcuts; nothing in a release build. */
     developer: @Composable () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     val question = quiz.question
     val answer = quiz.answer
@@ -387,65 +387,63 @@ private fun ResultCard(
             Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            run {
-                if (!correct) {
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("The correct answer was", style = MaterialTheme.typography.bodyLarge)
-                        for (line in Prompts.alternatives(quiz.question.answersDisplay(options.kana))) {
-                            RichText(parts = line, style = MaterialTheme.typography.headlineSmall)
-                        }
+            if (!correct) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("The correct answer was", style = MaterialTheme.typography.bodyLarge)
+                    for (line in Prompts.alternatives(quiz.question.answersDisplay(options.kana))) {
+                        RichText(parts = line, style = MaterialTheme.typography.headlineSmall)
                     }
                 }
+            }
 
-                // Only where the session draws on one set of the learner's own: a word
-                // dropped here leaves that set, and the rest of this session with it.
-                if (droppableSet != null) {
-                    var dropped by remember(quiz.question.id) { mutableStateOf(false) }
-                    TextButton(
-                        onClick = {
-                            dropped = true
-                            onDropWord()
-                        },
-                        enabled = !dropped,
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        RichText(
-                            listOfNotNull(
-                                RichPart.Text(if (dropped) "Dropped " else "Drop "),
-                                RichPart.Jp(quiz.question.dictionaryDisplay(options.kana)),
-                                RichPart.Text(" from ${droppableSet.name}"),
-                            ),
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            // Only where the session draws on one set of the learner's own: a word
+            // dropped here leaves that set, and the rest of this session with it.
+            if (droppableSet != null) {
+                var dropped by remember(quiz.question.id) { mutableStateOf(false) }
+                TextButton(
+                    onClick = {
+                        dropped = true
+                        onDropWord()
+                    },
+                    enabled = !dropped,
+                    contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
                 ) {
-                    if (!correct && !quiz.showExplanation) {
-                        OutlinedButton(onClick = onExplain) {
-                            Icon(
-                                Icons.Default.Info,
-                                contentDescription = null,
-                                modifier = Modifier.size(ButtonDefaults.IconSize),
-                            )
-                            Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                            Text("Explain")
-                        }
-                    }
-                    Button(onClick = onProceed, modifier = Modifier.focusRequester(nextFocus)) {
-                        Text(if (quiz.history.size >= quiz.total) "Results" else "Next")
-                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Icon(Icons.Default.Close, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(Modifier.width(6.dp))
+                    RichText(
+                        listOf(
+                            RichPart.Text(if (dropped) "Dropped " else "Drop "),
+                            RichPart.Jp(quiz.question.dictionaryDisplay(options.kana)),
+                            RichPart.Text(" from ${droppableSet.name}"),
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
+            ) {
+                if (!correct && !quiz.showExplanation) {
+                    OutlinedButton(onClick = onExplain) {
                         Icon(
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            Icons.Default.Info,
                             contentDescription = null,
                             modifier = Modifier.size(ButtonDefaults.IconSize),
                         )
+                        Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                        Text("Explain")
                     }
+                }
+                Button(onClick = onProceed, modifier = Modifier.focusRequester(nextFocus)) {
+                    Text(if (quiz.history.size >= quiz.total) "Results" else "Next")
+                    Spacer(Modifier.width(ButtonDefaults.IconSpacing))
+                    Icon(
+                        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                    )
                 }
             }
         }

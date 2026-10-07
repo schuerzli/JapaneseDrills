@@ -15,16 +15,16 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
@@ -54,11 +54,11 @@ import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.DrillViewModel
 import com.japanesedrills.ui.Screen
+import com.japanesedrills.ui.Tab as AppTab
 import com.japanesedrills.ui.components.FuriganaAction
+import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.LocalFurigana
 import com.japanesedrills.ui.components.LocalFuriganaToggle
-import com.japanesedrills.ui.Tab as AppTab
-import com.japanesedrills.ui.components.HeroBar
 import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.screens.AboutScreen
 import com.japanesedrills.ui.screens.AppSettingsScreen
@@ -66,11 +66,11 @@ import com.japanesedrills.ui.screens.ConjugationIntroScreen
 import com.japanesedrills.ui.screens.GrammarDetailScreen
 import com.japanesedrills.ui.screens.GrammarScreen
 import com.japanesedrills.ui.screens.LearnPathScreen
+import com.japanesedrills.ui.screens.LessonIntroScreen
 import com.japanesedrills.ui.screens.PracticeBar
 import com.japanesedrills.ui.screens.PracticeScreen
 import com.japanesedrills.ui.screens.QuizScreen
 import com.japanesedrills.ui.screens.ResultsScreen
-import com.japanesedrills.ui.screens.LessonIntroScreen
 import com.japanesedrills.ui.screens.WordSetScreen
 import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.JapaneseDrillsTheme
@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
             val state by viewModel.state.collectAsStateWithLifecycle()
             // The stored options are read before the first frame, so the chosen theme
             // applies immediately rather than flashing the system one first.
-            val dark = when (state.options.theme) {
+            val dark = when (state.options.app.theme) {
                 ThemeChoice.System -> isSystemInDarkTheme()
                 ThemeChoice.Light -> false
                 ThemeChoice.Dark -> true
@@ -120,10 +120,10 @@ class MainActivity : ComponentActivity() {
                 )
                 onDispose {}
             }
-            JapaneseDrillsTheme(darkTheme = dark, palette = state.options.palette) {
+            JapaneseDrillsTheme(darkTheme = dark, palette = state.options.app.palette) {
                 // One value for every screen, so furigana can never be on in one place and off in another.
                 CompositionLocalProvider(
-                    LocalFurigana provides state.options.furigana,
+                    LocalFurigana provides state.options.app.furigana,
                     LocalFuriganaToggle provides viewModel::toggleFurigana,
                 ) { DrillApp(state, viewModel) }
             }
@@ -131,7 +131,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /** The stored choice as a [Configuration] night bit, or null to follow the device. */
-    private fun nightUiMode(context: Context): Int? = when (OptionsStore(context).load().theme) {
+    private fun nightUiMode(context: Context): Int? = when (OptionsStore(context).load().app.theme) {
         ThemeChoice.System -> null
         ThemeChoice.Light -> Configuration.UI_MODE_NIGHT_NO
         ThemeChoice.Dark -> Configuration.UI_MODE_NIGHT_YES
@@ -357,7 +357,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
             AppTab.Learn -> LearnPathScreen(
                 state = state,
                 onLesson = viewModel::openLesson,
-                onLessonIntro = viewModel::showLessonIntro,
+                onLessonIntro = viewModel::openLesson,
                 onReview = viewModel::startReview,
                 onToggleChapter = viewModel::setChapterOpen,
                 modifier = inner,
