@@ -1,12 +1,12 @@
-"""Regenerates app/src/main/assets/steps.json from the step table below.
+"""Regenerates app/src/main/assets/lessons.json from the lesson table below.
 
 The path is generated rather than hand-written so that the ordering rules stay visible
 and a change is reviewable as a diff. See README.md for why it is shaped the way it is.
 
-    python tools/steps/generate.py            # write steps.json
-    python tools/steps/generate.py --check    # fail if it would change
+    python tools/lessons/generate.py            # write lessons.json
+    python tools/lessons/generate.py --check    # fail if it would change
 
-Every step is spelled out in full: the forms it switches on, the one question type it
+Every lesson is spelled out in full: the forms it switches on, the one question type it
 asks about (or none), the word batches it draws on, and the conjugations it asks per word
 group, which is where compounds are held back until every rule in them has been taught. Titles are shown with furigana, so
 their kanji are written in the same notation as the word list. The app only reads that; all the
@@ -23,16 +23,16 @@ ROOT = pathlib.Path(__file__).resolve().parents[2]
 ASSETS = ROOT / "app" / "src" / "main" / "assets"
 WORDS = ASSETS / "words.json"
 RULES = ASSETS / "rules.json"
-STEPS = ASSETS / "steps.json"
+LESSONS = ASSETS / "lessons.json"
 
 LEVEL_RANK = {"n5": 0, "n4": 1, "n3": 2, "n2": 3}
 
 # The app's question types: every form is its own, except that plain and polite are the two
-# ends of one ("politeness"). A step's focus is one of these.
+# ends of one ("politeness"). A lesson's focus is one of these.
 POLITENESS = "politeness"
 FOCUS_NONE = "none"
 
-# How a form is named in a step title.
+# How a form is named in a lesson title.
 FORM_LABELS = {
     "negative": "Negative",
     "past": "Past",
@@ -191,7 +191,7 @@ def all_pairs(has):
     return sorted(pairs)
 
 
-# The order forms are listed in, for a step's "forms": the practice screen's order.
+# The order forms are listed in, for a lesson's "forms": the practice screen's order.
 FORM_ORDER = ["plain", "polite", "negative", "past", "te-form", "progressive", "desire", "volitional",
               "potential", "conditional", "provisional", "imperative", "passive", "causative"]
 
@@ -209,12 +209,12 @@ def tags_of(key):
 #   form(...)       a new form, taught on the word groups named (every group so far that
 #                   has it, by default) and on any ending named
 #   extend(...)     a form already known, taught on something new: an ending or a class
-#   word_type(...)  a new word type, one step for each form it has that is known by then
+#   word_type(...)  a new word type, one lesson for each form it has that is known by then
 #   words(...)      new words of known types, drilled on everything asked so far, mixed
 #   polite(...)     the polite layer over a set of forms
 #
-# deal(...) hands out a batch without a step of its own; the next step introduces it.
-# A step's point is the one thing its introduction leads with: usually that an ending
+# deal(...) hands out a batch without a lesson of its own; the next lesson introduces it.
+# A lesson's point is the one thing its introduction leads with: usually that an ending
 # conjugates as a class already taught, which is what lets its compounds be asked at all.
 
 VERBS = ("godan", "ichidan")
@@ -229,17 +229,17 @@ def deal(batch, groups, count):
     return ("deal", batch, groups, count, [], None)
 
 
-def reading(step_id, title, subtitle):
+def reading(lesson_id, title, subtitle):
     """A lesson that is read rather than drilled: no forms, no words, no questions."""
-    return ("reading", step_id, title, subtitle)
+    return ("reading", lesson_id, title, subtitle)
 
 
 def form(key, title, subtitle, questions=14, on=None, endings=(), point=None):
     return ("form", key, title, subtitle, questions, on, tuple(endings), point)
 
 
-def extend(step_id, title, subtitle, key, hosts, questions=14, point=None):
-    return ("extend", step_id, title, subtitle, key, tuple(hosts), questions, point)
+def extend(lesson_id, title, subtitle, key, hosts, questions=14, point=None):
+    return ("extend", lesson_id, title, subtitle, key, tuple(hosts), questions, point)
 
 
 def word_type(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), questions=12, point=None):
@@ -251,8 +251,8 @@ def words(batch, title, subtitle, groups=(), count=0, pins=(), classes=(), quest
             set(levels) if levels else None, point)
 
 
-def polite(step_id, title, subtitle, forms, questions=16):
-    return ("polite", step_id, title, subtitle, forms, questions)
+def polite(lesson_id, title, subtitle, forms, questions=16):
+    return ("polite", lesson_id, title, subtitle, forms, questions)
 
 
 # Why this order (see README.md): the plain forms first, because the negative is where the
@@ -361,7 +361,7 @@ SPINE = [
 ]
 
 
-# In the word list, so free practice has them, but never dealt into a step.
+# In the word list, so free practice has them, but never dealt into a lesson.
 KEPT_OFF_THE_PATH = [
     # The potential of 使う, listed as a verb of its own: drilled as one, 使えない would be
     # asked as the negative of a verb the learner meets again as a form of another.
@@ -386,8 +386,8 @@ def build():
     batches = {}  # batch id -> word keys, in path order
     known = []  # forms introduced so far, in the order they were introduced
     taught = set()  # (form, host) links taught so far
-    steps = []
-    pending = []  # batches dealt but not yet introduced by a step
+    lessons = []
+    pending = []  # batches dealt but not yet introduced by a lesson
     current_chapter = None
 
     def groups_of(batch):
@@ -406,8 +406,8 @@ def build():
         return batch
 
     def content(group, focus, new):
-        """The pairs a step asks of a word in [group]: of its type, every link taught, and
-        at least one link taught by this step — or, for a mixed step, every pair asked so far."""
+        """The pairs a lesson asks of a word in [group]: of its type, every link taught, and
+        at least one link taught by this lesson — or, for a mixed lesson, every pair asked so far."""
         keys = has[group] | {DICTIONARY}
         out = set()
         for x, y, kind in pairs:
@@ -423,15 +423,15 @@ def build():
             out.add((x, y))
         return out
 
-    def step(step_id, title, subtitle, focus, candidates, questions, new, new_forms=(), classes=(), point=None):
-        """A drilled step over the batches in [candidates] that have anything to ask.
+    def lesson(lesson_id, title, subtitle, focus, candidates, questions, new, new_forms=(), classes=(), point=None):
+        """A drilled lesson over the batches in [candidates] that have anything to ask.
 
-        [new] is what this step teaches; None means a mixed step, which asks everything
+        [new] is what this lesson teaches; None means a mixed lesson, which asks everything
         taught so far on its words rather than only what it adds.
         """
         nonlocal pending
         if new is not None:
-            # A link taught earlier is not this step's to teach again: polite-everywhere
+            # A link taught earlier is not this lesson's to teach again: polite-everywhere
             # names every host, but the basic ones were polite-basics' lesson.
             new = set(new) - taught
             taught.update(new)
@@ -443,26 +443,26 @@ def build():
                 continue
             whitelist[group] = sorted({k for pair in asked for k in pair})
             if focus != FOCUS_NONE:
-                # What the step builds: the side of each pair that has the new form, minus any
+                # What the lesson builds: the side of each pair that has the new form, minus any
                 # that only adds to another one shown — 書けない is 書ける's negative.
                 made = {y for _, y in asked}
                 for y in made:
                     if not any(set(links(o, group)) < set(links(y, group)) for o in made):
                         builds[y].add(group)
             # The app regenerates the pairs from the whitelist and the focus; if that would
-            # ask anything this step does not, a whitelist cannot express the step.
+            # ask anything this lesson does not, a whitelist cannot express the lesson.
             allowed = set(whitelist[group])
             regenerated = {(x, y) for x, y, kind in pairs
                            if x in allowed and y in allowed and (focus == FOCUS_NONE or kind == focus)}
             if regenerated != asked:
-                raise SystemExit(f"{step_id}: a whitelist for {group} would also ask "
+                raise SystemExit(f"{lesson_id}: a whitelist for {group} would also ask "
                                  f"{sorted(regenerated - asked)}")
         used = [b for b in candidates if groups_of(b) & set(whitelist)]
         if not used:
-            raise SystemExit(f"{step_id}: asks nothing")
+            raise SystemExit(f"{lesson_id}: asks nothing")
         forms = set().union(*(tags_of(k) for keys in whitelist.values() for k in keys))
         entry = {
-            "id": step_id,
+            "id": lesson_id,
             "title": title,
             "subtitle": subtitle,
             "chapter": current_chapter,
@@ -478,11 +478,11 @@ def build():
         }
         if point:
             entry["point"] = point
-        steps.append(entry)
+        lessons.append(entry)
         pending = [b for b in pending if b not in used]
 
     def introduce_ending(key):
-        """The links an ending inherits from its class on the step that introduces it."""
+        """The links an ending inherits from its class on the lesson that introduces it."""
         host = ENDINGS.get(key)
         cls = ENDING_CLASS.get(host)
         if cls is None:
@@ -494,9 +494,9 @@ def build():
         if kind == "chapter":
             current_chapter = entry[1]
         elif kind == "reading":
-            _, step_id, title, subtitle = entry
-            steps.append({
-                "id": step_id,
+            _, lesson_id, title, subtitle = entry
+            lessons.append({
+                "id": lesson_id,
                 "title": title,
                 "subtitle": subtitle,
                 "chapter": current_chapter,
@@ -520,11 +520,11 @@ def build():
             groups = on if on is not None else sorted(g for g in dealt_groups() if has_form(g, key))
             new = {(key, g) for g in groups} | {(key, e) for e in endings}
             new |= introduce_ending(key)
-            step(key, title, subtitle, type_of(key), list(batches), questions, new,
+            lesson(key, title, subtitle, type_of(key), list(batches), questions, new,
                  new_forms=[key], point=point)
         elif kind == "extend":
-            _, step_id, title, subtitle, key, hosts, questions, point = entry
-            step(step_id, title, subtitle, type_of(key), list(batches), questions,
+            _, lesson_id, title, subtitle, key, hosts, questions, point = entry
+            lesson(lesson_id, title, subtitle, type_of(key), list(batches), questions,
                  {(key, h) for h in hosts}, point=point)
         elif kind == "word_type":
             _, batch, title, subtitle, groups, count, pins, classes, questions, levels, point = entry
@@ -532,7 +532,7 @@ def build():
             fresh = groups_of(batch)
             forms_here = [f for f in known if any(has_form(g, f) for g in fresh)]
             for i, key in enumerate(forms_here):
-                step(f"{batch}-{key}", f"{title} · {FORM_LABELS[key]}", subtitle, type_of(key), [batch],
+                lesson(f"{batch}-{key}", f"{title} · {FORM_LABELS[key]}", subtitle, type_of(key), [batch],
                      questions, {(key, g) for g in fresh if has_form(g, key)},
                      classes=classes if i == 0 else (), point=point if i == 0 else None)
         elif kind == "words":
@@ -541,9 +541,9 @@ def build():
             # New words of a new group take every form known so far; for a group already
             # met this teaches nothing it did not already know.
             taught.update((f, g) for g in groups_of(batch) for f in known if has_form(g, f))
-            step(batch, title, subtitle, FOCUS_NONE, [batch], questions, None, classes=classes, point=point)
+            lesson(batch, title, subtitle, FOCUS_NONE, [batch], questions, None, classes=classes, point=point)
         elif kind == "polite":
-            _, step_id, title, subtitle, forms, questions = entry
+            _, lesson_id, title, subtitle, forms, questions = entry
             first = "polite" not in known
             if first:
                 known.append("polite")
@@ -554,12 +554,12 @@ def build():
                 hosts = dealt_groups()
                 after = set(forms)
             new = {("polite", h) for h in hosts} | {(f, "polite") for f in after}
-            step(step_id, title, subtitle, POLITENESS, list(batches), questions, new,
+            lesson(lesson_id, title, subtitle, POLITENESS, list(batches), questions, new,
                  new_forms=["polite"] if first else [])
 
     if pending:
         raise SystemExit(f"batches dealt but never introduced: {pending}")
-    return {"batches": batches, "steps": steps}
+    return {"batches": batches, "lessons": lessons}
 
 
 def render(data):
@@ -571,21 +571,21 @@ def render(data):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="fail if steps.json is stale")
+    parser.add_argument("--check", action="store_true", help="fail if lessons.json is stale")
     args = parser.parse_args()
 
     text = render(build())
     if args.check:
-        current = STEPS.read_bytes() if STEPS.exists() else b""
+        current = LESSONS.read_bytes() if LESSONS.exists() else b""
         if current != text:
-            sys.exit("steps.json is out of date; run tools/steps/generate.py")
-        print("steps.json is up to date")
+            sys.exit("lessons.json is out of date; run tools/lessons/generate.py")
+        print("lessons.json is up to date")
         return
 
-    STEPS.write_bytes(text)
+    LESSONS.write_bytes(text)
     data = json.loads(text.decode("utf-8"))
     introduced = sum(len(v) for v in data["batches"].values())
-    print(f"wrote {STEPS.relative_to(ROOT)}: {len(data['steps'])} steps, {introduced} words")
+    print(f"wrote {LESSONS.relative_to(ROOT)}: {len(data['lessons'])} lessons, {introduced} words")
 
 
 if __name__ == "__main__":

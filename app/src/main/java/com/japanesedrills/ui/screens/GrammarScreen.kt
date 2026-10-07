@@ -57,7 +57,7 @@ import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
 
 /**
- * Every form the drill can ask about, then every word type a step introduces. Tapping one
+ * Every form the drill can ask about, then every word type a lesson introduces. Tapping one
  * opens its note: for a form, what it means and how it is built.
  */
 @Composable
@@ -117,7 +117,7 @@ fun GrammarScreen(
         }
         item(key = "forms") { ListHeading("Forms") }
         items(Grammar.NOTES, key = { it.key }) { note -> NoteRow(note) { onForm(note.key) } }
-        // A step shows these once, when it is first opened; this is where they are found again.
+        // A lesson shows these once, when it is first opened; this is where they are found again.
         item(key = "classes") { ListHeading("Word classes") }
         items(Grammar.CLASS_NOTES, key = { "class-${it.key}" }) { note -> NoteRow(note) { onForm(note.key) } }
     }

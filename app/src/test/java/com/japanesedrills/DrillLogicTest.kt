@@ -34,7 +34,7 @@ class DrillLogicTest {
         DrillData.fromJson(
             File(assets, "words.json").readText(),
             File(assets, "rules.json").readText(),
-            File(assets, "steps.json").readText(),
+            File(assets, "lessons.json").readText(),
         )
     }
 
@@ -100,7 +100,7 @@ class DrillLogicTest {
         assertEquals(listOf("高くない"), forms("高い", "negative"))
     }
 
-    /** Adjectives join the て-form: the step on the connector is about them too. */
+    /** Adjectives join the て-form: the lesson on the connector is about them too. */
     @Test
     fun adjectivesHaveATeForm() {
         assertEquals(listOf("高くて"), forms("高い", "te-form"))
@@ -611,8 +611,8 @@ class DrillLogicTest {
             addAll(QuizOptions.ALL.map { it.label })
             addAll(QuizOptions.COLUMNS.map { it.label })
             addAll(WordSets.BUILT_IN.map { it.label })
-            for (step in data.learnPath.steps) {
-                add(step.title); add(step.subtitle); add(step.chapter); step.point?.let(::add)
+            for (lesson in data.learnPath.lessons) {
+                add(lesson.title); add(lesson.subtitle); add(lesson.chapter); lesson.point?.let(::add)
             }
             addAll(data.words.map { it.sentenceJp })
         }

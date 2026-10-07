@@ -32,7 +32,7 @@ enum class Palette(val label: String) {
  * A setting that rides along is named in three places: here, in [OptionsStore]'s load and
  * save, and in [LearnPath.optionsFor], which builds the path's options fresh rather than
  * copying them — so a setting it does not name silently falls back to its default on every
- * step and review.
+ * lesson and review.
  */
 data class QuizOptions(
     val flags: Map<String, Boolean> = DEFAULT_FLAGS,
@@ -71,13 +71,13 @@ data class QuizOptions(
     val allWords: Boolean = true,
     /**
      * Restricts the pool to these word keys. Null means "no restriction" and is what
-     * free practice always uses; steps and review set it to pin their vocabulary.
+     * free practice always uses; lessons and review set it to pin their vocabulary.
      * Never persisted — it is derived from the learn path, not chosen by the user.
      */
     val wordKeys: Set<String>? = null,
     /**
      * Restricts each word group to these conjugations: a lesson's own grammar, as the path
-     * pins it ([Step.conjugations]). Null means no restriction, which is free practice.
+     * pins it ([Lesson.conjugations]). Null means no restriction, which is free practice.
      * Never persisted, for the same reason as [wordKeys].
      */
     val conjugations: Map<String, Set<String>>? = null,

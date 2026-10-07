@@ -77,7 +77,7 @@ fun heroBarColors(): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
 
 /**
  * What to do now, and never anything else: review when it has work, the question being
- * asked, the step just finished. One lit panel per screen, or the light means nothing.
+ * asked, the lesson just finished. One lit panel per screen, or the light means nothing.
  */
 @Composable
 fun Spotlight(

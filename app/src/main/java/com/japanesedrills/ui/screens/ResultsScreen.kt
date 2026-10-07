@@ -49,9 +49,9 @@ import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Prompts
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
-import com.japanesedrills.quiz.StepRecord
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.ui.HistoryEntry
-import com.japanesedrills.ui.StepOutcome
+import com.japanesedrills.ui.LessonOutcome
 import com.japanesedrills.ui.components.AlignedChanges
 import com.japanesedrills.ui.components.ChangeRow
 import com.japanesedrills.ui.components.FuriganaAction
@@ -75,11 +75,11 @@ import kotlin.math.roundToInt
 fun ResultsScreen(
     history: List<HistoryEntry>,
     options: QuizOptions,
-    /** Set when the session was a step, which can be gone through again from here. */
-    outcome: StepOutcome?,
+    /** Set when the session was a lesson, which can be gone through again from here. */
+    outcome: LessonOutcome?,
     onBackToStart: () -> Unit,
     onRetry: () -> Unit,
-    /** Opens [StepOutcome.next]. */
+    /** Opens [LessonOutcome.next]. */
     onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -110,8 +110,8 @@ fun ResultsScreen(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // A step that has just become ready points on to the next one; otherwise
-                    // another go is the likely move, since a step is never finished.
+                    // A lesson that has just become ready points on to the next one; otherwise
+                    // another go is the likely move, since a lesson is never finished.
                     val next = outcome?.next?.takeIf { outcome.becameReady }
                     if (next != null) {
                         OutlinedButton(onClick = onRetry, modifier = Modifier.weight(1f)) {
@@ -169,16 +169,16 @@ fun ResultsScreen(
 }
 
 /**
- * Where the step stands after this session. Readiness is judged on the recent answers
+ * Where the lesson stands after this session. Readiness is judged on the recent answers
  * across sessions, not on this one alone, so the card says which.
  */
 @Composable
-private fun ReadinessCard(outcome: StepOutcome) {
+private fun ReadinessCard(outcome: LessonOutcome) {
     val answers = DrillTheme.answerColors
     val record = outcome.record
-    val recent = minOf(record.answered, StepRecord.WINDOW)
+    val recent = minOf(record.answered, LessonRecord.WINDOW)
     val percent = (record.recentAccuracy * 100).roundToInt()
-    val bar = (StepRecord.READY_ACCURACY * 100).roundToInt()
+    val bar = (LessonRecord.READY_ACCURACY * 100).roundToInt()
     val surfaces = DrillTheme.surfaces
     Spotlight {
         Row(Modifier.padding(PanelPadding), verticalAlignment = Alignment.CenterVertically) {
@@ -186,8 +186,8 @@ private fun ReadinessCard(outcome: StepOutcome) {
             FuriganaText(
                 when {
                     outcome.becameReady -> "Ready for the next lesson"
-                    record.ready -> "${outcome.step.title} is ready"
-                    else -> "${outcome.step.title}: not ready yet"
+                    record.ready -> "${outcome.lesson.title} is ready"
+                    else -> "${outcome.lesson.title}: not ready yet"
                 },
                 style = MaterialTheme.typography.lead,
                 color = surfaces.onHero,
@@ -198,16 +198,16 @@ private fun ReadinessCard(outcome: StepOutcome) {
                         "$percent% of your last $recent answers here were right. Next up: ${outcome.next.title}."
                     outcome.becameReady -> "$percent% of your last $recent answers here were right."
                     record.ready -> "Come back to it whenever you like; review keeps it fresh."
-                    record.answered < StepRecord.minAnswers(outcome.step.questions) ->
+                    record.answered < LessonRecord.minAnswers(outcome.lesson.questions) ->
                         "Ready once $bar% of your recent answers are right, over at least " +
-                            "${StepRecord.minAnswers(outcome.step.questions)}. So far: $percent% of $recent."
+                            "${LessonRecord.minAnswers(outcome.lesson.questions)}. So far: $percent% of $recent."
                     else -> "$percent% of your last $recent answers were right; ready at $bar%."
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = surfaces.onHeroVariant,
             )
         }
-            // The tick the learn path marks a ready step with, so the two screens agree —
+            // The tick the learn path marks a ready lesson with, so the two screens agree —
             // here cut from the panel's own cream, because everything on it is.
             if (record.ready) {
                 Spacer(Modifier.width(14.dp))
@@ -243,7 +243,7 @@ private fun ScoreCard(history: List<HistoryEntry>) {
                 MaterialTheme.colorScheme.onSurface
             },
         )
-        // The same bar the learn path draws a step's strength with, filled by this
+        // The same bar the learn path draws a lesson's strength with, filled by this
         // session's score, so a share of something reads the same way twice.
         StrengthBar(share, Modifier.fillMaxWidth())
         if (missed > 0) {

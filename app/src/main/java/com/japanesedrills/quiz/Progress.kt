@@ -5,15 +5,15 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * How a step has gone so far: its last [WINDOW] answers, newest in the lowest bit, and how
- * many it has had in all. It exists as soon as the step is first opened, which is how the
+ * How a lesson has gone so far: its last [WINDOW] answers, newest in the lowest bit, and how
+ * many it has had in all. It exists as soon as the lesson is first opened, which is how the
  * introduction knows to show only once.
  */
-data class StepRecord(
+data class LessonRecord(
     val recent: Int = 0,
     val answered: Int = 0,
     /**
-     * Sticky: once the recent answers have cleared the bar, the step stays ticked. A bad
+     * Sticky: once the recent answers have cleared the bar, the lesson stays ticked. A bad
      * session later is not a reason to take it away; the bar is what shows fading.
      */
     val ready: Boolean = false,
@@ -26,13 +26,13 @@ data class StepRecord(
         }
 
     /**
-     * Whether the recent answers clear the bar on their own, whatever [ready] says, for a step
+     * Whether the recent answers clear the bar on their own, whatever [ready] says, for a lesson
      * that asks [questions] per session.
      */
     fun clearsTheBar(questions: Int): Boolean =
         answered >= minAnswers(questions) && recentAccuracy >= READY_ACCURACY
 
-    fun with(correct: Boolean, questions: Int): StepRecord {
+    fun with(correct: Boolean, questions: Int): LessonRecord {
         val next = copy(
             recent = ((recent shl 1) or (if (correct) 1 else 0)) and WINDOW_MASK,
             answered = answered + 1,
@@ -49,8 +49,8 @@ data class StepRecord(
         const val READY_ACCURACY = 0.85
 
         /**
-         * The answers a step needs before it can be ready: [READY_MIN_ANSWERS], or one whole
-         * session where a session is shorter, or a perfect six-question step could never
+         * The answers a lesson needs before it can be ready: [READY_MIN_ANSWERS], or one whole
+         * session where a session is shorter, or a perfect six-question lesson could never
          * be ready on the day it was played.
          */
         fun minAnswers(questions: Int): Int = minOf(READY_MIN_ANSWERS, questions)
@@ -64,13 +64,13 @@ data class StepRecord(
  *
  * Scheduling happens on two axes because the raw question space is about 10^5 pairs —
  * far too many to schedule individually, and each one would be seen roughly never.
- * [lessons] (by step id) carries the grammar, [words] carries the vocabulary, and
+ * [lessons] (by lesson id) carries the grammar, [words] carries the vocabulary, and
  * [leeches] records the handful of specific pairings that keep going wrong.
  */
 data class Progress(
-    val steps: Map<String, StepRecord> = emptyMap(),
+    val records: Map<String, LessonRecord> = emptyMap(),
     /**
-     * Each lesson's review schedule, by step id, once it has been graded: a lesson is
+     * Each lesson's review schedule, by lesson id, once it has been graded: a lesson is
      * reviewed on its own questions and nothing else, and moves on its own answers alone.
      */
     val lessons: Map<String, SrsState> = emptyMap(),
@@ -84,13 +84,13 @@ data class Progress(
     val sets: Map<String, CustomSet> = emptyMap(),
 ) {
     /** Nothing worth keeping: nothing earned, and no set the learner put together. */
-    val isEmpty: Boolean get() = steps.isEmpty() && lessons.isEmpty() && words.isEmpty() && sets.isEmpty()
+    val isEmpty: Boolean get() = records.isEmpty() && lessons.isEmpty() && words.isEmpty() && sets.isEmpty()
 
     /**
-     * Anything earned on the learn path. A word set is the learner's work but not a step
+     * Anything earned on the learn path. A word set is the learner's work but not a lesson
      * taken, so making one does not make the path say it has begun.
      */
-    val onPath: Boolean get() = steps.isNotEmpty() || lessons.isNotEmpty() || words.isNotEmpty()
+    val onPath: Boolean get() = records.isNotEmpty() || lessons.isNotEmpty() || words.isNotEmpty()
 
     /**
      * [lesson] graded once on a session's [answers] to it, passing at [LESSON_PASS]. Once
@@ -124,7 +124,7 @@ object ProgressCodec {
 
     /**
      * Bumped only when the shape changes; [decode] refuses any other version. Version 1 was
-     * the gated lesson path, whose records mean nothing on the step path; version 2 was
+     * the old gated course, whose records mean nothing on today's path; version 2 was
      * before the learner could put word sets together; version 3 scheduled review by skill
      * (a question type on a word group) rather than by lesson.
      */
@@ -154,14 +154,14 @@ object ProgressCodec {
     fun decodeOrNull(text: String): Progress? = runCatching { decode(text.trim()) }.getOrNull()
 
     private fun parse(root: JSONObject): Progress {
-        val steps = root.optJSONObject("steps")?.let { obj ->
+        val records = root.optJSONObject("records")?.let { obj ->
             obj.keys().asSequence().associateWith { id ->
                 val o = obj.getJSONObject(id)
-                StepRecord(recent = o.optInt("recent"), answered = o.optInt("answered"), ready = o.optBoolean("ready"))
+                LessonRecord(recent = o.optInt("recent"), answered = o.optInt("answered"), ready = o.optBoolean("ready"))
             }
         }.orEmpty()
         return Progress(
-            steps = steps,
+            records = records,
             lessons = root.optJSONObject("lessons").states(),
             words = root.optJSONObject("words").states(),
             leeches = root.optJSONObject("leeches")?.let { obj ->
@@ -183,8 +183,8 @@ object ProgressCodec {
 
     private fun render(progress: Progress) = JSONObject().apply {
         put("version", VERSION)
-        put("steps", JSONObject().apply {
-            progress.steps.forEach { (id, record) ->
+        put("records", JSONObject().apply {
+            progress.records.forEach { (id, record) ->
                 put(id, JSONObject().apply {
                     put("recent", record.recent)
                     put("answered", record.answered)
@@ -247,8 +247,8 @@ class ProgressStore(context: Context) {
     fun load(): Progress {
         val raw = prefs.getString(KEY, null) ?: return Progress()
         if (ProgressCodec.isOutdated(raw)) {
-            // Readable, but from the lesson path: its review schedules include forms the
-            // step path only reaches at the end, so starting clean is the point.
+            // Readable, but from an older path: its review schedules mean nothing to this
+            // one, so starting clean is the point.
             prefs.edit().remove(KEY).apply()
             return Progress()
         }

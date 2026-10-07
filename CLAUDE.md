@@ -1,7 +1,7 @@
 # JapaneseDrills
 
 Android app (Kotlin, Jetpack Compose, Material 3) that drills Japanese verb and
-adjective conjugation: a recommended learn path of steps with spaced review, a grammar
+adjective conjugation: a recommended learn path of lessons with spaced review, a grammar
 reference, and a free-practice mode.
 
 ## How to use this file
@@ -33,17 +33,17 @@ JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug
 ```
 
 These are generated rather than written by hand: `words.json` (`tools/wordlist`;
-curation and sentence readings re-run alone as `merge.py --finish`), `steps.json`
-(`tools/steps`, from `words.json` and `rules.json`, so editing either makes it stale), and
+curation and sentence readings re-run alone as `merge.py --finish`), `lessons.json`
+(`tools/lessons`, from `words.json` and `rules.json`, so editing either makes it stale), and
 the palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both
 `tools/theme`; `--fonts` needs `pip install fonttools`). `--apply` also writes
 `res/values{,-night}/colors.xml`, where the window background and the launcher icon's
 background come from whichever palette `schemes.py` names as the default. Edit the
 generator and re-run it; editing its output means the next run silently reverts you.
-Staleness is otherwise invisible, so `steps.json` has a check of its own:
+Staleness is otherwise invisible, so `lessons.json` has a check of its own:
 
 ```bash
-python tools/steps/generate.py --check
+python tools/lessons/generate.py --check
 ```
 
 A palette is only finished when every foreground/background pair the app puts together
@@ -74,7 +74,7 @@ installs over the other and progress survives.
 ## Project layout
 
 ```
-app/src/main/assets/     words.json (words), rules.json (conjugation), steps.json (learn path)
+app/src/main/assets/     words.json (words), rules.json (conjugation), lessons.json (learn path)
 app/src/main/res/        launcher icon, window background, the bundled fonts and their licence
 app/src/main/java/com/japanesedrills/
     data/                asset parsing; produces every conjugation up front
@@ -82,7 +82,7 @@ app/src/main/java/com/japanesedrills/
                          explanations, grammar reference, Conjugation Intro, learn path,
                          spaced repetition, progress
     ui/                  ViewModel and state
-    ui/screens/          learn path, step intro, grammar, Conjugation Intro, practice,
+    ui/screens/          learn path, lesson intro, grammar, Conjugation Intro, practice,
                          word sets, quiz, results, settings, about
     ui/components/       furigana-aware rich text and table, worked changes, the surfaces
                          a screen is built from, sections and rows, scrollbars
@@ -91,7 +91,7 @@ app/src/test/            data-integrity and logic tests; the safety net for data
 tools/wordlist/          words.json, from open datasets (see extract.py)
 tools/theme/             the palettes Settings offers and why each looks as it does (see schemes.py);
                          fonts/ holds the variable masters res/font is cut from
-tools/steps/             steps.json; its README holds the reasoning behind the path
+tools/lessons/           lessons.json; its README holds the reasoning behind the path
 ```
 
 ## Data invariants
@@ -118,12 +118,12 @@ These look like mistakes without their reason. Check here before "fixing" one.
 - **Level tags are `n5`–`n2` only.** The source lists hold no N1 verbs or
   adjectives this app can conjugate. Words outside the lists carry no level tag, so only
   free practice's "all words" reaches them.
-- **The path's first lesson is read, not drilled.** The Conjugation Intro is a step like
+- **The path's first lesson is read, not drilled.** The Conjugation Intro is a lesson like
   any other so it can be recommended, ticked and returned to, and it carries `"kind":
   "read"` with no forms, no words and no questions. Opening it finishes it. Anything that
   builds a pool or measures review has nothing to work with there, so tests that sweep the
   path skip it (`LearnPathTest.drills`).
-- **steps.json spells every step out in full** — its forms, focus, word batches and the
+- **lessons.json spells every lesson out in full** — its forms, focus, word batches and the
   conjugations it asks per word group — so the app does no bookkeeping; what is known by
   which point is worked out in the generator.
 - **A compound is asked only once every rule in it has been taught.** Endings conjugate as
@@ -131,7 +131,7 @@ These look like mistakes without their reason. Check here before "fixing" one.
   that waits for the い-adjective past, and the い-adjective conditional and provisional in
   `rules.json` exist so that なかったら and なければ have one to wait for. The reasoning, and
   how the generator decides it, is the README's "Compounds".
-  Steps are an array, not an object keyed by id, because JSON key order is preserved by
+  Lessons are an array, not an object keyed by id, because JSON key order is preserved by
   Android's `JSONObject` and not by the `org.json` used in unit tests.
 - **Progress is the only state that cannot be rebuilt from the assets**, and the word sets
   the learner puts together ride in the same document for that reason. Wiping
@@ -143,7 +143,7 @@ These look like mistakes without their reason. Check here before "fixing" one.
   the key being dropped or the document refusing to load.
 - **Review is what moves the path; a lesson is what is sprinkled in.** A new lesson is
   recommended only while review is *solid* (`ReviewLoad.solid`): a small backlog, not an
-  empty one, since waiting for zero would stop the path handing out lessons at all. A step's
+  empty one, since waiting for zero would stop the path handing out lessons at all. A lesson's
   bar is its own review schedule, so the path is a read-out of review, not a checklist.
 - **A review question belongs to one lesson, and a lesson is graded once per session.** It
   is drawn from that lesson's own options and moves that lesson alone; grading per answer
@@ -157,7 +157,7 @@ These look like mistakes without their reason. Check here before "fixing" one.
 
 Why the path is ordered the way it is, why nothing on it is locked, why review schedules
 lessons rather than questions, what counts as due, and why free practice writes nothing to
-the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* and a step's
+the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* and a lesson's
 *strength* each mean.
 
 ## Consistency
@@ -167,14 +167,15 @@ the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* an
   text. Renaming one means renaming all of them in the same change, then grepping for the
   old word before calling it done. The old name survives only where it describes history,
   such as the version-1 backup format of the old lesson path. The whole is the *learn
-  path* (`LearnPath`); its units are *steps* in code (`Step`, `steps.json`) but *lessons* on
-  screen and in review's schedule (`Progress.lessons`) — one concept, two names, not yet
-  reconciled. The page that explains conjugation is the
-  *Conjugation Intro* (`ConjugationIntro`); a godan ending melting into て or た is a
-  *fusion* (`FusionColumn`, the "fusion system"), never a "sound change". Free practice
+  path* (`LearnPath`), its units are *lessons* (`Lesson`); a lesson's record of recent
+  answers is `Progress.records` and its review schedule `Progress.lessons`. "Step" is kept
+  for the two things it means apart from that — a rung of the review ladder
+  (`SrsState.step`) and a step of a worked change (`SolutionStep`). The page that explains
+  conjugation is the *Conjugation Intro* (`ConjugationIntro`); a godan ending melting into
+  て or た is a *fusion* (`FusionColumn`, the "fusion system"), never a "sound change". Free practice
   picks its vocabulary as *word sets* (`WordSets`) and its grammar as *squares* of a grid,
   a form on one word-class column. Within a lesson, what it asks is a *conjugation* — a
-  `rules.json` key such as `past negative` — listed per word group (`Step.conjugations`).
+  `rules.json` key such as `past negative` — listed per word group (`Lesson.conjugations`).
 - **The same goes for data: a word has one class everywhere** it is shown or conjugated,
   and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
   it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone
@@ -185,7 +186,7 @@ the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* an
 - **Japanese goes through `RichText` or `FuriganaText`, never a bare `Text`**, with every
   kanji in furigana notation. Readings are one setting for the whole app (`LocalFurigana`),
   and a bare `Text` can neither show them nor hide them. `everyKanjiShownHasAReading` checks
-  the notes, the Conjugation Intro, labels, step titles and sentences; it cannot check a call
+  the notes, the Conjugation Intro, labels, lesson titles and sentences; it cannot check a call
   site.
 - **Worked examples mark what a conjugation touches** — the last kana, the form's ending, the
   two fused. The Conjugation Intro writes its marks by hand in their own markup
@@ -203,7 +204,7 @@ the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* an
   The surfaces are palette roles like any other (`Surfaces`, from `tools/theme/schemes.py`),
   and `ui/components/Surfaces.kt` is the only place that paints them.
 - **The spotlight says what to do now**, and a screen has at most one: review while it has
-  work, the question being asked, the step just finished. A reference screen has nothing to
+  work, the question being asked, the lesson just finished. A reference screen has nothing to
   do, so the Conjugation Intro on the Grammar tab is marked out with the well instead.
 - **A section lists rows, not panels**: a setting, a count or a choice is a row from
   `ui/components/Rows.kt`, under an accent heading with a rule, indented
@@ -211,7 +212,7 @@ the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* an
   are like things and the heading already says where the section starts. The learn path,
   practice, grammar, settings and results all read the same way down.
 - **How well something is holding up is drawn in one ramp**, per palette and generated
-  with the rest: `StrengthBar` on the learn path's step bars and the results score, and
+  with the rest: `StrengthBar` on the learn path's lesson bars and the results score, and
   `DrillTheme.strengthColors.at(fill)` in the practice grid's strength view. It is
   deliberately not the accent, which means "this does something when you tap it". Nothing
   yet means empty rather than weak, and is drawn in `surfaceContainerHighest` in all three

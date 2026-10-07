@@ -3,7 +3,7 @@ package com.japanesedrills.quiz
 import com.japanesedrills.data.Word
 
 /**
- * What a form *means*, for the Grammar reference and the step that introduces it.
+ * What a form *means*, for the Grammar reference and the lesson that introduces it.
  *
  * Only the prose lives here. How a form is built is derived per word from [Explanations],
  * so the construction shown can never drift from the answers the drill accepts — and the
@@ -261,7 +261,7 @@ object Grammar {
     )
 
     /**
-     * Notes about a word class rather than a form, keyed by the word group, for the steps
+     * Notes about a word class rather than a form, keyed by the word group, for the lessons
      * that introduce one. They have no construction of their own: how a class conjugates is
      * shown by the form notes, on the example words.
      */
@@ -359,7 +359,7 @@ object Grammar {
     /** A form's note or a word class's, for the Grammar tab, which lists both. */
     fun note(key: String): GrammarNote? = byKey[key] ?: classByKey[key]
 
-    /** The note introducing a word group, or null for a group no step introduces. */
+    /** The note introducing a word group, or null for a group no lesson introduces. */
     fun classNote(group: String): GrammarNote? = classByKey[group]
 
     /**

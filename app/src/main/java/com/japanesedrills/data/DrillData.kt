@@ -44,10 +44,10 @@ class DrillData(
 
         fun load(context: Context): DrillData {
             fun asset(name: String) = context.assets.open(name).bufferedReader(Charsets.UTF_8).use { it.readText() }
-            return fromJson(asset("words.json"), asset("rules.json"), asset("steps.json"))
+            return fromJson(asset("words.json"), asset("rules.json"), asset("lessons.json"))
         }
 
-        fun fromJson(wordsJson: String, rulesJson: String, stepsJson: String): DrillData {
+        fun fromJson(wordsJson: String, rulesJson: String, lessonsJson: String): DrillData {
             // Parsed once for both readings of it.
             val rulesRoot = JSONObject(rulesJson)
             val rules = parseRules(rulesRoot)
@@ -59,7 +59,7 @@ class DrillData(
             return DrillData(
                 words,
                 TransformationBuilder.build(conjugationKeys),
-                LearnPath.parse(stepsJson),
+                LearnPath.parse(lessonsJson),
                 parseOwnForms(rulesRoot),
                 rules.mapValues { (_, sets) -> sets.keys.flatMapTo(HashSet()) { it.split(" ") } },
             )

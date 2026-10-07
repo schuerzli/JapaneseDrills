@@ -169,11 +169,11 @@ CURATION_DROP = {
     "交ざる": "まざる (混ざる is the standard kanji, 交 a variant)", "交じる": "まじる", "交ぜる": "まぜる",
     "凭れる": "もたれる", "喧しい": "やかましい", "下りる": "降りる", "円い": "丸い",
     "乗換する": "乗り換えする", "交替する": "交代する", "保障する": "保証する", "剥す": "剥がす",
-    "硬い": "固い", "居る": "いる, which has a step of its own",
+    "硬い": "固い", "居る": "いる, which has a lesson of its own",
     # A mangled reading of 修理する, which is in the list already: すり is pickpocketing.
     "すりする": "修理する",
     # Not something to conjugate: ない is ある's negative, and drilled as an adjective three
-    # steps after ある it teaches the two as unrelated.
+    # lessons after ある it teaches the two as unrelated.
     "ない": "the negative of ある",
     # Nouns, not な-adjectives: they take の before a noun (緑の服), so the な-adjective note
     # would teach a mistake, and 緑な服 in the example sentence is one.

@@ -42,7 +42,7 @@ import com.japanesedrills.quiz.GrammarNote
 import com.japanesedrills.quiz.QuizEngine
 import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RichPart
-import com.japanesedrills.quiz.Step
+import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.ui.components.FuriganaAction
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.HeroBar
@@ -53,7 +53,7 @@ import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
- * What a step introduces, shown the first time it is opened.
+ * What a lesson introduces, shown the first time it is opened.
  *
  * The drill grades production, so asking for the て-form of a word the learner has never
  * seen would test two things at once and diagnose neither. Everything shown here is
@@ -61,8 +61,8 @@ import com.japanesedrills.ui.components.verticalScrollbar
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StepIntroScreen(
-    step: Step,
+fun LessonIntroScreen(
+    lesson: Lesson,
     words: List<Word>,
     forms: List<GrammarNote>,
     classes: List<GrammarNote>,
@@ -81,7 +81,7 @@ fun StepIntroScreen(
             HeroBar {
                 TopAppBar(
                     colors = heroBarColors(),
-                    title = { FuriganaText(step.title) },
+                    title = { FuriganaText(lesson.title) },
                     navigationIcon = {
                         IconButton(onClick = onQuit) {
                             Icon(Icons.Default.Close, contentDescription = "Back to the path")
@@ -120,7 +120,7 @@ fun StepIntroScreen(
         ) {
             // The rule text below leans on the kana grid and the verb classes, which only
             // the Conjugation Intro explains; this is where not knowing them would first bite.
-            if (forms.isNotEmpty() || step.builds.isNotEmpty()) {
+            if (forms.isNotEmpty() || lesson.builds.isNotEmpty()) {
                 item(key = "conjugation-intro") {
                     TextButton(onClick = onConjugationIntro) {
                         Text("New to verb classes and the kana grid? Read the ${ConjugationIntro.TITLE}")
@@ -139,7 +139,7 @@ fun StepIntroScreen(
             }
             // What the lesson turns on, before anything else about the form: usually that an
             // ending conjugates as a class already taught.
-            step.point?.let { point ->
+            lesson.point?.let { point ->
                 item(key = "point") {
                     Section("The key idea") {
                         FuriganaText(point, style = MaterialTheme.typography.bodyLarge)
@@ -149,32 +149,32 @@ fun StepIntroScreen(
             // Grammar next: the words are practice material for whatever the form is.
             // Titled by name, so a note reads the same here as on the Grammar tab. Only the
             // lines and the example words of the classes this lesson drills.
-            val groups = step.conjugations.keys
+            val groups = lesson.conjugations.keys
             for (note in forms) {
                 item(key = "usage-${note.key}") { GrammarUsage(note, heading = note.title, groups = groups) }
-                if (step.builds.isEmpty()) {
+                if (lesson.builds.isEmpty()) {
                     item(key = "build-${note.key}") { GrammarConstruction(note, examples, groups = groups) }
                 }
             }
             // What this lesson builds that nothing before it did, on the groups it builds it on.
-            val focus = Grammar[if (step.focus == "politeness") "polite" else step.focus]
+            val focus = Grammar[if (lesson.focus == "politeness") "polite" else lesson.focus]
             if (focus != null) {
-                for ((target, on) in step.builds) {
+                for ((target, on) in lesson.builds) {
                     item(key = "build-$target") {
                         GrammarConstruction(
                             focus,
                             examples,
                             target = target,
                             groups = on,
-                            heading = if (step.builds.size > 1) labelOf(target) else "How it is built",
+                            heading = if (lesson.builds.size > 1) labelOf(target) else "How it is built",
                         )
                     }
                 }
             }
-            // One card, a word to a row: a step deals a handful, well within one item.
+            // One card, a word to a row: a lesson deals a handful, well within one item.
             if (words.isNotEmpty()) {
                 item(key = "words") {
-                    Section("New words in this step") {
+                    Section("New words in this lesson") {
                         words.forEachIndexed { i, word ->
                             if (i > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                             WordRow(word, options)
@@ -192,7 +192,7 @@ private fun labelOf(conjugation: String): String =
 
 /**
  * A new word: the word and its meaning on one line, its class under them, and its example
- * sentence inset the way a grammar card insets its steps.
+ * sentence inset the way a grammar card insets its lessons.
  */
 @Composable
 private fun WordRow(word: Word, options: QuizOptions) {

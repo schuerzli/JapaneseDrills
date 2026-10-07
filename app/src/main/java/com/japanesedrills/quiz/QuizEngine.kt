@@ -142,7 +142,7 @@ class QuestionPool(
      * (word, form) pair twice while unasked ones remain.
      *
      * Picking independently each time looked fine on the big free-practice pools and was
-     * obviously wrong on a step: a small one offers barely more pairs than it asks
+     * obviously wrong on a lesson: a small one offers barely more pairs than it asks
      * questions, which with replacement repeats three or four of them.
      *
      * Repeats are only allowed once the pool is genuinely exhausted, which is what the
@@ -186,7 +186,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
 
     /**
      * Whether the word is one of those being drawn on, before the grid has its say: it is in
-     * one of the chosen sets, and in the vocabulary a step or a review pins.
+     * one of the chosen sets, and in the vocabulary a lesson or a review pins.
      */
     private fun sourcesWord(word: Word, options: QuizOptions): Boolean =
         (options.wordKeys?.contains(word.key) ?: true) &&

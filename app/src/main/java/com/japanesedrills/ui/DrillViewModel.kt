@@ -25,8 +25,8 @@ import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.RomajiConverter
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
-import com.japanesedrills.quiz.Step
-import com.japanesedrills.quiz.StepRecord
+import com.japanesedrills.quiz.Lesson
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.quiz.WordColumn
 import com.japanesedrills.quiz.WordSets
@@ -55,7 +55,7 @@ enum class Tab(val label: String) {
     Grammar("Grammar"),
 }
 
-enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, ConjugationIntro, GrammarDetail, WordSet }
+enum class Screen { Root, LessonIntro, Quiz, Results, Settings, About, ConjugationIntro, GrammarDetail, WordSet }
 
 /**
  * What the path suggests doing next, once review has been counted. The lesson is offered
@@ -63,7 +63,7 @@ enum class Screen { Root, StepIntro, Quiz, Results, Settings, About, Conjugation
  */
 sealed interface Recommendation {
     /** Review is solid enough to take on something new. */
-    data class Lesson(val step: Step) : Recommendation
+    data class NextLesson(val lesson: Lesson) : Recommendation
 
     /** Review has a backlog: clearing it is worth more than another lesson. */
     data object ImproveReview : Recommendation
@@ -73,7 +73,7 @@ sealed interface Recommendation {
 }
 
 /** Which of the three things the running quiz is. */
-enum class SessionKind { Practice, Step, Review }
+enum class SessionKind { Practice, Lesson, Review }
 
 data class HistoryEntry(val question: Question, val response: String) {
     /** Decided once: the score badge, the grading and the results all ask again. */
@@ -110,27 +110,27 @@ data class PoolCounts(
 )
 
 /** One row on the learn path. */
-data class StepCard(
-    val step: Step,
+data class LessonCard(
+    val lesson: Lesson,
     /** Opened at least once, so its introduction has been seen. */
     val started: Boolean,
     /** It introduces something, so there is an introduction to reopen. */
     val hasIntro: Boolean,
-    /** Its recent answers have cleared the bar at some point; see [StepRecord.ready]. */
+    /** Its recent answers have cleared the bar at some point; see [LessonRecord.ready]. */
     val ready: Boolean,
     /** How well its content is holding up in review, 0f..1f; see [LearnPath.strength]. */
     val strength: Float,
 )
 
-/** How a session of a step went, shown on the results screen. */
-data class StepOutcome(
-    val step: Step,
+/** How a session of a lesson went, shown on the results screen. */
+data class LessonOutcome(
+    val lesson: Lesson,
     val accuracy: Double,
-    val record: StepRecord,
-    /** This session is what took the step over the bar. */
+    val record: LessonRecord,
+    /** This session is what took the lesson over the bar. */
     val becameReady: Boolean,
     /** What the path recommends now, if anything is left to recommend. */
-    val next: Step?,
+    val next: Lesson?,
 )
 
 data class DrillUiState(
@@ -145,12 +145,12 @@ data class DrillUiState(
     val quizOptions: QuizOptions = QuizOptions(),
     val kind: SessionKind = SessionKind.Practice,
     val progress: Progress = Progress(),
-    val path: List<StepCard> = emptyList(),
+    val path: List<LessonCard> = emptyList(),
     /**
-     * The step the path recommends: the earliest not yet ready, even when the learner has
+     * The lesson the path recommends: the earliest not yet ready, even when the learner has
      * jumped ahead, since everything after it builds on it. Its chapter starts unfolded.
      */
-    val nextStep: Step? = null,
+    val nextLesson: Lesson? = null,
     /** How many lessons review is waiting on: the note under the Review row. */
     val dueCount: Int = 0,
     /** How long the review it would start is, in questions: the Review row's own line. */
@@ -162,13 +162,13 @@ data class DrillUiState(
     val reviewCounted: Boolean = false,
     /** Whether review's backlog is small enough to take on a new lesson ([ReviewLoad]). */
     val reviewSolid: Boolean = true,
-    /** The step being introduced or drilled. */
-    val step: Step? = null,
-    /** New vocabulary to present before [step] starts. */
+    /** The lesson being introduced or drilled. */
+    val lesson: Lesson? = null,
+    /** New vocabulary to present before [lesson] starts. */
     val introWords: List<Word> = emptyList(),
-    /** New grammar to present before [step] starts. */
+    /** New grammar to present before [lesson] starts. */
     val introForms: List<GrammarNote> = emptyList(),
-    /** Word classes [step] introduces, presented before its forms and words. */
+    /** Word classes [lesson] introduces, presented before its forms and words. */
     val introClasses: List<GrammarNote> = emptyList(),
     /**
      * Chapters the learner has folded or unfolded by hand, by title. Kept here rather than in
@@ -178,7 +178,7 @@ data class DrillUiState(
     val chapterOpen: Map<String, Boolean> = emptyMap(),
     /**
      * Where closing the Conjugation Intro returns to: it opens from the Grammar tab and from
-     * steps.
+     * lessons.
      */
     val conjugationIntroFrom: Screen = Screen.Root,
     /** The form being read about on the Grammar tab. */
@@ -202,7 +202,7 @@ data class DrillUiState(
      * column back for a moment, and the grid grew and shrank under the finger that tapped it.
      */
     val columns: Set<String> = QuizOptions.COLUMNS.mapTo(LinkedHashSet()) { it.key },
-    val outcome: StepOutcome? = null,
+    val outcome: LessonOutcome? = null,
     /** Set when stored progress could not be read and was put aside rather than overwritten. */
     val salvagedProgress: Boolean = false,
 ) {
@@ -215,8 +215,8 @@ data class DrillUiState(
     val recommendation: Recommendation?
         get() = when {
             !reviewCounted -> null
-            nextStep == null -> Recommendation.Done
-            reviewSolid -> Recommendation.Lesson(nextStep)
+            nextLesson == null -> Recommendation.Done
+            reviewSolid -> Recommendation.NextLesson(nextLesson)
             else -> Recommendation.ImproveReview
         }
 
@@ -234,8 +234,8 @@ data class DrillUiState(
         get() = !loading && options.hasPoliteness && options.questionCount != null && (pool?.questions ?: 0) > 0
 
     /**
-     * The learn path has begun: opening a step already counts, and it would be odd to still
-     * be told nothing has. A word set made on the practice tab is not a step taken, which
+     * The learn path has begun: opening a lesson already counts, and it would be odd to still
+     * be told nothing has. A word set made on the practice tab is not a lesson taken, which
      * is why this is not simply "there is something in the document".
      */
     val started: Boolean get() = progress.onPath
@@ -283,7 +283,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
      */
     private var queue: MutableList<Drawn> = mutableListOf()
 
-    /** Whether the running step was already ready when it started, to tell when it became so. */
+    /** Whether the running lesson was already ready when it started, to tell when it became so. */
     private var wasReady = false
 
     private val today: Long get() = LocalDate.now().toEpochDay()
@@ -358,7 +358,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 screen = Screen.Root,
                 quiz = null,
-                step = null,
+                lesson = null,
                 introWords = emptyList(),
                 introForms = emptyList(),
                 introClasses = emptyList(),
@@ -570,24 +570,24 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val data = data ?: return
         val learnPath = data.learnPath
         val progress = _state.value.progress
-        val path = learnPath.steps.map { step ->
-            val record = progress.steps[step.id]
-            StepCard(
-                step = step,
+        val path = learnPath.lessons.map { lesson ->
+            val record = progress.records[lesson.id]
+            LessonCard(
+                lesson = lesson,
                 started = record != null,
-                hasIntro = step.newBatches.isNotEmpty() || step.newForms.isNotEmpty() ||
-                    step.newClasses.isNotEmpty() || step.builds.isNotEmpty() || step.point != null,
+                hasIntro = lesson.newBatches.isNotEmpty() || lesson.newForms.isNotEmpty() ||
+                    lesson.newClasses.isNotEmpty() || lesson.builds.isNotEmpty() || lesson.point != null,
                 ready = record?.ready == true,
-                strength = learnPath.strength(step, progress),
+                strength = learnPath.strength(lesson, progress),
             )
         }
-        val next = nextStep(learnPath, progress)
-        _state.update { it.copy(path = path, nextStep = next) }
+        val next = nextLesson(learnPath, progress)
+        _state.update { it.copy(path = path, nextLesson = next) }
         refreshDue()
     }
 
-    private fun nextStep(learnPath: LearnPath, progress: Progress): Step? =
-        learnPath.steps.firstOrNull { progress.steps[it.id]?.ready != true }
+    private fun nextLesson(learnPath: LearnPath, progress: Progress): Lesson? =
+        learnPath.lessons.firstOrNull { progress.records[it.id]?.ready != true }
 
     /** What the path has drilled so far: the forms of every lesson in review, and the word groups answered. */
     private class Practised(val forms: Set<String>, val groups: Set<String>)
@@ -604,44 +604,44 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * A lesson opens on what it is about, every time — never straight into questions. A step
+     * A lesson opens on what it is about, every time — never straight into questions. A lesson
      * that adds nothing new shows the notes for the forms it drills instead, so the way in
      * is the same page whether it is the first visit or the tenth.
      */
-    fun openStep(step: Step) {
+    fun openLesson(lesson: Lesson) {
         // The Conjugation Intro is a lesson that is read: opening it is finishing it.
-        if (step.reading) {
-            markRead(step)
+        if (lesson.reading) {
+            markRead(lesson)
             showConjugationIntro()
             return
         }
-        open(step)
+        open(lesson)
     }
 
     /** The same page: a lesson is always entered through what it is about. */
-    fun showStepIntro(step: Step) = openStep(step)
+    fun showLessonIntro(lesson: Lesson) = openLesson(lesson)
 
-    private fun markRead(step: Step) {
+    private fun markRead(lesson: Lesson) {
         val progress = _state.value.progress
-        if (progress.steps[step.id]?.ready == true) return
-        persist(progress.copy(steps = progress.steps + (step.id to StepRecord(ready = true))))
+        if (progress.records[lesson.id]?.ready == true) return
+        persist(progress.copy(records = progress.records + (lesson.id to LessonRecord(ready = true))))
         refreshPath()
     }
 
-    private fun open(step: Step) {
+    private fun open(lesson: Lesson) {
         val data = data ?: return
-        val words = data.learnPath.newWords(step).mapNotNull(data.wordsByKey::get)
-        // What it teaches. A step that only takes something known somewhere new — ない's
+        val words = data.learnPath.newWords(lesson).mapNotNull(data.wordsByKey::get)
+        // What it teaches. A lesson that only takes something known somewhere new — ない's
         // past, a new class's negative — shows how it builds that instead of the form's notes
-        // again; a mixed step builds nothing new, so its notes are the forms it puts together.
+        // again; a mixed lesson builds nothing new, so its notes are the forms it puts together.
         val forms = when {
-            step.newForms.isNotEmpty() -> step.newForms
-            step.builds.isNotEmpty() -> emptyList()
-            else -> step.forms.filterNot { it == "plain" }
+            lesson.newForms.isNotEmpty() -> lesson.newForms
+            lesson.builds.isNotEmpty() -> emptyList()
+            else -> lesson.forms.filterNot { it == "plain" }
         }.mapNotNull(Grammar::get)
-        val classes = step.newClasses.mapNotNull(Grammar::classNote)
-        if (words.isEmpty() && forms.isEmpty() && classes.isEmpty() && step.builds.isEmpty() && step.point == null) {
-            startStep(step)
+        val classes = lesson.newClasses.mapNotNull(Grammar::classNote)
+        if (words.isEmpty() && forms.isEmpty() && classes.isEmpty() && lesson.builds.isEmpty() && lesson.point == null) {
+            startLesson(lesson)
             return
         }
         // Vocabulary because the drill tests production, and asking for a form of a word
@@ -649,8 +649,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         // be stated before it is drilled.
         _state.update {
             it.copy(
-                screen = Screen.StepIntro,
-                step = step,
+                screen = Screen.LessonIntro,
+                lesson = lesson,
                 introWords = words,
                 introForms = forms,
                 introClasses = classes,
@@ -665,20 +665,20 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         _state.update { it.copy(screen = Screen.GrammarDetail, grammarNote = note) }
     }
 
-    fun startStep(step: Step) {
+    fun startLesson(lesson: Lesson) {
         if (startJob?.isActive == true) return
         val engine = engine ?: return
         val learnPath = data?.learnPath ?: return
-        val options = learnPath.optionsFor(step, _state.value.options)
+        val options = learnPath.optionsFor(lesson, _state.value.options)
         // Recorded on opening rather than on the first answer, so quitting at once still
         // counts as having seen the introduction.
         val progress = _state.value.progress
-        if (step.id !in progress.steps) persist(progress.copy(steps = progress.steps + (step.id to StepRecord())))
-        wasReady = progress.steps[step.id]?.ready == true
+        if (lesson.id !in progress.records) persist(progress.copy(records = progress.records + (lesson.id to LessonRecord())))
+        wasReady = progress.records[lesson.id]?.ready == true
 
         startJob = viewModelScope.launch {
             val drawn = withContext(Dispatchers.Default) {
-                engine.buildQueue(engine.buildPool(options), step.questions).map { Drawn(it, step.id) }
+                engine.buildQueue(engine.buildPool(options), lesson.questions).map { Drawn(it, lesson.id) }
             }
             val question = startQueue(drawn)
             if (question == null) {
@@ -688,12 +688,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             _state.update {
                 it.copy(
                     screen = Screen.Quiz,
-                    kind = SessionKind.Step,
-                    step = step,
+                    kind = SessionKind.Lesson,
+                    lesson = lesson,
                     introWords = emptyList(),
                     introForms = emptyList(),
                     introClasses = emptyList(),
-                    quiz = QuizState(step.questions, question),
+                    quiz = QuizState(lesson.questions, question),
                     quizOptions = options,
                 )
             }
@@ -743,7 +743,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 it.copy(
                     screen = Screen.Quiz,
                     kind = SessionKind.Review,
-                    step = null,
+                    lesson = null,
                     quiz = QuizState(drawn.size, question),
                     quizOptions = options,
                 )
@@ -764,7 +764,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             it.copy(
                 screen = Screen.Quiz,
                 kind = SessionKind.Practice,
-                step = null,
+                lesson = null,
                 quiz = QuizState(total, question),
                 quizOptions = state.options,
             )
@@ -805,7 +805,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Folds one answer into progress: the word's schedule and its leech count at once, the
-     * step's record when this is the step's own session, and the lesson's schedule once this
+     * lesson's record when this is the lesson's own session, and the lesson's schedule once this
      * was its last question in the session, graded on all of them
      * ([Progress.withLessonGraded]). Practice never touches progress.
      */
@@ -827,9 +827,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
             leeches = (if (entry.correct) misses - 1 else misses + 1).let { next ->
                 if (next <= 0) progress.leeches - leech else progress.leeches + (leech to next)
             },
-            steps = stepOf(_state.value)?.let { step ->
-                progress.steps + (step.id to (progress.steps[step.id] ?: StepRecord()).with(entry.correct, step.questions))
-            } ?: progress.steps,
+            records = lessonOf(_state.value)?.let { lesson ->
+                progress.records + (lesson.id to (progress.records[lesson.id] ?: LessonRecord()).with(entry.correct, lesson.questions))
+            } ?: progress.records,
         )
         // The last of its lesson's questions in this session: grade the lesson on all of them.
         val lesson = entry.question.lesson?.takeIf { id -> queue.none { it.lesson == id } }
@@ -876,18 +876,18 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun finish(quiz: QuizState) {
-        val step = stepOf(_state.value)
+        val lesson = lessonOf(_state.value)
         val learnPath = data?.learnPath
         val progress = _state.value.progress
         val history = quiz.history
-        val record = step?.let { progress.steps[it.id] }
-        val outcome = if (step != null && record != null && learnPath != null && history.isNotEmpty()) {
-            StepOutcome(
-                step = step,
+        val record = lesson?.let { progress.records[it.id] }
+        val outcome = if (lesson != null && record != null && learnPath != null && history.isNotEmpty()) {
+            LessonOutcome(
+                lesson = lesson,
                 accuracy = history.count { it.correct } / history.size.toDouble(),
                 record = record,
                 becameReady = record.ready && !wasReady,
-                next = nextStep(learnPath, progress),
+                next = nextLesson(learnPath, progress),
             )
         } else {
             null
@@ -896,6 +896,6 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         refreshPath()
     }
 
-    /** The step the running session drills, if it is a step session at all. */
-    private fun stepOf(state: DrillUiState): Step? = state.step?.takeIf { state.kind == SessionKind.Step }
+    /** The lesson the running session drills, if it is a lesson session at all. */
+    private fun lessonOf(state: DrillUiState): Lesson? = state.lesson?.takeIf { state.kind == SessionKind.Lesson }
 }

@@ -14,7 +14,7 @@ import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.ReviewLoad
 import com.japanesedrills.quiz.Scheduler
 import com.japanesedrills.quiz.SrsState
-import com.japanesedrills.quiz.StepRecord
+import com.japanesedrills.quiz.LessonRecord
 import com.japanesedrills.quiz.TransformationBuilder
 import com.japanesedrills.quiz.WordSets
 import com.japanesedrills.ui.DrillUiState
@@ -28,8 +28,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 /**
- * The learn path's safety net. These are the checks that turn a bad edit to steps.json —
- * or to words.json underneath it — into a build failure rather than a step that cannot
+ * The learn path's safety net. These are the checks that turn a bad edit to lessons.json —
+ * or to words.json underneath it — into a build failure rather than a lesson that cannot
  * be played.
  */
 class LearnPathTest {
@@ -39,7 +39,7 @@ class LearnPathTest {
         DrillData.fromJson(
             File(assets, "words.json").readText(),
             File(assets, "rules.json").readText(),
-            File(assets, "steps.json").readText(),
+            File(assets, "lessons.json").readText(),
         )
     }
 
@@ -52,34 +52,34 @@ class LearnPathTest {
 
     // Path shape
 
-    private val steps get() = learnPath.steps
+    private val lessons get() = learnPath.lessons
 
     /** The lessons that are drilled. The path also opens with one that is only read. */
-    private val drills get() = steps.filterNot { it.reading }
+    private val drills get() = lessons.filterNot { it.reading }
 
     @Test
-    fun stepIdsAreUnique() {
-        val ids = steps.map { it.id }
-        assertEquals("duplicate step ids", ids.size, ids.toSet().size)
+    fun lessonIdsAreUnique() {
+        val ids = lessons.map { it.id }
+        assertEquals("duplicate lesson ids", ids.size, ids.toSet().size)
     }
 
-    /** The path groups consecutive steps, so a chapter that came back would split in two. */
+    /** The path groups consecutive lessons, so a chapter that came back would split in two. */
     @Test
     fun eachChapterIsOneUnbrokenRun() {
-        val runs = steps.map { it.chapter }
+        val runs = lessons.map { it.chapter }
             .fold(emptyList<String>()) { acc, chapter -> if (acc.lastOrNull() == chapter) acc else acc + chapter }
         assertEquals("a chapter appears in more than one place", runs.size, runs.toSet().size)
     }
 
-    /** A batch is met once, and at the first step that draws on it, where its words are shown. */
+    /** A batch is met once, and at the first lesson that draws on it, where its words are shown. */
     @Test
     fun everyBatchIsIntroducedWhereItIsFirstUsed() {
         val introduced = HashSet<String>()
-        for (step in steps) {
-            for (batch in step.batches.filterNot { it in introduced }) {
-                assertTrue("${step.id} uses $batch before it is introduced", batch in step.newBatches)
+        for (lesson in lessons) {
+            for (batch in lesson.batches.filterNot { it in introduced }) {
+                assertTrue("${lesson.id} uses $batch before it is introduced", batch in lesson.newBatches)
             }
-            for (batch in step.newBatches) {
+            for (batch in lesson.newBatches) {
                 assertTrue("$batch is introduced twice", introduced.add(batch))
             }
         }
@@ -88,19 +88,19 @@ class LearnPathTest {
     @Test
     fun everyWordExistsAndIsDealtOnce() {
         val seen = HashMap<String, String>()
-        for (step in steps) {
-            for (key in learnPath.newWords(step)) {
-                assertTrue("${step.id} introduces $key, which is not in words.json", key in data.wordsByKey)
-                val first = seen.put(key, step.id)
-                assertTrue("$key introduced by both $first and ${step.id}", first == null)
+        for (lesson in lessons) {
+            for (key in learnPath.newWords(lesson)) {
+                assertTrue("${lesson.id} introduces $key, which is not in words.json", key in data.wordsByKey)
+                val first = seen.put(key, lesson.id)
+                assertTrue("$key introduced by both $first and ${lesson.id}", first == null)
             }
         }
     }
 
-    /** Plain is the register, not a form to teach: every drilled step asks in it. */
+    /** Plain is the register, not a form to teach: every drilled lesson asks in it. */
     @Test
-    fun plainIsOnInEveryDrilledStep() {
-        for (step in drills) assertTrue("${step.id} switches plain off", "plain" in step.forms)
+    fun plainIsOnInEveryDrilledLesson() {
+        for (lesson in drills) assertTrue("${lesson.id} switches plain off", "plain" in lesson.forms)
     }
 
     /**
@@ -110,52 +110,52 @@ class LearnPathTest {
      */
     @Test
     fun thePathOpensWithTheConjugationIntro() {
-        val first = steps.first()
+        val first = lessons.first()
         assertTrue("the path does not open with a reading lesson", first.reading)
         assertEquals("conjugation-intro", first.id)
         assertEquals(0, first.questions)
         assertTrue(first.forms.isEmpty() && first.batches.isEmpty() && first.newBatches.isEmpty())
         assertEquals("it belongs to the first chapter", drills.first().chapter, first.chapter)
-        assertEquals("only the intro is read", 1, steps.count { it.reading })
+        assertEquals("only the intro is read", 1, lessons.count { it.reading })
     }
 
     /**
      * Polite is a layer over the forms, and taught first it hides the verb classes behind
-     * one uniform ending, so nothing before the step that introduces it may ask for it.
+     * one uniform ending, so nothing before the lesson that introduces it may ask for it.
      */
     @Test
-    fun politeWaitsForItsOwnStep() {
-        val first = steps.indexOfFirst { "polite" in it.newForms }
-        assertTrue("no step introduces polite", first > 0)
-        for (step in steps.take(first)) assertFalse("${step.id} asks for polite", "polite" in step.forms)
+    fun politeWaitsForItsOwnLesson() {
+        val first = lessons.indexOfFirst { "polite" in it.newForms }
+        assertTrue("no lesson introduces polite", first > 0)
+        for (lesson in lessons.take(first)) assertFalse("${lesson.id} asks for polite", "polite" in lesson.forms)
     }
 
-    // Playability: the checks that matter most, because a step that cannot fill its
+    // Playability: the checks that matter most, because a lesson that cannot fill its
     // question count is only discoverable by playing it.
 
     @Test
-    fun everyStepHasEnoughQuestions() {
-        for (step in steps) {
-            val pool = engine.buildPool(learnPath.optionsFor(step, QuizOptions()))
+    fun everyLessonHasEnoughQuestions() {
+        for (lesson in lessons) {
+            val pool = engine.buildPool(learnPath.optionsFor(lesson, QuizOptions()))
             assertTrue(
-                "${step.id} offers ${pool.size} questions but asks ${step.questions}",
-                pool.size >= step.questions,
+                "${lesson.id} offers ${pool.size} questions but asks ${lesson.questions}",
+                pool.size >= lesson.questions,
             )
         }
     }
 
     /**
-     * A small step offers barely more pairs than it asks questions. Drawing each one
+     * A small lesson offers barely more pairs than it asks questions. Drawing each one
      * independently repeated three or four of them, which is invisible on the big practice
-     * pools and glaring in a step.
+     * pools and glaring in a lesson.
      */
     @Test
-    fun aStepNeverAsksTheSameQuestionTwice() {
-        for (step in steps) {
-            val pool = engine.buildPool(learnPath.optionsFor(step, QuizOptions()))
-            val drawn = engine.buildQueue(pool, step.questions)
-            assertEquals("${step.id} came up short", step.questions, drawn.size)
-            assertEquals("${step.id} repeats a question", drawn.size, drawn.toSet().size)
+    fun aLessonNeverAsksTheSameQuestionTwice() {
+        for (lesson in lessons) {
+            val pool = engine.buildPool(learnPath.optionsFor(lesson, QuizOptions()))
+            val drawn = engine.buildQueue(pool, lesson.questions)
+            assertEquals("${lesson.id} came up short", lesson.questions, drawn.size)
+            assertEquals("${lesson.id} repeats a question", drawn.size, drawn.toSet().size)
         }
     }
 
@@ -169,39 +169,39 @@ class LearnPathTest {
     }
 
     @Test
-    fun aStepAsksOnlyItsOwnVocabulary() {
-        for (step in steps) {
-            val asked = askedWords(learnPath.optionsFor(step, QuizOptions()))
-            assertTrue("${step.id} asks outside its vocabulary", learnPath.words(step).containsAll(asked))
+    fun aLessonAsksOnlyItsOwnVocabulary() {
+        for (lesson in lessons) {
+            val asked = askedWords(learnPath.optionsFor(lesson, QuizOptions()))
+            assertTrue("${lesson.id} asks outside its vocabulary", learnPath.words(lesson).containsAll(asked))
         }
     }
 
     @Test
-    fun aStepDrillsEveryWordItIntroduces() {
-        for (step in steps) {
-            val asked = askedWords(learnPath.optionsFor(step, QuizOptions()))
-            val missing = learnPath.newWords(step).filterNot { it in asked }
-            assertEquals("${step.id} introduces words it never asks about", emptyList<String>(), missing)
+    fun aLessonDrillsEveryWordItIntroduces() {
+        for (lesson in lessons) {
+            val asked = askedWords(learnPath.optionsFor(lesson, QuizOptions()))
+            val missing = learnPath.newWords(lesson).filterNot { it in asked }
+            assertEquals("${lesson.id} introduces words it never asks about", emptyList<String>(), missing)
         }
     }
 
-    /** A form step is about its form: the mixing happens in the word steps and in review. */
+    /** A form lesson is about its form: the mixing happens in the word lessons and in review. */
     @Test
-    fun aFocusedStepAsksOnlyItsForm() {
-        for (step in steps.filter { it.focus != QuizOptions.FOCUS_NONE }) {
-            val types = engine.pairsFor(learnPath.optionsFor(step, QuizOptions())).map { transformationOf(it).type }.toSet()
-            assertEquals("${step.id} asks other question types", setOf(step.focus), types)
+    fun aFocusedLessonAsksOnlyItsForm() {
+        for (lesson in lessons.filter { it.focus != QuizOptions.FOCUS_NONE }) {
+            val types = engine.pairsFor(learnPath.optionsFor(lesson, QuizOptions())).map { transformationOf(it).type }.toSet()
+            assertEquals("${lesson.id} asks other question types", setOf(lesson.focus), types)
         }
     }
 
     @Test
-    fun aStepSwitchesOnExactlyItsForms() {
-        for (step in steps) {
-            val options = learnPath.optionsFor(step, QuizOptions())
+    fun aLessonSwitchesOnExactlyItsForms() {
+        for (lesson in lessons) {
+            val options = learnPath.optionsFor(lesson, QuizOptions())
             for (key in QuizOptions.FORM_KEYS) {
-                assertEquals("${step.id}: form $key", key in step.forms, options.isOn(key))
+                assertEquals("${lesson.id}: form $key", key in lesson.forms, options.isOn(key))
             }
-            assertFalse("${step.id} asks trick questions", options.isOn(TransformationBuilder.TRICK))
+            assertFalse("${lesson.id} asks trick questions", options.isOn(TransformationBuilder.TRICK))
         }
     }
 
@@ -212,12 +212,12 @@ class LearnPathTest {
 
     /** A lesson asks exactly what its whitelist names, per word group, and nothing besides. */
     @Test
-    fun aStepAsksOnlyTheConjugationsItLists() {
-        for (step in drills) {
-            for (packed in engine.pairsFor(learnPath.optionsFor(step, QuizOptions()))) {
+    fun aLessonAsksOnlyTheConjugationsItLists() {
+        for (lesson in drills) {
+            for (packed in engine.pairsFor(learnPath.optionsFor(lesson, QuizOptions()))) {
                 val t = transformationOf(packed)
-                val allowed = step.conjugations[engine.wordOf(packed).group].orEmpty()
-                assertTrue("${step.id} asks ${t.from} → ${t.to}", t.from in allowed && t.to in allowed)
+                val allowed = lesson.conjugations[engine.wordOf(packed).group].orEmpty()
+                assertTrue("${lesson.id} asks ${t.from} → ${t.to}", t.from in allowed && t.to in allowed)
             }
         }
     }
@@ -233,20 +233,20 @@ class LearnPathTest {
             Triple("past negative", "i-adjectives-past", "negative-past"),
             Triple("te-form negative", "te-form-adjectives", "te-form-adjectives"),
         )) {
-            val taught = steps.indexOfFirst { it.id == adjective }
-            val first = steps.indexOfFirst { it.id == lesson }
+            val taught = lessons.indexOfFirst { it.id == adjective }
+            val first = lessons.indexOfFirst { it.id == lesson }
             assertTrue("$adjective is not on the path before $lesson", taught in 0..first)
-            for (step in steps.take(first)) {
-                assertFalse("${step.id} asks $compound", step.conjugations.values.any { compound in it })
+            for (lesson in lessons.take(first)) {
+                assertFalse("${lesson.id} asks $compound", lesson.conjugations.values.any { compound in it })
             }
-            assertTrue("$lesson does not ask $compound", steps[first].conjugations.values.any { compound in it })
+            assertTrue("$lesson does not ask $compound", lessons[first].conjugations.values.any { compound in it })
         }
     }
 
     /**
      * Form option keys and transformation types are almost the same vocabulary, which is
      * exactly why the one mismatch (plain/polite both record as "politeness") went unseen:
-     * the mastery ring once silently matched nothing for the first step.
+     * the mastery ring once silently matched nothing for the first lesson.
      */
     @Test
     fun everyFormOptionMapsOntoARealTransformationType() {
@@ -257,8 +257,8 @@ class LearnPathTest {
         }
     }
 
-    // Grammar. The reference and the step intros share this content, so a form with no
-    // note means both a gap in the list and a step that teaches a rule it never states.
+    // Grammar. The reference and the lesson intros share this content, so a form with no
+    // note means both a gap in the list and a lesson that teaches a rule it never states.
 
     @Test
     fun everyFormOptionHasAGrammarNote() {
@@ -271,11 +271,11 @@ class LearnPathTest {
     }
 
     @Test
-    fun everyClassAStepIntroducesHasANote() {
+    fun everyClassALessonIntroducesHasANote() {
         val groups = data.words.map { it.group }.toSet()
-        for (step in steps) {
-            for (group in step.newClasses) {
-                assertNotNull("${step.id} introduces '$group', which has no class note", Grammar.classNote(group))
+        for (lesson in lessons) {
+            for (group in lesson.newClasses) {
+                assertNotNull("${lesson.id} introduces '$group', which has no class note", Grammar.classNote(group))
             }
         }
         for (note in Grammar.CLASS_NOTES) {
@@ -313,10 +313,10 @@ class LearnPathTest {
     }
 
     @Test
-    fun everyFormAStepIntroducesHasANote() {
-        for (step in steps) {
-            for (form in step.newForms) {
-                assertNotNull("${step.id} adds '$form' with no grammar note", Grammar[form])
+    fun everyFormALessonIntroducesHasANote() {
+        for (lesson in lessons) {
+            for (form in lesson.newForms) {
+                assertNotNull("${lesson.id} adds '$form' with no grammar note", Grammar[form])
             }
         }
     }
@@ -333,7 +333,7 @@ class LearnPathTest {
             assertTrue("no example word has a ${note.key} form", usable.isNotEmpty())
             for (word in usable) {
                 assertTrue(
-                    "${note.key} of ${word.key} derives no steps, so the card would be empty",
+                    "${note.key} of ${word.key} derives no lessons, so the card would be empty",
                     Explanations.solution(word, target).steps.isNotEmpty(),
                 )
             }
@@ -418,7 +418,7 @@ class LearnPathTest {
         // Everything rested and far in the future, except the lessons named here.
         fun waiting(vararg due: Pair<String, Int>) = Progress(
             lessons = lessons.associateWith { SrsState(step = 5, due = 99L) } +
-                due.associate { (lesson, step) -> lesson to SrsState(step = step, due = 0L) },
+                due.associate { (lesson, rung) -> lesson to SrsState(step = rung, due = 0L) },
         )
 
         val one = engine.reviewLoad(lessons, waiting(lessons[0] to Scheduler.UNLEARNED), 0, CAP)
@@ -473,7 +473,7 @@ class LearnPathTest {
 
     /**
      * A session grades a lesson once, on all its answers: fifteen right and one slip at the
-     * end still passes and climbs, where a schedule step per answer stepped it back down.
+     * end still passes and climbs, where a schedule lesson per answer stepped it back down.
      */
     @Test
     fun aLessonIsGradedOnceOnTheWholeSession() {
@@ -655,7 +655,7 @@ class LearnPathTest {
     @Test
     fun aBackupRoundTripsEveryField() {
         val original = Progress(
-            steps = mapOf("negative" to StepRecord(recent = 0b1011, answered = 4, ready = true)),
+            records = mapOf("negative" to LessonRecord(recent = 0b1011, answered = 4, ready = true)),
             lessons = mapOf("negative-past" to SrsState(step = 2, ease = 1.1, due = 20715, reps = 5, lapses = 1)),
             words = mapOf("教える" to SrsState(step = 0, ease = 0.85, due = 20700, reps = 2, lapses = 2)),
             leeches = mapOf("教える|politeness" to 3),
@@ -737,9 +737,9 @@ class LearnPathTest {
     }
 
     @Test
-    fun aStepIsReadyAtTheBarAndNotBefore() {
-        fun answered(correct: Int, wrong: Int): StepRecord {
-            var record = StepRecord()
+    fun aLessonIsReadyAtTheBarAndNotBefore() {
+        fun answered(correct: Int, wrong: Int): LessonRecord {
+            var record = LessonRecord()
             repeat(wrong) { record = record.with(correct = false, questions = 14) }
             repeat(correct) { record = record.with(correct = true, questions = 14) }
             return record
@@ -750,17 +750,17 @@ class LearnPathTest {
         assertTrue("17 of 20 is on it", answered(correct = 17, wrong = 3).ready)
     }
 
-    /** A step shorter than the minimum is ready after one whole session of it. */
+    /** A lesson shorter than the minimum is ready after one whole session of it. */
     @Test
-    fun aShortStepCanBeReadyAfterOneSession() {
-        var record = StepRecord()
+    fun aShortLessonCanBeReadyAfterOneSession() {
+        var record = LessonRecord()
         repeat(6) { record = record.with(correct = true, questions = 6) }
         assertTrue(record.ready)
     }
 
     @Test
     fun readinessIsStickyThroughALaterBadRun() {
-        var record = StepRecord()
+        var record = LessonRecord()
         repeat(12) { record = record.with(correct = true, questions = 14) }
         repeat(20) { record = record.with(correct = false, questions = 14) }
         assertFalse(record.clearsTheBar(14))
@@ -782,12 +782,12 @@ class LearnPathTest {
     }
 
     @Test
-    fun aStepRecordKeepsOnlyTheLastWindowOfAnswers() {
-        var record = StepRecord()
-        repeat(StepRecord.WINDOW) { record = record.with(correct = true, questions = 14) }
+    fun aLessonRecordKeepsOnlyTheLastWindowOfAnswers() {
+        var record = LessonRecord()
+        repeat(LessonRecord.WINDOW) { record = record.with(correct = true, questions = 14) }
         record = record.with(correct = false, questions = 14)
-        assertEquals(StepRecord.WINDOW + 1, record.answered)
-        assertEquals(StepRecord.WINDOW - 1, Integer.bitCount(record.recent))
+        assertEquals(LessonRecord.WINDOW + 1, record.answered)
+        assertEquals(LessonRecord.WINDOW - 1, Integer.bitCount(record.recent))
     }
 
     @Test

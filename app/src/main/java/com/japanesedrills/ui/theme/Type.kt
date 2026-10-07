@@ -75,7 +75,7 @@ val Typography.subheading: TextStyle
 
 /**
  * The one line a screen is about: what review is asking for, what the path recommends,
- * the step just finished. Never more than one of them on a screen.
+ * the lesson just finished. Never more than one of them on a screen.
  */
 val Typography.lead: TextStyle
     get() = titleMedium.copy(fontSize = 21.sp, fontWeight = FontWeight.Bold, lineHeight = 26.sp)

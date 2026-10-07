@@ -416,8 +416,8 @@ private fun PracticeGrid(
  */
 private fun strengthOf(form: String, column: WordColumn, state: DrillUiState): Float? {
     val type = TransformationBuilder.typeOfForm(form)
-    val states = state.path.map { it.step }
-        .filter { step -> step.focus == type && step.conjugations.keys.any(column.groups::contains) }
+    val states = state.path.map { it.lesson }
+        .filter { lesson -> lesson.focus == type && lesson.conjugations.keys.any(column.groups::contains) }
         .mapNotNull { state.progress.lessons[it.id] }
     if (states.isEmpty()) return null
     return states.map(Scheduler::strength).average().toFloat()

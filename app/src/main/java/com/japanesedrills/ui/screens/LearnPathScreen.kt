@@ -44,10 +44,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
-import com.japanesedrills.quiz.Step
+import com.japanesedrills.quiz.Lesson
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.Recommendation
-import com.japanesedrills.ui.StepCard
+import com.japanesedrills.ui.LessonCard
 import com.japanesedrills.ui.components.FuriganaText
 import com.japanesedrills.ui.components.Lit
 import com.japanesedrills.ui.components.Panel
@@ -64,19 +64,19 @@ import com.japanesedrills.ui.theme.lead
 import kotlin.math.roundToInt
 
 /** One chapter of the path, in path order. */
-private data class Chapter(val title: String, val cards: List<StepCard>) {
+private data class Chapter(val title: String, val cards: List<LessonCard>) {
     val ready: Int get() = cards.count { it.ready }
 }
 
-/** Consecutive steps sharing a chapter; the path is already in order. */
-private fun chaptersOf(path: List<StepCard>): List<Chapter> {
+/** Consecutive lessons sharing a chapter; the path is already in order. */
+private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
     val chapters = ArrayList<Chapter>()
     for (card in path) {
         val last = chapters.lastOrNull()
-        if (last != null && last.title == card.step.chapter) {
+        if (last != null && last.title == card.lesson.chapter) {
             chapters[chapters.lastIndex] = last.copy(cards = last.cards + card)
         } else {
-            chapters += Chapter(card.step.chapter, listOf(card))
+            chapters += Chapter(card.lesson.chapter, listOf(card))
         }
     }
     return chapters
@@ -85,17 +85,17 @@ private fun chaptersOf(path: List<StepCard>): List<Chapter> {
 /**
  * The learn path: a recommended order through the drill, with nothing locked. Review comes
  * first once there is anything to review, because returning daily is the habit worth
- * building; the steps are the slower, weekly sense of progress.
+ * building; the lessons are the slower, weekly sense of progress.
  *
- * A chapter is one card and its steps are the rows in it, the shape the rest of the app
+ * A chapter is one card and its lessons are the rows in it, the shape the rest of the app
  * lists things in. Every chapter folds down to its heading row; only the one holding the next
- * step starts open, so the path reads as where you are rather than as forty-odd rows.
+ * lesson starts open, so the path reads as where you are rather than as forty-odd rows.
  */
 @Composable
 fun LearnPathScreen(
     state: DrillUiState,
-    onStep: (Step) -> Unit,
-    onStepIntro: (Step) -> Unit,
+    onLesson: (Lesson) -> Unit,
+    onLessonIntro: (Lesson) -> Unit,
     onReview: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -127,9 +127,9 @@ fun LearnPathScreen(
                             }
                         }
                         if (lead) {
-                            RecommendedRow(recommendation, onStep, onReview, lead = false)
+                            RecommendedRow(recommendation, onLesson, onReview, lead = false)
                         } else {
-                            Lit { RecommendedRow(recommendation, onStep, onReview, lead = true) }
+                            Lit { RecommendedRow(recommendation, onLesson, onReview, lead = true) }
                         }
                     }
                 }
@@ -139,7 +139,7 @@ fun LearnPathScreen(
         // A chapter is one card, drawn a row at a time: a card composed whole would be nine
         // rows built in the frame it scrolls into.
         chapters.forEachIndexed { index, chapter ->
-            val open = state.chapterOpen[chapter.title] ?: chapter.cards.any { it.step == state.nextStep }
+            val open = state.chapterOpen[chapter.title] ?: chapter.cards.any { it.lesson == state.nextLesson }
             item(key = "chapter-${chapter.title}") {
                 SectionPiece(first = true, last = !open) {
                     ChapterHeader(
@@ -151,13 +151,13 @@ fun LearnPathScreen(
                 }
             }
             if (open) {
-                items(chapter.cards, key = { it.step.id }) { card ->
-                    SectionPiece(first = false, last = card.step.id == chapter.cards.last().step.id) {
-                        StepRow(
+                items(chapter.cards, key = { it.lesson.id }) { card ->
+                    SectionPiece(first = false, last = card.lesson.id == chapter.cards.last().lesson.id) {
+                        LessonRow(
                             card,
-                            recommended = card.step == state.nextStep,
-                            onClick = { onStep(card.step) },
-                            onIntro = { onStepIntro(card.step) },
+                            recommended = card.lesson == state.nextLesson,
+                            onClick = { onLesson(card.lesson) },
+                            onIntro = { onLessonIntro(card.lesson) },
                         )
                     }
                 }
@@ -204,7 +204,7 @@ private fun PathHeading(ready: Int, total: Int) {
 
 /**
  * A chapter's name and how far into it the learner has got. Tapping it folds or unfolds the
- * steps.
+ * lessons.
  */
 @Composable
 private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle: () -> Unit) {
@@ -325,7 +325,7 @@ private fun PanelRow(
 
 /**
  * What the path recommends, with a way straight in. Readiness decides it, never a lock: the
- * learner can take any other step from the list below.
+ * learner can take any other lesson from the list below.
  */
 /**
  * What the path wants next, whatever that is: the lesson when review is solid, review
@@ -335,12 +335,12 @@ private fun PanelRow(
 @Composable
 private fun RecommendedRow(
     recommendation: Recommendation,
-    onStep: (Step) -> Unit,
+    onLesson: (Lesson) -> Unit,
     onReview: () -> Unit,
     lead: Boolean,
 ) {
     val title = when (recommendation) {
-        is Recommendation.Lesson -> recommendation.step.title
+        is Recommendation.NextLesson -> recommendation.lesson.title
         Recommendation.ImproveReview -> "Improve Review"
         Recommendation.Done -> "Review or Practice"
     }
@@ -348,16 +348,16 @@ private fun RecommendedRow(
         label = "Recommended next",
         line = title,
         lead = lead,
-        action = if (recommendation is Recommendation.Lesson) "Open" else "Review",
-        icon = if (recommendation is Recommendation.Lesson) Icons.Default.PlayArrow else Icons.Default.Refresh,
+        action = if (recommendation is Recommendation.NextLesson) "Open" else "Review",
+        icon = if (recommendation is Recommendation.NextLesson) Icons.Default.PlayArrow else Icons.Default.Refresh,
         onClick = {
-            if (recommendation is Recommendation.Lesson) onStep(recommendation.step) else onReview()
+            if (recommendation is Recommendation.NextLesson) onLesson(recommendation.lesson) else onReview()
         },
     )
 }
 
 /**
- * One step, on one line: whether it has been ready, what it is called, how well its content
+ * One lesson, on one line: whether it has been ready, what it is called, how well its content
  * is holding up in review, and the way in to what it introduces.
  *
  * One line and not three. The path is read down — twenty-odd lessons over six chapters —
@@ -365,8 +365,8 @@ private fun RecommendedRow(
  * is on the page it opens; the row only has to say which lesson it is and where it stands.
  */
 @Composable
-private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
-    val step = card.step
+private fun LessonRow(card: LessonCard, recommended: Boolean, onClick: () -> Unit, onIntro: () -> Unit) {
+    val lesson = card.lesson
     Row(
         Modifier
             .fillMaxWidth()
@@ -397,7 +397,7 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
             }
         }
         FuriganaText(
-            step.title,
+            lesson.title,
             style = MaterialTheme.typography.heading,
             color = if (recommended) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f),
@@ -406,9 +406,9 @@ private fun StepRow(card: StepCard, recommended: Boolean, onClick: () -> Unit, o
         // them all end in one place and a reading lesson leaves a gap rather than a hole.
         Spacer(Modifier.width(10.dp))
         Box(Modifier.width(BarWidth)) {
-            if (!step.reading) StrengthBar(card.strength, Modifier.fillMaxWidth())
+            if (!lesson.reading) StrengthBar(card.strength, Modifier.fillMaxWidth())
         }
-        // On every step that has an introduction, opened or not, so rows never change shape.
+        // On every lesson that has an introduction, opened or not, so rows never change shape.
         Box(Modifier.width(IntroWidth), contentAlignment = Alignment.CenterEnd) {
             if (card.hasIntro) TextAction("About") { onIntro() }
         }
@@ -420,7 +420,7 @@ private val BarWidth = 62.dp
 private val IntroWidth = 58.dp
 
 /**
- * How well a step's content is holding up in review, as a bar that takes its colour from how
- * far it has filled ([com.japanesedrills.ui.theme.StrengthColors]): a step that has never
+ * How well a lesson's content is holding up in review, as a bar that takes its colour from how
+ * far it has filled ([com.japanesedrills.ui.theme.StrengthColors]): a lesson that has never
  * been answered shows the empty track, and one that is solid reads green across.
  */
