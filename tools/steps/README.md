@@ -24,7 +24,7 @@ and it is finished by being opened. It carries no forms, words or questions, so 
 step nothing can drill.
 
 What the path offers next is decided by review, not by the list, and it always says so out
-loud. A new lesson is recommended when review is *solid*: at most a fifth of the skills it
+loud. A new lesson is recommended when review is *solid*: at most a fifth of the lessons it
 tracks are waiting. Not when review is empty — review is meant to have something in it most
 days, so a path that waited for zero would never hand out another lesson. While the backlog
 is bigger than that the recommendation reads "Improve Review", and once every lesson is
@@ -52,8 +52,9 @@ Two separate signals on a step, because they answer different questions:
   session, so a good first run can recommend the next step at once rather than waiting days
   for the review schedule to say anything. It is sticky: a bad session later does not take
   the tick away.
-- **Strength**, the bar — "is it sticking?" The average review strength of what the step is
-  about, and nothing else, so later steps cannot drain an earlier bar as they once did.
+- **Strength**, the bar — "is it sticking?" How far up the review ladder the lesson's own
+  schedule is. It moves on that lesson's answers alone, so later lessons cannot drain an
+  earlier bar as they once did.
 
 Neither is review being *solid*, which is about the whole backlog, not one step.
 
@@ -64,9 +65,13 @@ ahead, because everything after it builds on it. The figures live in `StepRecord
 
 Every step changes either the grammar or the vocabulary, never both:
 
-- **form steps** add one form and ask only about it, on every word met so far that has it
-- **word steps** add a batch of words of types already met and drill them on every form so
-  far, mixed — the grammar holds no surprises there, only the words do
+- **form steps** add one form and ask only about it, on every word met so far that has it —
+  or on the classes named, where the rest are not ready for it: the て-form comes to verbs
+  first
+- **extend steps** take a form already known somewhere new, an ending or a class, and ask
+  only that: the negative past is the past taken to ない
+- **word steps** add a batch of words of types already met and drill them on everything
+  asked so far, mixed — the grammar holds no surprises there, only the words do
 - **word-type steps** add a type that conjugates differently (the irregular verbs, the two
   kinds of adjective) and go through the known forms one step each, because for those words
   a form *is* new grammar: 高い → 高くない is not 書く → 書かない
@@ -77,6 +82,33 @@ Replaying every form for every batch would grow the path quadratically for littl
 Two word types are too small for that: ある and いる, and いい. They get one mixed step each
 rather than three steps of two questions.
 
+## Compounds
+
+Most forms the drill asks are compounds: 書かなかった is the negative, and then the past of
+what the negative left behind. Teaching every compound as a lesson of its own would explode
+the path, so none is: a compound becomes askable by itself once every rule in it has been
+taught. What makes that work is that the endings are words in their own right — ない and
+たい are い-adjectives, ている is いる, and the potential, passive and causative are
+ordinary ichidan verbs — so the rule a compound needs is a rule a class already has.
+
+The generator breaks each conjugation into a chain of links, each a form on a host: the
+word's own group first, then whatever ending the last link left behind (`links`). A step
+asks a compound only when every link has been taught, and writes what it asks into
+`steps.json` as a whitelist per word group. A whitelist rather than a blacklist, so a
+compound added to `rules.json` stays unasked until the generator says it has been taught.
+
+An ending introduced after its class is taught every form the class has on the spot — the
+potential lesson asks 書けない as well as 書ける. ない is introduced before any い-adjective,
+so it inherits nothing, and each form it takes later is a lesson that says so: the negative
+past right after the い-adjective past, the て-form of ない after the い-adjective て-form,
+and なかったら and なければ in the conditional and provisional lessons, which teach them on
+い-adjectives in the same breath. That is also why い-adjectives have a conditional and a
+provisional in `rules.json` at all.
+
+A lesson's introduction leads with that point when it has one — ない is an い-adjective,
+ている is いる — and shows how it builds what is new, on the classes it drills and no others
+(`Step.builds`).
+
 ## Form order
 
 - **negative first**, because it is where the godan/ichidan split shows: 書かない against
@@ -85,8 +117,10 @@ rather than three steps of two questions.
   arrives as "the same change, a different ending".
 - **the irregular verbs after those three**, so there are forms for them to be irregular in.
   In the first step they would be the rule and three exceptions at once.
-- **adjectives once their forms are known**: they only have negative, past and て (and
-  polite), so their steps can come as soon as those have.
+- **い-adjectives right after the past**, because ない is one: the negative past is their
+  past applied to ない, so it cannot be asked before they are taught. な-adjectives, whose
+  negative じゃない is ない again, wait for a chapter of their own.
+- **the conditional as the past plus ら**, which is all it is, on verbs and adjectives alike.
 - **the derived forms later**, potential to causative: each produces an ordinary ichidan
   verb, which is easier to see once the basic forms are solid.
 - **desire before polite**, because たい introduces the い-row stem that ます reuses.
@@ -96,9 +130,9 @@ rather than three steps of two questions.
   It comes in two steps — the basic forms, then everything else — because one step over
   every form and every word would be the biggest on the path.
 
-A form step asks only its own question type. The old lessons mixed everything inherited
-into each new one, which diluted the new form; the mixing now happens in the word steps and
-in review.
+A form step asks only its own question type, and only the compounds of it whose rules are
+all taught. The old lessons mixed everything inherited into each new one, which diluted the
+new form; the mixing now happens in the word steps and in review.
 
 ## Named words
 
@@ -129,45 +163,45 @@ A thousand words times a couple of hundred transformations is on the order of 10
 possible questions. Scheduling those individually is meaningless — almost every pair
 would be seen once or never, so "due" would carry no information.
 
-So there are two axes, each in the hundreds:
+So there are two axes, each in the dozens or hundreds:
 
-- **skills** — a grammar operation on a word class (`past|godan`): one per question type
-  per class, so a hundred-odd at most. Godan and ichidan て-form are separate skills
-  because one is a table of exceptions and the other is a single rule.
-- **words** — only the ones actually met.
+- **lessons** — each drilled step, reviewed on exactly the questions it asks and nothing
+  else. A lesson enters review once a session of it has been played through.
+- **words** — only the ones actually met, which decide which questions a lesson asks first.
 
-Review covers what the learner has practised on the path, whichever order they took it in:
-every word with a schedule, on every question type answered. A review question is chosen by
-picking a due skill and then a word within it, preferring leeches, then due words, then
-anything not yet asked that session. Sessions cycle through the due skills rather than
-blocking on one: interleaving feels harder and retains better.
+Lessons rather than skills (a question type on a word group, which is what this used to
+schedule), because a skill merged rules the path teaches apart: 書いた and 書かなかった were
+both "past on godan", so a miss on ない's past marked the fusions down, and the other way
+round. A lesson is what was taught, so its review is too. The cost is that a miss counts
+against the lesson that asked it, not the rule behind it — forgetting the negative's か costs
+the negative past — and that is accepted: that lesson then comes back sooner, which is
+exactly the drill the forgotten rule needs.
 
-A review asks as many questions as its due skills have earned, up to a cap set in Settings,
-and when the cap bites the longest-overdue skills get in first. A skill earns *more* the
-higher it is on the ladder, which looks backwards; the argument is in
-`QuizEngine.reviewPlan`.
+A review picks its lessons, then takes their questions in turn — interleaving feels harder
+and retains better — each from that lesson's own pool, preferring leeches, then due words,
+then anything not yet asked that session. It asks as many as the due lessons have earned, up
+to a cap set in Settings, and when the cap bites the longest-overdue lessons get in first. A
+lesson earns *more* the higher it is on the ladder, which looks backwards; the argument is in
+`QuizEngine.reviewPlan`. Each lesson is graded once per session, on all of its answers
+(`Progress.withLessonGraded`).
 
-A skill is due when its schedule says so, and one review has never asked is due as well:
-never asked and overdue are the same statement about whether it holds up, and the queue
-draws on both. The Review row's numbers — the questions, and the kinds of question under
-them — are that same reckoning over the same skills, so the row and the session can never
-disagree. The row once said nothing was due while the button had a queue of pairings it had
-not asked yet.
+The Review row's numbers — the questions, and the lessons under them — are the same reckoning
+as the session's, so the row and the session can never disagree.
 
 Only path sessions write to any of this. Free practice records nothing on purpose, so the
-Review row does not appear at all until something has been answered on the path (opening
-the Conjugation Intro is a step taken, but answers nothing), and everything answered
-today is scheduled for tomorrow at the earliest: the first rung of the ladder is one day.
-A learner who has only used the Practice tab has no review, and one who checks the day
+Review row does not appear at all until a lesson has been played through, and everything
+answered today is scheduled for tomorrow at the earliest: the first rung of the ladder is one
+day. A learner who has only used the Practice tab has no review, and one who checks the day
 they practised sees "nothing due". Both are the design, not a fault.
 
 This split is the one decision here that is expensive to reverse, because it is baked into
 the stored progress format.
 
-## When words.json changes
+## When words.json or rules.json changes
 
-Steps name word keys, so regenerating the word list can change what they hold.
-`LearnPathTest` turns the dangerous cases into build failures — it checks every named word
-exists, that none is dealt twice, and that every step can still fill its question count
-without repeating a question. Re-run `generate.py` after any change to the word list and let
-the tests judge it.
+Steps name word keys and conjugation keys, so regenerating the word list or editing the
+rules can change what they hold, and `--check` fails until `generate.py` is re-run. The
+generator refuses a step whose whitelist would ask something the step does not, or that asks
+nothing at all; `LearnPathTest` turns the rest into build failures — every named word exists,
+none is dealt twice, every step can still fill its question count without repeating a
+question, and no step asks outside its whitelist.

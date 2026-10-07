@@ -44,8 +44,9 @@ object Scheduler {
 
     fun review(state: SrsState, correct: Boolean, today: Long): SrsState = when {
         // A right answer before the item is due says nothing the schedule does not already
-        // know. A session asks the same skill a dozen times running, and counting each one
-        // climbed the whole ladder in an afternoon. The first right answer still starts it.
+        // know: a lesson replayed the day it was learned, or a word met twice in a session,
+        // would otherwise climb the whole ladder in an afternoon. The first right answer
+        // still starts it.
         correct && state.step > UNLEARNED && !isDue(state, today) -> state.copy(reps = state.reps + 1)
         correct -> {
             val step = min(state.step + 1, LADDER.size - 1)

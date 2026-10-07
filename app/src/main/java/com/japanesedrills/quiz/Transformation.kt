@@ -32,8 +32,9 @@ object TransformationBuilder {
      * The [Transformation.type] a form option belongs to. Every form key is its own type
      * except "plain" and "polite", which are two ends of one question ("politeness").
      *
-     * Anything mapping form options onto recorded skills has to go through this, because
-     * the two vocabularies are otherwise identical and the mismatch is invisible.
+     * Anything mapping form options onto question types — a lesson's focus, the practice
+     * grid's strength view — has to go through this, because the two vocabularies are
+     * otherwise identical and the mismatch is invisible.
      */
     fun typeOfForm(formKey: String): String =
         if (formKey == "plain" || formKey == "polite") "politeness" else formKey

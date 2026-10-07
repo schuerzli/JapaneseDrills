@@ -318,7 +318,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         // Progress is written by one collector instead of inline on every answer: building
-        // the JSON walks every skill, word and leech, which has no business happening on
+        // the JSON walks every lesson, word and leech, which has no business happening on
         // the main thread between a keystroke and the next frame. StateFlow conflates, so a
         // burst of answers costs one write, and a single collector keeps them ordered.
         viewModelScope.launch {

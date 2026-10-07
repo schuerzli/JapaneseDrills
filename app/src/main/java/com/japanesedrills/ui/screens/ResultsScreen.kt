@@ -118,7 +118,7 @@ fun ResultsScreen(
                             Text("Go again")
                         }
                         Button(onClick = onNext, modifier = Modifier.weight(1f)) {
-                            Text("Next step")
+                            Text("Next lesson")
                             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
                             Icon(
                                 Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -185,7 +185,7 @@ private fun ReadinessCard(outcome: StepOutcome) {
         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             FuriganaText(
                 when {
-                    outcome.becameReady -> "Ready for the next step"
+                    outcome.becameReady -> "Ready for the next lesson"
                     record.ready -> "${outcome.step.title} is ready"
                     else -> "${outcome.step.title}: not ready yet"
                 },

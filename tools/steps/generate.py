@@ -7,7 +7,8 @@ and a change is reviewable as a diff. See README.md for why it is shaped the way
     python tools/steps/generate.py --check    # fail if it would change
 
 Every step is spelled out in full: the forms it switches on, the one question type it
-asks about (or none), and the word batches it draws on. Titles are shown with furigana, so
+asks about (or none), the word batches it draws on, and the conjugations it asks per word
+group, which is where compounds are held back until every rule in them has been taught. Titles are shown with furigana, so
 their kanji are written in the same notation as the word list. The app only reads that; all the
 bookkeeping of what is known by which point happens here.
 """

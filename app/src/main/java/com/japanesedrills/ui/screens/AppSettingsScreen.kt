@@ -155,7 +155,7 @@ fun AppSettingsScreen(
 
             Section("Progress", "Everything the learn path has earned, and how to keep a copy") {
                 Column {
-                    StatRow("Steps ready", "$ready of ${state.path.size}")
+                    StatRow("Lessons ready", "$ready of ${state.path.size}")
                     StatRow("Words tracked", "${state.progress.words.size}")
                     StatRow("Lessons in review", "${state.progress.lessons.size}")
                 }
@@ -231,7 +231,7 @@ fun AppSettingsScreen(
                 title = { Text("Reset progress?") },
                 text = {
                     Text(
-                        "This clears every step record, the whole review schedule and the word " +
+                        "This clears every lesson record, the whole review schedule and the word " +
                             "sets you have made. It cannot be undone. Your practice settings are " +
                             "not affected."
                     )

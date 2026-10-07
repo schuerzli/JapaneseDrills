@@ -102,10 +102,6 @@ data class Progress(
         return copy(lessons = lessons + (lesson to Scheduler.review(lessons[lesson] ?: SrsState(), passed, day)))
     }
 
-    /**
-     * How many skills are ready to be reviewed: the one definition of "due" for the UI.
-     * Every skill here was practised, so a review can reach every one of them.
-     */
     companion object {
         /** A pairing missed this often is a leech: it gets picked first in review. */
         const val LEECH_THRESHOLD = 4

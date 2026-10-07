@@ -34,7 +34,8 @@ JAVA_HOME="C:/Program Files/Android/Android Studio1/jbr" ./gradlew assembleDebug
 
 These are generated rather than written by hand: `words.json` (`tools/wordlist`;
 curation and sentence readings re-run alone as `merge.py --finish`), `steps.json`
-(`tools/steps`), and the palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both
+(`tools/steps`, from `words.json` and `rules.json`, so editing either makes it stale), and
+the palettes in `ui/theme/Theme.kt` and the fonts in `res/font` (both
 `tools/theme`; `--fonts` needs `pip install fonttools`). `--apply` also writes
 `res/values{,-night}/colors.xml`, where the window background and the launcher icon's
 background come from whichever palette `schemes.py` names as the default. Edit the
@@ -122,8 +123,14 @@ These look like mistakes without their reason. Check here before "fixing" one.
   "read"` with no forms, no words and no questions. Opening it finishes it. Anything that
   builds a pool or measures review has nothing to work with there, so tests that sweep the
   path skip it (`LearnPathTest.drills`).
-- **steps.json spells every step out in full** — its forms, focus and word batches — so
-  the app does no bookkeeping; what is known by which point is worked out in the generator.
+- **steps.json spells every step out in full** — its forms, focus, word batches and the
+  conjugations it asks per word group — so the app does no bookkeeping; what is known by
+  which point is worked out in the generator.
+- **A compound is asked only once every rule in it has been taught.** Endings conjugate as
+  classes — ない is an い-adjective, ている is いる — so the Past lesson asks no 書かなかった:
+  that waits for the い-adjective past, and the い-adjective conditional and provisional in
+  `rules.json` exist so that なかったら and なければ have one to wait for. The reasoning, and
+  how the generator decides it, is the README's "Compounds".
   Steps are an array, not an object keyed by id, because JSON key order is preserved by
   Android's `JSONObject` and not by the `org.json` used in unit tests.
 - **Progress is the only state that cannot be rebuilt from the assets**, and the word sets
@@ -137,17 +144,19 @@ These look like mistakes without their reason. Check here before "fixing" one.
 - **Review is what moves the path; a lesson is what is sprinkled in.** A new lesson is
   recommended only while review is *solid* (`ReviewLoad.solid`): a small backlog, not an
   empty one, since waiting for zero would stop the path handing out lessons at all. A step's
-  bar is review's strength on its content, so the path is a read-out of review, not a
-  checklist.
-- **A review is as long as its due skills add up to, and a skill's share grows with the
+  bar is its own review schedule, so the path is a read-out of review, not a checklist.
+- **A review question belongs to one lesson, and a lesson is graded once per session.** It
+  is drawn from that lesson's own options and moves that lesson alone; grading per answer
+  let a late slip undo the session (`Progress.withLessonGraded`).
+- **A review is as long as its due lessons add up to, and a lesson's share grows with the
   ladder.** Not shrinks: weakness is already paid for by frequency and by what
-  `pickForSkill` serves first, so the share evens out the *time* a session costs instead
+  `pickForLesson` serves first, so the share evens out the *time* a session costs instead
   (`QuizEngine.reviewPlan` carries the argument). The Review row shows the question count
   for that reason, with the due count as its note. `reviewLoad` and `buildReviewQueue` go
   through the same plan, so the row cannot promise a length the session does not have.
 
 Why the path is ordered the way it is, why nothing on it is locked, why review schedules
-skills rather than questions, what counts as due, and why free practice writes nothing to
+lessons rather than questions, what counts as due, and why free practice writes nothing to
 the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* and a step's
 *strength* each mean.
 
@@ -158,13 +167,14 @@ the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* an
   text. Renaming one means renaming all of them in the same change, then grepping for the
   old word before calling it done. The old name survives only where it describes history,
   such as the version-1 backup format of the old lesson path. The whole is the *learn
-  path* (`LearnPath`), its units are *steps*; the page that explains conjugation is the
+  path* (`LearnPath`); its units are *steps* in code (`Step`, `steps.json`) but *lessons* on
+  screen and in review's schedule (`Progress.lessons`) — one concept, two names, not yet
+  reconciled. The page that explains conjugation is the
   *Conjugation Intro* (`ConjugationIntro`); a godan ending melting into て or た is a
   *fusion* (`FusionColumn`, the "fusion system"), never a "sound change". Free practice
   picks its vocabulary as *word sets* (`WordSets`) and its grammar as *squares* of a grid,
-  a form on one word-class column. Review schedules *skills* (`QuizEngine.skillOf`), a form
-  on one word group, which is finer: the godan column holds 行く and ある as groups of their
-  own. "Skill" is never UI text; on screen it is a *kind of question*.
+  a form on one word-class column. Within a lesson, what it asks is a *conjugation* — a
+  `rules.json` key such as `past negative` — listed per word group (`Step.conjugations`).
 - **The same goes for data: a word has one class everywhere** it is shown or conjugated,
   and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
   it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone

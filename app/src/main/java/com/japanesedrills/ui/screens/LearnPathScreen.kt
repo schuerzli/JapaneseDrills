@@ -231,7 +231,7 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
         Spacer(Modifier.width(4.dp))
         Icon(
             if (open) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-            contentDescription = if (open) "Hide steps" else "Show steps",
+            contentDescription = if (open) "Hide lessons" else "Show lessons",
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }

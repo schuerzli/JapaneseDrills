@@ -188,7 +188,7 @@ data class QuizOptions(
         val QUESTION_COUNTS = listOf(5, 10, 15, 20, 30, 50)
 
         /**
-         * The longest reviews Settings offers. A skill earns up to 16 questions, so 100 holds
+         * The longest reviews Settings offers. A lesson earns up to 16 questions, so 100 holds
          * about six mature ones; the cap is for the day after a holiday, not for every day.
          */
         val REVIEW_CAPS = listOf(30, 50, 100, 200)
