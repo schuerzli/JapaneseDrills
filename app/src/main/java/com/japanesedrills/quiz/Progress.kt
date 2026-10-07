@@ -14,7 +14,7 @@ data class StepRecord(
     val answered: Int = 0,
     /**
      * Sticky: once the recent answers have cleared the bar, the step stays ticked. A bad
-     * session later is not a reason to take it away; the ring is what shows fading.
+     * session later is not a reason to take it away; the bar is what shows fading.
      */
     val ready: Boolean = false,
 ) {

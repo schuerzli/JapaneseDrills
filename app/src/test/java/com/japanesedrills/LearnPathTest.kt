@@ -712,27 +712,27 @@ class LearnPathTest {
 
     /** The old ring measured every lesson so far on every word type, so later work drained it. */
     @Test
-    fun aStepsRingIgnoresWhatLaterStepsAdd() {
+    fun aStepsStrengthIgnoresWhatLaterStepsAdd() {
         val first = drills.first()
-        val solid = SrsState(step = Scheduler.LADDER.size - 1)
-        val own = Progress(skills = mapOf("negative|godan" to solid, "negative|ichidan" to solid))
+        val mature = SrsState(step = Scheduler.LADDER.size - 1)
+        val own = Progress(skills = mapOf("negative|godan" to mature, "negative|ichidan" to mature))
         val later = own.copy(
             skills = own.skills + ("negative|i-adjective" to SrsState()) + ("politeness|godan" to SrsState()),
         )
-        val ring = learnPath.solidity(first, own, data)
-        assertEquals(1f, ring, 0.001f)
-        assertEquals(ring, learnPath.solidity(first, later, data), 0.001f)
+        val strength = learnPath.strength(first, own, data)
+        assertEquals(1f, strength, 0.001f)
+        assertEquals(strength, learnPath.strength(first, later, data), 0.001f)
     }
 
     @Test
-    fun aWordStepsRingIsItsWords() {
+    fun aWordStepsStrengthIsItsWords() {
         val step = steps.first { it.focus == QuizOptions.FOCUS_NONE && it.newBatches.isNotEmpty() }
         val words = learnPath.newWords(step)
         val half = words.take(words.size / 2).associateWith { SrsState(step = Scheduler.LADDER.size - 1) }
-        assertEquals(0f, learnPath.solidity(step, Progress(), data), 0.001f)
+        assertEquals(0f, learnPath.strength(step, Progress(), data), 0.001f)
         assertEquals(
             (words.size / 2).toFloat() / words.size,
-            learnPath.solidity(step, Progress(words = half), data),
+            learnPath.strength(step, Progress(words = half), data),
             0.001f,
         )
     }

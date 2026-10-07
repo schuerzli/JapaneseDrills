@@ -90,21 +90,21 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
         optionsFor(words(step), step.forms, base, step.focus)
 
     /**
-     * How well the step's own content is holding up, 0f..1f, for the ring on its row: the
+     * How well the step's own content is holding up, 0f..1f, for the bar on its row: the
      * average review strength of what it is about, counting what has never been answered
      * as nothing. A form step is about its form on the word types it drills, a word step
      * about its new words. Nothing added by a later step can move it.
      *
-     * The average rather than the weakest item, so one slip dims the ring instead of
+     * The average rather than the weakest item, so one slip shortens the bar instead of
      * emptying it.
      */
-    fun solidity(step: Step, progress: Progress, data: DrillData): Float {
+    fun strength(step: Step, progress: Progress, data: DrillData): Float {
         val strengths = if (step.focus == QuizOptions.FOCUS_NONE) {
             newWords(step).map { progress.words[it] }
         } else {
             val forms = TransformationBuilder.formsOfType(step.focus)
             words(step).mapNotNullTo(HashSet()) { data.wordsByKey[it]?.group }
-                // Only word types that have the form: ある has no potential to be solid in.
+                // Only word types that have the form: ある has no potential to be strong in.
                 .filter { group -> data.groupForms[group].orEmpty().any(forms::contains) }
                 .map { progress.skills[QuizEngine.skillKey(step.focus, it)] }
         }

@@ -157,7 +157,7 @@ fun AppSettingsScreen(
                 Column {
                     StatRow("Steps ready", "$ready of ${state.path.size}")
                     StatRow("Words tracked", "${state.progress.words.size}")
-                    StatRow("Skills scheduled", "${state.progress.skills.size}")
+                    StatRow("Kinds of question tracked", "${state.progress.skills.size}")
                 }
                 if (state.salvagedProgress) {
                     Text(

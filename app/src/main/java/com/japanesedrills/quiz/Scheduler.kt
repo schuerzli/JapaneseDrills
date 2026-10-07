@@ -75,7 +75,7 @@ object Scheduler {
 
     fun isDue(state: SrsState, today: Long): Boolean = state.due <= today
 
-    /** How far through the ladder this item is, for the rings on the path. 0f..1f. */
+    /** How far through the ladder this item is, for the bars on the path. 0f..1f. */
     fun strength(state: SrsState): Float =
         ((state.step + 1).toFloat() / LADDER.size).coerceIn(0f, 1f)
 

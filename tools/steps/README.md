@@ -29,9 +29,10 @@ tracks are waiting. Not when review is empty — review is meant to have somethi
 days, so a path that waited for zero would never hand out another lesson. While the backlog
 is bigger than that the recommendation reads "Improve Review", and once every lesson is
 ready it reads "Review or Practice". That is the loop this is built around: start a lesson,
-come back to review it, and take a new lesson once the old ones are holding up. A lesson's progress bar is its review strength, so
-the bars move when review is done, not when a lesson is tapped — and a lesson is always
-entered through its notes, so the grammar is stated before it is drilled.
+come back to review it, and take a new lesson once the old ones are holding up. A lesson's
+bar is its review strength, so the bars move when review is done, not when a lesson is
+tapped — and a lesson is always entered through its notes, so the grammar is stated before
+it is drilled.
 
 Nothing on the path is locked and nothing is ever finished. A step is a named filter over
 the same drill free practice uses — some forms, some words, perhaps one question type — and
@@ -42,16 +43,19 @@ This replaced a gated course, where each lesson had to be passed to unlock the n
 made the path a test to get through, when the Practice tab already let anyone drill anything;
 it also needed pass marks, and a pass mark on fifteen questions is mostly noise.
 
-## Ready and solid
+## The tick and the bar
 
-Two separate signals, because they answer different questions:
+Two separate signals on a step, because they answer different questions:
 
-- **Ready** — "can I move on today?" Enough of the step's recent answers right, over enough
-  answers that one lucky run is not the whole evidence. It works within a session, so a good first run can recommend the next step at
-  once rather than waiting days for the review schedule to say anything. It is sticky: a bad
-  session later does not take the tick away.
-- **Solid** — "is it sticking?" The ring: the average review strength of what the step is
-  about, and nothing else, so later steps cannot drain an earlier ring as they once did.
+- **Ready**, the tick — "can I move on today?" Enough of the step's recent answers right,
+  over enough answers that one lucky run is not the whole evidence. It works within a
+  session, so a good first run can recommend the next step at once rather than waiting days
+  for the review schedule to say anything. It is sticky: a bad session later does not take
+  the tick away.
+- **Strength**, the bar — "is it sticking?" The average review strength of what the step is
+  about, and nothing else, so later steps cannot drain an earlier bar as they once did.
+
+Neither is review being *solid*, which is about the whole backlog, not one step.
 
 The path recommends the earliest step that is not ready, even when the learner has jumped
 ahead, because everything after it builds on it. The figures live in `StepRecord`.
@@ -138,14 +142,21 @@ picking a due skill and then a word within it, preferring leeches, then due word
 anything not yet asked that session. Sessions cycle through the due skills rather than
 blocking on one: interleaving feels harder and retains better.
 
+A review asks as many questions as its due skills have earned, up to a cap set in Settings,
+and when the cap bites the longest-overdue skills get in first. A skill earns *more* the
+higher it is on the ladder, which looks backwards; the argument is in
+`QuizEngine.reviewPlan`.
+
 A skill is due when its schedule says so, and one review has never asked is due as well:
 never asked and overdue are the same statement about whether it holds up, and the queue
-draws on both. The count on the path's Review row is that same reckoning over the same
-skills, so the number and the button can never disagree — the row once said nothing was
-due while the button had a queue of pairings it had not asked yet.
+draws on both. The Review row's numbers — the questions, and the kinds of question under
+them — are that same reckoning over the same skills, so the row and the session can never
+disagree. The row once said nothing was due while the button had a queue of pairings it had
+not asked yet.
 
 Only path sessions write to any of this. Free practice records nothing on purpose, so the
-Review row does not appear at all until a step has been taken, and everything answered
+Review row does not appear at all until something has been answered on the path (opening
+the Conjugation Intro is a step taken, but answers nothing), and everything answered
 today is scheduled for tomorrow at the earliest: the first rung of the ladder is one day.
 A learner who has only used the Practice tab has no review, and one who checks the day
 they practised sees "nothing due". Both are the design, not a fault.

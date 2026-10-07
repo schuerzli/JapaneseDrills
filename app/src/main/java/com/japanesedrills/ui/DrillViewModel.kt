@@ -118,7 +118,7 @@ data class StepCard(
     val hasIntro: Boolean,
     /** Its recent answers have cleared the bar at some point; see [StepRecord.ready]. */
     val ready: Boolean,
-    /** How well its content is holding up in review, 0f..1f; see [LearnPath.solidity]. */
+    /** How well its content is holding up in review, 0f..1f; see [LearnPath.strength]. */
     val strength: Float,
 )
 
@@ -577,7 +577,7 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
                 started = record != null,
                 hasIntro = step.newBatches.isNotEmpty() || step.newForms.isNotEmpty() || step.newClasses.isNotEmpty(),
                 ready = record?.ready == true,
-                strength = learnPath.solidity(step, progress, data),
+                strength = learnPath.strength(step, progress, data),
             )
         }
         val next = nextStep(learnPath, progress)

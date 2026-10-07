@@ -57,11 +57,11 @@ The `Pixel_8_API_35` AVD is pinned to `hw.gpu.mode = swiftshader_indirect`. On `
 the launcher hands off to the qemu backend, which dies without printing anything and
 leaves `emulator.exe` exiting 4; software rendering boots and is fast enough to drive.
 
-Install on the running emulator; `-d` in place of `-s emulator-5554` installs on a
-USB-attached phone instead:
+Install on the running emulator; `-d` in place of `-e` installs on a USB-attached phone
+instead:
 
 ```bash
-"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" -s emulator-5554 install -r app/build/outputs/apk/debug/app-debug.apk
+"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" -e install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
 **The phone gets the release build** (`assembleRelease`, `apk/release/app-release.apk`).
@@ -134,15 +134,11 @@ These look like mistakes without their reason. Check here before "fixing" one.
   names word keys, and regenerating `words.json` can retire one, so a set may name a word
   that no longer exists: nothing matches it and the set opens on what is left, rather than
   the key being dropped or the document refusing to load.
-
-- **Review is what moves the path; a lesson is what is sprinkled in.** The learn tab always
-  says what it recommends (`Recommendation`): the next lesson once review is *solid*, review
-  itself while it is not, and free practice when every lesson is ready. Solid is a small
-  backlog, not an empty one (`ReviewLoad.solid`, at most a fifth of what review tracks) —
-  waiting for zero would stop the path handing out lessons at all, since review is meant to
-  have something in it most days. A lesson is always entered through its notes, never
-  straight into questions, and its bar is how well review is holding its content up, so the
-  path is a read-out of review rather than a checklist.
+- **Review is what moves the path; a lesson is what is sprinkled in.** A new lesson is
+  recommended only while review is *solid* (`ReviewLoad.solid`): a small backlog, not an
+  empty one, since waiting for zero would stop the path handing out lessons at all. A step's
+  bar is review's strength on its content, so the path is a read-out of review, not a
+  checklist.
 - **A review is as long as its due skills add up to, and a skill's share grows with the
   ladder.** Not shrinks: weakness is already paid for by frequency and by what
   `pickForSkill` serves first, so the share evens out the *time* a session costs instead
@@ -152,7 +148,8 @@ These look like mistakes without their reason. Check here before "fixing" one.
 
 Why the path is ordered the way it is, why nothing on it is locked, why review schedules
 skills rather than questions, what counts as due, and why free practice writes nothing to
-the schedule, is in `tools/steps/README.md`.
+the schedule, is in `tools/steps/README.md`, along with what *ready*, *solid* and a step's
+*strength* each mean.
 
 ## Consistency
 
@@ -165,7 +162,9 @@ the schedule, is in `tools/steps/README.md`.
   *Conjugation Intro* (`ConjugationIntro`); a godan ending melting into て or た is a
   *fusion* (`FusionColumn`, the "fusion system"), never a "sound change". Free practice
   picks its vocabulary as *word sets* (`WordSets`) and its grammar as *squares* of a grid,
-  a form of one word class — the pairing review already schedules (`QuizEngine.skillOf`).
+  a form on one word-class column. Review schedules *skills* (`QuizEngine.skillOf`), a form
+  on one word group, which is finer: the godan column holds 行く and ある as groups of their
+  own. "Skill" is never UI text; on screen it is a *kind of question*.
 - **The same goes for data: a word has one class everywhere** it is shown or conjugated,
   and one spelling in the list. A fix to a word goes into `merge.py`'s curation (or the seed
   it merges), then `merge.py --finish` applies it; an edit to `words.json` alone is undone

@@ -25,7 +25,15 @@ enum class Palette(val label: String) {
     Mocha("Mocha"),
 }
 
-/** Settings chosen on the start screen. Flag keys match the web drill's option ids. */
+/**
+ * Settings chosen on the practice screen, and the app-wide ones from Settings that ride
+ * along to share its persistence. Flag keys match the web drill's option ids.
+ *
+ * A setting that rides along is named in three places: here, in [OptionsStore]'s load and
+ * save, and in [LearnPath.optionsFor], which builds the path's options fresh rather than
+ * copying them — so a setting it does not name silently falls back to its default on every
+ * step and review.
+ */
 data class QuizOptions(
     val flags: Map<String, Boolean> = DEFAULT_FLAGS,
     val questionFocus: String = FOCUS_NONE,
@@ -274,7 +282,7 @@ data class QuizOptions(
         /** How a switched-off square is named in [offSquares]. */
         fun squareKey(form: String, column: String): String = "$form|$column"
 
-        /** Every option the start screen offers, in the order it shows them. */
+        /** Every option the practice screen offers, in the order it shows them. */
         val ALL: List<OptionItem> =
             FORMS + REGULAR_VERBS + EXCEPTION_VERBS + IRREGULAR_VERBS + ADJECTIVES + IRREGULAR_ADJECTIVES +
                 GENERAL
