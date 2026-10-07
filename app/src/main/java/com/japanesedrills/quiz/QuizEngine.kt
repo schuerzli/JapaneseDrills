@@ -2,6 +2,7 @@ package com.japanesedrills.quiz
 
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
+import kotlin.math.roundToInt
 import kotlin.random.Random
 
 /** Everything is held in furigana notation; the `…Display` accessors apply kana mode. */
@@ -73,13 +74,19 @@ private class Deck(source: IntArray, private val random: Random) {
  * trick questions. Pairs are packed as `wordIndex * transformationCount + transformationIndex`.
  */
 /**
- * How review stands: [due] of the [total] skills it covers are waiting.
+ * How review stands: [due] of the [total] skills it covers are waiting, and the session
+ * would be [questions] long.
+ *
+ * [questions] is what the Review row shows, because it is what the learner is about to
+ * spend their time on; [due] is the smaller note under it. The two move together but
+ * neither can be worked out from the other, since a skill's share depends on how far up
+ * the ladder it is (see [QuizEngine.buildReviewQueue]).
  *
  * [solid] is the path's gate for offering a new lesson. Not "nothing is due" — review is
  * meant to have something in it most days, and a path that waited for zero would never
  * hand out another lesson — but "the backlog is small against what is already learned".
  */
-data class ReviewLoad(val due: Int, val total: Int) {
+data class ReviewLoad(val due: Int, val total: Int, val questions: Int) {
     val solid: Boolean get() = total == 0 || due * SHARE <= total
 
     companion object {
@@ -305,31 +312,89 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
      * decides against when it works out whether to recommend a new lesson.
      */
     fun reviewLoad(options: QuizOptions, progress: Progress, day: Long): ReviewLoad {
-        val skills = buildSkillIndex(options).keys
-        return ReviewLoad(skills.count { isDueSkill(it, progress, day) }, skills.size)
+        val index = buildSkillIndex(options)
+        val due = index.keys.count { isDueSkill(it, progress, day) }
+        return ReviewLoad(due, index.size, reviewPlan(index, progress, day, options.reviewCap).values.sum())
     }
 
     /**
-     * A review session's questions, cycling through the due skills so the session
+     * How many questions each skill this review asks has earned, longest overdue first.
+     *
+     * The length of a review is the sum over what is due, the way a pile of Anki cards is
+     * — a fixed ten made four skills and fourteen the same morning's work. What varies
+     * here is the share per skill, because this app schedules skills rather than single
+     * questions: one question could not say whether godan past tense still holds up.
+     *
+     * The share *rises* with the ladder, which is the opposite of what it looks like it
+     * should do. Weakness is already paid for twice — a lapse comes back tomorrow while a
+     * mature skill waits ninety days, and inside a skill [pickForSkill] serves leeches and
+     * due words first — so paying for it a third time in volume only buys the learner a
+     * long session of the questions they are most likely to get wrong. What the share is
+     * for is evening out the *time*: a rung-zero skill is slow and hesitant where a mature
+     * one is recall, so fewer of the former costs about as many minutes as more of the
+     * latter. The ramp is deliberately shallow: a steep one would make the morning after a
+     * bad session the shortest review of the week, which is when there is most to do.
+     */
+    private fun reviewPlan(
+        index: Map<String, IntArray>,
+        progress: Progress,
+        day: Long,
+        cap: Int,
+    ): Map<String, Int> {
+        // Nothing due still builds a session, so the Review button is never a dead end.
+        val due = index.keys.filter { isDueSkill(it, progress, day) }.ifEmpty { index.keys.toList() }
+        // Shuffled, then ordered by how long it has been waiting: the shuffle is what
+        // breaks the ties, which is most of them, so a capped session is not always the
+        // same skills in the same order as the index happens to list them.
+        val ordered = due.shuffled(random)
+            .sortedBy { progress.skills[it]?.due ?: Long.MIN_VALUE }
+
+        val plan = LinkedHashMap<String, Int>()
+        var budget = cap
+        for (skill in ordered) {
+            if (budget == 0) break
+            val share = questionsForSkill(progress.skills[skill]).coerceAtMost(budget)
+            plan[skill] = share
+            budget -= share
+        }
+        return plan
+    }
+
+    /** A skill's share of a review: [MIN_PER_SKILL] on the bottom rung, [MAX_PER_SKILL] on the top. */
+    private fun questionsForSkill(state: SrsState?): Int {
+        val spread = (MAX_PER_SKILL - MIN_PER_SKILL) * Scheduler.strength(state ?: SrsState())
+        return MIN_PER_SKILL + spread.roundToInt()
+    }
+
+    /**
+     * A review session's questions, taking one skill at a time in turn so the session
      * interleaves them rather than blocking one skill at a time. Interleaving feels harder
-     * and retains better, which is the whole point of a review.
+     * and retains better, which is the whole point of a review. How many each skill gets
+     * is [reviewPlan].
      */
     fun buildReviewQueue(options: QuizOptions, progress: Progress, day: Long): List<Int> {
         val index = buildSkillIndex(options)
         if (index.isEmpty()) return emptyList()
 
-        val due = index.keys.filter { isDueSkill(it, progress, day) }
-        val skills = due.ifEmpty { index.keys.toList() }.shuffled(random)
-        val count = (skills.size * QUESTIONS_PER_SKILL).coerceIn(MIN_REVIEW, MAX_REVIEW)
+        val plan = reviewPlan(index, progress, day, options.reviewCap)
+        val left = LinkedHashMap(plan)
+        // The lap order is not the plan's order, which is by how overdue a skill is: that
+        // decides who gets in under the cap, not who is asked first.
+        val lap = plan.keys.shuffled(random)
+        val count = plan.values.sum()
 
         val queue = ArrayList<Int>(count)
         val asked = HashSet<Int>()
-        var i = 0
         while (queue.size < count) {
-            val skill = skills[i++ % skills.size]
-            val picked = pickForSkill(index.getValue(skill), progress, day, typeOfSkill(skill), asked)
-            asked += picked
-            queue += picked
+            for (skill in lap) {
+                if (queue.size == count) break
+                val remaining = left.getValue(skill)
+                if (remaining == 0) continue
+                left[skill] = remaining - 1
+                val picked = pickForSkill(index.getValue(skill), progress, day, typeOfSkill(skill), asked)
+                asked += picked
+                queue += picked
+            }
         }
         return queue
     }
@@ -373,9 +438,8 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     }
 
     companion object {
-        private const val QUESTIONS_PER_SKILL = 2
-        private const val MIN_REVIEW = 10
-        private const val MAX_REVIEW = 30
+        private const val MIN_PER_SKILL = 6
+        private const val MAX_PER_SKILL = 16
 
         /**
          * The unit spaced repetition schedules: a grammar operation on a word class.

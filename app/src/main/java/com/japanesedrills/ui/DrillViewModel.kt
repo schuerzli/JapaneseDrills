@@ -151,7 +151,10 @@ data class DrillUiState(
      * jumped ahead, since everything after it builds on it. Its chapter starts unfolded.
      */
     val nextStep: Step? = null,
+    /** How many skills review is waiting on: the note under the Review row. */
     val dueCount: Int = 0,
+    /** How long the review it would start is, in questions: the Review row's own line. */
+    val dueQuestions: Int = 0,
     /**
      * Set once review has been counted. Until then the path offers nothing, so a
      * recommendation cannot flash up and vanish when review turns out to have work.
@@ -499,6 +502,12 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setPalette(palette: Palette) = updateOptions { it.copy(palette = palette) }
 
+    /** The pool is untouched, but the Review row states the session's length, which is capped. */
+    fun setReviewCap(cap: Int) {
+        updateOptions { it.copy(reviewCap = cap) }
+        refreshDue()
+    }
+
     /** One setting, flipped from Settings or by tapping the question card. */
     fun setFurigana(on: Boolean) = updateOptions { it.copy(furigana = on) }
 
@@ -699,7 +708,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         dueJob?.cancel()
         val practised = practised()
         if (practised == null) {
-            _state.update { it.copy(dueCount = 0, reviewSolid = true, reviewCounted = true) }
+            _state.update {
+                it.copy(dueCount = 0, dueQuestions = 0, reviewSolid = true, reviewCounted = true)
+            }
             return
         }
         val options = learnPath.optionsFor(practised.words, practised.forms, _state.value.options)
@@ -707,7 +718,14 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val day = today
         dueJob = viewModelScope.launch {
             val load = withContext(Dispatchers.Default) { engine.reviewLoad(options, progress, day) }
-            _state.update { it.copy(dueCount = load.due, reviewSolid = load.solid, reviewCounted = true) }
+            _state.update {
+                it.copy(
+                    dueCount = load.due,
+                    dueQuestions = load.questions,
+                    reviewSolid = load.solid,
+                    reviewCounted = true,
+                )
+            }
         }
     }
 

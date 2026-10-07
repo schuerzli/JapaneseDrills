@@ -40,6 +40,11 @@ data class QuizOptions(
      */
     val furigana: Boolean = true,
     /**
+     * The most questions one review may ask, however much is due. Rides along like [theme]:
+     * it is chosen in Settings, not on the practice screen, but it is the engine that reads it.
+     */
+    val reviewCap: Int = DEFAULT_REVIEW_CAP,
+    /**
      * The squares of the practice grid switched off one at a time, as `form|column` (see
      * [squareKey]). A square is off anyway when its form or its column is, so this holds
      * only the holes: the past of every class but い-adjectives, say.
@@ -167,6 +172,13 @@ data class QuizOptions(
 
         /** The session lengths the practice screen offers; any of them is a valid count. */
         val QUESTION_COUNTS = listOf(5, 10, 15, 20, 30, 50)
+
+        /**
+         * The longest reviews Settings offers. A skill earns up to 16 questions, so 100 holds
+         * about six mature ones; the cap is for the day after a holiday, not for every day.
+         */
+        val REVIEW_CAPS = listOf(30, 50, 100, 200)
+        const val DEFAULT_REVIEW_CAP = 100
 
         val FORMS = listOf(
             OptionItem("plain", "Plain"),
@@ -321,6 +333,9 @@ class OptionsStore(context: Context) {
                 ?.let { name -> Palette.entries.firstOrNull { it.name == name } }
                 ?: defaults.palette,
             furigana = prefs.getBoolean("furigana", defaults.furigana),
+            reviewCap = prefs.getInt("reviewCap", defaults.reviewCap)
+                .takeIf { it in QuizOptions.REVIEW_CAPS }
+                ?: defaults.reviewCap,
             offSquares = prefs.getStringSet("offSquares", null).orEmpty(),
             sets = prefs.getStringSet("sets", null).orEmpty(),
             allWords = prefs.getBoolean("allWords", defaults.allWords),
@@ -335,6 +350,7 @@ class OptionsStore(context: Context) {
             putString("theme", options.theme.name)
             putString("palette", options.palette.name)
             putBoolean("furigana", options.furigana)
+            putInt("reviewCap", options.reviewCap)
             putStringSet("offSquares", options.offSquares)
             putStringSet("sets", options.sets)
             putBoolean("allWords", options.allWords)

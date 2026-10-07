@@ -242,6 +242,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 state = state,
                 onTheme = viewModel::setTheme,
                 onPalette = viewModel::setPalette,
+                onReviewCap = viewModel::setReviewCap,
                 onResetProgress = viewModel::resetProgress,
                 onExport = viewModel::exportProgress,
                 onImport = viewModel::importProgress,

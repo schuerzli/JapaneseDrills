@@ -362,6 +362,67 @@ class LearnPathTest {
         }
     }
 
+    @Test
+    fun aReviewIsAsLongAsItsDueSkillsHaveEarned() {
+        val options = reviewOptions()
+        val skills = engine.buildSkillIndex(options).keys.toList()
+        assertTrue("review has no skills to count", skills.size >= 2)
+
+        // Everything rested and far in the future, except the skills named here.
+        fun waiting(vararg due: Pair<String, Int>) = Progress(
+            skills = skills.associateWith { SrsState(step = 5, due = 99L) } +
+                due.associate { (skill, step) -> skill to SrsState(step = step, due = 0L) },
+        )
+
+        val one = engine.reviewLoad(options, waiting(skills[0] to Scheduler.UNLEARNED), 0)
+        val two = engine.reviewLoad(
+            options,
+            waiting(skills[0] to Scheduler.UNLEARNED, skills[1] to Scheduler.UNLEARNED),
+            0,
+        )
+        assertEquals(1, one.due)
+        assertEquals(2, two.due)
+        // The whole complaint about the old fixed ten: two due is twice the work of one.
+        assertTrue("one due skill should be a short review, was ${one.questions}", one.questions <= 6)
+        assertTrue("two due skills ask more than one", two.questions > one.questions)
+
+        // Higher up the ladder earns more questions, not fewer: a lapse already comes back
+        // tomorrow where a mature skill waits months, so volume is free to even out time.
+        val mature = engine.reviewLoad(options, waiting(skills[0] to 5), 0)
+        assertTrue("a mature skill earns more than a fresh one", mature.questions > one.questions)
+
+        // Nothing answered at all is the heaviest case, and it is still capped.
+        val everything = engine.reviewLoad(options, Progress(), 0)
+        assertEquals(skills.size, everything.due)
+        assertTrue("an unanswered review is capped", everything.questions <= options.reviewCap)
+
+        // A cap the learner chose is the length when more is due, and the row says so.
+        val capped = options.copy(reviewCap = 5)
+        assertEquals(5, engine.reviewLoad(capped, Progress(), 0).questions)
+        assertEquals(5, engine.buildReviewQueue(capped, Progress(), 0).size)
+    }
+
+    @Test
+    fun theReviewRowCannotLieAboutTheSessionLength() {
+        val options = reviewOptions()
+        val skills = engine.buildSkillIndex(options).keys.toList()
+        val cases = listOf(
+            Progress(),
+            Progress(skills = mapOf(skills[0] to SrsState(step = 5, due = 0L))),
+            Progress(skills = skills.associateWith { SrsState(step = 3, due = 0L) }),
+            Progress(skills = skills.associateWith { SrsState(step = 5, due = 99L) }),
+        )
+        for ((i, progress) in cases.withIndex()) {
+            val said = engine.reviewLoad(options, progress, 0).questions
+            // A fresh engine per seed: the number on the row is reached before the session
+            // is built, so it must not depend on where the shuffle happens to land.
+            repeat(5) { seed ->
+                val queue = QuizEngine(data, Random(seed)).buildReviewQueue(options, progress, 0)
+                assertEquals("case $i, seed $seed", said, queue.size)
+            }
+        }
+    }
+
     /** A review after the first two steps, built the way the app builds one. */
     private fun reviewOptions(): QuizOptions {
         val practised = steps.take(2)
@@ -521,11 +582,14 @@ class LearnPathTest {
      */
     @Test
     fun reviewIsSolidWhenItsBacklogIsSmall() {
-        assertTrue("nothing learned yet, so nothing is holding it up", ReviewLoad(0, 0).solid)
-        assertTrue(ReviewLoad(2, 10).solid)
-        assertFalse(ReviewLoad(3, 10).solid)
-        assertFalse("a whole backlog is not solid", ReviewLoad(10, 10).solid)
-        assertTrue("a day's worth against a long path is", ReviewLoad(8, 60).solid)
+        // The gate reads the backlog alone; how long the session would be plays no part.
+        fun load(due: Int, total: Int) = ReviewLoad(due, total, questions = 0)
+
+        assertTrue("nothing learned yet, so nothing is holding it up", load(0, 0).solid)
+        assertTrue(load(2, 10).solid)
+        assertFalse(load(3, 10).solid)
+        assertFalse("a whole backlog is not solid", load(10, 10).solid)
+        assertTrue("a day's worth against a long path is", load(8, 60).solid)
     }
 
     // Backup. The stored document and the one the user copies out are the same text, so

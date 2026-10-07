@@ -81,6 +81,7 @@ class LearnPath(val steps: List<Step>, private val batches: Map<String, List<Str
             theme = base.theme,
             palette = base.palette,
             furigana = base.furigana,
+            reviewCap = base.reviewCap,
             wordKeys = words,
         )
     }

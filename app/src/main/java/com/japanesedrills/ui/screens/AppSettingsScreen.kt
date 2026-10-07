@@ -47,6 +47,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Palette
+import com.japanesedrills.quiz.QuizOptions
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
 import com.japanesedrills.ui.components.HeroBar
@@ -71,6 +72,7 @@ fun AppSettingsScreen(
     state: DrillUiState,
     onTheme: (ThemeChoice) -> Unit,
     onPalette: (Palette) -> Unit,
+    onReviewCap: (Int) -> Unit,
     onResetProgress: () -> Unit,
     onExport: () -> String,
     onImport: (String) -> Boolean,
@@ -127,6 +129,24 @@ fun AppSettingsScreen(
                                 ) {
                                     Text(choice.label)
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Section("Review", "Each kind of question due adds to a review, up to this many") {
+                StackedRow("Longest review") {
+                    val caps = QuizOptions.REVIEW_CAPS
+                    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                        caps.forEachIndexed { i, cap ->
+                            SegmentedButton(
+                                selected = state.options.reviewCap == cap,
+                                onClick = { onReviewCap(cap) },
+                                shape = SegmentedButtonDefaults.itemShape(i, caps.size),
+                                icon = {},
+                            ) {
+                                Text("$cap")
                             }
                         }
                     }

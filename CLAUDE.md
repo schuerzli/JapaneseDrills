@@ -143,6 +143,12 @@ These look like mistakes without their reason. Check here before "fixing" one.
   have something in it most days. A lesson is always entered through its notes, never
   straight into questions, and its bar is how well review is holding its content up, so the
   path is a read-out of review rather than a checklist.
+- **A review is as long as its due skills add up to, and a skill's share grows with the
+  ladder.** Not shrinks: weakness is already paid for by frequency and by what
+  `pickForSkill` serves first, so the share evens out the *time* a session costs instead
+  (`QuizEngine.reviewPlan` carries the argument). The Review row shows the question count
+  for that reason, with the due count as its note. `reviewLoad` and `buildReviewQueue` go
+  through the same plan, so the row cannot promise a length the session does not have.
 
 Why the path is ordered the way it is, why nothing on it is locked, why review schedules
 skills rather than questions, what counts as due, and why free practice writes nothing to

@@ -121,9 +121,9 @@ fun LearnPathScreen(
                         val lead = state.reviewLeads
                         if (state.hasReview) {
                             if (lead) {
-                                Lit { ReviewRow(state.dueCount, onReview, lead = true) }
+                                Lit { ReviewRow(state, onReview, lead = true) }
                             } else {
-                                ReviewRow(state.dueCount, onReview, lead = false)
+                                ReviewRow(state, onReview, lead = false)
                             }
                         }
                         if (lead) {
@@ -237,11 +237,22 @@ private fun ChapterHeader(number: Int, chapter: Chapter, open: Boolean, onToggle
     }
 }
 
+private fun count(n: Int, noun: String): String =
+    if (n == 1) "1 $noun" else "$n ${noun}s"
+
+/**
+ * What review would cost, not how much is waiting: the length of the session is what the
+ * learner is deciding about, and it is no longer a fixed number. What is waiting goes in
+ * the note underneath, where a skill is called a kind of question — the pairing of a form
+ * with a word class has no name on this screen and does not need one.
+ */
 @Composable
-private fun ReviewRow(due: Int, onReview: () -> Unit, lead: Boolean) {
+private fun ReviewRow(state: DrillUiState, onReview: () -> Unit, lead: Boolean) {
+    val due = state.dueCount
     PanelRow(
         label = "Review",
-        line = if (due == 0) "Nothing due" else "$due due today",
+        line = if (due == 0) "Nothing due" else count(state.dueQuestions, "question"),
+        note = if (due == 0) null else "across ${count(due, "kind")} of question",
         lead = lead,
         action = "Review",
         icon = Icons.Default.Refresh,
@@ -261,6 +272,7 @@ private fun PanelRow(
     action: String,
     icon: ImageVector,
     onClick: () -> Unit,
+    note: String? = null,
 ) {
     val surfaces = DrillTheme.surfaces
     Row(
@@ -285,6 +297,13 @@ private fun PanelRow(
                 style = if (lead) MaterialTheme.typography.lead else MaterialTheme.typography.heading,
                 color = if (lead) surfaces.onHero else MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            if (note != null) {
+                Text(
+                    note,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (lead) surfaces.onHeroVariant else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         Spacer(Modifier.width(12.dp))
         if (lead) {
