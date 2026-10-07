@@ -183,11 +183,10 @@ data class QuizOptions(
         val QUESTION_COUNTS = listOf(5, 10, 15, 20, 30, 50)
 
         /**
-         * The longest reviews Settings offers. The default holds about six lessons at the top
-         * of the ladder (`QuizEngine.MAX_PER_LESSON` each): the cap is for the day after a
-         * holiday, not for every day.
+         * The most questions a review asks unless Settings says otherwise. It holds about six
+         * lessons at the top of the ladder (`QuizEngine.MAX_PER_LESSON` each): the cap is for
+         * the day after a holiday, not for every day.
          */
-        val REVIEW_CAPS = listOf(30, 50, 100, 200)
         const val DEFAULT_REVIEW_CAP = 100
 
         val FORMS = listOf(
@@ -346,7 +345,7 @@ class OptionsStore(context: Context) {
                     ?: app.palette,
                 furigana = prefs.getBoolean("furigana", app.furigana),
                 reviewCap = prefs.getInt("reviewCap", app.reviewCap)
-                    .takeIf { it in QuizOptions.REVIEW_CAPS }
+                    .takeIf { it in 1..QuizOptions.MAX_QUESTIONS }
                     ?: app.reviewCap,
             ),
             offSquares = prefs.getStringSet("offSquares", null).orEmpty(),

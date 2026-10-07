@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -26,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -42,7 +45,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.QuizOptions
@@ -136,21 +143,7 @@ fun AppSettingsScreen(
             }
 
             Section("Review", "Each lesson due adds to a review, up to this many") {
-                StackedRow("Longest review") {
-                    val caps = QuizOptions.REVIEW_CAPS
-                    SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
-                        caps.forEachIndexed { i, cap ->
-                            SegmentedButton(
-                                selected = state.options.app.reviewCap == cap,
-                                onClick = { onReviewCap(cap) },
-                                shape = SegmentedButtonDefaults.itemShape(i, caps.size),
-                                icon = {},
-                            ) {
-                                Text("$cap")
-                            }
-                        }
-                    }
-                }
+                ReviewCapRow(state.options.app.reviewCap, onReviewCap)
             }
 
             Section("Progress", "Everything the learn path has earned, and how to keep a copy") {
@@ -281,6 +274,38 @@ fun AppSettingsScreen(
                 },
             )
         }
+    }
+}
+
+/**
+ * The most questions a review may ask, typed in. A number in range is kept as it is typed, so
+ * the Review row on the path follows at once; anything else — an empty field, a 0 — is
+ * marked and not kept, and the field shows the kept number again when the screen comes back.
+ */
+@Composable
+private fun ReviewCapRow(cap: Int, onReviewCap: (Int) -> Unit) {
+    var text by remember(cap) { mutableStateOf(cap.toString()) }
+    val valid = text.toIntOrNull()?.takeIf { it in 1..QuizOptions.MAX_QUESTIONS } != null
+    val keyboard = LocalSoftwareKeyboardController.current
+    SettingRow(
+        "Maximum review questions",
+        supporting = if (valid) null else "A number from 1 to ${QuizOptions.MAX_QUESTIONS}",
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = { typed ->
+                text = typed.filter(Char::isDigit).take(3)
+                text.toIntOrNull()?.takeIf { it in 1..QuizOptions.MAX_QUESTIONS }?.let(onReviewCap)
+            },
+            singleLine = true,
+            isError = !valid,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.End),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done),
+            // Only the keyboard goes: clearing focus handed it to the Back button, and a
+            // hardware Enter then left Settings.
+            keyboardActions = KeyboardActions(onDone = { keyboard?.hide() }),
+            modifier = Modifier.width(96.dp),
+        )
     }
 }
 
