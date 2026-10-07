@@ -78,6 +78,8 @@ fun AppSettingsScreen(
     onImport: (String) -> Boolean,
     onAbout: () -> Unit,
     onBack: () -> Unit,
+    /** The debug build's developer section; nothing in a release build. */
+    developer: @Composable () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     var confirming by remember { mutableStateOf(false) }
@@ -220,6 +222,7 @@ fun AppSettingsScreen(
                     )
                 }
             }
+            developer()
             Spacer(Modifier.height(8.dp))
         }
 

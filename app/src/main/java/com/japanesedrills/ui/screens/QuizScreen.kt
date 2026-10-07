@@ -113,6 +113,8 @@ fun QuizScreen(
     onExplain: () -> Unit,
     onDropWord: () -> Unit,
     onQuit: () -> Unit,
+    /** The debug build's session shortcuts; nothing in a release build. */
+    developer: @Composable () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val question = quiz.question
@@ -146,6 +148,7 @@ fun QuizScreen(
                             FuriganaAction()
                             ScoreBadge(quiz.history.count { it.correct })
                             Spacer(Modifier.width(12.dp))
+                            developer()
                         },
                     )
                 }

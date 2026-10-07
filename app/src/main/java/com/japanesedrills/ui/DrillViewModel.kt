@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.japanesedrills.data.DrillData
 import com.japanesedrills.data.Word
+import com.japanesedrills.dev.DevTools
 import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.Drawn
 import com.japanesedrills.quiz.Furigana
@@ -286,7 +287,11 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
     /** Whether the running lesson was already ready when it started, to tell when it became so. */
     private var wasReady = false
 
-    private val today: Long get() = LocalDate.now().toEpochDay()
+    /** The date everything is scheduled against; a debug build can move it forward ([DevTools]). */
+    private val today: Long get() = LocalDate.now().toEpochDay() + DevTools.dayOffset
+
+    /** Re-reckons everything that depends on the date, after the developer clock has moved. */
+    fun refreshDay() = refreshPath()
 
     init {
         viewModelScope.launch {

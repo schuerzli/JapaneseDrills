@@ -48,6 +48,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.japanesedrills.dev.DevTools
 import com.japanesedrills.quiz.OptionsStore
 import com.japanesedrills.quiz.ThemeChoice
 import com.japanesedrills.ui.DrillUiState
@@ -96,6 +97,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Before the ViewModel exists, so progress a debug launch writes is what it loads.
+        DevTools.onLaunch(this, intent, fresh = savedInstanceState == null)
         matchSystemNightMode()
         enableEdgeToEdge()
         setContent {
@@ -185,6 +188,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 onExplain = viewModel::explain,
                 onDropWord = viewModel::dropCurrentWord,
                 onQuit = viewModel::backToRoot,
+                developer = { DevTools.QuizActions(viewModel) },
                 modifier = contentModifier,
             )
         }
@@ -248,6 +252,7 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 onImport = viewModel::importProgress,
                 onAbout = viewModel::showAbout,
                 onBack = viewModel::backToRoot,
+                developer = { DevTools.SettingsSection(viewModel) },
                 modifier = contentModifier,
             )
         }

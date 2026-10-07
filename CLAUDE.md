@@ -71,6 +71,20 @@ Intro's first scroll had half-second frames in debug and none in release. So jud
 smoothness only on a release build. It is signed with the debug key, so each build
 installs over the other and progress survives.
 
+**Reach a state without playing to it** in a debug build: `dev/DevTools.kt` in
+`app/src/debug` moves "today" forward, loads progress scenarios built against the real
+path (`Scenario`: review due, a backlog, everything ready, the cap reached, ...) and answers
+or finishes a session from a menu in the quiz's top bar. In the app it is the Developer
+section at the foot of Settings; from a shell, launch extras apply before anything loads
+(`-S` restarts the app so they are read):
+
+```bash
+"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" -e shell am start -S -n com.japanesedrills/.MainActivity --es dev.scenario due --ei dev.days 0
+```
+
+The release build compiles an inert twin from `app/src/release` instead, so none of it
+reaches the phone. `ScenariosTest` holds each scenario to its description.
+
 ## Project layout
 
 ```
@@ -87,6 +101,8 @@ app/src/main/java/com/japanesedrills/
     ui/components/       furigana-aware rich text and table, worked changes, the surfaces
                          a screen is built from, sections and rows, scrollbars
     ui/theme/            the palettes (generated), the type scale and the shapes
+app/src/debug/           developer tools: the clock, progress scenarios, session shortcuts
+app/src/release/         their inert twin, so shared code can call them in either build
 app/src/test/            data-integrity and logic tests; the safety net for data edits
 tools/wordlist/          words.json, from open datasets (see extract.py)
 tools/theme/             the palettes Settings offers and why each looks as it does (see schemes.py);
@@ -257,6 +273,9 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
 - **`adb shell input text` races Compose recomposition.** Sending a whole string at
   once garbles it, which looks like an input bug in the app. Send one character at
   a time with a short pause.
+- **Git Bash rewrites device paths.** `adb shell cat /sdcard/ui.xml` reaches adb as
+  `C:/Program Files/Git/sdcard/ui.xml` and fails as if the file were missing; set
+  `MSYS_NO_PATHCONV=1` for any adb command that names a path on the device.
 - **Checkouts are CRLF**, pinned by `.gitattributes` because the generators write CRLF and
   their `--check` modes compare bytes. A file saved by a tool that writes LF stays LF until
   the next checkout; git stores LF either way, so only generated output has to keep CRLF.
