@@ -266,12 +266,10 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
     /** The word a packed pair refers to, without building the whole question. */
     fun wordOf(packed: Int): Word = data.words[packed / data.transformations.size]
 
-    fun questionFor(drawn: Drawn): Question = questionFor(drawn.packed, drawn.lesson)
-
-    fun questionFor(packed: Int, lesson: String? = null): Question {
+    fun questionFor(drawn: Drawn): Question {
         val count = data.transformations.size
-        val word = data.words[packed / count]
-        val t = data.transformations[packed % count]
+        val word = data.words[drawn.packed / count]
+        val t = data.transformations[drawn.packed % count]
 
         return Question(
             id = nextId++,
@@ -279,7 +277,7 @@ class QuizEngine(private val data: DrillData, private val random: Random = Rando
             transformation = t,
             given = word.conjugations.getValue(t.from).forms.random(random),
             answers = word.conjugations.getValue(t.to).forms,
-            lesson = lesson,
+            lesson = drawn.lesson,
         )
     }
 

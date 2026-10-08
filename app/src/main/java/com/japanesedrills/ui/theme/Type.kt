@@ -37,7 +37,7 @@ private val base = Typography()
  *
  * Line heights are a little looser than Material's defaults: the drill is read, not scanned,
  * and furigana need the room above the line. The smallest body text is set a weight heavier
- * than the rest, because at 12sp a regular weight on a tinted card is what read as faint.
+ * than the rest, because at 12sp a regular weight on a tinted panel is what read as faint.
  */
 fun typographyOf(display: FontFamily, body: FontFamily) = Typography(
     displayLarge = base.displayLarge.copy(fontFamily = display),

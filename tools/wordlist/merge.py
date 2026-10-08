@@ -5,8 +5,8 @@
 Rebuilds words.json from scratch every run, so it is idempotent: the seed is
 curated-seed.json (the 376 hand-checked words, whose groups, furigana, example
 sentences and 100 "common" tags are not derivable from JMdict), and everything
-else is selected from candidates.json. Editing words.json by hand is fine, but
-re-running this discards those edits unless they are folded into the seed.
+else is selected from candidates.json. An edit made to words.json alone is gone on the
+next run: a fix belongs in the seed, or in CURATION below.
 
 Verify afterwards with:
     python tools/wordlist/verify_conjugations.py > after.txt   # diff against before

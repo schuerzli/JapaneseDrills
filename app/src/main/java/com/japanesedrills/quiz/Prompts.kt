@@ -34,10 +34,6 @@ sealed interface RichPart {
             if (last < example.length) parts += Jp(example.substring(last))
             return parts
         }
-
-        /** The example as it reads, marks removed: `書[か](く)` is `書[か]く`. */
-        fun unmarked(example: String): String =
-            marked(example).joinToString("") { if (it is Marked) it.text else (it as Jp).word }
     }
 }
 
@@ -138,28 +134,16 @@ object Prompts {
     fun instruction(phrase: String): List<RichPart> =
         listOf(RichPart.Text("$INSTRUCTION "), RichPart.Text(formLabel(phrase), emphasis = true))
 
-    /** The instruction followed by the word, e.g. "change to negative: 食べる". */
-    fun question(phrase: String, word: String): List<RichPart> =
-        instruction(phrase) + RichPart.Text(": ") + RichPart.Jp(word)
-
     /**
-     * A worked change, "from → to", marked by [shape] the way the Conjugation Intro marks its
-     * examples: one line per accepted result, never several forms on one line, each starting
-     * from the one of [from] it was built from.
+     * A worked change, "from → to", as its two halves for a layout that lines the arrows up,
+     * marked by [shape] the way the Conjugation Intro marks its examples: one row per accepted
+     * result, never several forms on one line, each starting from the one of [from] it was
+     * built from.
      */
-    fun change(from: List<String>, to: List<String>, shape: ChangeShape): List<List<RichPart>> {
-        if (to.isEmpty()) return from.take(1).map { listOf(RichPart.Jp(it)) }
-        return changes(from, to, shape).map { (a, b) -> a + RichPart.Text("  →  ") + b }
-    }
-
-    /** [change] as its two halves, for a layout that lines the arrows up. */
     fun changes(from: List<String>, to: List<String>, shape: ChangeShape): List<Pair<List<RichPart>, List<RichPart>>> =
         to.map { result -> ChangeShape.marked(ChangeShape.sourceOf(from, result), result, shape) }
 
     /** Accepted answers, one line each: the first as it is, the others after "or". */
-    fun alternatives(words: List<String>, lead: String = ""): List<List<RichPart>> =
-        words.mapIndexed { i, word ->
-            val prefix = if (i == 0) lead else "or "
-            listOfNotNull(prefix.takeIf { it.isNotEmpty() }?.let(RichPart::Text), RichPart.Jp(word))
-        }
+    fun alternatives(words: List<String>): List<List<RichPart>> =
+        words.mapIndexed { i, word -> listOfNotNull(RichPart.Text("or ").takeIf { i > 0 }, RichPart.Jp(word)) }
 }

@@ -57,7 +57,7 @@ import com.japanesedrills.ui.theme.DrillTheme
 import com.japanesedrills.ui.theme.heading
 
 /**
- * Every form the drill can ask about, then every word type a lesson introduces. Tapping one
+ * Every form the drill can ask about, then every word class a lesson introduces. Tapping one
  * opens its note: for a form, what it means and how it is built.
  */
 @Composable
@@ -81,11 +81,10 @@ fun GrammarScreen(
                 modifier = Modifier.padding(bottom = 4.dp),
             )
         }
-        // First, and marked out from the list: the rest of this screen assumes you know
-        // what a godan verb is, and this is where that is explained.
-        // Marked out from the list, but not lit: the spotlight is for what to do now,
-        // and a reference screen has nothing to do. The well is the surface the learn
-        // path puts under the lesson it is pointing at.
+        // First, because the rest of this screen assumes you know what a godan verb is and
+        // this is where that is explained. Marked out with the well the learn path puts under
+        // the lesson it points at, not lit: the spotlight is for what to do now, and a
+        // reference screen has nothing to do.
         item {
             Row(
                 Modifier
@@ -117,7 +116,7 @@ fun GrammarScreen(
         }
         item(key = "forms") { ListHeading("Forms") }
         items(Grammar.NOTES, key = { it.key }) { note -> NoteRow(note) { onForm(note.key) } }
-        // A lesson shows these once, when it is first opened; this is where they are found again.
+        // The lesson that introduces a class shows its note; this is where it is found again.
         item(key = "classes") { ListHeading("Word classes") }
         items(Grammar.CLASS_NOTES, key = { "class-${it.key}" }) { note -> NoteRow(note) { onForm(note.key) } }
     }
@@ -197,7 +196,7 @@ fun GrammarDetailScreen(
 
 /**
  * The prose half: what the form means and when it is reached for. [heading] defaults to
- * the question the card answers; where several notes share a screen, their titles say
+ * the question the section answers; where several notes share a screen, their titles say
  * which is which. [groups], in a lesson, leaves out the lines about classes it does not drill.
  */
 @Composable
@@ -263,7 +262,7 @@ fun GrammarConstruction(
         // Grouped by heading rather than one heading per word: する and 来る are worth
         // meeting as "the irregulars" rather than as two unrelated classes.
         shown.groupBy { (word, _) -> headingFor(word) }.toList().forEachIndexed { index, (heading, group) ->
-            // The class dividers get room of their own, so they read as the card's sections
+            // The class dividers get room of their own, so they read as the section's parts
             // and the hairlines of a fusion table inside one do not.
             if (index > 0) {
                 HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)

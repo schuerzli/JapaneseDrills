@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -165,6 +167,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
     val contentModifier = Modifier.fillMaxSize()
+    // Held above every screen, so the path keeps its place while a lesson is played, and
+    // coming back from one does not mean scrolling down to it again.
+    val pathList = rememberLazyListState()
 
     if (state.loading) {
         Box(contentModifier, contentAlignment = Alignment.Center) { CircularProgressIndicator() }
@@ -271,12 +276,11 @@ private fun DrillApp(state: DrillUiState, viewModel: DrillViewModel) {
                 outcome = state.outcome,
                 onBackToStart = viewModel::backToRoot,
                 onRetry = { state.outcome?.lesson?.let(viewModel::startLesson) },
-                onNext = { state.outcome?.next?.let(viewModel::openLesson) },
                 modifier = contentModifier,
             )
         }
 
-        else -> RootScreen(state, viewModel, contentModifier)
+        else -> RootScreen(state, viewModel, pathList, contentModifier)
     }
 }
 
@@ -322,7 +326,7 @@ private fun TabRow(current: AppTab, onTab: (AppTab) -> Unit) {
 /** The three tabs, with settings on the bar beside them rather than among them. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier: Modifier) {
+private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, pathList: LazyListState, modifier: Modifier) {
     Scaffold(
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -361,6 +365,7 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onReview = viewModel::startReview,
                 onToggleChapter = viewModel::setChapterOpen,
                 modifier = inner,
+                list = pathList,
             )
 
             AppTab.Grammar -> GrammarScreen(
@@ -384,7 +389,6 @@ private fun RootScreen(state: DrillUiState, viewModel: DrillViewModel, modifier:
                 onPreset = viewModel::applyPreset,
                 modifier = inner,
             )
-
         }
     }
 }

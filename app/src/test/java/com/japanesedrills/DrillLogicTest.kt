@@ -4,6 +4,7 @@ import com.japanesedrills.data.DrillData
 import com.japanesedrills.quiz.ChangeShape
 import com.japanesedrills.quiz.ConjugationIntro
 import com.japanesedrills.quiz.ConjugationIntroBlock
+import com.japanesedrills.quiz.Drawn
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Furigana
 import com.japanesedrills.quiz.FusionColumn
@@ -313,8 +314,8 @@ class DrillLogicTest {
         val (negative, past) = Explanations.solution(word, "past negative").steps
         assertEquals(listOf("有[ゆう]名[めい]ではない", "有[ゆう]名[めい]じゃない"), negative.to)
         // Each past negative starts from its own negative, not from the first one listed.
-        val lines = Prompts.change(past.from, past.to, past.shape).map { line ->
-            line.joinToString("") {
+        val lines = Prompts.changes(past.from, past.to, past.shape).map { (from, to) ->
+            (from + RichPart.Text("  →  ") + to).joinToString("") {
                 when (it) {
                     is RichPart.Jp -> it.word
                     is RichPart.Marked -> it.text
@@ -632,7 +633,7 @@ class DrillLogicTest {
                 else -> emptyList()
             }
         }
-        val leftover = examples.filter { RichPart.unmarked(it).any { c -> c in "()〈〉+" } }
+        val leftover = examples.filter { unmarked(it).any { c -> c in "()〈〉+" } }
         assertEquals(emptyList<String>(), leftover)
         assertEquals(
             listOf(RichPart.Jp("書[か]"), RichPart.Marked("け", Mark.LastKana), RichPart.Marked("る", Mark.Ending)),
@@ -661,12 +662,12 @@ class DrillLogicTest {
         }
         var checked = 0
         val wrong = changes.filter { (from, to) ->
-            val start = RichPart.unmarked(from)
+            val start = unmarked(from)
             val candidates = data.words.filter { it.dictionary == start }
                 .ifEmpty { data.words.filter { Furigana.toKana(it.dictionary) == Furigana.toKana(start) } }
             if (candidates.isEmpty()) return@filter false // a form built on a form, such as 書ける
             checked++
-            val result = Furigana.toKana(RichPart.unmarked(to))
+            val result = Furigana.toKana(unmarked(to))
             candidates.none { word -> word.conjugations.values.any { c -> c.forms.any { Furigana.toKana(it) == result } } }
         }
         assertEquals(emptyList<Pair<String, String>>(), wrong)
@@ -707,20 +708,11 @@ class DrillLogicTest {
         )
         assertEquals(
             listOf(
-                RichPart.Text("change to "),
-                RichPart.Text("negative", true),
-                RichPart.Text(": "),
-                RichPart.Jp("食べる"),
-            ),
-            Prompts.question("negative", "食べる"),
-        )
-        assertEquals(
-            listOf(
-                listOf(RichPart.Text("Correct: "), RichPart.Jp("a")),
+                listOf(RichPart.Jp("a")),
                 listOf(RichPart.Text("or "), RichPart.Jp("b")),
                 listOf(RichPart.Text("or "), RichPart.Jp("c")),
             ),
-            Prompts.alternatives(listOf("a", "b", "c"), lead = "Correct: "),
+            Prompts.alternatives(listOf("a", "b", "c")),
         )
     }
 
@@ -820,4 +812,8 @@ class DrillLogicTest {
 
 /** One question from [pool], drawn the way a session draws them. */
 private fun QuizEngine.nextQuestion(pool: QuestionPool): Question? =
-    buildQueue(pool, 1).firstOrNull()?.let(::questionFor)
+    buildQueue(pool, 1).firstOrNull()?.let { questionFor(Drawn(it)) }
+
+/** A Conjugation Intro example as it reads, marks removed: `書[か](く)` is `書[か]く`. */
+private fun unmarked(example: String): String =
+    RichPart.marked(example).joinToString("") { if (it is RichPart.Marked) it.text else (it as RichPart.Jp).word }

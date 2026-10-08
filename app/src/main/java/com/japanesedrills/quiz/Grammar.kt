@@ -112,7 +112,7 @@ object Grammar {
                     "not a single form.",
                 "The normal form inside a longer sentence: before と思[おも]う, から, けど, and " +
                     "directly in front of a noun.",
-                "The standard style for most writing that is not a letter — news, novels, notes.",
+                "The standard style for most writing that is not a letter — newspapers, novels, notes.",
             ),
         ),
         GrammarNote(
@@ -183,8 +183,8 @@ object Grammar {
             notes = lines(
                 "About your own wishes, or a question about the listener's.",
                 "Said flatly about someone else it is wrong: use たがる, or hedge with " +
-                    "たいようだ or たいそうです.",
-                "Built on the い-row stem: 書[か]く → 書[か]きたい. The polite ます form uses the same stem.",
+                    "たいようだ or たいそうだ.",
+                "Built on the い-row stem: 書[か]く → 書[か]きたい.",
                 reference("The result conjugates as an い-adjective: 食[た]べたくない, 食[た]べたかった."),
                 "The object may take が as well as を.",
             ),
@@ -196,7 +196,6 @@ object Grammar {
             notes = lines(
                 "Polite ましょう is the everyday \"let's\"; plain よう/おう is casual.",
                 "With と思[おも]う it becomes an intention: \"I think I'll…\".",
-                "Not a request — for that, use the て-form with ください.",
             ),
         ),
         GrammarNote(
@@ -206,8 +205,6 @@ object Grammar {
             notes = lines(
                 "What would be the object often takes が rather than を.",
                 "Ichidan potential looks identical to the passive; context separates them.",
-                "Speech commonly drops the ら — 見[み]れる for 見[み]られる — though it is still " +
-                    "considered informal in writing.",
                 "する has its own word for this: できる.",
             ),
         ),
@@ -219,7 +216,6 @@ object Grammar {
                 "Works for one-off and hypothetical conditions alike.",
                 "In the past it can mean \"when I did X, it turned out that…\" — a discovery " +
                     "rather than a condition.",
-                reference("Built straight from the past form: add ら to it."),
             ),
         ),
         GrammarNote(
@@ -252,7 +248,6 @@ object Grammar {
                     "a use with no direct English equivalent.",
                 "Doubles as an honorific: the same form can raise the person doing the action " +
                     "rather than passivise the verb.",
-                "Identical in shape to the ichidan potential.",
             ),
         ),
         GrammarNote(
@@ -313,7 +308,7 @@ object Grammar {
             summary = "To come — the other verb that is irregular throughout.",
             notes = lines(
                 "The kanji stays; its reading changes: くる, こない, きた, きて.",
-                "The endings themselves are the ordinary ones. Only the reading of the kanji moves.",
+                "The endings are the ichidan ones, except the imperative: こい.",
             ),
         ),
         GrammarNote(
@@ -330,8 +325,8 @@ object Grammar {
             title = "ある",
             summary = "To exist, for things that are not alive: \"there is\", and often \"to have\".",
             notes = lines(
-                "Otherwise an ordinary godan verb: あった, あって.",
                 "Its negative is simply ない. あらない is not a word.",
+                "Otherwise an ordinary godan verb: あった, あって.",
                 "It has no imperative, potential, passive or causative in everyday use.",
                 "For people and animals, use いる instead.",
             ),
@@ -352,8 +347,8 @@ object Grammar {
             title = "いい",
             summary = "Good — the one い-adjective that changes its first sound when it conjugates.",
             notes = lines(
-                "Every other form is built from its older twin よい: よくない, よかった, よくて.",
                 "Only the present stays いい: いい and いいです.",
+                "Every other form is built from its older twin よい: よくない, よかった, よくて.",
                 "The endings themselves are the ordinary い-adjective ones.",
             ),
         ),

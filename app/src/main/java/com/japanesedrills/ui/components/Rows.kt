@@ -36,38 +36,34 @@ fun SettingRow(
     role: Role = Role.Button,
     value: @Composable RowScope.() -> Unit,
 ) {
-    Column {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .then(if (onClick != null) Modifier.clickable(role = role, onClick = onClick) else Modifier)
-                .padding(vertical = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(label, style = MaterialTheme.typography.bodyLarge)
-                if (supporting != null) {
-                    Text(
-                        supporting,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(role = role, onClick = onClick) else Modifier)
+            .padding(vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            if (supporting != null) {
+                Text(
+                    supporting,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
-            Spacer(Modifier.width(12.dp))
-            value()
         }
+        Spacer(Modifier.width(12.dp))
+        value()
     }
 }
 
 /** A setting whose control needs the whole width: the label, then the control under it. */
 @Composable
 fun StackedRow(label: String, control: @Composable () -> Unit) {
-    Column {
-        Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Text(label, style = MaterialTheme.typography.bodyLarge)
-            control()
-        }
+    Column(Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        control()
     }
 }
 
@@ -94,15 +90,13 @@ fun TextAction(label: String, onClick: () -> Unit) {
 /** A count, in tabular figures so the numbers in a section stand in one column. */
 @Composable
 fun StatRow(label: String, value: String) {
-    Column {
-        Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.weight(1f),
-            )
-            Text(value, style = MaterialTheme.typography.bodyLarge.copy(fontFeatureSettings = "tnum"))
-        }
+    Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        Text(value, style = MaterialTheme.typography.bodyLarge.copy(fontFeatureSettings = "tnum"))
     }
 }

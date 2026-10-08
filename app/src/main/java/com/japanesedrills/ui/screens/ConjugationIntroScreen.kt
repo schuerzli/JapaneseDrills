@@ -57,7 +57,7 @@ fun ConjugationIntroScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                     title = { Text(ConjugationIntro.TITLE) },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.Default.Close, contentDescription = "Back to the form list")
+                            Icon(Icons.Default.Close, contentDescription = "Back")
                         }
                     },
                     actions = { FuriganaAction() },
@@ -65,7 +65,7 @@ fun ConjugationIntroScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             }
         },
     ) { padding ->
-        // Each block is its own list item, drawn so a section still reads as one card. As one
+        // Each block is its own list item, drawn so a section still reads as one. As one
         // item per section, a section with two tables and forty readings was built in a
         // single frame as it scrolled in, and a fast fling stuttered on it.
         val list = rememberLazyListState()
@@ -110,7 +110,7 @@ private fun piecesOf(blocks: List<ConjugationIntroBlock>): List<List<Conjugation
 private fun Changes(steps: List<ConjugationIntroBlock.Step>) {
     val rows = steps.map { RichPart.marked(it.from) to RichPart.marked(it.to) }
     AlignedChanges(rows.map { it.first }) {
-        // Named steps get the room of a step on a grammar card; bare rows sit as one table.
+        // Named steps get the room of a step on the Grammar tab; bare rows sit as one table.
         Column(verticalArrangement = Arrangement.spacedBy(if (steps.any { it.note.isNotEmpty() }) 10.dp else 4.dp)) {
             steps.forEachIndexed { i, step ->
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

@@ -71,17 +71,17 @@ Every lesson changes either the grammar or the vocabulary, never both:
   first
 - **extend lessons** take a form already known somewhere new, an ending or a class, and ask
   only that: the negative past is the past taken to ない
-- **word lessons** add a batch of words of types already met and drill them on everything
+- **word lessons** add a batch of words of classes already met and drill them on everything
   asked so far, mixed — the grammar holds no surprises there, only the words do
-- **word-type lessons** add a type that conjugates differently (the irregular verbs, the two
+- **word-class lessons** add a class that conjugates differently (the irregular verbs, the two
   kinds of adjective) and go through the known forms one lesson each, because for those words
   a form *is* new grammar: 高い → 高くない is not 書く → 書かない
 
 A new batch therefore goes through what is known in one mixed lesson, not one lesson per form.
 Replaying every form for every batch would grow the path quadratically for little gain.
 
-Two word types are too small for that: ある and いる, and いい. They get one mixed lesson each
-rather than three lessons of two questions.
+Some classes are too small for that: ある and いる share one mixed lesson, and いい has one of
+its own, rather than three lessons of two questions each.
 
 ## Compounds
 

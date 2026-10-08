@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
@@ -75,8 +74,6 @@ fun ResultsScreen(
     outcome: LessonOutcome?,
     onBackToStart: () -> Unit,
     onRetry: () -> Unit,
-    /** Opens [LessonOutcome.next]. */
-    onNext: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Scaffold(
@@ -106,21 +103,18 @@ fun ResultsScreen(
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    // A lesson that has just become ready points on to the next one; otherwise
-                    // another go is the likely move, since a lesson is never finished.
-                    val next = outcome?.next?.takeIf { outcome.becameReady }
-                    if (next != null) {
+                    // A lesson that has just become ready goes back to the path, which says what
+                    // comes next with review counted; there is no "next lesson" from here to
+                    // jump past that. Otherwise another go is the likely move, since a lesson is
+                    // never finished.
+                    if (outcome != null && outcome.becameReady) {
                         OutlinedButton(onClick = onRetry, modifier = Modifier.weight(1f)) {
                             Text("Go again")
                         }
-                        Button(onClick = onNext, modifier = Modifier.weight(1f)) {
-                            Text("Next lesson")
+                        Button(onClick = onBackToStart, modifier = Modifier.weight(1f)) {
+                            Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
                             Spacer(Modifier.width(ButtonDefaults.IconSpacing))
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = null,
-                                modifier = Modifier.size(ButtonDefaults.IconSize),
-                            )
+                            Text("Done")
                         }
                     } else if (outcome != null) {
                         OutlinedButton(onClick = onBackToStart, modifier = Modifier.weight(1f)) {
@@ -150,7 +144,7 @@ fun ResultsScreen(
         ) {
             if (outcome != null) item { Box(Modifier.padding(bottom = 12.dp)) { ReadinessCard(outcome) } }
             item { Box(Modifier.padding(bottom = 12.dp)) { ScoreCard(history) } }
-            // One card of answers, a slice per answer: a long session is hundreds of them,
+            // One section of answers, a slice per answer: a long session is hundreds of them,
             // too many to compose as one item.
             if (history.isNotEmpty()) {
                 item { SectionPiece(first = true, last = false) { SectionHeading("Your answers") } }
@@ -178,31 +172,29 @@ private fun ReadinessCard(outcome: LessonOutcome) {
     val surfaces = DrillTheme.surfaces
     Spotlight {
         Row(Modifier.padding(PanelPadding), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            FuriganaText(
-                when {
-                    outcome.becameReady -> "Ready for the next lesson"
-                    record.ready -> "${outcome.lesson.title} is ready"
-                    else -> "${outcome.lesson.title}: not ready yet"
-                },
-                style = MaterialTheme.typography.lead,
-                color = surfaces.onHero,
-            )
-            FuriganaText(
-                when {
-                    outcome.becameReady && outcome.next != null ->
-                        "$percent% of your last $recent answers here were right. Next up: ${outcome.next.title}."
-                    outcome.becameReady -> "$percent% of your last $recent answers here were right."
-                    record.ready -> "Come back to it whenever you like; review keeps it fresh."
-                    record.answered < LessonRecord.minAnswers(outcome.lesson.questions) ->
-                        "Ready once $bar% of your recent answers are right, over at least " +
-                            "${LessonRecord.minAnswers(outcome.lesson.questions)}. So far: $percent% of $recent."
-                    else -> "$percent% of your last $recent answers were right; ready at $bar%."
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = surfaces.onHeroVariant,
-            )
-        }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                FuriganaText(
+                    when {
+                        outcome.becameReady -> "Ready to move on"
+                        record.ready -> "${outcome.lesson.title} is ready"
+                        else -> "${outcome.lesson.title}: not ready yet"
+                    },
+                    style = MaterialTheme.typography.lead,
+                    color = surfaces.onHero,
+                )
+                FuriganaText(
+                    when {
+                        outcome.becameReady -> "$percent% of your last $recent answers here were right."
+                        record.ready -> "Come back to it whenever you like; review keeps it fresh."
+                        record.answered < LessonRecord.minAnswers(outcome.lesson.questions) ->
+                            "Ready once $bar% of your recent answers are right, over at least " +
+                                "${LessonRecord.minAnswers(outcome.lesson.questions)}. So far: $percent% of $recent."
+                        else -> "$percent% of your last $recent answers were right; ready at $bar%."
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = surfaces.onHeroVariant,
+                )
+            }
             // The tick the learn path marks a ready lesson with, so the two screens agree —
             // here cut from the panel's own cream, because everything on it is.
             if (record.ready) {
@@ -258,7 +250,7 @@ private fun HistoryRow(number: Int, entry: HistoryEntry, options: QuizOptions) {
     val answerColors = DrillTheme.answerColors
     val given = listOf(RichPart.Jp(question.givenDisplay(options.kana)))
     Column {
-        // Between answers rather than above the first, which sits under the card's heading.
+        // Between answers rather than above the first, which sits under the section's heading.
         if (number > 1) {
             HorizontalDivider(Modifier.padding(bottom = 12.dp), color = MaterialTheme.colorScheme.outlineVariant)
         }

@@ -125,12 +125,9 @@ data class LessonCard(
 /** How a session of a lesson went, shown on the results screen. */
 data class LessonOutcome(
     val lesson: Lesson,
-    val accuracy: Double,
     val record: LessonRecord,
     /** This session is what took the lesson over the bar. */
     val becameReady: Boolean,
-    /** What the path recommends now, if anything is left to recommend. */
-    val next: Lesson?,
 )
 
 data class DrillUiState(
@@ -506,10 +503,8 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         refreshDue()
     }
 
-    /** One setting, flipped from Settings or by tapping the question card. */
-    fun setFurigana(on: Boolean) = updateApp { it.copy(furigana = on) }
-
-    fun toggleFurigana() = setFurigana(!_state.value.options.app.furigana)
+    /** Readings on or off everywhere at once, from the one switch for them on the top bar. */
+    fun toggleFurigana() = updateApp { it.copy(furigana = !it.furigana) }
 
     /** Resets the practice settings only; the ones chosen in Settings are not among them. */
     fun resetDefaults() = updateOptions { QuizOptions(app = it.app) }
@@ -527,15 +522,28 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
         val imported = ProgressCodec.decodeOrNull(text) ?: return false
         // The notice would otherwise come back on the next launch, from the copy on disk.
         progressStore.discardSalvage()
-        _state.update { it.copy(progress = imported, salvagedProgress = false) }
-        refreshPath()
+        replaceProgress(imported)
         return true
     }
 
     /** Wipes the learn path. Irreversible, so the screen confirms before calling this. */
     fun resetProgress() {
         progressStore.clear()
-        _state.update { it.copy(progress = Progress(), salvagedProgress = false) }
+        replaceProgress(Progress())
+    }
+
+    /**
+     * Progress swapped out whole, by an import or a reset. The word sets the learner made go
+     * with it, so practice has to stop drawing on the old ones: a set that is gone is switched
+     * off, and the pool is counted again from the sets there are now.
+     */
+    private fun replaceProgress(progress: Progress) {
+        persist(progress)
+        _state.update { it.copy(salvagedProgress = false) }
+        updateOptions { options ->
+            options.copy(sets = options.sets.filterTo(HashSet()) { it in WordSets.IDS || it in progress.sets })
+        }
+        refreshPool()
         refreshPath()
     }
 
@@ -872,18 +880,9 @@ class DrillViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun finish(quiz: QuizState) {
         val lesson = lessonOf(_state.value)
-        val learnPath = data?.learnPath
-        val progress = _state.value.progress
-        val history = quiz.history
-        val record = lesson?.let { progress.records[it.id] }
-        val outcome = if (lesson != null && record != null && learnPath != null && history.isNotEmpty()) {
-            LessonOutcome(
-                lesson = lesson,
-                accuracy = history.count { it.correct } / history.size.toDouble(),
-                record = record,
-                becameReady = record.ready && !wasReady,
-                next = nextLesson(learnPath, progress),
-            )
+        val record = lesson?.let { _state.value.progress.records[it.id] }
+        val outcome = if (lesson != null && record != null && quiz.history.isNotEmpty()) {
+            LessonOutcome(lesson, record, becameReady = record.ready && !wasReady)
         } else {
             null
         }

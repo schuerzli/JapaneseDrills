@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -80,7 +81,7 @@ private fun chaptersOf(path: List<LessonCard>): List<Chapter> {
  * first once there is anything to review, because returning daily is the habit worth
  * building; the lessons are the slower, weekly sense of progress.
  *
- * A chapter is one card and its lessons are the rows in it, the shape the rest of the app
+ * A chapter is one section and its lessons are the rows in it, the shape the rest of the app
  * lists things in. Every chapter folds down to its heading row; only the one holding the next
  * lesson starts open, so the path reads as where you are rather than as forty-odd rows.
  */
@@ -93,11 +94,12 @@ fun LearnPathScreen(
     onReview: () -> Unit,
     onToggleChapter: (title: String, open: Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    /** Where the path is scrolled to, held by the caller so it outlasts a lesson played from it. */
+    list: LazyListState = rememberLazyListState(),
 ) {
     val chapters = remember(state.path) { chaptersOf(state.path) }
     val recommendation = state.recommendation
 
-    val list = rememberLazyListState()
     LazyColumn(
         state = list,
         modifier = modifier.fillMaxSize().verticalScrollbar(list),
@@ -109,7 +111,7 @@ fun LearnPathScreen(
         // until review has been counted, which is what makes `recommendation` non-null,
         // so the lit half cannot start on the wrong row and swap under the reader.
         if (recommendation != null) {
-            item {
+            item(key = "today") {
                 Spaced {
                     Panel {
                         val lead = state.reviewLeads
@@ -129,9 +131,9 @@ fun LearnPathScreen(
                 }
             }
         }
-        item { PathHeading(ready = state.path.count { it.ready }, total = state.path.size) }
-        // A chapter is one card, drawn a row at a time: a card composed whole would be nine
-        // rows built in the frame it scrolls into.
+        item(key = "path") { PathHeading(ready = state.path.count { it.ready }, total = state.path.size) }
+        // A chapter is one section, drawn a row at a time: composed whole, every row of it
+        // would be built in the frame it scrolls into.
         chapters.forEachIndexed { index, chapter ->
             val open = state.chapterOpen[chapter.title] ?: chapter.cards.any { it.lesson == state.nextLesson }
             item(key = "chapter-${chapter.title}") {

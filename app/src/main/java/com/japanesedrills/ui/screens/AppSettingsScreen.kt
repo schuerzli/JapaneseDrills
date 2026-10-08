@@ -65,11 +65,8 @@ import com.japanesedrills.ui.components.verticalScrollWithScrollbar
 import com.japanesedrills.ui.theme.facesOf
 
 /**
- * Appearance, progress and attribution, reached from the cog in the top bar.
- *
- * Every setting is a row with its value on the right, the way the practice tab lists its
- * word sets: one shape to read down, whether the value is a palette, a choice of three or a
- * switch.
+ * Appearance, review, progress and attribution, reached from the cog in the top bar. Every
+ * setting is one of the rows every section is listed from (ui/components/Rows.kt).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

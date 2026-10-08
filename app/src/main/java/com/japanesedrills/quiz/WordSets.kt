@@ -14,7 +14,8 @@ data class WordSet(val id: String, val label: String)
  * rebuilt from the assets, so it is stored with their progress and travels in the backup.
  *
  * Word keys come from words.json, which is generated: regenerating it can retire a key. A
- * set therefore drops keys it no longer knows rather than failing to open.
+ * key the list no longer has matches nothing, and the set opens on what is left rather than
+ * failing to.
  */
 data class CustomSet(val id: String, val name: String, val words: Set<String> = emptySet())
 

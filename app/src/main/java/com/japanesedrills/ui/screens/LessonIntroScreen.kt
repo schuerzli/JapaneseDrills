@@ -53,7 +53,7 @@ import com.japanesedrills.ui.components.heroBarColors
 import com.japanesedrills.ui.components.verticalScrollbar
 
 /**
- * What a lesson introduces, shown the first time it is opened.
+ * What a lesson introduces, shown whenever it is opened; Start on its row goes past it.
  *
  * The drill grades production, so asking for the て-form of a word the learner has never
  * seen would test two things at once and diagnose neither. Everything shown here is
@@ -171,7 +171,7 @@ fun LessonIntroScreen(
                     }
                 }
             }
-            // One card, a word to a row: a lesson deals a handful, well within one item.
+            // One section, a word to a row: a lesson deals a handful, well within one item.
             if (words.isNotEmpty()) {
                 item(key = "words") {
                     Section("New words in this lesson") {
@@ -192,7 +192,7 @@ private fun labelOf(conjugation: String): String =
 
 /**
  * A new word: the word and its meaning on one line, its class under them, and its example
- * sentence inset the way a grammar card insets its lessons.
+ * sentence inset the way a worked step is.
  */
 @Composable
 private fun WordRow(word: Word, options: QuizOptions) {

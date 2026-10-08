@@ -15,11 +15,12 @@ enum class ThemeChoice(val label: String) {
 /**
  * Which palette the app is dressed in. The names are tools/theme/schemes.py's palette keys:
  * the generated theme maps each to its colours with an exhaustive `when`, so a palette added
- * on one side and not the other fails to compile rather than crashing.
+ * on one side and not the other fails to compile rather than crashing. Settings lists them in
+ * this order, the default first.
  */
 enum class Palette(val label: String) {
-    Latte("Latte"),
     Kissaten("Kissaten"),
+    Latte("Latte"),
     Washi("Washi"),
     Caramel("Caramel"),
     Mocha("Mocha"),

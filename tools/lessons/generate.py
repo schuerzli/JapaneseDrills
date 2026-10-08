@@ -8,9 +8,10 @@ and a change is reviewable as a diff. See README.md for why it is shaped the way
 
 Every lesson is spelled out in full: the forms it switches on, the one question type it
 asks about (or none), the word batches it draws on, and the conjugations it asks per word
-group, which is where compounds are held back until every rule in them has been taught. Titles are shown with furigana, so
-their kanji are written in the same notation as the word list. The app only reads that; all the
-bookkeeping of what is known by which point happens here.
+group, which is where compounds are held back until every rule in them has been taught.
+Titles are shown with furigana, so their kanji are written in the same notation as the word
+list. The app only reads that; all the bookkeeping of what is known by which point happens
+here.
 """
 
 import argparse
@@ -204,16 +205,18 @@ def tags_of(key):
 
 # --- The path -----------------------------------------------------------------------------
 #
-# Six kinds of entry, each explained in README.md:
+# The kinds of lesson, each explained in README.md:
 #
+#   reading(...)    a page that is read rather than drilled: the Conjugation Intro
 #   form(...)       a new form, taught on the word groups named (every group so far that
 #                   has it, by default) and on any ending named
 #   extend(...)     a form already known, taught on something new: an ending or a class
-#   word_type(...)  a new word type, one lesson for each form it has that is known by then
-#   words(...)      new words of known types, drilled on everything asked so far, mixed
+#   word_class(...) a new word class, one lesson for each form it has that is known by then
+#   words(...)      new words of known classes, drilled on everything asked so far, mixed
 #   polite(...)     the polite layer over a set of forms
 #
-# deal(...) hands out a batch without a lesson of its own; the next lesson introduces it.
+# chapter(...) starts the next heading on the path, and deal(...) hands out a batch without a
+# lesson of its own; the next lesson introduces it.
 # A lesson's point is the one thing its introduction leads with: usually that an ending
 # conjugates as a class already taught, which is what lets its compounds be asked at all.
 
@@ -242,8 +245,8 @@ def extend(lesson_id, title, key, hosts, questions=14, point=None):
     return ("extend", lesson_id, title, key, tuple(hosts), questions, point)
 
 
-def word_type(batch, title, groups=(), count=0, pins=(), classes=(), questions=12, point=None):
-    return ("word_type", batch, title, groups, count, list(pins), list(classes), questions, None, point)
+def word_class(batch, title, groups=(), count=0, pins=(), classes=(), questions=12, point=None):
+    return ("word_class", batch, title, groups, count, list(pins), list(classes), questions, None, point)
 
 
 def words(batch, title, groups=(), count=0, pins=(), classes=(), questions=12, levels=None, point=None):
@@ -271,7 +274,7 @@ SPINE = [
     deal("verbs-1", VERBS, 8),
     form("negative", "Negative"),
     form("past", "Past"),
-    word_type("i-adjectives", "い-adjectives", ("i-adjective",), 8, classes=["i-adjective"],
+    word_class("i-adjectives", "い-adjectives", ("i-adjective",), 8, classes=["i-adjective"],
               point="Every negative so far ends in ない, and ない is an い-adjective itself. "
                     "Whatever an い-adjective does, ない does too — which is where the next "
                     "lesson starts."),
@@ -286,7 +289,7 @@ SPINE = [
 
     chapter("The irregular verbs"),
     # Three words in one form both ways is six questions, so six it asks rather than repeat.
-    word_type("irregular", "する, 来[く]る, 行[い]く", pins=["する", "来る", "行く"],
+    word_class("irregular", "する, 来[く]る, 行[い]く", pins=["する", "来る", "行く"],
               classes=["suru", "kuru", "iku"], questions=6),
     words("verbs-3", "Everyday actions", VERBS, 8),
     words("existence", "ある and いる", pins=["ある", "いる"], classes=["aru", "iru"], questions=10,
@@ -300,7 +303,7 @@ SPINE = [
     chapter("Adjectives"),
     words("ii", "いい", pins=["いい"], classes=["ii"], questions=10),
     words("adjectives-1", "Describing things", ("i-adjective",), 8),
-    word_type("na-adjectives", "な-adjectives", ("na-adjective",), 8, classes=["na-adjective"],
+    word_class("na-adjectives", "な-adjectives", ("na-adjective",), 8, classes=["na-adjective"],
               point="The negative じゃない ends in ない again, so it carries on as an "
                     "い-adjective: じゃなかった, じゃなくて."),
     words("adjectives-2", "Opinions", ADJECTIVES, 8),
@@ -371,7 +374,7 @@ def build():
 
     # Named words are held back first, so no ordinary batch is dealt them as well.
     for entry in SPINE:
-        if entry[0] in ("word_type", "words"):
+        if entry[0] in ("word_class", "words"):
             for key in entry[5]:  # pins
                 picker.reserve(key)
     for key in KEPT_OFF_THE_PATH:
@@ -518,7 +521,7 @@ def build():
             _, lesson_id, title, key, hosts, questions, point = entry
             lesson(lesson_id, title, type_of(key), list(batches), questions,
                  {(key, h) for h in hosts}, point=point)
-        elif kind == "word_type":
+        elif kind == "word_class":
             _, batch, title, groups, count, pins, classes, questions, levels, point = entry
             pending.append(dealt(batch, groups, count, pins, levels))
             fresh = groups_of(batch)

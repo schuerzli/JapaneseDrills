@@ -38,7 +38,7 @@ import com.japanesedrills.ui.theme.subheading
 /** How far a step sits in from its heading: the width of the number column. */
 val StepInset = 30.dp
 
-/** A heading inside a card, such as a word class on a grammar card or "Solution". */
+/** A heading inside a section, such as a word class on a form's page or "Solution". */
 @Composable
 fun Subheading(text: String, modifier: Modifier = Modifier) {
     FuriganaText(
@@ -65,10 +65,11 @@ fun StepBlock(
     Row {
         Text(
             number?.toString().orEmpty(),
-            // The outline colour keeps the numbers quieter than the text they number; the
-            // contrast check holds it to the text floor on the card.
+            // The secondary text colour, as the rule beside it is: quieter than the change it
+            // numbers, and held to the strictest floor wherever the page puts it. The outline
+            // colour was quieter still, and fell below the text floor low on the page.
             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp, fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.outline,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(StepInset).alignByBaseline(),
         )
         Column(Modifier.alignByBaseline(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -92,7 +93,7 @@ fun StepBlock(
 
 /**
  * The godan fusions, with only the column [column] uses: the dictionary endings right-aligned
- * against what they fuse into. Shown wherever a step applies one, on a grammar card and
+ * against what they fuse into. Shown wherever a step applies one, on the Grammar tab and
  * behind a tap in an explanation.
  */
 @Composable
@@ -112,7 +113,7 @@ private val LocalFromWidth = compositionLocalOf { Dp.Unspecified }
 /**
  * Lines up the arrows of every [ChangeRow] in [content]: the "from" column is as wide as the
  * widest of [froms], but never more than half the width, so a long word wraps rather than
- * pushing its result off the card.
+ * pushing its result off the screen.
  */
 @Composable
 fun AlignedChanges(froms: List<List<RichPart>>, content: @Composable () -> Unit) {

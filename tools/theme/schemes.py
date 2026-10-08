@@ -13,8 +13,9 @@ files. Both it and --fonts reproduce their output byte for byte.
 An earlier version of this file derived every role from one seed colour by walking a
 tonal palette. That was dropped: the shipped scheme puts the accent where it means
 something rather than where a tone curve lands it, and no seed produces that. Palettes are
-written out in full instead, and `--check` is what keeps them honest. The one exception is
-the hero card, which follows a single rule in every palette (see HERO_TINT).
+written out in full instead, and `--check` is what keeps them honest. What every palette
+shares the design of follows one rule instead (`scheme`): the surfaces the layout adds, such
+as the hero gradient and the page wash, and the roles the app never draws itself.
 
 To re-tune, edit a palette below and re-run --apply; `--check` must stay clean (the floors
 are with PAIRS).
@@ -89,7 +90,8 @@ MARKS_DARK = dict(markEnding="#8FC2F0", markFused="#E2A6E6")
 # accent so a full bar never reads as something to tap. The far end is the green that means
 # "right" everywhere else; the near end is a clay that does not.
 STRENGTH_ROLES = ["strengthLow", "strengthMid", "strengthHigh"]
-# Bright, because a bar's track is drawn with a hairline round it (ui/components/Bars.kt):
+# Bright, because a bar's track is drawn with a hairline round it (StrengthBar, in
+# ui/components/Surfaces.kt):
 # how far the bar runs is stated by that outline, not by how far the fill is from the track,
 # and on a cream page no friendly green or amber can be 3:1 from a cream track anyway.
 STRENGTH_LIGHT = dict(strengthLow="#E0563A", strengthMid="#E09A16", strengthHigh="#46A855")
@@ -104,13 +106,11 @@ SURFACE_ROLES = ["heroStart", "heroEnd", "onHero", "onHeroVariant",
                  "pageTop", "pageBottom", "tintTop", "tintBottom", "well"]
 
 
-# The hero cards — the question, the welcome, the Conjugation Intro link and the score — are a
-# light wash of the accent over the page, with ordinary ink on top. They used to be a slab of
-# their own colour (espresso in Latte, caramel in Caramel), which made the question card the
-# loudest object on the screen when the word inside it is already set at 44sp: the size
-# carries the emphasis, so the card only has to say "this is the question". One rule for
-# every palette, so no alternative can drift back into a slab.
-HERO_TINT = 0.16
+# Material's primaryContainer, which no screen draws on: what is lit is painted with the hero
+# gradient (SURFACE_ROLES). Material still asks for the role, so it is a light wash of the
+# accent over the page with ordinary ink on top, one rule for every palette, and a component
+# that falls back on it shows the palette rather than a slab of some other colour.
+CONTAINER_TINT = 0.16
 
 
 def mix(fg, bg, t):
@@ -147,7 +147,7 @@ def scheme(**kw):
     s.setdefault("tintBottom",
                  mix("#000000", s["surfaceContainerLow"], 0.22) if dark else s["surfaceContainer"])
     s.setdefault("well", s["surfaceContainerHigh"])
-    s.setdefault("primaryContainer", mix(s["primary"], s["surface"], HERO_TINT))
+    s.setdefault("primaryContainer", mix(s["primary"], s["surface"], CONTAINER_TINT))
     s.setdefault("onPrimaryContainer", s["onSurface"])
     s.setdefault("background", s["surface"])
     s.setdefault("onBackground", s["onSurface"])
@@ -169,43 +169,16 @@ def scheme(**kw):
 
 # --- The palettes ----------------------------------------------------------
 #
-# Each was built and compared in the running app, and each is a different answer to "which
-# elements carry the accent", which is the decision that actually changes how a screen reads
-# — so a palette carries its faces and its accent placement with it, not just its colours.
+# Each was built and compared in the running app. They share one design: the header and the
+# spotlight are the accent's own gradient, the page is a wash from light at the top to deeper
+# at the foot, and the accent on the page is what can be tapped. A palette chooses the
+# accent's hue, how bright the page is, its two faces, and whether section titles and
+# word-class headings take the accent too (`Accents`), which is what changes a screen most.
 
-# Latte. A warm cafe: cream page, white cards, a caramel-washed question card, and one
-# caramel accent. The accent is spent on three things and nothing else — the form pill, the
-# button that moves you on, and the tab you are in — so colour always means "act here".
-# Section titles are plain ink for the same reason.
-
-LATTE_LIGHT = scheme(
-    primary="#904C1D", onPrimary="#FFFFFF",
-    secondaryContainer="#F0E0CF", onSecondaryContainer="#3A2616",
-    error="#9C3B2E", onError="#FFFFFF", errorContainer="#FBD9D0", onErrorContainer="#40120B",
-    surface="#FCF7F1", onSurface="#2B1D16",
-    surfaceVariant="#EFE2D5", onSurfaceVariant="#544337",
-    outline="#867162", outlineVariant="#DECBB9",
-    inverseSurface="#33241C", inverseOnSurface="#F7EDE3",
-    surfaceContainerLow="#FFFFFF", surfaceContainer="#F8EFE6",
-    surfaceContainerHigh="#F3E8DC", surfaceContainerHighest="#EDE0D2",
-    correct="#3F6B2B", onCorrect="#FFFFFF", correctContainer="#D2EAC0", onCorrectContainer="#14260A",
-)
-LATTE_DARK = scheme(
-    primary="#F0A868", onPrimary="#4A2708",
-    secondaryContainer="#3E2E22", onSecondaryContainer="#F1DFCD",
-    error="#FFB4A2", onError="#5C1A0F", errorContainer="#7A2E20", onErrorContainer="#FFDAD2",
-    surface="#1C1511", onSurface="#EFE3D9",
-    surfaceVariant="#4E3D31", onSurfaceVariant="#D6C3B4",
-    outline="#9E8878", outlineVariant="#4E3D31",
-    inverseSurface="#EFE3D9", inverseOnSurface="#2B1D16",
-    surfaceContainerLow="#231A15", surfaceContainer="#27201A",
-    surfaceContainerHigh="#332921", surfaceContainerHighest="#3F332A",
-    correct="#A8CF8C", onCorrect="#1E3410", correctContainer="#374E26", onCorrectContainer="#D2EAC0",
-)
-
-# Kissaten, the default. Latte's structure in a dimmer room: mid-tone cards that sit close
-# to the page, and the accent carried by *type* — section titles stay terracotta instead of
-# going ink.
+# Kissaten, the default. Terracotta on the dimmest of the pages, cream at the top and sand at
+# the foot, all in rounded Nunito. The accent is carried by type as well: section titles and
+# word-class headings are terracotta. In dark the gradient deepens to brown and the accent
+# turns apricot.
 KISSATEN_LIGHT = scheme(
     primary="#8E4419", onPrimary="#FFFFFF",
     secondaryContainer="#E3D2BE", onSecondaryContainer="#2E2013",
@@ -233,9 +206,37 @@ KISSATEN_DARK = scheme(
     correct="#A4CB88", onCorrect="#1B300F", correctContainer="#344A24", onCorrectContainer="#CDE6BE",
 )
 
-# Washi. White cards on warm paper and terracotta on nothing but the one thing you can act
-# on. The crispest of the five in light; in dark the cards collapse towards the page and it
-# loses its character, which is the argument against it.
+# Latte. Kissaten's warmth in a brighter room: a caramel accent on a page that starts at
+# white, with Lora's serif titles over Manrope. Section titles stay ink, so on the page the
+# accent is left to what can be tapped and to the word-class headings.
+LATTE_LIGHT = scheme(
+    primary="#904C1D", onPrimary="#FFFFFF",
+    secondaryContainer="#F0E0CF", onSecondaryContainer="#3A2616",
+    error="#9C3B2E", onError="#FFFFFF", errorContainer="#FBD9D0", onErrorContainer="#40120B",
+    surface="#FCF7F1", onSurface="#2B1D16",
+    surfaceVariant="#EFE2D5", onSurfaceVariant="#544337",
+    outline="#867162", outlineVariant="#DECBB9",
+    inverseSurface="#33241C", inverseOnSurface="#F7EDE3",
+    surfaceContainerLow="#FFFFFF", surfaceContainer="#F8EFE6",
+    surfaceContainerHigh="#F3E8DC", surfaceContainerHighest="#EDE0D2",
+    correct="#3F6B2B", onCorrect="#FFFFFF", correctContainer="#D2EAC0", onCorrectContainer="#14260A",
+)
+LATTE_DARK = scheme(
+    primary="#F0A868", onPrimary="#4A2708",
+    secondaryContainer="#3E2E22", onSecondaryContainer="#F1DFCD",
+    error="#FFB4A2", onError="#5C1A0F", errorContainer="#7A2E20", onErrorContainer="#FFDAD2",
+    surface="#1C1511", onSurface="#EFE3D9",
+    surfaceVariant="#4E3D31", onSurfaceVariant="#D6C3B4",
+    outline="#9E8878", outlineVariant="#4E3D31",
+    inverseSurface="#EFE3D9", inverseOnSurface="#2B1D16",
+    surfaceContainerLow="#231A15", surfaceContainer="#27201A",
+    surfaceContainerHigh="#332921", surfaceContainerHighest="#3F332A",
+    correct="#A8CF8C", onCorrect="#1E3410", correctContainer="#374E26", onCorrectContainer="#D2EAC0",
+)
+
+# Washi. White paper going grey-beige, and a brick-red accent on nothing but the header, the
+# spotlight and what can be tapped: titles and headings are both ink, in Outfit throughout.
+# The crispest of the five in light; in dark its page is the nearest to black.
 WASHI_LIGHT = scheme(
     primary="#A34422", onPrimary="#FFFFFF",
     secondaryContainer="#F2EBE2", onSecondaryContainer="#241C17",
@@ -261,8 +262,10 @@ WASHI_DARK = scheme(
     correct="#A9CE8E", onCorrect="#1D3311", correctContainer="#364C27", onCorrectContainer="#D6EDC6",
 )
 
-# Caramel. The buttons go espresso and the page goes warmer. Its question card is a cooler
-# grey-beige than the others', because the shared hero wash is of that espresso accent.
+# Caramel. An espresso accent, so the header and the spotlight are a near-black brown and the
+# accent's text on the page reads almost as ink, under Fraunces titles over Nunito Sans.
+# Section titles are ink, word-class headings accent. In dark the accent turns a pale caramel
+# and the gradient a milky taupe, the softest of the dark headers.
 CARAMEL_LIGHT = scheme(
     primary="#4A3021", onPrimary="#FFF6ED",
     secondaryContainer="#F6E3CC", onSecondaryContainer="#3A2614",
@@ -288,8 +291,8 @@ CARAMEL_DARK = scheme(
     correct="#A8CF8C", onCorrect="#1E3410", correctContainer="#374E26", onCorrectContainer="#D2EAC0",
 )
 
-# Mocha. Honey and cocoa, no serif, accent on anything stateful. The cosiest colour and the
-# weakest hierarchy: with the accent on every stateful thing, nothing stands out.
+# Mocha. Honey and cocoa: an ochre accent, Manrope throughout, and titles and headings in
+# the accent as in Kissaten. In dark the gradient turns bronze and the accent a bright gold.
 MOCHA_LIGHT = scheme(
     primary="#7E5213", onPrimary="#FFFFFF",
     secondaryContainer="#EFE2CE", onSecondaryContainer="#2E2214",
@@ -323,8 +326,8 @@ QUIET = dict(titles=False, headings=False)
 
 PALETTES = {
     # name: (light, dark, display face, body face, accent placement), in Settings order
-    "latte": (LATTE_LIGHT, LATTE_DARK, "lora", "manrope", INK_TITLES),
     "kissaten": (KISSATEN_LIGHT, KISSATEN_DARK, "nunito", "nunito", ACCENT_TITLES),
+    "latte": (LATTE_LIGHT, LATTE_DARK, "lora", "manrope", INK_TITLES),
     "washi": (WASHI_LIGHT, WASHI_DARK, "outfit", "outfit", QUIET),
     "caramel": (CARAMEL_LIGHT, CARAMEL_DARK, "fraunces", "nunitosans", INK_TITLES),
     "mocha": (MOCHA_LIGHT, MOCHA_DARK, "manrope", "manrope", ACCENT_TITLES),
@@ -360,15 +363,12 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
             ("onSecondaryContainer", "secondaryContainer"),
             ("onErrorContainer", "errorContainer"),
             ("onCorrectContainer", "correctContainer"),
-            ("onSurfaceVariant", "surfaceVariant"),
-            # Secondary text on a lesson's row, and the quiet labels on the hero cards.
-            ("onSurfaceVariant", "secondaryContainer"),
-            ("onSurfaceVariant", "primaryContainer")]
+            ("onSurfaceVariant", "surfaceVariant")]
          + [(fg, bg)
             for fg in ("onSurface", "onSurfaceVariant", "primary", "error")
             for bg in ("surface", "surfaceContainerLow", "surfaceContainer",
                        "surfaceContainerHigh", "surfaceContainerHighest")]
-         # The Conjugation Intro's marked kana: on its cards, and on the tables inside them.
+         # The marked kana of a worked example, on the page from its lightest to its darkest.
          + [(fg, bg) for fg in MARK_ROLES for bg in ("surfaceContainerLow", "surfaceContainerHighest")]
          # Everything the gradient carries: the title and tabs on the header, and the
          # spotlight's own label and lead line.
@@ -376,21 +376,17 @@ PAIRS = ([(f"on{r[0].upper() + r[1:]}", r) for r in ("primary", "error", "correc
          # And everything the layout's own surfaces carry.
          + [(fg, bg)
             for fg in ("onSurface", "onSurfaceVariant", "primary")
-            for bg in ("pageTop", "pageBottom", "tintTop", "tintBottom", "well")]
-         # The step numbers on the grammar cards, set in the outline colour so they stay quieter
-         # than the text they number.
-         + [("outline", "surfaceContainerLow")])
+            for bg in ("pageTop", "pageBottom", "tintTop", "tintBottom", "well")])
 
 # 4.5:1 is the floor for ordinary text. onSurfaceVariant is held to 7:1, because it is only
 # ever the smallest type on screen — subtitles, counts, captions — where 4.5:1 leaves too
-# little margin on a tinted card.
+# little margin on a tinted panel.
 FLOOR = 4.5
 SECONDARY_FLOOR = 7.0
 # Where the app sets that small type. surfaceVariant is not among them: only Material's own
 # components use it, never under the app's secondary text, so that pair keeps the plain floor.
 SECONDARY_ON = {"surface", "surfaceContainerLow", "surfaceContainer", "surfaceContainerHigh",
-                "surfaceContainerHighest", "secondaryContainer", "primaryContainer",
-                "pageTop", "pageBottom", "tintTop", "tintBottom", "well"}
+                "surfaceContainerHighest", "pageTop", "pageBottom", "tintTop", "tintBottom", "well"}
 
 # A bar's fill carries no text and its extent is stated by the track's hairline, so all it
 # has to be is tellable from the track.

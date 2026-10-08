@@ -460,8 +460,8 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
     val uriHandler = LocalUriHandler.current
     val groupLabel = QuizEngine.groupLabels[word.group] ?: word.group
 
-    // Tapping "Explain" adds this card below everything already on screen, so without
-    // asking for it the card opens out of sight and looks as though nothing happened.
+    // Tapping "Explain" adds this below everything already on screen, so without asking
+    // for it the explanation opens out of sight and looks as though nothing happened.
     val bringIntoView = remember { BringIntoViewRequester() }
     LaunchedEffect(Unit) { bringIntoView.bringIntoView() }
 
@@ -522,7 +522,7 @@ private fun Explanation(quiz: QuizState, options: QuizOptions, onProceed: () -> 
             Subheading("Solution")
             val display: (String) -> String = { if (options.kana) Furigana.toKana(it) else it }
             // Asked for the dictionary form, there is nothing to build: the answer is where
-            // the building starts, and it is the word this card is already about.
+            // the building starts, and it is the word this explanation is already about.
             val reverse = t.to == DrillData.DICTIONARY && t.from != DrillData.DICTIONARY
             val solution = remember(question.id) {
                 if (reverse) Solution(emptyList()) else Explanations.solution(word, t.to)

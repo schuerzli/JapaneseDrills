@@ -158,9 +158,8 @@ These look like mistakes without their reason. Check here before "fixing" one.
   that no longer exists: nothing matches it and the set opens on what is left, rather than
   the key being dropped or the document refusing to load.
 - **Review is what moves the path; a lesson is what is sprinkled in.** A new lesson is
-  recommended only while review is *solid* (`ReviewLoad.solid`): a small backlog, not an
-  empty one, since waiting for zero would stop the path handing out lessons at all. A lesson's
-  bar is its own review schedule, so the path is a read-out of review, not a checklist.
+  recommended only while review is *solid* (`ReviewLoad.solid`), which is a small backlog
+  rather than an empty one, and a lesson's bar is its own review schedule.
 - **A review question belongs to one lesson, and a lesson is graded once per session.** It
   is drawn from that lesson's own options and moves that lesson alone; grading per answer
   let a late slip undo the session (`Progress.withLessonGraded`).
@@ -182,7 +181,7 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
   one name across file and directory names, types, identifiers, assets, comments and UI
   text. Renaming one means renaming all of them in the same change, then grepping for the
   old word before calling it done. The old name survives only where it describes history,
-  such as the version-1 backup format of the old lesson path. The whole is the *learn
+  such as the skills that review scheduled before progress format 4. The whole is the *learn
   path* (`LearnPath`), its units are *lessons* (`Lesson`); a lesson's record of recent
   answers is `Progress.records` and its review schedule `Progress.lessons`. "Step" is kept
   for the two things it means apart from that — a rung of the review ladder
@@ -226,8 +225,10 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
 - **A section lists rows, not panels**: a setting, a count or a choice is a row from
   `ui/components/Rows.kt`, under an accent heading with a rule, indented
   (`ui/components/Section.kt`). No card, no line between rows — the entries of one section
-  are like things and the heading already says where the section starts. The learn path,
-  practice, grammar, settings and results all read the same way down.
+  are like things and the heading already says where the section starts. Entries of several
+  lines each, such as the answers on the results screen and a lesson's new words, are the
+  exception: a hairline keeps one from running into the next. The learn path, practice,
+  grammar, settings and results all read the same way down.
 - **How well something is holding up is drawn in one ramp**, per palette and generated
   with the rest: `StrengthBar` on the learn path's lesson bars and the results score, and
   `DrillTheme.strengthColors.at(fill)` in the practice grid's strength view. It is
@@ -244,7 +245,7 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
 - **Every scrolling page has a scrollbar**: `verticalScrollWithScrollbar()` for a column,
   `verticalScrollbar(listState)` on a lazy list. Compose draws none by default.
 - **A long lazy list is many small items, not a few big ones.** An item is composed whole in
-  the frame it scrolls in, so a card of paragraphs and tables in one item stutters a fling;
+  the frame it scrolls in, so a section of paragraphs and tables in one item stutters a fling;
   the Conjugation Intro is one item per block for that reason
   (`ui/screens/ConjugationIntroScreen.kt`).
 - **A state change must not make the screen around it jump.** An element may change size,
@@ -252,8 +253,10 @@ the schedule, is in `tools/lessons/README.md`, along with what *ready*, *solid* 
   appearing on a selected chip did exactly that: the chip widened and every chip after it
   reflowed. Where a change would move other things, show the state with colour or fill
   inside the same footprint instead.
-- **No text in a colour faded with alpha.** Alpha bypasses the contrast check; use
-  `onSurfaceVariant`, which the check holds to its strictest floor.
+- **No text in a colour faded with alpha, or in `outline`.** Alpha bypasses the contrast
+  check, and `outline` is a border colour the check holds to no text floor: the step numbers
+  were set in it and fell below one low on the page. Use `onSurfaceVariant`, which the check
+  holds to its strictest floor.
 
 ## Traps
 

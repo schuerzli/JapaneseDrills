@@ -7,8 +7,8 @@ import com.japanesedrills.quiz.CustomSet
 import com.japanesedrills.quiz.Explanations
 import com.japanesedrills.quiz.Grammar
 import com.japanesedrills.quiz.LearnPath
-import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.LessonRecord
+import com.japanesedrills.quiz.Palette
 import com.japanesedrills.quiz.PracticePreset
 import com.japanesedrills.quiz.Progress
 import com.japanesedrills.quiz.ProgressCodec
@@ -348,7 +348,7 @@ class LearnPathTest {
             assertTrue("no example word has a ${note.key} form", usable.isNotEmpty())
             for (word in usable) {
                 assertTrue(
-                    "${note.key} of ${word.key} derives no lessons, so the card would be empty",
+                    "${note.key} of ${word.key} derives no steps, so How it is built would be empty",
                     Explanations.solution(word, target).steps.isNotEmpty(),
                 )
             }
@@ -784,7 +784,7 @@ class LearnPathTest {
 
     /**
      * A lesson's bar is its own schedule, so nothing in another lesson can move it. The old
-     * ring measured every lesson so far on every word type, and later work drained it.
+     * ring measured every lesson so far on every word group, and later work drained it.
      */
     @Test
     fun aLessonsStrengthIsItsOwnSchedule() {

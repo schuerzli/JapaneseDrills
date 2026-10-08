@@ -28,7 +28,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -321,7 +320,7 @@ private fun PracticeGrid(
     val columns = QuizOptions.COLUMNS.filter { it.key in state.columns }
     if (columns.isEmpty()) {
         Text(
-            "No words to practise. Switch on a word set below.",
+            "No words to practise. Switch on a word set above.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -561,44 +560,44 @@ private fun SetRow(
     onEdit: (() -> Unit)? = null,
     onToggle: () -> Unit,
 ) {
+    // Dimmed while "All words" is on: the name steps down to the secondary text colour, which
+    // holds the text floor anywhere on the page, and the pencil to the outline colour.
     val faded = MaterialTheme.colorScheme.outline
-    Column {
-        Row(
-            Modifier
-                .toggleable(value = checked, role = Role.Switch, onValueChange = { onToggle() })
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (onEdit != null) {
-                IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Edit $label",
-                        tint = if (dimmed) faded else MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp),
-                    )
-                }
-                Spacer(Modifier.width(8.dp))
+    Row(
+        Modifier
+            .toggleable(value = checked, role = Role.Switch, onValueChange = { onToggle() })
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (onEdit != null) {
+            IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+                Icon(
+                    Icons.Default.Edit,
+                    contentDescription = "Edit $label",
+                    tint = if (dimmed) faded else MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
             }
-            Text(
-                label,
-                style = MaterialTheme.typography.bodyLarge,
-                color = if (dimmed) faded else MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.weight(1f),
-            )
-            Text(
-                count?.toString().orEmpty(),
-                style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
-                color = if (dimmed) faded else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(end = 12.dp),
-            )
-            // A switch, like every other thing on this screen that is either on or off.
-            Switch(
-                checked = checked,
-                onCheckedChange = null,
-                enabled = !dimmed,
-                modifier = Modifier.scale(0.8f),
-            )
+            Spacer(Modifier.width(8.dp))
         }
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (dimmed) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f),
+        )
+        Text(
+            count?.toString().orEmpty(),
+            style = MaterialTheme.typography.bodyMedium.copy(fontFeatureSettings = "tnum"),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(end = 12.dp),
+        )
+        // A switch, like every other thing on this screen that is either on or off.
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            enabled = !dimmed,
+            modifier = Modifier.scale(0.8f),
+        )
     }
 }
