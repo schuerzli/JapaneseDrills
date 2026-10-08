@@ -105,16 +105,14 @@ object ConjugationIntro {
             "一[いち]段[だん] (ichidan) verbs",
             listOf(
                 ConjugationIntroBlock.Line(
-                    "一[いち]段[だん] verbs are extremely simple and regular. They always change in the same " +
-                        "way, whatever the form. All 一[いち]段[だん] verbs end in either -いる or -える in " +
-                        "their dictionary forms. This means they end in any kana with an i or an e vowel, " +
-                        "followed by る: 見[み]る, 食[た]べる, 信[しん]じる, 出[で]る.",
+                    "一[いち]段[だん] verbs are extremely simple and regular. All 一[いち]段[だん] verbs end in " +
+                        "either -いる or -える in their dictionary forms. This means they end in any kana " +
+                        "with an i or an e vowel, followed by る: 見[み]る, 食[た]べる, 信[しん]じる, 出[で]る.",
                 ),
                 ConjugationIntroBlock.Line(
-                    "Be aware that all 一[いち]段[だん] verbs end in -いる or -える, but not all verbs that " +
-                        "end in -いる or -える are 一[いち]段[だん] verbs. 帰[かえ]る, 入[はい]る, 走[はし]る, " +
-                        "知[し]る, 滑[すべ]る and 参[まい]る are all 五[ご]段[だん] verbs. This is just something " +
-                        "you learn on a case-by-case basis.",
+                    "Be aware that not every verb ending in -いる or -える is a 一[いち]段[だん] verb: " +
+                        "帰[かえ]る, 入[はい]る, 走[はし]る, 知[し]る, 滑[すべ]る and 参[まい]る are all " +
+                        "五[ご]段[だん] verbs. This is just something you learn on a case-by-case basis.",
                 ),
                 ConjugationIntroBlock.Line(
                     "To change a 一[いち]段[だん] verb, all you do is drop the last kana of the dictionary " +
@@ -171,15 +169,8 @@ object ConjugationIntro {
                 ),
                 ConjugationIntroBlock.Line(
                     "We call each row in the grid by its kana in the first column: the あ-row, the " +
-                        "い-row, and so on down to the お-row. There are two things to note about this grid:",
-                ),
-                ConjugationIntroBlock.Line(
-                    "1. Every Japanese verb, in its dictionary form, ends in a kana from the う-row of " +
-                        "this grid. No exceptions.",
-                ),
-                ConjugationIntroBlock.Line(
-                    "2. There are exactly five rows in it, which is where 五[ご]段[だん], \"five rows\", " +
-                        "gets its name.",
+                        "い-row, and so on down to the お-row. Every Japanese verb, in its dictionary form, " +
+                        "ends in a kana from the う-row of this grid. No exceptions.",
                 ),
                 ConjugationIntroBlock.Sub("The row-shift system"),
                 ConjugationIntroBlock.Line(
@@ -261,7 +252,6 @@ object ConjugationIntro {
                         listOf("話[はな](す)", "話[はな]〈して〉", "話[はな]〈した〉"),
                     ),
                 ),
-                ConjugationIntroBlock.Line("That's it. You will have to memorize which fusion applies to which last kana."),
                 ConjugationIntroBlock.Line("The following forms use the fusion system:"),
                 ConjugationIntroBlock.Bullet("the て-form"),
                 ConjugationIntroBlock.Bullet("the past"),
@@ -355,11 +345,6 @@ object ConjugationIntro {
                     "The negative works the same way: ない is itself an い-adjective, so 書[か]かない → " +
                         "書[か]かなかった, exactly as 高[たか]い → 高[たか]かった.",
                 ),
-                ConjugationIntroBlock.Line(
-                    "This is why a text this short covers every form in this app's Grammar tab. A long " +
-                        "form is a short form with another short form applied to it, and the second step " +
-                        "follows rules you already know.",
-                ),
             ),
         ),
 
@@ -367,8 +352,10 @@ object ConjugationIntro {
             "What comes next",
             listOf(
                 ConjugationIntroBlock.Line(
-                    "Every form in the Grammar tab is one of these changes plus an ending. Once the row " +
-                        "shifts and the fusion table are mastered, the rest is mostly vocabulary.",
+                    "A long form is a short form with another short form applied to it, and the second " +
+                        "step follows rules you already know. That is why a text this short covers every " +
+                        "form in the Grammar tab: once the row shifts and the fusion table are mastered, " +
+                        "the rest is mostly vocabulary.",
                 ),
             ),
         ),
